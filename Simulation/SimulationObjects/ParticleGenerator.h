@@ -22,7 +22,7 @@
 #pragma once
 
 #include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/NeighborSearch/NeighborSearch3D.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <SimulationObjects/SimulationObject.h>
 //#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
 //#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>

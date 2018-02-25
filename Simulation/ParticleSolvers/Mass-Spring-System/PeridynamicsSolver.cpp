@@ -37,7 +37,7 @@ void PeridynamicsSolver::makeReady()
 
                               m_CGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
 
-                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().horizon);
+                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch>(solverParams().horizon);
                               m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
 
 

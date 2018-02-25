@@ -120,7 +120,7 @@ void Snow3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
 
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch>(solverParams().cellSize);
     if(loadMemoryState() < 0) {
         Vec_Vec3r tmpPositions;
         Vec_Vec3r tmpVelocities;

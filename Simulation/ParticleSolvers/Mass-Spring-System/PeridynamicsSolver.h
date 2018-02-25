@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <Banana/NeighborSearch/NeighborSearch3D.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
@@ -264,7 +264,7 @@ protected:
     SimulationParameters_Peridynamics3D m_SimParams;
     SimulationData_Peridynamics3D       m_SimData;
 
-    UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch> m_NSearch = nullptr;
     BlockPCGSolver<3, Real>                     m_CGSolver;
 };
 

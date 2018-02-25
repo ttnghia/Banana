@@ -43,7 +43,7 @@ void ClothSolver::makeReady()
                               m_PCGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
-                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
+                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch>(solverParams().cellSize);
                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), solverData().getNParticles(), true, true);
 
                               for(auto& obj : m_BoundaryObjects) {

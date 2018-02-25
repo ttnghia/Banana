@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <Banana/NeighborSearch/NeighborSearch3D.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <Banana/Utils/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -41,7 +41,7 @@ public:
         m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
         m_KernelRadiusInv = 1.0_f / m_KernelRadius;
 
-        m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_KernelRadius, true);
+        m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<3, Real>>(m_KernelRadius, true);
         m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_nParticles, true, true);
         m_bUseInternalData = true;
     }
@@ -62,7 +62,7 @@ private:
     Real m_KernelRadiusInv;
     Real m_DefaultSpraySize;
 
-    UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch<3, Real>> m_NSearch = nullptr;
 
     UInt         m_nParticles;
     const Vec3r* m_Particles;

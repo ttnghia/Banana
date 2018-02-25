@@ -221,7 +221,7 @@ void PIC_3DSolver::sortParticles()
 void PIC_3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<3, Real>>(solverParams().cellSize);
     if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
@@ -370,7 +370,6 @@ Int PIC_3DSolver::loadMemoryState()
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_v", gridData().v.data()));
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_w", gridData().w.data()));
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particle data
@@ -567,14 +566,12 @@ void PIC_3DSolver::advectGridVelocity(Real timestep)
                                 gridData().tmp_u(i, j, k) = getVelocityFromGridU(gu);
                             });
 
-
     Scheduler::parallel_for(gridData().v.size(),
                             [&](size_t i, size_t j, size_t k)
                             {
                                 auto gv = trace_rk2_grid(Vec3r(i + 0.5, j, k + 0.5), -timestep);
                                 gridData().tmp_v(i, j, k) = getVelocityFromGridV(gv);
                             });
-
 
     Scheduler::parallel_for(gridData().w.size(),
                             [&](size_t i, size_t j, size_t k)

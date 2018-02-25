@@ -28,7 +28,7 @@
 #include <Banana/Utils/Timer.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Data/DataPrinter.h>
-#include <Banana/NeighborSearch/NeighborSearch3D.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 
 #include <ParticleSolvers/SceneLoader.h>
 #include <ParticleTools/ParticleSerialization.h>
@@ -117,7 +117,7 @@ protected:
     UniquePtr<ParticleSerialization> m_MemoryStateIO       = nullptr;
 
     // todo: add NSearch for 2D
-    UniquePtr<NeighborSearch::NeighborSearch3D>                          m_NSearch = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch<N, RealType>>               m_NSearch = nullptr;
     Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>    m_BoundaryObjects;      // individual objects, as one can be dynamic while the others are not
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, RealType>>> m_ParticleGenerators;   // individual objects, as they can have different behaviors
     Vector<SharedPtr<SimulationObjects::ParticleRemover<N, RealType>>>   m_ParticleRemovers;     // individual objects, as they can have different behaviors
@@ -253,7 +253,6 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         m_DynamicObjectDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "BoundaryData", "frame", m_Logger);
         for(const auto& obj : m_DynamicObjects) {
             m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_transformation"), ParticleSerialization::TypeReal, (N + 1) * (N + 1));
-
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object

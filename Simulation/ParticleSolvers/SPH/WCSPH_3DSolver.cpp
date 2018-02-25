@@ -147,7 +147,7 @@ void WCSPH_3DSolver::loadSimParams(const JParams& jParams)
 void WCSPH_3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<3, Real>>(solverParams().kernelRadius);
     if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
