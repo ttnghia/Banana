@@ -204,13 +204,13 @@
     <ClInclude Include="Banana\ParallelHelpers\Scheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

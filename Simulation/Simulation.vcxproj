@@ -58,17 +58,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\vdb-win;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\vdb-win;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\single_include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\vdb-win;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\vdb-win;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\single_include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\vdb-win;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\vdb-win;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\single_include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
