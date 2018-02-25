@@ -21,15 +21,11 @@
 
 #pragma once
 
+#include <vector>
 #include <Banana/Setup.h>
 
-#include <vector>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace NeighborSearch
+namespace Banana::NeighborSearch
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define INITIAL_NUMBER_OF_INDICES 50
@@ -48,7 +44,42 @@ struct PointID
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct HashKey
+template<Int N>
+struct HashKey;
+
+template<>
+struct HashKey<2>
+{
+    HashKey() = default;
+    HashKey(int i, int j)
+    {
+        this->k[0] = i, this->k[1] = j;
+    }
+
+    HashKey& operator =(HashKey const& other)
+    {
+        k[0] = other.k[0];
+        k[1] = other.k[1];
+        return *this;
+    }
+
+    bool operator ==(HashKey const& other) const
+    {
+        return (k[0] == other.k[0] &&
+                k[1] == other.k[1]);
+    }
+
+    bool operator !=(HashKey const& other) const
+    {
+        return !(*this == other);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int k[2];
+};
+
+template<>
+struct HashKey<3>
 {
     HashKey() = default;
     HashKey(int i, int j, int k)
@@ -117,9 +148,23 @@ struct HashEntry
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SpatialHasher
+template<Int N>
+struct SpatialHasher;
+
+template<>
+struct SpatialHasher<2>
 {
-    std::size_t operator ()(HashKey const& k) const
+    std::size_t operator ()(HashKey<2> const& k) const
+    {
+        return (73856093 * k.k[0] ^
+                19349663 * k.k[1]);
+    }
+};
+
+template<>
+struct SpatialHasher<3>
+{
+    std::size_t operator ()(HashKey<3> const& k) const
     {
         return (73856093 * k.k[0] ^
                 19349663 * k.k[1] ^
@@ -131,7 +176,7 @@ struct SpatialHasher
 class ActivationTable
 {
 private:
-    std::vector<std::vector<unsigned char> > m_table;
+    std::vector<std::vector<unsigned char>> m_table;
 
 public:
 
@@ -214,7 +259,4 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace NeighborSearch
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::NeighborSearch

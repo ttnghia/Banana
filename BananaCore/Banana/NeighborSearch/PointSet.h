@@ -27,18 +27,17 @@
 #include <iostream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+namespace Banana::NeighborSearch
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace NeighborSearch
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class NeighborSearch3D;
+template<Int N, class RealType>
+class NeighborSearch;
 
 /**
  * @class PointSet.
  * Represents a set of points in three-dimensional space.
  */
+template<Int N, class RealType>
 class PointSet
 {
 public:
@@ -142,53 +141,68 @@ public:
     }
 
 private:
-    friend NeighborSearch3D;
-    PointSet(const Real* x, std::size_t n, bool dynamic)
+    friend NeighborSearch<N, RealType>;
+    PointSet(const RealType* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
-        , m_keys(n,
-            {
-                std::numeric_limits<int>::lowest(),
-                std::numeric_limits<int>::lowest(),
-                std::numeric_limits<int>::lowest()
-            })
     {
-        m_old_keys = m_keys;
+        resize_keys(n);
     }
 
-    void resize(const Real* x, std::size_t n)
+    void resize(const RealType* x, std::size_t n)
     {
         m_x = x;
         m_n = n;
-        m_keys.resize(n, {
-                    std::numeric_limits<int>::lowest(),
-                    std::numeric_limits<int>::lowest(),
-                    std::numeric_limits<int>::lowest()
-                });
-        m_old_keys.resize(n, {
-                    std::numeric_limits<int>::lowest(),
-                    std::numeric_limits<int>::lowest(),
-                    std::numeric_limits<int>::lowest()
-                });
+        resize_keys(n);
         m_neighbors.resize(n);
     }
 
-    const Real* point(UInt i) const { return &m_x[3 * i]; }
+    void resize_keys(std::size_t n)
+    {
+        if constexpr(N == 2)
+        {
+            m_keys.resize(n, {
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest()
+                });
+            m_old_keys.resize(n, {
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest()
+                });
+        } else {
+            m_keys.resize(n, {
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest()
+                });
+            m_old_keys.resize(n, {
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest()
+                });
+        }
+    }
+
+    const RealType* point(UInt i) const
+    {
+        if constexpr(N == 2) {
+            return &m_x[2 * i];
+        } else {
+            return &m_x[3 * i];
+        }
+    }
 
 private:
 
-    const Real* m_x;
-    std::size_t m_n;
-    bool        m_dynamic;
+    const RealType* m_x;
+    std::size_t     m_n;
+    bool            m_dynamic;
 
-    Vector<HashKey> m_keys, m_old_keys;
-    Vec_UInt        m_sort_table;
+    Vector<HashKey<N>> m_keys, m_old_keys;
+    Vec_UInt           m_sort_table;
 
-    Vector<Vector<Vec_UInt> >                  m_neighbors;
-    Vector<Vector<ParallelObjects::SpinLock> > m_locks;
+    Vector<Vector<Vec_UInt>>                  m_neighbors;
+    Vector<Vector<ParallelObjects::SpinLock>> m_locks;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace NeighborSearch
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::NeighborSearch

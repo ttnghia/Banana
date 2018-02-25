@@ -150,9 +150,6 @@
     <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\NeighborSearch3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Grid\Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -169,9 +166,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Geometry\OBJLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\NeighborSearch3D.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Geometry\GeometryObjects.h">
@@ -210,6 +204,15 @@
     <ClInclude Include="Banana\ParallelHelpers\Scheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.Test.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\KdTree.cpp">
@@ -219,9 +222,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\CompileMessage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp">

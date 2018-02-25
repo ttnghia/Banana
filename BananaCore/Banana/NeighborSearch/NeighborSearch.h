@@ -21,10 +21,6 @@
 
 #pragma once
 
-#include <Banana/NeighborSearch/DataStructures.h>
-#include <Banana/NeighborSearch/PointSet.h>
-#include <Banana/NeighborSearch/Morton/Morton.h>
-
 #include <unordered_map>
 #include <exception>
 #include <iostream>
@@ -34,11 +30,13 @@
 #include <limits>
 #include <algorithm>
 
+#include <Banana/NeighborSearch/DataStructures.h>
+#include <Banana/NeighborSearch/PointSet.h>
+#include <Banana/NeighborSearch/Morton/Morton.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace NeighborSearch
+namespace Banana::NeighborSearch
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define INITIAL_NUMBER_OF_NEIGHBORS 50
@@ -55,7 +53,8 @@ struct NeighborhoodSearchNotInitialized : public std::exception
  * radius r should be generated.
  */
 
-class NeighborSearch3D
+template<Int N, class RealType>
+class NeighborSearch
 {
 public:
 
@@ -65,25 +64,24 @@ public:
      * @param r Search radius. If two points are closer to each other than a distance r they are considered neighbors.
      * @param erase_empty_cells If true. Empty cells in spatial hashing grid are erased if the points move.
      */
-    NeighborSearch3D(Real r, bool erase_empty_cells = false);
+    NeighborSearch(RealType r, bool erase_empty_cells = false);
 
     /**
      * Destructor.
      */
-    virtual ~NeighborSearch3D() = default;
+    virtual ~NeighborSearch() = default;
 
     /**
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    const PointSet& point_set(UInt i) const { return m_point_sets[i]; }
+    const PointSet<N, RealType>& point_set(UInt i) const { return m_point_sets[i]; }
 
     /**
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    PointSet& point_set(UInt i) { return m_point_sets[i]; }
-
+    PointSet<N, RealType>& point_set(UInt i) { return m_point_sets[i]; }
 
     /**
      * Returns the number of point sets contained in the search.
@@ -93,12 +91,12 @@ public:
     /**
      * Get method to access the list of point sets.
      */
-    Vector<PointSet> const& point_sets() const { return m_point_sets; }
+    Vector<PointSet<N, RealType>> const& point_sets() const { return m_point_sets; }
 
     /**
      * Get method to access the list of point sets.
      */
-    Vector<PointSet>& point_sets() { return m_point_sets; }
+    Vector<PointSet<N, RealType>>& point_sets() { return m_point_sets; }
 
     /**
      * Increases the size of a point set under the assumption that the existing points remain at
@@ -108,7 +106,7 @@ public:
      * real values.
      * @param n Number of points.
      */
-    void resize_point_set(UInt i, Real const* x, std::size_t n);
+    void resize_point_set(UInt i, RealType const* x, std::size_t n);
 
     /**
      * Creates and adds a new set of points.
@@ -121,7 +119,7 @@ public:
      * @returns Returns unique identifier in form of an index assigned to the newly created point
      * set.
      */
-    UInt add_point_set(Real const* x, std::size_t n, bool is_dynamic = true,
+    UInt add_point_set(RealType const* x, std::size_t n, bool is_dynamic = true,
                        bool search_neighbors = true, bool find_neighbors = true)
     {
         m_point_sets.push_back({ x, n, is_dynamic });
@@ -156,7 +154,6 @@ public:
      */
     void update_activation_table();
 
-
     /*
      * Generates a sort table according to a space-filling Z curve. Any array-based per point
      * information can then be reordered using the function sort_field of the PointSet class.
@@ -170,16 +167,16 @@ public:
     /*
      * @returns Returns the radius in which point neighbors are searched.
      */
-    Real radius() const { return std::sqrt(m_r2); }
+    RealType radius() const { return std::sqrt(m_r2); }
 
     /**
      * Sets the radius in which point point neighbors are searched.
      * @param r Search radius.
      */
-    void set_radius(Real r)
+    void set_radius(RealType r)
     {
         m_r2            = r * r;
-        m_inv_cell_size = static_cast<Real>(1.0 / r);
+        m_inv_cell_size = static_cast<RealType>(1.0 / r);
         m_initialized   = false;
     }
 
@@ -224,28 +221,34 @@ private:
     void init();
     void update_hash_table(Vec_UInt& to_delete);
     void erase_empty_entries(Vec_UInt const& to_delete);
+    ////////////////////////////////////////////////////////////////////////////////
     void query();
     void query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
 
-    HashKey       cell_index(Real const* x) const;
-    uint_fast64_t z_value(HashKey const& key);     // Determines Morten value according to z-curve
+    void query2D();
+    void query3D();
+    void query2D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
+    void query3D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
+
+    HashKey<N>    cell_index(RealType const* x) const;
+    uint_fast64_t z_value(HashKey<N> const& key);     // Determines Morten value according to z-curve
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vector<PointSet> m_point_sets;
-    ActivationTable  m_activation_table, m_old_activation_table;
+    Vector<PointSet<N, RealType>> m_point_sets;
+    ActivationTable               m_activation_table, m_old_activation_table;
 
-    Real m_inv_cell_size;
-    Real m_r2;
+    RealType m_inv_cell_size;
+    RealType m_r2;
 
-    std::unordered_map<HashKey, UInt, SpatialHasher> m_map;
-    Vector<HashEntry>                                m_entries;
+    std::unordered_map<HashKey<N>, UInt, SpatialHasher<N>> m_map;
+    Vector<HashEntry>                                      m_entries;
 
     bool m_erase_empty_cells;
     bool m_initialized;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace NeighborSearch
+#include <Banana/NeighborSearch/NeighborSearch.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::NeighborSearch
