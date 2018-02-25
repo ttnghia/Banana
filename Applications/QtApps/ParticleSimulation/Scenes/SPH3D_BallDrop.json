@@ -2,7 +2,7 @@
     "GlobalParameters":
     {
         "Solver" : "WCSPH_3DSolver",
-        "FrameDuration" : 0.03333333333,
+        "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
         "FinalFrame" : 300,
         "SaveFrameData" : false,
@@ -25,13 +25,14 @@
             "BoxMax" : [ 1, 1, 1]
         },
         "CorrectPosition" : true,
-        "NormalizeDensity" : false,
+        "NormalizeDensity" : true,
         "DensityByBDParticle" : false,
-        "RepulsiveForceStiffness" : 50,
-        "ParticleRadius" : 0.015,
-        "ParticleMassScale" : 0.8,
+        "RepulsiveForceStiffness" : 150,
+        "ParticleRadius" : 0.005,
+        "ParticleMassScale" : 0.9,
         "CFLFactor" : 0.4,
-        "ViscosityFluid" : 5e-2
+        "ViscosityFluid" : 5e-2,
+        "BoundaryRestitution" : 0.1
     },
     "AdditionalBoundaryObjectsXXX":
     [
