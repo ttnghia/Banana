@@ -41,19 +41,8 @@ template<Int N, class RealType>
 class PointSet
 {
 public:
-
-    /**
-     * Copy constructor.
-     */
-    PointSet(PointSet const& other)
-    {
-        *this = other;
-    }
-
-    /**
-     * Assignment operator.
-     */
-    PointSet& operator =(PointSet const& other)
+    PointSet(PointSet const& other) { *this = other; }
+    PointSet& operator=(PointSet const& other)
     {
         m_x       = other.m_x;
         m_n       = other.m_n;
@@ -73,7 +62,7 @@ public:
      * @param i Point index.
      * @returns Number of points neighboring point i in point set point_set.
      */
-    std::size_t n_neighbors(UInt point_set, UInt i) const
+    UInt n_neighbors(UInt point_set, UInt i) const
     {
         return static_cast<UInt>(m_neighbors[point_set][i].size());
     }
@@ -104,7 +93,7 @@ public:
     /**
      * Returns the number of points contained in the point set.
      */
-    std::size_t n_points() const { return m_n; }
+    UInt n_points() const { return m_n; }
 
     /*
      * Returns true, if the point locations may be updated by the user.
@@ -142,13 +131,13 @@ public:
 
 private:
     friend NeighborSearch<N, RealType>;
-    PointSet(const RealType* x, std::size_t n, bool dynamic)
+    PointSet(const RealType* x, UInt n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
     {
         resize_keys(n);
     }
 
-    void resize(const RealType* x, std::size_t n)
+    void resize(const RealType* x, UInt n)
     {
         m_x = x;
         m_n = n;
@@ -156,7 +145,7 @@ private:
         m_neighbors.resize(n);
     }
 
-    void resize_keys(std::size_t n)
+    void resize_keys(UInt n)
     {
         if constexpr(N == 2)
         {
@@ -194,7 +183,7 @@ private:
 private:
 
     const RealType* m_x;
-    std::size_t     m_n;
+    UInt            m_n;
     bool            m_dynamic;
 
     Vector<HashKey<N>> m_keys, m_old_keys;

@@ -39,12 +39,12 @@
 namespace Banana::NeighborSearch
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define INITIAL_NUMBER_OF_NEIGHBORS 50
+#define INITIAL_NUMBER_OF_NEIGHBORS 64
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct NeighborhoodSearchNotInitialized : public std::exception
 {
-    virtual char const* what() const noexcept override { return "Neighborhood search was not initialized."; }
+    virtual const char* what() const noexcept override { return "Neighborhood search was not initialized."; }
 };
 
 /**
@@ -86,7 +86,7 @@ public:
     /**
      * Returns the number of point sets contained in the search.
      */
-    std::size_t n_point_sets()               const { return m_point_sets.size(); }
+    UInt n_point_sets() const { return static_cast<UInt>(m_point_sets.size()); }
 
     /**
      * Get method to access the list of point sets.
@@ -106,7 +106,7 @@ public:
      * real values.
      * @param n Number of points.
      */
-    void resize_point_set(UInt i, RealType const* x, std::size_t n);
+    void resize_point_set(UInt i, const RealType* x, UInt n);
 
     /**
      * Creates and adds a new set of points.
@@ -119,7 +119,7 @@ public:
      * @returns Returns unique identifier in form of an index assigned to the newly created point
      * set.
      */
-    UInt add_point_set(RealType const* x, std::size_t n, bool is_dynamic = true,
+    UInt add_point_set(const RealType* x, UInt n, bool is_dynamic = true,
                        bool search_neighbors = true, bool find_neighbors = true)
     {
         m_point_sets.push_back({ x, n, is_dynamic });
@@ -167,7 +167,7 @@ public:
     /*
      * @returns Returns the radius in which point neighbors are searched.
      */
-    RealType radius() const { return std::sqrt(m_r2); }
+    RealType radius() const { return RealType(std::sqrt(m_r2)); }
 
     /**
      * Sets the radius in which point point neighbors are searched.
@@ -220,7 +220,7 @@ public:
 private:
     void init();
     void update_hash_table(Vec_UInt& to_delete);
-    void erase_empty_entries(Vec_UInt const& to_delete);
+    void erase_empty_entries(const Vec_UInt& to_delete);
     ////////////////////////////////////////////////////////////////////////////////
     void query();
     void query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
@@ -230,8 +230,8 @@ private:
     void query2D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
     void query3D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
 
-    HashKey<N>    cell_index(RealType const* x) const;
-    uint_fast64_t z_value(HashKey<N> const& key);     // Determines Morten value according to z-curve
+    HashKey<N>    cell_index(const RealType* x) const;
+    uint_fast64_t z_value(const HashKey<N>& key);     // Determines Morten value according to z-curve
 
     ////////////////////////////////////////////////////////////////////////////////
     Vector<PointSet<N, RealType>> m_point_sets;

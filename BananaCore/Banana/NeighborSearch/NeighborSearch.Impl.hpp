@@ -29,18 +29,14 @@ NeighborSearch<N, RealType>::NeighborSearch(RealType r, bool erase_empty_cells) 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Computes triple index to a world space position x.
+// Computes index to a world space position x.
 template<Int N, class RealType>
 HashKey<N> NeighborSearch<N, RealType >::cell_index(const RealType* x) const
 {
     HashKey<N> ret;
     for(Int i = 0; i < N; ++i) {
         RealType tmp = x[i] - RealType(SHIFT_POSITION);
-        if(tmp >= 0.0) {
-            ret.k[i] = static_cast<int>(m_inv_cell_size * tmp);
-        } else {
-            ret.k[i] = static_cast<int>(m_inv_cell_size * tmp) - 1;
-        }
+        ret.k[i] = tmp >= 0 ? static_cast<int>(m_inv_cell_size * tmp) : static_cast<int>(m_inv_cell_size * tmp) - 1;
     }
     return ret;
 }
@@ -48,7 +44,7 @@ HashKey<N> NeighborSearch<N, RealType >::cell_index(const RealType* x) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines Morten value according to z-curve.
 template<Int N, class RealType>
-uint_fast64_t NeighborSearch<N, RealType >::z_value(HashKey<N> const& key)
+uint_fast64_t NeighborSearch<N, RealType >::z_value(const HashKey<N>& key)
 {
     if constexpr(N == 2) {
         return morton2D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
@@ -69,13 +65,13 @@ void NeighborSearch<N, RealType >::z_sort()
         d.m_sort_table.resize(d.n_points());
         std::iota(d.m_sort_table.begin(), d.m_sort_table.end(), 0);
 
-        std::sort(d.m_sort_table.begin(), d.m_sort_table.end(),
-                  [&](UInt a, UInt b)
-                  {
-                      return z_value(cell_index(d.point(a))) < z_value(cell_index(d.point(b)));
-                  });
+        //std::sort(d.m_sort_table.begin(), d.m_sort_table.end(),
+        tbb::parallel_sort(d.m_sort_table.begin(), d.m_sort_table.end(),
+                           [&](UInt a, UInt b)
+                           {
+                               return z_value(cell_index(d.point(a))) < z_value(cell_index(d.point(b)));
+                           });
     }
-
     m_initialized = false;
 }
 
@@ -89,15 +85,15 @@ void NeighborSearch<N, RealType >::init()
 
     // Determine existing entries.
     Vector<HashKey<N>> temp_keys;
-    for(UInt j = 0; j < m_point_sets.size(); ++j) {
+    for(UInt j = 0, jend = static_cast<UInt>(m_point_sets.size()); j < jend; ++j) {
         PointSet<N, RealType>& d = m_point_sets[j];
         d.m_locks.resize(m_point_sets.size());
         for(auto& l : d.m_locks) {
             l.resize(d.n_points());
         }
 
-        for(UInt i = 0; i < d.n_points(); i++) {
-            HashKey<N> const& key = cell_index(d.point(i));
+        for(UInt i = 0; i < d.n_points(); ++i) {
+            const HashKey<N>& key = cell_index(d.point(i));
             d.m_keys[i] = d.m_old_keys[i] = key;
 
             auto it = m_map.find(key);
@@ -127,10 +123,10 @@ void NeighborSearch<N, RealType >::init()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::resize_point_set(UInt index, const RealType* x, std::size_t size)
+void NeighborSearch<N, RealType >::resize_point_set(UInt index, const RealType* x, UInt size)
 {
     PointSet<N, RealType>& point_set = m_point_sets[index];
-    std::size_t            old_size  = point_set.n_points();
+    UInt                   old_size  = point_set.n_points();
 
     if(!m_initialized) {
         throw NeighborhoodSearchNotInitialized {};
@@ -143,8 +139,8 @@ void NeighborSearch<N, RealType >::resize_point_set(UInt index, const RealType* 
             to_delete.reserve(m_entries.size());
         }
 
-        for(UInt i = static_cast<UInt>(size); i < old_size; i++) {
-            HashKey<N> const& key = point_set.m_keys[i];
+        for(UInt i = size; i < old_size; ++i) {
+            const HashKey<N>& key = point_set.m_keys[i];
             auto              it  = m_map.find(key);
             m_entries[it->second].erase({ index, i });
 
@@ -166,7 +162,7 @@ void NeighborSearch<N, RealType >::resize_point_set(UInt index, const RealType* 
     point_set.resize(x, size);
 
     // Insert new entries. (Grow)
-    for(UInt i = static_cast<UInt>(old_size); i < point_set.n_points(); i++) {
+    for(UInt i = old_size; i < point_set.n_points(); ++i) {
         HashKey<N> key = cell_index(point_set.point(i));
         point_set.m_keys[i] = point_set.m_old_keys[i] = key;
         auto it = m_map.find(key);
@@ -228,7 +224,7 @@ void NeighborSearch<N, RealType >::update_point_sets()
         m_initialized = true;
     }
 
-    // Precompute cell indices.
+    // Pre-compute cell indices.
     for(PointSet<N, RealType>& d : m_point_sets) {
         if(!d.is_dynamic()) {
             continue;
@@ -261,7 +257,7 @@ void NeighborSearch<N, RealType >::find_neighbors(UInt point_set_id, UInt point_
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::erase_empty_entries(Vec_UInt const& to_delete)
+void NeighborSearch<N, RealType >::erase_empty_entries(const Vec_UInt& to_delete)
 {
     if(to_delete.empty()) {
         return;
@@ -284,22 +280,22 @@ void NeighborSearch<N, RealType >::erase_empty_entries(Vec_UInt const& to_delete
         }
     }
 
-    Vector<std::pair<HashKey<N> const, UInt>*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey<N> const, UInt>& kvp) { return &kvp; });
+    Vector<std::pair<const HashKey<N>, UInt>*> kvps(m_map.size());
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<const HashKey<N>, UInt>& kvp) { return &kvp; });
 
-    Scheduler::parallel_for<size_t>(0, kvps.size(),
-                                    [&](size_t it)
-                                    {
-                                        std::pair<HashKey<N> const, UInt>* kvp_ = kvps[it];
-                                        auto& kvp                               = *kvp_;
+    Scheduler::parallel_for(kvps.size(),
+                            [&](size_t it)
+                            {
+                                std::pair<const HashKey<N>, UInt>* kvp_ = kvps[it];
+                                auto& kvp                               = *kvp_;
 
-                                        for(UInt i = 0; i < to_delete.size(); ++i) {
-                                            if(kvp.second >= to_delete[i]) {
-                                                kvp.second -= static_cast<UInt>(to_delete.size() - i);
-                                                break;
-                                            }
-                                        }
-                                    });
+                                for(UInt i = 0; i < to_delete.size(); ++i) {
+                                    if(kvp.second >= to_delete[i]) {
+                                        kvp.second -= static_cast<UInt>(to_delete.size() - i);
+                                        break;
+                                    }
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -314,7 +310,7 @@ void NeighborSearch<N, RealType >::update_hash_table(Vec_UInt& to_delete)
                 continue;
             }
 
-            HashKey<N> const& key = d.m_keys[i];
+            const HashKey<N>& key = d.m_keys[i];
             auto              it  = m_map.find(key);
             if(it == m_map.end()) {
                 m_entries.push_back({{ j, i } });
@@ -362,10 +358,10 @@ void NeighborSearch<N, RealType >::query()
 template<Int N, class RealType>
 void NeighborSearch<N, RealType >::query2D()
 {
-    for(UInt i = 0; i < m_point_sets.size(); i++) {
+    for(UInt i = 0, iend = static_cast<UInt>(m_point_sets.size()); i < iend; ++i) {
         PointSet<N, RealType>& d = m_point_sets[i];
         d.m_neighbors.resize(m_point_sets.size());
-        for(UInt j = 0; j < d.m_neighbors.size(); j++) {
+        for(UInt j = 0, jend = static_cast<UInt>(d.m_neighbors.size()); j < jend; ++j) {
             auto& n = d.m_neighbors[j];
             n.resize(d.n_points());
             for(auto& n_ : n) {
@@ -377,28 +373,114 @@ void NeighborSearch<N, RealType >::query2D()
         }
     }
 
-    Vector<std::pair<HashKey<N> const, UInt> const*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey<N> const, UInt> const& kvp) { return &kvp; });
+    Vector<const std::pair<const HashKey<N>, UInt>*> kvps(m_map.size());
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<const HashKey<N>, UInt> const& kvp) { return &kvp; });
 
     // Perform neighborhood search.
-    Scheduler::parallel_for<size_t>(0, kvps.size(),
-                                    [&](size_t it)
-                                    {
-                                        std::pair<HashKey<N> const, UInt> const* kvp_ = kvps[it];
-                                        auto const& kvp                               = *kvp_;
-                                        HashEntry const& entry                        = m_entries[kvp.second];
-                                        HashKey<N> const& key                         = kvp.first;
+    Scheduler::parallel_for(kvps.size(),
+                            [&](size_t it)
+                            {
+                                std::pair<const HashKey<N>, UInt> const* kvp_ = kvps[it];
+                                auto const& kvp                               = *kvp_;
+                                HashEntry const& entry                        = m_entries[kvp.second];
+                                const HashKey<N>& key                         = kvp.first;
 
-                                        if(entry.n_searching_points == 0u) {
-                                            return;
+                                if(entry.n_searching_points == 0u) {
+                                    return;
+                                }
+
+                                for(UInt a = 0; a < entry.n_indices(); ++a) {
+                                    const PointID& va         = entry.indices[a];
+                                    PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
+                                    for(UInt b = a + 1; b < entry.n_indices(); ++b) {
+                                        const PointID& vb         = entry.indices[b];
+                                        PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+
+                                        if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
+                                           !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
+                                            continue;
                                         }
 
-                                        for(UInt a = 0; a < entry.n_indices(); ++a) {
-                                            PointID const& va         = entry.indices[a];
-                                            PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
-                                            for(UInt b = a + 1; b < entry.n_indices(); ++b) {
-                                                PointID const& vb         = entry.indices[b];
+                                        const RealType* xa = da.point(va.point_id);
+                                        const RealType* xb = db.point(vb.point_id);
+
+                                        auto tmp0 = xa[0] - xb[0];
+                                        auto tmp1 = xa[1] - xb[1];
+                                        auto l2   = tmp0 * tmp0 + tmp1 * tmp1;
+
+                                        if(l2 < m_r2) {
+                                            if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
+                                                da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
+                                            }
+                                            if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
+                                                db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+    Vector<std::array<bool, 9>>       visited(m_entries.size(), { false });
+    Vector<ParallelObjects::SpinLock> entry_locks(m_entries.size());
+
+    Scheduler::parallel_for(kvps.size(),
+                            [&](size_t it)
+                            {
+                                std::pair<const HashKey<N>, UInt> const* kvp_ = kvps[it];
+                                auto const& kvp                               = *kvp_;
+                                HashEntry const& entry                        = m_entries[kvp.second];
+
+                                if(entry.n_searching_points == 0u) {
+                                    return;
+                                }
+                                const HashKey<N>& key = kvp.first;
+
+                                for(int dk = -1; dk <= 1; dk++) {
+                                    for(int dl = -1; dl <= 1; dl++) {
+                                        int l_ind = 3 * (dk + 1) + (dl + 1);
+                                        if(l_ind == 4) {
+                                            continue;
+                                        }
+                                        entry_locks[kvp.second].lock();
+                                        if(visited[kvp.second][l_ind]) {
+                                            entry_locks[kvp.second].unlock();
+                                            continue;
+                                        }
+                                        entry_locks[kvp.second].unlock();
+
+                                        auto it = m_map.find({ key.k[0] + dk, key.k[1] + dl });
+                                        if(it == m_map.end()) {
+                                            continue;
+                                        }
+
+                                        std::array<UInt, 2> entry_ids {{ kvp.second, it->second } };
+                                        if(entry_ids[0] > entry_ids[1]) {
+                                            std::swap(entry_ids[0], entry_ids[1]);
+                                        }
+                                        entry_locks[entry_ids[0]].lock();
+                                        entry_locks[entry_ids[1]].lock();
+
+                                        if(visited[kvp.second][l_ind]) {
+                                            entry_locks[entry_ids[1]].unlock();
+                                            entry_locks[entry_ids[0]].unlock();
+                                            continue;
+                                        }
+
+                                        visited[kvp.second][l_ind]     = true;
+                                        visited[it->second][8 - l_ind] = true;
+
+                                        entry_locks[entry_ids[1]].unlock();
+                                        entry_locks[entry_ids[0]].unlock();
+
+                                        for(UInt i = 0; i < entry.n_indices(); ++i) {
+                                            const PointID& va       = entry.indices[i];
+                                            HashEntry const& entry_ = m_entries[it->second];
+                                            UInt n_ind              = entry_.n_indices();
+                                            for(UInt j = 0; j < n_ind; ++j) {
+                                                const PointID& vb         = entry_.indices[j];
                                                 PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+
+                                                PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
 
                                                 if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
                                                    !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
@@ -407,125 +489,39 @@ void NeighborSearch<N, RealType >::query2D()
 
                                                 const RealType* xa = da.point(va.point_id);
                                                 const RealType* xb = db.point(vb.point_id);
-                                                RealType tmp       = xa[0] - xb[0];
-                                                RealType l2        = tmp * tmp;
-                                                tmp = xa[1] - xb[1];
-                                                l2 += tmp * tmp;
-                                                tmp = xa[2] - xb[2];
-                                                l2 += tmp * tmp;
+
+                                                auto tmp0 = xa[0] - xb[0];
+                                                auto tmp1 = xa[1] - xb[1];
+                                                auto l2   = tmp0 * tmp0 + tmp1 * tmp1;
 
                                                 if(l2 < m_r2) {
                                                     if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
+                                                        da.m_locks[vb.point_set_id][va.point_id].lock();
                                                         da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
+                                                        da.m_locks[vb.point_set_id][va.point_id].unlock();
                                                     }
                                                     if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
+                                                        db.m_locks[va.point_set_id][vb.point_id].lock();
                                                         db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
+                                                        db.m_locks[va.point_set_id][vb.point_id].unlock();
                                                     }
                                                 }
                                             }
                                         }
-                                    });
-
-    Vector<std::array<bool, 9>>       visited(m_entries.size(), { false });
-    Vector<ParallelObjects::SpinLock> entry_locks(m_entries.size());
-
-    Scheduler::parallel_for<size_t>(0, kvps.size(),
-                                    [&](size_t it)
-                                    {
-                                        std::pair<HashKey<N> const, UInt> const* kvp_ = kvps[it];
-                                        auto const& kvp                               = *kvp_;
-                                        HashEntry const& entry                        = m_entries[kvp.second];
-
-                                        if(entry.n_searching_points == 0u) {
-                                            return;
-                                        }
-                                        HashKey<N> const& key = kvp.first;
-
-                                        for(int dk = -1; dk <= 1; dk++) {
-                                            for(int dl = -1; dl <= 1; dl++) {
-                                                int l_ind = 3 * (dk + 1) + (dl + 1);
-                                                if(l_ind == 4) {
-                                                    continue;
-                                                }
-                                                entry_locks[kvp.second].lock();
-                                                if(visited[kvp.second][l_ind]) {
-                                                    entry_locks[kvp.second].unlock();
-                                                    continue;
-                                                }
-                                                entry_locks[kvp.second].unlock();
-
-                                                auto it = m_map.find({ key.k[0] + dk, key.k[1] + dl });
-                                                if(it == m_map.end()) {
-                                                    continue;
-                                                }
-
-                                                std::array<UInt, 2> entry_ids {{ kvp.second, it->second } };
-                                                if(entry_ids[0] > entry_ids[1]) {
-                                                    std::swap(entry_ids[0], entry_ids[1]);
-                                                }
-                                                entry_locks[entry_ids[0]].lock();
-                                                entry_locks[entry_ids[1]].lock();
-
-                                                if(visited[kvp.second][l_ind]) {
-                                                    entry_locks[entry_ids[1]].unlock();
-                                                    entry_locks[entry_ids[0]].unlock();
-                                                    continue;
-                                                }
-
-                                                visited[kvp.second][l_ind]     = true;
-                                                visited[it->second][8 - l_ind] = true;
-
-                                                entry_locks[entry_ids[1]].unlock();
-                                                entry_locks[entry_ids[0]].unlock();
-
-                                                for(UInt i = 0; i < entry.n_indices(); ++i) {
-                                                    PointID const& va       = entry.indices[i];
-                                                    HashEntry const& entry_ = m_entries[it->second];
-                                                    UInt n_ind              = entry_.n_indices();
-                                                    for(UInt j = 0; j < n_ind; ++j) {
-                                                        PointID const& vb         = entry_.indices[j];
-                                                        PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
-
-                                                        PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
-
-                                                        if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
-                                                           !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
-                                                            continue;
-                                                        }
-
-                                                        const RealType* xa = da.point(va.point_id);
-                                                        const RealType* xb = db.point(vb.point_id);
-                                                        RealType tmp       = xa[0] - xb[0];
-                                                        RealType l2        = tmp * tmp;
-                                                        tmp = xa[1] - xb[1];
-                                                        l2 += tmp * tmp;
-                                                        if(l2 < m_r2) {
-                                                            if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
-                                                                da.m_locks[vb.point_set_id][va.point_id].lock();
-                                                                da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
-                                                                da.m_locks[vb.point_set_id][va.point_id].unlock();
-                                                            }
-                                                            if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
-                                                                db.m_locks[va.point_set_id][vb.point_id].lock();
-                                                                db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
-                                                                db.m_locks[va.point_set_id][vb.point_id].unlock();
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    }
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void NeighborSearch<N, RealType >::query3D()
 {
-    for(UInt i = 0; i < m_point_sets.size(); i++) {
+    for(UInt i = 0, iend = static_cast<UInt>(m_point_sets.size()); i < iend; ++i) {
         PointSet<N, RealType>& d = m_point_sets[i];
         d.m_neighbors.resize(m_point_sets.size());
-        for(UInt j = 0; j < d.m_neighbors.size(); j++) {
+
+        for(UInt j = 0, jend = static_cast<UInt>(d.m_neighbors.size()); j < jend; ++j) {
             auto& n = d.m_neighbors[j];
             n.resize(d.n_points());
             for(auto& n_ : n) {
@@ -537,149 +533,148 @@ void NeighborSearch<N, RealType >::query3D()
         }
     }
 
-    Vector<std::pair<HashKey<N> const, UInt> const*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey<N> const, UInt> const& kvp) { return &kvp; });
+    Vector<const std::pair<const HashKey<N>, UInt>*> kvps(m_map.size());
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<const HashKey<N>, UInt> const& kvp) { return &kvp; });
 
     // Perform neighborhood search.
-    Scheduler::parallel_for<size_t>(0, kvps.size(),
-                                    [&](size_t it)
-                                    {
-                                        std::pair<HashKey<N> const, UInt> const* kvp_ = kvps[it];
-                                        auto const& kvp                               = *kvp_;
-                                        HashEntry const& entry                        = m_entries[kvp.second];
-                                        HashKey<N> const& key                         = kvp.first;
+    Scheduler::parallel_for(kvps.size(),
+                            [&](size_t it)
+                            {
+                                std::pair<const HashKey<N>, UInt> const* kvp_ = kvps[it];
+                                auto const& kvp                               = *kvp_;
+                                HashEntry const& entry                        = m_entries[kvp.second];
+                                const HashKey<N>& key                         = kvp.first;
 
-                                        if(entry.n_searching_points == 0u) {
-                                            return;
+                                if(entry.n_searching_points == 0u) {
+                                    return;
+                                }
+
+                                for(UInt a = 0; a < entry.n_indices(); ++a) {
+                                    const PointID& va         = entry.indices[a];
+                                    PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
+                                    for(UInt b = a + 1; b < entry.n_indices(); ++b) {
+                                        const PointID& vb         = entry.indices[b];
+                                        PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+
+                                        if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
+                                           !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
+                                            continue;
                                         }
 
-                                        for(UInt a = 0; a < entry.n_indices(); ++a) {
-                                            PointID const& va         = entry.indices[a];
-                                            PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
-                                            for(UInt b = a + 1; b < entry.n_indices(); ++b) {
-                                                PointID const& vb         = entry.indices[b];
-                                                PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+                                        const RealType* xa = da.point(va.point_id);
+                                        const RealType* xb = db.point(vb.point_id);
 
-                                                if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
-                                                   !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
-                                                    continue;
-                                                }
+                                        auto tmp0 = xa[0] - xb[0];
+                                        auto tmp1 = xa[1] - xb[1];
+                                        auto tmp2 = xa[2] - xb[2];
+                                        auto l2   = tmp0 * tmp0 + tmp1 * tmp1 + tmp2 * tmp2;
 
-                                                const RealType* xa = da.point(va.point_id);
-                                                const RealType* xb = db.point(vb.point_id);
-                                                RealType tmp       = xa[0] - xb[0];
-                                                RealType l2        = tmp * tmp;
-                                                tmp = xa[1] - xb[1];
-                                                l2 += tmp * tmp;
-                                                tmp = xa[2] - xb[2];
-                                                l2 += tmp * tmp;
-
-                                                if(l2 < m_r2) {
-                                                    if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
-                                                        da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
-                                                    }
-                                                    if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
-                                                        db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
-                                                    }
-                                                }
+                                        if(l2 < m_r2) {
+                                            if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
+                                                da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
+                                            }
+                                            if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
+                                                db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
                                             }
                                         }
-                                    });
+                                    }
+                                }
+                            });
 
     Vector<std::array<bool, 27>>      visited(m_entries.size(), { false });
     Vector<ParallelObjects::SpinLock> entry_locks(m_entries.size());
 
-    Scheduler::parallel_for<size_t>(0, kvps.size(),
-                                    [&](size_t it)
-                                    {
-                                        std::pair<HashKey<N> const, UInt> const* kvp_ = kvps[it];
-                                        auto const& kvp                               = *kvp_;
-                                        HashEntry const& entry                        = m_entries[kvp.second];
+    Scheduler::parallel_for(kvps.size(),
+                            [&](size_t it)
+                            {
+                                std::pair<const HashKey<N>, UInt> const* kvp_ = kvps[it];
+                                auto const& kvp                               = *kvp_;
+                                HashEntry const& entry                        = m_entries[kvp.second];
 
-                                        if(entry.n_searching_points == 0u) {
-                                            return;
-                                        }
-                                        HashKey<N> const& key = kvp.first;
+                                if(entry.n_searching_points == 0u) {
+                                    return;
+                                }
+                                const HashKey<N>& key = kvp.first;
 
-                                        for(int dj = -1; dj <= 1; dj++) {
-                                            for(int dk = -1; dk <= 1; dk++) {
-                                                for(int dl = -1; dl <= 1; dl++) {
-                                                    int l_ind = 9 * (dj + 1) + 3 * (dk + 1) + (dl + 1);
-                                                    if(l_ind == 13) {
+                                for(int dj = -1; dj <= 1; dj++) {
+                                    for(int dk = -1; dk <= 1; dk++) {
+                                        for(int dl = -1; dl <= 1; dl++) {
+                                            int l_ind = 9 * (dj + 1) + 3 * (dk + 1) + (dl + 1);
+                                            if(l_ind == 13) {
+                                                continue;
+                                            }
+                                            entry_locks[kvp.second].lock();
+                                            if(visited[kvp.second][l_ind]) {
+                                                entry_locks[kvp.second].unlock();
+                                                continue;
+                                            }
+                                            entry_locks[kvp.second].unlock();
+
+                                            auto it = m_map.find({ key.k[0] + dj, key.k[1] + dk, key.k[2] + dl });
+                                            if(it == m_map.end()) {
+                                                continue;
+                                            }
+
+                                            std::array<UInt, 2> entry_ids {{ kvp.second, it->second } };
+                                            if(entry_ids[0] > entry_ids[1]) {
+                                                std::swap(entry_ids[0], entry_ids[1]);
+                                            }
+                                            entry_locks[entry_ids[0]].lock();
+                                            entry_locks[entry_ids[1]].lock();
+
+                                            if(visited[kvp.second][l_ind]) {
+                                                entry_locks[entry_ids[1]].unlock();
+                                                entry_locks[entry_ids[0]].unlock();
+                                                continue;
+                                            }
+
+                                            visited[kvp.second][l_ind]      = true;
+                                            visited[it->second][26 - l_ind] = true;
+
+                                            entry_locks[entry_ids[1]].unlock();
+                                            entry_locks[entry_ids[0]].unlock();
+
+                                            for(UInt i = 0; i < entry.n_indices(); ++i) {
+                                                const PointID& va       = entry.indices[i];
+                                                HashEntry const& entry_ = m_entries[it->second];
+                                                UInt n_ind              = entry_.n_indices();
+                                                for(UInt j = 0; j < n_ind; ++j) {
+                                                    const PointID& vb         = entry_.indices[j];
+                                                    PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+
+                                                    PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
+
+                                                    if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
+                                                       !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
                                                         continue;
                                                     }
-                                                    entry_locks[kvp.second].lock();
-                                                    if(visited[kvp.second][l_ind]) {
-                                                        entry_locks[kvp.second].unlock();
-                                                        continue;
-                                                    }
-                                                    entry_locks[kvp.second].unlock();
 
-                                                    auto it = m_map.find({ key.k[0] + dj, key.k[1] + dk, key.k[2] + dl });
-                                                    if(it == m_map.end()) {
-                                                        continue;
-                                                    }
+                                                    const RealType* xa = da.point(va.point_id);
+                                                    const RealType* xb = db.point(vb.point_id);
 
-                                                    std::array<UInt, 2> entry_ids {{ kvp.second, it->second } };
-                                                    if(entry_ids[0] > entry_ids[1]) {
-                                                        std::swap(entry_ids[0], entry_ids[1]);
-                                                    }
-                                                    entry_locks[entry_ids[0]].lock();
-                                                    entry_locks[entry_ids[1]].lock();
+                                                    auto tmp0 = xa[0] - xb[0];
+                                                    auto tmp1 = xa[1] - xb[1];
+                                                    auto tmp2 = xa[2] - xb[2];
+                                                    auto l2   = tmp0 * tmp0 + tmp1 * tmp1 + tmp2 * tmp2;
 
-                                                    if(visited[kvp.second][l_ind]) {
-                                                        entry_locks[entry_ids[1]].unlock();
-                                                        entry_locks[entry_ids[0]].unlock();
-                                                        continue;
-                                                    }
-
-                                                    visited[kvp.second][l_ind]      = true;
-                                                    visited[it->second][26 - l_ind] = true;
-
-                                                    entry_locks[entry_ids[1]].unlock();
-                                                    entry_locks[entry_ids[0]].unlock();
-
-                                                    for(UInt i = 0; i < entry.n_indices(); ++i) {
-                                                        PointID const& va       = entry.indices[i];
-                                                        HashEntry const& entry_ = m_entries[it->second];
-                                                        UInt n_ind              = entry_.n_indices();
-                                                        for(UInt j = 0; j < n_ind; ++j) {
-                                                            PointID const& vb         = entry_.indices[j];
-                                                            PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
-
-                                                            PointSet<N, RealType>& da = m_point_sets[va.point_set_id];
-
-                                                            if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
-                                                               !m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
-                                                                continue;
-                                                            }
-
-                                                            const RealType* xa = da.point(va.point_id);
-                                                            const RealType* xb = db.point(vb.point_id);
-                                                            RealType tmp       = xa[0] - xb[0];
-                                                            RealType l2        = tmp * tmp;
-                                                            tmp = xa[1] - xb[1];
-                                                            l2 += tmp * tmp;
-                                                            tmp = xa[2] - xb[2];
-                                                            l2 += tmp * tmp;
-                                                            if(l2 < m_r2) {
-                                                                if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
-                                                                    da.m_locks[vb.point_set_id][va.point_id].lock();
-                                                                    da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
-                                                                    da.m_locks[vb.point_set_id][va.point_id].unlock();
-                                                                }
-                                                                if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
-                                                                    db.m_locks[va.point_set_id][vb.point_id].lock();
-                                                                    db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
-                                                                    db.m_locks[va.point_set_id][vb.point_id].unlock();
-                                                                }
-                                                            }
+                                                    if(l2 < m_r2) {
+                                                        if(m_activation_table.is_active(va.point_set_id, vb.point_set_id)) {
+                                                            da.m_locks[vb.point_set_id][va.point_id].lock();
+                                                            da.m_neighbors[vb.point_set_id][va.point_id].push_back(vb.point_id);
+                                                            da.m_locks[vb.point_set_id][va.point_id].unlock();
+                                                        }
+                                                        if(m_activation_table.is_active(vb.point_set_id, va.point_set_id)) {
+                                                            db.m_locks[va.point_set_id][vb.point_id].lock();
+                                                            db.m_neighbors[va.point_set_id][vb.point_id].push_back(va.point_id);
+                                                            db.m_locks[va.point_set_id][vb.point_id].unlock();
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    });
+                                    }
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -711,23 +706,23 @@ void NeighborSearch<N, RealType >::query2D(UInt point_set_id, UInt point_index, 
     HashKey<N>      hash_key = cell_index(xa);
 
     auto                               it    = m_map.find(hash_key);
-    std::pair<HashKey<N> const, UInt>& kvp   = *it;
+    std::pair<const HashKey<N>, UInt>& kvp   = *it;
     HashEntry const&                   entry = m_entries[kvp.second];
 
     // Perform neighborhood search.
     for(UInt b = 0; b < entry.n_indices(); ++b) {
-        PointID const& vb = entry.indices[b];
+        const PointID& vb = entry.indices[b];
         if((point_set_id != vb.point_set_id) || (point_index != vb.point_id)) {
             if(!m_activation_table.is_active(point_set_id, vb.point_set_id)) {
                 continue;
             }
 
-            PointSet<N, RealType>& db  = m_point_sets[vb.point_set_id];
-            const RealType*        xb  = db.point(vb.point_id);
-            RealType               tmp = xa[0] - xb[0];
-            RealType               l2  = tmp * tmp;
-            tmp = xa[1] - xb[1];
-            l2 += tmp * tmp;
+            PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+            const RealType*        xb = db.point(vb.point_id);
+
+            auto tmp0 = xa[0] - xb[0];
+            auto tmp1 = xa[1] - xb[1];
+            auto l2   = tmp0 * tmp0 + tmp1 * tmp1;
 
             if(l2 < m_r2) {
                 neighbors[vb.point_set_id].push_back(vb.point_id);
@@ -755,17 +750,17 @@ void NeighborSearch<N, RealType >::query2D(UInt point_set_id, UInt point_index, 
             HashEntry const& entry_ = m_entries[it->second];
             UInt             n_ind  = entry_.n_indices();
             for(UInt j = 0; j < n_ind; ++j) {
-                PointID const& vb = entry_.indices[j];
+                const PointID& vb = entry_.indices[j];
                 if(!m_activation_table.is_active(point_set_id, vb.point_set_id)) {
                     continue;
                 }
                 PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
 
-                const RealType* xb  = db.point(vb.point_id);
-                RealType        tmp = xa[0] - xb[0];
-                RealType        l2  = tmp * tmp;
-                tmp = xa[1] - xb[1];
-                l2 += tmp * tmp;
+                const RealType* xb = db.point(vb.point_id);
+
+                auto tmp0 = xa[0] - xb[0];
+                auto tmp1 = xa[1] - xb[1];
+                auto l2   = tmp0 * tmp0 + tmp1 * tmp1;
 
                 if(l2 < m_r2) {
                     neighbors[vb.point_set_id].push_back(vb.point_id);
@@ -793,25 +788,24 @@ void NeighborSearch<N, RealType >::query3D(UInt point_set_id, UInt point_index, 
     HashKey<N>      hash_key = cell_index(xa);
 
     auto                               it    = m_map.find(hash_key);
-    std::pair<HashKey<N> const, UInt>& kvp   = *it;
+    std::pair<const HashKey<N>, UInt>& kvp   = *it;
     HashEntry const&                   entry = m_entries[kvp.second];
 
     // Perform neighborhood search.
     for(UInt b = 0; b < entry.n_indices(); ++b) {
-        PointID const& vb = entry.indices[b];
+        const PointID& vb = entry.indices[b];
         if((point_set_id != vb.point_set_id) || (point_index != vb.point_id)) {
             if(!m_activation_table.is_active(point_set_id, vb.point_set_id)) {
                 continue;
             }
 
-            PointSet<N, RealType>& db  = m_point_sets[vb.point_set_id];
-            const RealType*        xb  = db.point(vb.point_id);
-            RealType               tmp = xa[0] - xb[0];
-            RealType               l2  = tmp * tmp;
-            tmp = xa[1] - xb[1];
-            l2 += tmp * tmp;
-            tmp = xa[2] - xb[2];
-            l2 += tmp * tmp;
+            PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
+            const RealType*        xb = db.point(vb.point_id);
+
+            auto tmp0 = xa[0] - xb[0];
+            auto tmp1 = xa[1] - xb[1];
+            auto tmp2 = xa[2] - xb[2];
+            auto l2   = tmp0 * tmp0 + tmp1 * tmp1 + tmp2 * tmp2;
 
             if(l2 < m_r2) {
                 neighbors[vb.point_set_id].push_back(vb.point_id);
@@ -840,19 +834,18 @@ void NeighborSearch<N, RealType >::query3D(UInt point_set_id, UInt point_index, 
                 HashEntry const& entry_ = m_entries[it->second];
                 UInt             n_ind  = entry_.n_indices();
                 for(UInt j = 0; j < n_ind; ++j) {
-                    PointID const& vb = entry_.indices[j];
+                    const PointID& vb = entry_.indices[j];
                     if(!m_activation_table.is_active(point_set_id, vb.point_set_id)) {
                         continue;
                     }
                     PointSet<N, RealType>& db = m_point_sets[vb.point_set_id];
 
-                    const RealType* xb  = db.point(vb.point_id);
-                    RealType        tmp = xa[0] - xb[0];
-                    RealType        l2  = tmp * tmp;
-                    tmp = xa[1] - xb[1];
-                    l2 += tmp * tmp;
-                    tmp = xa[2] - xb[2];
-                    l2 += tmp * tmp;
+                    const RealType* xb = db.point(vb.point_id);
+
+                    auto tmp0 = xa[0] - xb[0];
+                    auto tmp1 = xa[1] - xb[1];
+                    auto tmp2 = xa[2] - xb[2];
+                    auto l2   = tmp0 * tmp0 + tmp1 * tmp1 + tmp2 * tmp2;
 
                     if(l2 < m_r2) {
                         neighbors[vb.point_set_id].push_back(vb.point_id);

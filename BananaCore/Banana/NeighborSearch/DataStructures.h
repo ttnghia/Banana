@@ -28,19 +28,16 @@
 namespace Banana::NeighborSearch
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define INITIAL_NUMBER_OF_INDICES 50
-#define SHIFT_POSITION            12345.6789
+#define INITIAL_NUMBER_OF_INDICES 64
+#define SHIFT_POSITION            1.2345
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PointID
 {
     UInt point_set_id;
     UInt point_id;
-
-    bool operator ==(PointID const& other) const
-    {
-        return point_id == other.point_id && point_set_id == other.point_set_id;
-    }
+    ////////////////////////////////////////////////////////////////////////////////
+    bool operator==(PointID const& other) const { return point_id == other.point_id && point_set_id == other.point_set_id; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,85 +47,38 @@ struct HashKey;
 template<>
 struct HashKey<2>
 {
-    HashKey() = default;
-    HashKey(int i, int j)
-    {
-        this->k[0] = i, this->k[1] = j;
-    }
-
-    HashKey& operator =(HashKey const& other)
-    {
-        k[0] = other.k[0];
-        k[1] = other.k[1];
-        return *this;
-    }
-
-    bool operator ==(HashKey const& other) const
-    {
-        return (k[0] == other.k[0] &&
-                k[1] == other.k[1]);
-    }
-
-    bool operator !=(HashKey const& other) const
-    {
-        return !(*this == other);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
     int k[2];
+    ////////////////////////////////////////////////////////////////////////////////
+    HashKey() = default;
+    HashKey(int i, int j) { this->k[0] = i, this->k[1] = j; }
+    HashKey& operator=(HashKey const& other) { k[0] = other.k[0]; k[1] = other.k[1]; return *this; }
+    bool     operator==(HashKey const& other) const { return (k[0] == other.k[0] && k[1] == other.k[1]); }
+    bool     operator!=(HashKey const& other) const { return !(*this == other); }
 };
 
 template<>
 struct HashKey<3>
 {
-    HashKey() = default;
-    HashKey(int i, int j, int k)
-    {
-        this->k[0] = i, this->k[1] = j, this->k[2] = k;
-    }
-
-    HashKey& operator =(HashKey const& other)
-    {
-        k[0] = other.k[0];
-        k[1] = other.k[1];
-        k[2] = other.k[2];
-        return *this;
-    }
-
-    bool operator ==(HashKey const& other) const
-    {
-        return (k[0] == other.k[0] &&
-                k[1] == other.k[1] &&
-                k[2] == other.k[2]);
-    }
-
-    bool operator !=(HashKey const& other) const
-    {
-        return !(*this == other);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
     int k[3];
+    ////////////////////////////////////////////////////////////////////////////////
+    HashKey() = default;
+    HashKey(int i, int j, int k) { this->k[0] = i, this->k[1] = j, this->k[2] = k; }
+    HashKey& operator=(HashKey const& other) { k[0] = other.k[0]; k[1] = other.k[1]; k[2] = other.k[2]; return *this; }
+    bool     operator==(HashKey const& other) const { return (k[0] == other.k[0] && k[1] == other.k[1] && k[2] == other.k[2]); }
+    bool     operator!=(HashKey const& other) const { return !(*this == other); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct HashEntry
 {
-    HashEntry() : n_searching_points(0u)
-    {
-        indices.reserve(INITIAL_NUMBER_OF_INDICES);
-    }
+    std::vector<PointID> indices;
+    UInt                 n_searching_points;
+    ////////////////////////////////////////////////////////////////////////////////
+    HashEntry() : n_searching_points(0u) { indices.reserve(INITIAL_NUMBER_OF_INDICES); }
+    HashEntry(PointID const& id) : n_searching_points(0u) { add(id); }
 
-    HashEntry(PointID const& id) : n_searching_points(0u)
-    {
-        add(id);
-    }
-
-    void add(PointID const& id)
-    {
-        indices.push_back(id);
-    }
-
+    UInt n_indices() const { return static_cast<UInt>(indices.size()); }
+    void add(PointID const& id) { indices.push_back(id); }
     void erase(PointID const& id)
     {
         auto it = std::find(indices.begin(), indices.end(), id);
@@ -136,15 +86,6 @@ struct HashEntry
             indices.erase(it);
         }
     }
-
-    UInt n_indices() const
-    {
-        return static_cast<UInt>(indices.size());
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    std::vector<PointID> indices;
-    UInt                 n_searching_points;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -154,7 +95,7 @@ struct SpatialHasher;
 template<>
 struct SpatialHasher<2>
 {
-    std::size_t operator ()(HashKey<2> const& k) const
+    std::size_t operator()(HashKey<2> const& k) const
     {
         return (73856093 * k.k[0] ^
                 19349663 * k.k[1]);
@@ -164,7 +105,7 @@ struct SpatialHasher<2>
 template<>
 struct SpatialHasher<3>
 {
-    std::size_t operator ()(HashKey<3> const& k) const
+    std::size_t operator()(HashKey<3> const& k) const
     {
         return (73856093 * k.k[0] ^
                 19349663 * k.k[1] ^
@@ -180,15 +121,8 @@ private:
 
 public:
 
-    bool operator ==(ActivationTable const& other) const
-    {
-        return m_table == other.m_table;
-    }
-
-    bool operator !=(ActivationTable const& other) const
-    {
-        return !(m_table == other.m_table);
-    }
+    bool operator==(ActivationTable const& other) const { return m_table == other.m_table; }
+    bool operator!=(ActivationTable const& other) const { return !(m_table == other.m_table); }
 
     /** Add point set. If search_neighbors is true, neighbors in all other point sets are searched.
      * If find_neighbors is true, the new point set is activated in the neighborhood search of all other point sets.
