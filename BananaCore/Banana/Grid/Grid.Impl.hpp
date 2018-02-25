@@ -160,8 +160,8 @@ void Grid<N, RealType >::collectIndexToCells(const Vector<VecX<N, RealType>>& po
     Scheduler::parallel_for(static_cast<UInt>(positions.size()),
                             [&](UInt p)
                             {
-                                auto cellPos         = getCellIdx<RealType>(positions[p]);
-                                VecX<N, Int> cellIdx = NumberHelpers::convert<Int>(cellPos);
+                                auto cellPos = getCellIdx<RealType>(positions[p]);
+                                auto cellIdx = NumberHelpers::convert<Int>(cellPos);
                                 particleCellPos[p] = cellPos;
 
                                 m_Lock(cellIdx).lock();
@@ -190,14 +190,13 @@ void Grid<N, RealType >::getNeighborList(const Vec2<RealType>& ppos, Vec_UInt& n
 
     for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
         for(Int li = -cellSpan; li <= cellSpan; ++li) {
-            const Vec2i neighborCellIdx = cellIdx + Vec2i(li, lj);
+            const auto neighborCellIdx = cellIdx + Vec2i(li, lj);
 
             if(!isValidCell(neighborCellIdx)) {
                 continue;
             }
 
-            const Vec_UInt& cell = m_ParticleIdxInCell(neighborCellIdx);
-
+            const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
             if(cell.size() > 0) {
                 neighborList.insert(neighborList.end(), cell.begin(), cell.end());
             }
@@ -216,14 +215,13 @@ void Grid<N, RealType >::getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& n
     for(Int lk = -cellSpan; lk <= cellSpan; ++lk) {
         for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
             for(Int li = -cellSpan; li <= cellSpan; ++li) {
-                const Vec3i neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
+                const auto neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
 
                 if(!isValidCell(neighborCellIdx)) {
                     continue;
                 }
 
-                const Vec_UInt& cell = m_ParticleIdxInCell(neighborCellIdx);
-
+                const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
                 if(cell.size() > 0) {
                     neighborList.insert(neighborList.end(), cell.begin(), cell.end());
                 }
@@ -249,18 +247,16 @@ void Grid<N, RealType >::getNeighborList(const Vec_Vec2<RealType>& positions, co
 
     for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
         for(Int li = -cellSpan; li <= cellSpan; ++li) {
-            const Vec2i neighborCellIdx = cellIdx + Vec2i(li, lj);
+            const auto neighborCellIdx = cellIdx + Vec2i(li, lj);
 
             if(!isValidCell(neighborCellIdx)) {
                 continue;
             }
 
-            const Vec_UInt& cell = m_ParticleIdxInCell(neighborCellIdx);
-
+            const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
             if(cell.size() > 0) {
-                for(unsigned Int q : cell) {
-                    RealType pqd2 = glm::length2(ppos - positions[q]);
-
+                for(UInt q : cell) {
+                    const auto pqd2 = glm::length2(ppos - positions[q]);
                     if(pqd2 > 0 && pqd2 < d2) {
                         neighborList.push_back(q);
                     }
@@ -281,18 +277,17 @@ void Grid<N, RealType >::getNeighborList(const Vec_Vec3<RealType>& positions, co
     for(Int lk = -cellSpan; lk <= cellSpan; ++lk) {
         for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
             for(Int li = -cellSpan; li <= cellSpan; ++li) {
-                const Vec3i neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
+                const auto neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
 
                 if(!isValidCell(neighborCellIdx)) {
                     continue;
                 }
 
-                const Vec_UInt& cell = m_ParticleIdxInCell(neighborCellIdx);
+                const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
 
                 if(cell.size() > 0) {
                     for(UInt q : cell) {
-                        RealType pqd2 = glm::length2(ppos - positions[q]);
-
+                        const auto pqd2 = glm::length2(ppos - positions[q]);
                         if(pqd2 > 0 && pqd2 < d2) {
                             neighborList.push_back(q);
                         }
@@ -327,12 +322,10 @@ const Vec_UInt& Grid<N, RealType >::getParticleIdxSortedByCell()
     if(m_ParticleIdxSortedByCell.size() > 0) {
         return m_ParticleIdxSortedByCell;
     }
-
     for(auto& cell : m_ParticleIdxInCell.data()) {
         if(cell.size() > 0) {
             m_ParticleIdxSortedByCell.insert(m_ParticleIdxSortedByCell.end(), cell.begin(), cell.end());
         }
     }
-
     return m_ParticleIdxSortedByCell;
 }

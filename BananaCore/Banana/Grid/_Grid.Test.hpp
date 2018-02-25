@@ -43,6 +43,7 @@ TEST_CASE("Test Grid3D", "[Grid3D]")
     REQUIRE(grid.getNearestValidCellIdx(Vec3i(1, 2, -1)) == Vec3i(1, 2, 0));
     REQUIRE(grid.getValidCellIdx<int>(Vec3f(0.15, 0.25, -0.5)) == Vec3i(1, 2, 0));
 
+    //auto x = grid.getCellLinearizedIndex(1, 2);
     //////////////////////////////////////////////////////////////////////////////////
     Vec_Vec3r particles;
     Vec_UInt  neighborList;

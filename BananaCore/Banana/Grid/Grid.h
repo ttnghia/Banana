@@ -222,17 +222,17 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     bool isInsideGrid(const VecX<N, RealType>& ppos) const noexcept;
 
-    void constrainToGrid(Vector<VecX<N, RealType> >& positions);
-    void collectIndexToCells(const Vector<VecX<N, RealType> >& positions);
-    void collectIndexToCells(const Vector<VecX<N, RealType> >& positions, Vector<VecX<N, Int> >& particleCellIdx);
-    void collectIndexToCells(const Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& particleCellPos);
-    void getNeighborList(const Vector<VecX<N, RealType> >& positions, Vec_VecUInt& neighborList, Int cellSpan = 1);
+    void constrainToGrid(Vector<VecX<N, RealType>>& positions);
+    void collectIndexToCells(const Vector<VecX<N, RealType>>& positions);
+    void collectIndexToCells(const Vector<VecX<N, RealType>>& positions, Vector<VecX<N, Int>>& particleCellIdx);
+    void collectIndexToCells(const Vector<VecX<N, RealType>>& positions, Vector<VecX<N, RealType>>& particleCellPos);
+    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, Int cellSpan = 1);
     void getNeighborList(const Vec2<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
     void getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
-    void getNeighborList(const Vector<VecX<N, RealType> >& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan = 1);
+    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan = 1);
     void getNeighborList(const Vec_Vec2<RealType>& positions, const Vec2<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
     void getNeighborList(const Vec_Vec3<RealType>& positions, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
-    void sortData(Vector<VecX<N, RealType> >& data);
+    void sortData(Vector<VecX<N, RealType>>& data);
 
     const Vec_UInt& getParticleIdxSortedByCell();
 
