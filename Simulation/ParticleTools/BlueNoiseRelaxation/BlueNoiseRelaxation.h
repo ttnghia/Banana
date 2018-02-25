@@ -33,12 +33,14 @@
 namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+using namespace Banana::ParticleSolvers;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class BlueNoiseRelaxation
 {
 public:
-    BlueNoiseRelaxation(const ParticleSolvers::GlobalParameters& globalParams,
-                        const SharedPtr<ParticleSolvers::SimulationParameters<N, RealType>>& solverParams,
+    BlueNoiseRelaxation(const GlobalParameters& globalParams,
+                        const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
                         const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
         m_GlobalParams(globalParams), m_SolverParams(solverParams), m_BoundaryObjects(boundaryObjs)
     {
@@ -54,10 +56,7 @@ public:
        @return bool value indicating whether the relaxation has converged or not
      */
     bool     relaxPositions(Vec_VecX<N, RealType>& positions, RealType threshold = RealType(1.8), UInt maxIters = 1000u);
-    RealType getMinDistanceRatio() const
-    {
-        return m_MinDistanceRatio;
-    }
+    RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
 
 protected:
     virtual void iterate(Vec_VecX<N, RealType>& positions, UInt iter) = 0;
@@ -72,8 +71,8 @@ protected:
     void computeMinNeighborDistanceSqr(const Vec_Vec3<RealType>& positions);
     void computeMinDistanceRatio(Vec_VecX<N, RealType>& positions);
     ////////////////////////////////////////////////////////////////////////////////
-    const ParticleSolvers::GlobalParameters&                                 m_GlobalParams;
-    const SharedPtr<ParticleSolvers::SimulationParameters<N, RealType>>&     m_SolverParams;
+    const GlobalParameters&                                                  m_GlobalParams;
+    const SharedPtr<SimulationParameters<N, RealType>>&                      m_SolverParams;
     const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
     ////////////////////////////////////////////////////////////////////////////////
     Vector<RealType> m_MinNeighborDistanceSqr;
@@ -204,4 +203,3 @@ void BlueNoiseRelaxation<N, RealType >::computeMinDistanceRatio(Vec_VecX<N, Real
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana::ParticleTools
-

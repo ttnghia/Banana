@@ -25,7 +25,7 @@
 #include <Banana/NeighborSearch/NeighborSearch.h>
 #include <SimulationObjects/SimulationObject.h>
 //#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
-//#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
+#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
 
 #include <unordered_set>
 

@@ -153,10 +153,10 @@ void SPHBasedRelaxation<N, RealType >::computeDensity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool SPHBasedRelaxation<N, RealType >::normalizeDensity()
+void SPHBasedRelaxation<N, RealType >::normalizeDensity()
 {
     if(!solverParams().bNormalizeDensity) {
-        return false;
+        return;
     }
     ////////////////////////////////////////////////////////////////////////////////
     const auto& fluidPointSet = m_NSearch->point_set(0);
@@ -195,8 +195,6 @@ bool SPHBasedRelaxation<N, RealType >::normalizeDensity()
                                                                                      solverParams().densityMax);
                             });
     particleData().densities = particleData().tmp_densities;
-    ////////////////////////////////////////////////////////////////////////////////
-    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

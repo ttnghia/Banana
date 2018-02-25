@@ -27,18 +27,20 @@
 #include <Banana/Grid/Grid.h>
 #include <ParticleTools/BlueNoiseRelaxation/BlueNoiseRelaxation.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
-#include <ParticleSolvers/SPH/WCSPH_3DSolver.h>
+#include <ParticleSolvers/SPH/SPHSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+using namespace Banana::ParticleSolvers;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class SPHBasedRelaxation : public BlueNoiseRelaxation<N, RealType>
 {
 public:
-    SPHBasedRelaxation(const ParticleSolvers::GlobalParameters& globalParams,
-                       const SharedPtr<ParticleSolvers::SimulationParameters<N, RealType>>& solverParams,
+    SPHBasedRelaxation(const GlobalParameters& globalParams,
+                       const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
         BlueNoiseRelaxation(globalParams, solverParams, boundaryObjs)
     {
@@ -51,8 +53,8 @@ protected:
     virtual void iterate(Vec_VecX<N, RealType>& positions, UInt iter) override;
     virtual void allocateMemory(Vec_VecX<N, RealType>& positions) override { particleData().allocateMemory(positions); }
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<ParticleSolvers::WCSPH_3DParameters>(m_SolverParams); return *ptrParams; }
-    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<ParticleSolvers::WCSPH_3DParameters>(m_SolverParams); return *ptrParams; }
+    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
+    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     moveParticles(RealType timestep);
@@ -95,10 +97,11 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     struct Kernels
     {
-        ParticleSolvers::PrecomputedKernel<ParticleSolvers::CubicKernel, 10000> kernelCubicSpline;
-        ParticleSolvers::PrecomputedKernel<ParticleSolvers::SpikyKernel, 10000> kernelSpiky;
-        ParticleSolvers::PrecomputedKernel<ParticleSolvers::SpikyKernel, 10000> nearKernelSpiky;
+        PrecomputedKernel<N, RealType, CubicKernel> kernelCubicSpline;
+        PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
+        PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
     } m_Kernels;
+
     auto&       kernels() { return m_Kernels; }
     const auto& kernels() const { return m_Kernels; }
 };
