@@ -129,7 +129,7 @@ using WCSPH_3DParameters = WCSPH_Parameters<3, Real>;
 template<Int N, class RealType>
 struct WCSPH_Data : public SimulationData<N, RealType>
 {
-    struct ParticleData : public ParticleSimulationData3D
+    struct ParticleData : public ParticleSimulationData<N, RealType>
     {
         Vector<RealType>                  densities;
         Vector<RealType>                  tmp_densities;
@@ -140,7 +140,7 @@ struct WCSPH_Data : public SimulationData<N, RealType>
         Vec_MatXxX<N, RealType>           aniKernelMatrices;
         Vec_VecX<N, RealType>             BDParticles;
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void reserve(UInt nParticles)
+        virtual void reserve(UInt nParticles) override
         {
             positions.reserve(nParticles);
             velocities.reserve(nParticles);
@@ -154,7 +154,7 @@ struct WCSPH_Data : public SimulationData<N, RealType>
             aniKernelMatrices.reserve(nParticles);
         }
 
-        virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities)
+        virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) override
         {
             __BNN_REQUIRE(newPositions.size() == newVelocities.size());
             positions.insert(positions.end(), newPositions.begin(), newPositions.end());
@@ -172,7 +172,7 @@ struct WCSPH_Data : public SimulationData<N, RealType>
             ++nObjects;                                 // increase the number of objects
         }
 
-        virtual UInt removeParticles(const Vec_Int8& removeMarker)
+        virtual UInt removeParticles(const Vec_Int8& removeMarker) override
         {
             if(!STLHelpers::contain(removeMarker, Int8(1))) {
                 return 0u;
