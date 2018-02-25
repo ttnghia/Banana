@@ -59,10 +59,11 @@ DISTFILES += \
     Scenes/_Testing.json \
     Scenes/FLIP3D_2DamBreak.json \
     Scenes/FLIP3D_BallDrop.json \
-    Scenes/SPH3D_BallDrop.json \
     Scenes/FLIP3D_RotationalBoxBoundary.json \
     Scenes/MPM2D_2Spheres.json \
     Scenes/MPM3D_2Spheres.json \
     Scenes/MPM3D_2Toruses.json \
     Scenes/MPM3D_TorusBallDrop.json \
+    Scenes/SPH2D_BallDrop.json \
+    Scenes/SPH3D_BallDrop.json \
     config.ini
