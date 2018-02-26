@@ -86,10 +86,9 @@ void WCSPH_3DSolver::advanceFrame()
 void WCSPH_3DSolver::sortParticles()
 {
     assert(m_NSearch != nullptr);
-    if(globalParams().finishedFrame % globalParams().sortFrequency != 0) {
+    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
     }
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Sort data by particle positions: ",
                           [&]()
@@ -390,7 +389,7 @@ void WCSPH_3DSolver::advanceVelocity(Real timestep)
     logger().printRunTimeIndent("Compute density: ",              [&]() { computeDensity(); });
     logger().printRunTimeIndentIf("Normalize density: ",        [&]() { return normalizeDensity(); });
     logger().printRunTimeIndent("Collect neighbor densities: ", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces: ",             [&]() { computeForces(); });
+    logger().printRunTimeIndent("Compute accelerations: ",             [&]() { computeAccelerations(); });
     logger().printRunTimeIndent("Update velocity: ",            [&]() { updateVelocity(timestep); });
     logger().printRunTimeIndent("Compute viscosity: ",          [&]() { computeViscosity(); });
 }
@@ -523,7 +522,7 @@ void WCSPH_3DSolver::collectNeighborDensities()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DSolver::computeForces()
+void WCSPH_3DSolver::computeAccelerations()
 {
     auto particlePressure = [&](auto density)
                             {
@@ -554,9 +553,10 @@ void WCSPH_3DSolver::computeForces()
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                Vec3r pforce(0);
+                                Vec3r pAcc(0);
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
+                                    particleData().accelerations[p] = pAcc;
                                     return;
                                 }
 
@@ -567,14 +567,14 @@ void WCSPH_3DSolver::computeForces()
                                     const auto qdensity  = qInfo.w;
                                     const auto qpressure = particlePressure(qdensity);
                                     const auto fpressure = (ppressure + qpressure) * kernels().kernelSpiky.gradW(r);
-                                    pforce += fpressure;
+                                    pAcc += fpressure;
                                     ////////////////////////////////////////////////////////////////////////////////
                                     if(solverParams().bAddShortRangeRepulsiveForce) {
-                                        pforce += shortRangeRepulsiveForce(r);
+                                        pAcc += shortRangeRepulsiveForce(r);
                                     }
                                     __BNN_TODO_MSG("add surface tension");
                                 }
-                                particleData().forces[p] = pforce * solverParams().particleMass;
+                                particleData().accelerations[p] = pAcc * solverParams().particleMass;
                             });
 }
 
@@ -588,21 +588,21 @@ void WCSPH_3DSolver::updateVelocity(Real timestep)
             Scheduler::parallel_for(particleData().velocities.size(),
                                     [&](size_t p)
                                     {
-                                        particleData().velocities[p] += (solverParams().gravity() + particleData().forces[p]) * timestep;
+                                        particleData().velocities[p] += (solverParams().gravity() + particleData().accelerations[p]) * timestep;
                                     });
         } else {
             Scheduler::parallel_for(particleData().velocities.size(),
                                     [&](size_t p)
                                     {
                                         auto gravity = solverParams().gravity(particleData().positions[p]);
-                                        particleData().velocities[p] += (gravity + particleData().forces[p]) * timestep;
+                                        particleData().velocities[p] += (gravity + particleData().accelerations[p]) * timestep;
                                     });
         }
     } else {
         Scheduler::parallel_for(particleData().velocities.size(),
                                 [&](size_t p)
                                 {
-                                    particleData().velocities[p] += particleData().forces[p] * timestep;
+                                    particleData().velocities[p] += particleData().accelerations[p] * timestep;
                                 });
     }
 }
@@ -610,20 +610,21 @@ void WCSPH_3DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::computeViscosity()
 {
-    assert(particleData().getNParticles() == particleData().diffuseVelocity.size());
+    assert(particleData().getNParticles() == particleData().diffuseVelocities.size());
     const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
+                                    particleData().diffuseVelocities[p] = Vec3f(0);
                                     return;
                                 }
 
                                 const auto& pvel = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                Vec3r diffVelFluid            = Vec3r(0);
+                                Vec3r diffVelFluid(0);
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto q        = fluidNeighborList[i];
                                     const auto& qvel    = particleData().velocities[q];
@@ -634,7 +635,7 @@ void WCSPH_3DSolver::computeViscosity()
                                 }
                                 diffVelFluid *= solverParams().viscosityFluid;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                Vec3r diffVelBoundary = Vec3r(0);
+                                Vec3r diffVelBoundary(0);
                                 if(solverParams().bDensityByBDParticle) {
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo   = pNeighborInfo[i];
@@ -642,12 +643,12 @@ void WCSPH_3DSolver::computeViscosity()
                                         const auto qdensity = qInfo.w;
                                         diffVelBoundary -= (1.0_f / qdensity) * kernels().kernelPoly6.W(r) * pvel;
                                     }
+                                    diffVelBoundary *= solverParams().viscosityBoundary;
                                 }
-                                diffVelBoundary *= solverParams().viscosityBoundary;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().diffuseVelocity[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
+                                particleData().diffuseVelocities[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
                             });
-    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
+    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocities[p]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

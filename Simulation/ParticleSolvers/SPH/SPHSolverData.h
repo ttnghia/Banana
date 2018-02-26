@@ -123,7 +123,7 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
     void loadSimParams(const JParams& jParams)
     {
         ////////////////////////////////////////////////////////////////////////////////
-        // forces
+        // accelerations
         JSONHelpers::readValue(jParams, pressureStiffness,                 "PressureStiffness");
         JSONHelpers::readValue(jParams, bAttractivePressure,               "AttractivePressure");
         JSONHelpers::readValue(jParams, attractivePressureRatio,           "AttractivePressureRatio");
@@ -168,8 +168,8 @@ struct WCSPH_Data : public SimulationData<N, RealType>
         Vector<RealType>                  densities;
         Vector<RealType>                  tmp_densities;
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo; // store relative position and density of neighbors, including boundary particles
-        Vec_VecX<N, RealType>             forces;
-        Vec_VecX<N, RealType>             diffuseVelocity;
+        Vec_VecX<N, RealType>             accelerations;
+        Vec_VecX<N, RealType>             diffuseVelocities;
         Vec_VecX<N, RealType>             aniKernelCenters;
         Vec_MatXxX<N, RealType>           aniKernelMatrices;
         Vec_VecX<N, RealType>             BDParticles;
@@ -182,8 +182,8 @@ struct WCSPH_Data : public SimulationData<N, RealType>
             densities.reserve(nParticles);
             tmp_densities.reserve(nParticles);
             neighborInfo.reserve(nParticles);
-            forces.reserve(nParticles);
-            diffuseVelocity.reserve(nParticles);
+            accelerations.reserve(nParticles);
+            diffuseVelocities.reserve(nParticles);
             aniKernelCenters.reserve(nParticles);
             aniKernelMatrices.reserve(nParticles);
         }
@@ -197,8 +197,8 @@ struct WCSPH_Data : public SimulationData<N, RealType>
             densities.resize(positions.size(), 0);
             tmp_densities.resize(positions.size(), 0);
             neighborInfo.resize(positions.size());
-            forces.resize(positions.size(), VecX<N, RealType>(0));
-            diffuseVelocity.resize(positions.size(), VecX<N, RealType>(0));
+            accelerations.resize(positions.size(), VecX<N, RealType>(0));
+            diffuseVelocities.resize(positions.size(), VecX<N, RealType>(0));
 
             ////////////////////////////////////////////////////////////////////////////////
             // add the object index for new particles to the list
@@ -217,8 +217,8 @@ struct WCSPH_Data : public SimulationData<N, RealType>
             ////////////////////////////////////////////////////////////////////////////////
             densities.resize(positions.size());
             tmp_densities.resize(positions.size());
-            forces.resize(positions.size());
-            diffuseVelocity.resize(positions.size());
+            accelerations.resize(positions.size());
+            diffuseVelocities.resize(positions.size());
             ////////////////////////////////////////////////////////////////////////////////
             return static_cast<UInt>(removeMarker.size() - positions.size());
         }
@@ -228,7 +228,6 @@ struct WCSPH_Data : public SimulationData<N, RealType>
     {
         PrecomputedKernel<N, RealType, Poly6Kernel> kernelPoly6;
         PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
-        PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
     };
 
     ParticleData particleData;
@@ -241,7 +240,6 @@ struct WCSPH_Data : public SimulationData<N, RealType>
     {
         kernels.kernelPoly6.setRadius(solverParams.kernelRadius);
         kernels.kernelSpiky.setRadius(solverParams.kernelRadius);
-        kernels.nearKernelSpiky.setRadius(solverParams.nearKernelRadius);
     }
 };
 

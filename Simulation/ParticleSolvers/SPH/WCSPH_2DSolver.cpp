@@ -86,10 +86,9 @@ void WCSPH_2DSolver::advanceFrame()
 void WCSPH_2DSolver::sortParticles()
 {
     assert(m_NSearch != nullptr);
-    if(globalParams().finishedFrame % globalParams().sortFrequency != 0) {
+    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
     }
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Sort data by particle positions: ",
                           [&]()
@@ -353,7 +352,12 @@ Int WCSPH_2DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real WCSPH_2DSolver::timestepCFL()
 {
-    Real maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
+    Real maxVel = ParallelSTL::maxNorm2(particleData().velocities);
+
+    static float mm = -1e100;
+    if(mm < maxVel) { mm = maxVel; }
+    printf("max vel: %f, max all: %f\n", maxVel, mm);
+
     Real CFLTimeStep = maxVel > Tiny ? solverParams().CFLFactor * (2.0_f * solverParams().particleRadius / maxVel) : Huge;
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
@@ -390,7 +394,7 @@ void WCSPH_2DSolver::advanceVelocity(Real timestep)
     logger().printRunTimeIndent("Compute density: ", [&]() { computeDensity(); });
     logger().printRunTimeIndentIf("Normalize density: ", [&]() { return normalizeDensity(); });
     logger().printRunTimeIndent("Collect neighbor densities: ", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces: ", [&]() { computeForces(); });
+    logger().printRunTimeIndent("Compute forces: ", [&]() { computeAccelerations(); });
     logger().printRunTimeIndent("Update velocity: ", [&]() { updateVelocity(timestep); });
     logger().printRunTimeIndent("Compute viscosity: ", [&]() { computeViscosity(); });
 }
@@ -453,6 +457,8 @@ void WCSPH_2DSolver::computeDensity()
                                                                                  solverParams().densityMin,
                                                                                  solverParams().densityMax);
                             });
+    auto m = ParallelSTL::max(particleData().densities);
+    printf("max den: %f\n", m);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -498,6 +504,15 @@ bool WCSPH_2DSolver::normalizeDensity()
                                                                                      solverParams().densityMax);
                             });
     particleData().densities = particleData().tmp_densities;
+    auto m  = ParallelSTL::max(particleData().densities);
+    auto m2 = ParallelSTL::min(particleData().densities);
+
+    static float mm  = -1e100;
+    static float mmm = 1e100;
+    if(mm < m) { mm = m; }
+    if(mmm > m2) { mmm = m2; }
+    printf("max den after normalized: %f, min=%f,  max all: %f, min all: %f\n\n\n", m, m2,
+           mm, mmm);
     ////////////////////////////////////////////////////////////////////////////////
     return true;
 }
@@ -523,11 +538,11 @@ void WCSPH_2DSolver::collectNeighborDensities()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_2DSolver::computeForces()
+void WCSPH_2DSolver::computeAccelerations()
 {
     auto particlePressure = [&](auto density)
                             {
-                                auto error = Real(MathHelpers::pow7(density / solverParams().restDensity)) - 1.0_f;
+                                auto error = Real(MathHelpers::sqr(density / solverParams().restDensity)) - 1.0_f;
                                 error *= (solverParams().pressureStiffness / density / density);
                                 if(error > 0_f) {
                                     return error;
@@ -537,26 +552,27 @@ void WCSPH_2DSolver::computeForces()
                                     return error * solverParams().attractivePressureRatio;
                                 }
                             };
-    auto shortRangeRepulsiveForce = [&](const auto& r)
-                                    {
-                                        const auto d2 = glm::length2(r);
-                                        const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
-                                        if(w < MEpsilon) {
-                                            return Vec2r(0);
-                                        } else if(d2 > solverParams().overlappingThresholdSqr) {
-                                            return -solverParams().shortRangeRepulsiveForceStiffness * w / Real(sqrt(d2)) * r;
-                                        } else {
-                                            return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<Vec2r>();
-                                        }
-                                    };
+    auto shortRangeRepulsiveAcceleration = [&](const auto& r)
+                                           {
+                                               const auto d2 = glm::length2(r);
+                                               const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
+                                               if(w < MEpsilon) {
+                                                   return Vec2r(0);
+                                               } else if(d2 > solverParams().overlappingThresholdSqr) {
+                                                   return -solverParams().shortRangeRepulsiveForceStiffness * w / Real(sqrt(d2)) * r;
+                                               } else {
+                                                   return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<Vec2r>();
+                                               }
+                                           };
     ////////////////////////////////////////////////////////////////////////////////
     const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                Vec2r pforce(0);
+                                Vec2r pAcc(0);
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
+                                    particleData().accelerations[p] = pAcc;
                                     return;
                                 }
 
@@ -567,14 +583,14 @@ void WCSPH_2DSolver::computeForces()
                                     const auto qdensity  = qInfo.z;
                                     const auto qpressure = particlePressure(qdensity);
                                     const auto fpressure = (ppressure + qpressure) * kernels().kernelSpiky.gradW(r);
-                                    pforce += fpressure;
+                                    pAcc += fpressure;
                                     ////////////////////////////////////////////////////////////////////////////////
                                     if(solverParams().bAddShortRangeRepulsiveForce) {
-                                        pforce += shortRangeRepulsiveForce(r);
+                                        pAcc += shortRangeRepulsiveAcceleration(r);
                                     }
                                     __BNN_TODO_MSG("add surface tension");
                                 }
-                                particleData().forces[p] = pforce * solverParams().particleMass;
+                                particleData().accelerations[p] = pAcc * solverParams().particleMass;
                             });
 }
 
@@ -588,21 +604,21 @@ void WCSPH_2DSolver::updateVelocity(Real timestep)
             Scheduler::parallel_for(particleData().velocities.size(),
                                     [&](size_t p)
                                     {
-                                        particleData().velocities[p] += (solverParams().gravity() + particleData().forces[p]) * timestep;
+                                        particleData().velocities[p] += (solverParams().gravity() + particleData().accelerations[p]) * timestep;
                                     });
         } else {
             Scheduler::parallel_for(particleData().velocities.size(),
                                     [&](size_t p)
                                     {
                                         auto gravity = solverParams().gravity(particleData().positions[p]);
-                                        particleData().velocities[p] += (gravity + particleData().forces[p]) * timestep;
+                                        particleData().velocities[p] += (gravity + particleData().accelerations[p]) * timestep;
                                     });
         }
     } else {
         Scheduler::parallel_for(particleData().velocities.size(),
                                 [&](size_t p)
                                 {
-                                    particleData().velocities[p] += particleData().forces[p] * timestep;
+                                    particleData().velocities[p] += particleData().accelerations[p] * timestep;
                                 });
     }
 }
@@ -610,20 +626,21 @@ void WCSPH_2DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_2DSolver::computeViscosity()
 {
-    assert(particleData().getNParticles() == particleData().diffuseVelocity.size());
+    assert(particleData().getNParticles() == particleData().diffuseVelocities.size());
     const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
+                                    particleData().diffuseVelocities[p] = Vec2f(0);
                                     return;
                                 }
 
                                 const auto& pvel = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                Vec2r diffVelFluid            = Vec2r(0);
+                                Vec2r diffVelFluid(0);
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto q        = fluidNeighborList[i];
                                     const auto& qvel    = particleData().velocities[q];
@@ -634,7 +651,7 @@ void WCSPH_2DSolver::computeViscosity()
                                 }
                                 diffVelFluid *= solverParams().viscosityFluid;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                Vec2r diffVelBoundary = Vec2r(0);
+                                Vec2r diffVelBoundary(0);
                                 if(solverParams().bDensityByBDParticle) {
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo   = pNeighborInfo[i];
@@ -642,12 +659,16 @@ void WCSPH_2DSolver::computeViscosity()
                                         const auto qdensity = qInfo.z;
                                         diffVelBoundary -= (1.0_f / qdensity) * kernels().kernelPoly6.W(r) * pvel;
                                     }
+                                    __BNN_DIE_UNKNOWN_ERROR
+                                    diffVelBoundary *= solverParams().viscosityBoundary;
                                 }
-                                diffVelBoundary *= solverParams().viscosityBoundary;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().diffuseVelocity[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
+                                particleData().diffuseVelocities[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
+                                if(glm::length2(particleData().diffuseVelocities[p]) > 1.0_f) {
+                                    printf("p: %u, diffuse: %s\n", p, __BNN_TO_CSTRING(particleData().diffuseVelocities[p]));
+                                }
                             });
-    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
+    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocities[p]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -236,8 +236,7 @@ public:
      */
     RealType W(RealType r)
     {
-        const auto r2 = r * r;
-        return (r2 <= m_radius2) ? pow(m_radius - sqrt(r2), 3) * m_k : RealType(0);
+        return (r <= m_radius) ? pow(m_radius - r, 3) * m_k : RealType(0);
     }
 
     RealType W(const VecX<N, RealType>& r)
@@ -257,7 +256,7 @@ public:
             const auto rl  = sqrt(r2);
             const auto hr  = m_radius - rl;
             const auto hr2 = hr * hr;
-            res = m_l * hr2 * r * (static_cast<RealType>(1.0) / rl);
+            res = m_l * hr2 * (r / rl);
         }
 
         return res;

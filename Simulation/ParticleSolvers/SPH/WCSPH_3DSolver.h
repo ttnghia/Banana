@@ -75,7 +75,7 @@ protected:
     void computeDensity();
     bool normalizeDensity();
     void collectNeighborDensities();
-    void computeForces();
+    void computeAccelerations();
     void updateVelocity(Real timestep);
     void computeViscosity();
 };
