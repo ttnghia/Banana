@@ -54,6 +54,28 @@ void BoundaryObject<N, RealType >::constrainToBoundary(VecNr& ppos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+bool BoundaryObject<N, RealType >::constrainToBoundary(VecNr& ppos, VecNr& pvel)
+{
+    const auto phiVal = signedDistance(ppos);
+    if(phiVal < 0) {
+        auto grad     = gradSignedDistance(ppos);
+        auto mag2Grad = glm::length2(grad);
+
+        if(mag2Grad > Tiny) {
+            grad /= sqrt(mag2Grad);
+            ppos -= phiVal * grad;
+            if(m_bReflectVelocityAtBoundary) {
+                pvel = glm::reflect(pvel, grad) * m_BoundaryReflectionMultiplier;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
 {

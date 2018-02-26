@@ -37,11 +37,11 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     SimulationParameters_Snow3D() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real CFLFactor           = 0.04_f;
-    Real PIC_FLIP_ratio      = ParticleSolverDefaultParameters::PIC_FLIP_Ratio;
-    Real minTimestep         = ParticleSolverDefaultParameters::MinTimestep;
-    Real maxTimestep         = ParticleSolverDefaultParameters::MaxTimestep;
-    Real boundaryRestitution = ParticleSolverDefaultParameters::BoundaryRestitution;
+    Real CFLFactor                    = 0.04_f;
+    Real PIC_FLIP_ratio               = ParticleSolverDefaultParameters::PIC_FLIP_Ratio;
+    Real minTimestep                  = ParticleSolverDefaultParameters::MinTimestep;
+    Real maxTimestep                  = ParticleSolverDefaultParameters::MaxTimestep;
+    Real boundaryReflectionMultiplier = ParticleSolverDefaultParameters::BoundaryReflectionMultiplier;
 
     Real CGRelativeTolerance = ParticleSolverDefaultParameters::CGRelativeTolerance;
     UInt maxCGIteration      = ParticleSolverDefaultParameters::CGMaxIteration;
@@ -65,7 +65,6 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     Vec3r domainBMax                  = Vec3r(1.0);
 
     // the following need to be computed
-
 
     Real  cellArea;
     Vec3r movingBMin;
@@ -109,7 +108,7 @@ struct SimulationParameters_Snow3D : public SimulationParameters
         logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(numDomainCells));
         logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(numMovingCells));
 
-        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
+        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryReflectionMultiplier));
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
         logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
 
@@ -140,8 +139,6 @@ struct SimulationData_Snow3D
         Vec_Vec3r particleGridPos;
         Vec_Vec3r weightGradients;                         // * 16
         Vec_Real  weights;                                 // * 16
-
-
 
         virtual void reserve(UInt nParticles)
         {
@@ -228,7 +225,6 @@ struct SimulationData_Snow3D
             return static_cast<UInt>(removeMarker.size() - positions.size());
         }
     } particleData;
-
 
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData : public GridSimulationData<3, Real>

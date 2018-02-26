@@ -155,7 +155,6 @@ void HairMPM_2DData::find_d0(const MPM_2DParameters& params, MPM_2DData& mpmData
                                 }
                             });
 
-
     printf("find d0\n");
 }
 
@@ -311,7 +310,6 @@ Int HairMPM_2DSolver::loadMemoryState()
     __BNN_TODO;
     //__BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // load particle data
     Real particleRadius;
@@ -408,15 +406,22 @@ void HairMPM_2DSolver::moveParticles(Real timestep)
                                 if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex) ||
                                    nNeighbors == 1) {
                                     auto ppos = particleData().positions[p];
-                                    ppos += timestep * particleData().velocities[p];
+                                    auto pvel = particleData().velocities[p];
+                                    ppos += timestep * pvel;
+                                    bool bVelChanged = false;
                                     __BNN_TODO_MSG("Trace_rk2 or just Euler?");
                                     //ppos = trace_rk2(ppos, time`step);
                                     for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(ppos);
+                                        if(obj->constrainToBoundary(ppos, pvel)) {
+                                            bVelChanged = true;
+                                        }
                                     }
                                     //for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                     //}
                                     particleData().positions[p] = ppos;
+                                    if(bVelChanged) {
+                                        particleData().velocities[p] = pvel;
+                                    }
                                 } else {
                                     Vec2r ppos(0);
                                     __BNN_REQUIRE(nNeighbors > 0);
@@ -435,7 +440,6 @@ void HairMPM_2DSolver::moveParticles(Real timestep)
 void HairMPM_2DSolver::explicitIntegration(Real timestep)
 {
     computeLagrangianForces();
-
 
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -461,13 +465,6 @@ void HairMPM_2DSolver::explicitIntegration(Real timestep)
                                 Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp));     // F^(-T)
                                 Mat2x2r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
                                 assert(LinaHelpers::hasValidElements(P));
-
-
-
-
-
-
-
 
                                 __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                 particleData().PiolaStress[p]  = P;
@@ -531,7 +528,6 @@ void HairMPM_2DSolver::computeLagrangianForces()
                                 //    printf("%u,  f=%s\n", p, NumberHelpers::toString(f, 10).c_str());
                                 //    fflush(stdout);
                                 //}
-
 
                                 ////////////////////////////////////////////////////////////////////////////////
                                 auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
@@ -668,7 +664,6 @@ void HairMPM_2DSolver::updateParticleStates(Real timestep)
                                                     (predictPositions[p] - predictPositions[neighborIdx[p][0]]) :
                                                     (predictPositions[neighborIdx[p][1]] - predictPositions[neighborIdx[p][0]]);
 
-
                                     if(p < 30) {
                                         printf("deformgrad1: %s, update: %s\n",
                                                NumberHelpers::toString(deformGrad[1],                                                 10).c_str(),
@@ -701,11 +696,9 @@ void HairMPM_2DSolver::computeDamping()
                                     diffVelFluid += qvel - pvel;
                                 }
 
-
                                 ////////////////////////////////////////////////////////////////////////////////
                                 diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
                             });
-
 
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += diffuseVelocity[p]; });
 #else
@@ -721,7 +714,6 @@ void HairMPM_2DSolver::computeDamping()
 
                                     diffVelFluid += qvel - pvel;
                                 }
-
 
                                 ////////////////////////////////////////////////////////////////////////////////
                                 diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
@@ -758,7 +750,6 @@ void HairMPM_2DSolver::computePlasticity()
                                         assert(S[i] > 0);
                                         lnS[i] = log(S[i]);
                                     }
-
 
                                     if(lnS[0] + lnS[1] >= 0) {
                                         lnS[0] = lnS[1] = 0;

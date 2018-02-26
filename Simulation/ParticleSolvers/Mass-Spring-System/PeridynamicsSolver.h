@@ -37,14 +37,14 @@ struct SimulationParameters_Peridynamics3D : public SimulationParameters
     SimulationParameters_Peridynamics3D() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real  minTimestep         = 1.0e-6_f;
-    Real  maxTimestep         = 1.0e-3_f;
-    Real  CFLFactor           = 2.0_f;
-    Real  boundaryRestitution = ParticleSolverDefaultParameters::BoundaryRestitution_f;
-    Real  particleRadius      = 2.0_f / 64.0_f / 4.0_f;
-    Real  CGRelativeTolerance = 1e-15_f;
-    UInt  maxCGIteration      = 10000;
-    Vec3r gravity             = ParticleSolverDefaultParameters::Gravity3D;
+    Real  minTimestep                  = 1.0e-6_f;
+    Real  maxTimestep                  = 1.0e-3_f;
+    Real  CFLFactor                    = 2.0_f;
+    Real  boundaryReflectionMultiplier = ParticleSolverDefaultParameters::BoundaryRestitution_f;
+    Real  particleRadius               = 2.0_f / 64.0_f / 4.0_f;
+    Real  CGRelativeTolerance          = 1e-15_f;
+    UInt  maxCGIteration               = 10000;
+    Vec3r gravity                      = ParticleSolverDefaultParameters::Gravity3D;
 
     ParticleSolverDefaultParameters::IntegrationScheme integrationScheme       = ParticleSolverDefaultParameters::IntegrationScheme::NewmarkBeta;
     Real                                               repulsiveForceStiffness = 1e-3_f;
@@ -72,9 +72,7 @@ struct SimulationParameters_Peridynamics3D : public SimulationParameters
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
 
-        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
-
-
+        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryReflectionMultiplier));
 
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
         logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
@@ -97,8 +95,6 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
     Vec_Real stretchThreshold_t0;
     Vec_Real particleMass;
 
-
-
     Vec_VecUInt bondList_t0;
     Vec_VecReal bondList_d0;
     Vec_VecUInt brokenBonds;
@@ -113,7 +109,6 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
     Vec_Vec3r                  solution;
 
     ////////////////////////////////////////////////////////////////////////////////
-
 
     virtual void reserve(UInt nParticles)
     {
@@ -150,7 +145,6 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
         velocities.resize(positions.size(), Vec3r(0));
         bondList.resize(positions.size());
 
-
         //if(particles_t0.size() < particles.size()) {
         //    size_t old_size = particles_t0.size();
         //    particles_t0.resize(particles.size());
@@ -185,7 +179,6 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
         //rhs.resize(particleParams->num_active_particles);
         //solution.resize(particleParams->num_active_particles);
 
-
         //if(bond_d0.size() < bond_list.size()) {
         //    timer.tick();
         //    size_t old_size = bond_d0.size();
@@ -195,7 +188,6 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
         //    timer.tock();
         //    monitor.print_log("Calculate d0: " + timer.get_run_time());
         //}
-
 
         matrix.resize(getNParticles());
         rhs.resize(getNParticles());
@@ -259,13 +251,12 @@ protected:
     bool removeBrokenBonds();
     void computeRemainingBondRatio();
 
-
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_Peridynamics3D m_SimParams;
     SimulationData_Peridynamics3D       m_SimData;
 
     UniquePtr<NeighborSearch::NeighborSearch> m_NSearch = nullptr;
-    BlockPCGSolver<3, Real>                     m_CGSolver;
+    BlockPCGSolver<3, Real>                   m_CGSolver;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

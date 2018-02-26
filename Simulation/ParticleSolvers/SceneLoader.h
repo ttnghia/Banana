@@ -155,8 +155,8 @@ void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::Simulation
 
     ////////////////////////////////////////////////////////////////////////////////
     // boundary condition
-    JSONHelpers::readBool(jParams, solverParams.bDampVelocityAtBoundary, "DampVelocityAtBoundary");
-    JSONHelpers::readValue(jParams, solverParams.boundaryRestitution, "BoundaryRestitution");
+    JSONHelpers::readBool(jParams, solverParams.bReflectVelocityAtBoundary, "ReflectVelocityAtBoundary");
+    JSONHelpers::readValue(jParams, solverParams.boundaryReflectionMultiplier, "BoundaryReflectionMultiplier");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +202,8 @@ void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObje
         obj->geometry()->setTranslation(translation);
     }
 
-    if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
+    if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") ||
+       JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
         obj->geometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
     } else if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
         rotationAxisAngle[N] = glm::radians(rotationAxisAngle[N]);
@@ -237,10 +238,11 @@ void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObje
         for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
             KeyFrame<N, RealType> keyFrame;
             __BNN_REQUIRE(JSONHelpers::readValue(jKeyFrame, keyFrame.frame, "Frame"));
-            JSONHelpers::readVector(jKeyFrame, keyFrame.translation, "Translation");
+            JSONHelpers::   readVector(jKeyFrame, keyFrame.translation, "Translation");
 
             VecX<N, Real> rotationEulerAngles;
-            if(JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngle")) {
+            if(JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngles") ||
+               JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngle")) {
                 keyFrame.rotation = MathHelpers::EulerToAxisAngle(rotationEulerAngles, false, true);
             } else {
                 JSONHelpers::readVector(jKeyFrame, keyFrame.rotation, "RotationAxisAngle");

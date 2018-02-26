@@ -464,14 +464,21 @@ void PIC_3DSolver::moveParticles(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                auto ppos = particleData().positions[p];
+                                auto ppos        = particleData().positions[p];
+                                auto pvel        = particleData().velocities[p];
+                                bool bVelChanged = false;
                                 for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                     ppos = trace_rk2(ppos, substep);
                                     for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(ppos);
+                                        if(obj->constrainToBoundary(ppos, pvel)) {
+                                            bVelChanged = true;
+                                        }
                                     }
                                 }
                                 particleData().positions[p] = ppos;
+                                if(bVelChanged) {
+                                    particleData().velocities[p] = pvel;
+                                }
                             });
 }
 

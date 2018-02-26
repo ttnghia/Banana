@@ -413,7 +413,6 @@ Int MPM_3DSolver::loadMemoryState()
     __BNN_TODO;
     //__BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // load particle data
     Real particleRadius;
@@ -513,15 +512,22 @@ void MPM_3DSolver::moveParticles(Real timestep)
                             [&](UInt p)
                             {
                                 auto ppos = particleData().positions[p];
-                                ppos += timestep * particleData().velocities[p];
+                                auto pvel = particleData().velocities[p];
+                                ppos += timestep * pvel;
+                                bool bVelChanged = false;
                                 __BNN_TODO_MSG("Trace_rk2 or just Euler?");
                                 //ppos = trace_rk2(ppos, timestep);
                                 for(auto& obj : m_BoundaryObjects) {
-                                    obj->constrainToBoundary(ppos);
+                                    if(obj->constrainToBoundary(ppos, pvel)) {
+                                        bVelChanged = true;
+                                    }
                                 }
                                 //for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                 //}
                                 particleData().positions[p] = ppos;
+                                if(bVelChanged) {
+                                    particleData().velocities[p] = pvel;
+                                }
                             });
 }
 
@@ -721,8 +727,6 @@ void MPM_3DSolver::explicitIntegration(Real timestep)
                                 Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
                                 assert(LinaHelpers::hasValidElements(P));
 
-
-
                                 __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                 //particleData().PiolaStress[p]  = P;
                                 particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
@@ -862,7 +866,6 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 //particleData().PiolaStress[p]    = P;
                                 particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
 
-
                                 ////////////////////////////////////////////////////////////////////////////////
                                 // compute energy density function
                                 Real t1 = 0.5_f * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - 3.0_f);
@@ -875,7 +878,6 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 auto eDensity = t1 + t2 + t3;
                                 particleData().energy[p] = eDensity * pVolume;
                             });
-
 
     ////////////////////////////////////////////////////////////////////////////////
     //	Compute energy gradient
@@ -1095,7 +1097,7 @@ void MPM_3DSolver::constrainParticleVelocity(Real timestep)
                                 //Left border, right border
                                 for(UInt i = 0; i < solverDimension(); ++i) {
                                     if(new_pos[i] < Real(2 - 1) || new_pos[0] > Real(grid().getNNodes()[i] - 2)) {
-                                        pVel[i]   *= -solverParams().boundaryRestitution;
+                                        pVel[i]   *= solverParams().boundaryReflectionMultiplier;
                                         velChanged = true;
                                     }
                                 }

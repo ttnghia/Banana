@@ -72,7 +72,6 @@ protected:
     Real timestepCFL();
     void moveParticles(Real timestep);
     void computeNeighborRelativePositions();
-    bool correctParticlePositions(Real timestep);
     void computeDensity();
     bool normalizeDensity();
     void collectNeighborDensities();

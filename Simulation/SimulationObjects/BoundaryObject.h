@@ -48,7 +48,8 @@ public:
     BoundaryObject() = delete;
     BoundaryObject(const JParams& jParams, const String& geometryType) : SimulationObject<N, RealType>(jParams, geometryType) {}
     ////////////////////////////////////////////////////////////////////////////////
-    auto& restitution() { return m_RestitutionCoeff; }
+    auto& boundaryReflectionMultiplier() { return m_BoundaryReflectionMultiplier; }
+    auto& reflectVelocityAtBoundary() { return m_bReflectVelocityAtBoundary; }
     auto& isDynamic() { return m_bDynamics; }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     virtual RealType signedDistance(const VecNr& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
@@ -56,12 +57,14 @@ public:
     virtual bool     isInside(const VecNr& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
     ////////////////////////////////////////////////////////////////////////////////
     void constrainToBoundary(VecNr& ppos);
+    bool constrainToBoundary(VecNr& ppos, VecNr& pvel); // return true if pvel has been modified
     UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 
 protected:
     virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>&, RealType, Int) {}
     ////////////////////////////////////////////////////////////////////////////////
-    RealType m_RestitutionCoeff = ParticleSolverDefaultParameters::BoundaryRestitution;
+    RealType m_BoundaryReflectionMultiplier = ParticleSolverDefaultParameters::BoundaryReflectionMultiplier;
+    bool     m_bReflectVelocityAtBoundary   = false;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
@@ -72,11 +75,11 @@ protected:
 template<Int N, class RealType>
 class BoxBoundaryInterface : public BoundaryObject<N, RealType>
 {
-    using BoxPtr = SharedPtr<GeometryObjects::BoxObject<N, RealType> >;
+    using BoxPtr = SharedPtr<GeometryObjects::BoxObject<N, RealType>>;
 public:
     BoxBoundaryInterface(const JParams& jParams) : BoundaryObject<N, RealType>(jParams, "Box")
     {
-        m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
+        m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(m_GeometryObj);
         __BNN_REQUIRE(m_Box != nullptr);
     }
 
@@ -94,7 +97,7 @@ class BoxBoundary : public BoxBoundaryInterface<N, RealType>
 {};
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class BoxBoundary<2, RealType> : public BoxBoundaryInterface<2, RealType>
+class BoxBoundary<2, RealType>: public BoxBoundaryInterface<2, RealType>
 {
 public:
     BoxBoundary(const JParams& jParams) : BoxBoundaryInterface<2, RealType>(jParams) {}
@@ -103,7 +106,7 @@ public:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class BoxBoundary<3, RealType> : public BoxBoundaryInterface<3, RealType>
+class BoxBoundary<3, RealType>: public BoxBoundaryInterface<3, RealType>
 {
 public:
     BoxBoundary(const JParams& jParams) : BoxBoundaryInterface<3, RealType>(jParams) {}

@@ -382,7 +382,8 @@ void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
     ////////////////////////////////////////////////////////////////////////////////
     // set general parameters for boundary objects
     for(auto& obj : m_BoundaryObjects) {
-        obj->restitution() = generalSolverParams().boundaryRestitution;
+        obj->boundaryReflectionMultiplier() = generalSolverParams().boundaryReflectionMultiplier;
+        obj->reflectVelocityAtBoundary()    = generalSolverParams().bReflectVelocityAtBoundary;
     }
 }
 

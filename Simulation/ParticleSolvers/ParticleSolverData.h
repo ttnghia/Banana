@@ -45,7 +45,7 @@ static const Real RatioCellSizeOverParticleRadius = 2.0_f;
 static const Real CellSize                        = 1.0_f / 64.0_f;
 static const Real ParticleRadius                  = 2.0_f / 64.0_f / 4.0_f;
 
-static const Real BoundaryRestitution = 1.0_f;
+static const Real BoundaryReflectionMultiplier = 1.0_f;
 
 static const UInt CGMaxIteration      = 10'000u;
 static const Real CGRelativeTolerance = 1e-15_f;
@@ -224,8 +224,8 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // boundary condition
-    bool     bDampVelocityAtBoundary = false;
-    RealType boundaryRestitution     = RealType(ParticleSolverDefaultParameters::BoundaryRestitution);
+    bool     bReflectVelocityAtBoundary   = false;
+    RealType boundaryReflectionMultiplier = RealType(ParticleSolverDefaultParameters::BoundaryReflectionMultiplier);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -286,15 +286,11 @@ struct SimulationParameters
     virtual void printParams(const SharedPtr<Logger>& logger)
     {
         ////////////////////////////////////////////////////////////////////////////////
-        // boundary condition
-        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
         // time step size
         logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
                                String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
+        logger->newLine();
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -305,6 +301,7 @@ struct SimulationParameters
                                (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(domainGrid) : String("")));
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
                                (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(movingGrid) : String("")));
+        logger->newLine();
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -315,6 +312,7 @@ struct SimulationParameters
             logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
             logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
                                    String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
+            logger->newLine();
         }
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -325,12 +323,15 @@ struct SimulationParameters
         logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
         logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
+        logger->newLine();
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // boundary restitution, if applicable
-        logger->printLogIndent(String("Damp velocity at boundary: ") + (bDampVelocityAtBoundary ? String("Yes") : String("No")));
-        logger->printLogIndent(String("Boundary restitution (if applicable): ") + std::to_string(boundaryRestitution));
+        logger->printLogIndent(String("Reflect velocity at boundary: ") + (bReflectVelocityAtBoundary ? String("Yes") : String("No")));
+        logger->printLogIndentIf(bReflectVelocityAtBoundary, String("Boundary velocity reflection multiplier: ") +
+                                 std::to_string(boundaryReflectionMultiplier));
+        logger->newLine();
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -349,6 +350,7 @@ struct SimulationParameters
                 logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
             default:;
         }
+        logger->newLine();
         ////////////////////////////////////////////////////////////////////////////////
     }
 };
