@@ -769,25 +769,15 @@ T sharp_kernel(T r2, T h)
 }
 
 template<class T>
-T smooth_kernel(T r2, T h)
+T smooth_kernel(T r2, T h2)
 {
-    return pow(fmax(T(1.0) - r2 / (h * h), T(0)), T(3.0));
+    return pow(fmax(T(1.0) - r2 / h2, T(0)), T(3.0));
 }
 
 template<class T>
-T poly6_kernel(T r2, T h)
+inline T smooth_kernel_laplacian(T r2, T h2)
 {
-    if(r2 <= h * h) {
-        return T(4.0 / (M_PI * pow(h, 8.0))) * pow(h * h - r2, T(3.0));
-    } else {
-        return 0;
-    }
-}
-
-template<class T>
-inline T smooth_kernel_laplacian(T r2, T h)
-{
-    T x2 = T(sqrt(r2 / (h * h)));
+    T x2 = T(sqrt(r2 / h2));
     return x2 > T(1.0) ? 0 : (T(1.0) - x2);
 }
 
