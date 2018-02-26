@@ -99,17 +99,17 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
         logger->printLogIndent("Near pressure stiffness: " + NumberHelpers::formatWithCommas(nearPressureStiffness));
         logger->printLogIndent("Use attractive pressure: " + (bAttractivePressure ? std::string("Yes") : std::string("No")));
         logger->printLogIndentIf(bAttractivePressure, "Attractive pressure ratio: " + std::to_string(attractivePressureRatio));
-
+        logger->newLine();
         logger->printLogIndent("Viscosity fluid-fluid: " + NumberHelpers::formatToScientific(viscosityFluid, 2));
         logger->printLogIndent("Viscosity fluid-boundary: " + NumberHelpers::formatToScientific(viscosityBoundary, 2));
-
+        logger->newLine();
         logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
         logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
         logger->printLogIndent("Rest density: " + std::to_string(restDensity));
         logger->printLogIndent("Density variation: " + std::to_string(densityVariationRatio));
         logger->printLogIndent("Normalize density: " + (bNormalizeDensity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Generate boundary particles: " + (bDensityByBDParticle ? std::string("Yes") : std::string("No")));
-
+        logger->newLine();
         logger->printLogIndent("Ratio kernel radius/particle radius: " + std::to_string(ratioKernelPRadius));
         logger->printLogIndent("Ratio near kernel radius/particle radius: " + std::to_string(ratioNearKernelPRadius));
         logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
@@ -192,7 +192,7 @@ struct WCSPH_Data : public SimulationData<N, RealType>
 
     struct Kernels
     {
-        PrecomputedKernel<N, RealType, CubicKernel> kernelCubicSpline;
+        PrecomputedKernel<N, RealType, Poly6Kernel> kernelPoly6;
         PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
         PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
     };
@@ -205,7 +205,7 @@ struct WCSPH_Data : public SimulationData<N, RealType>
     virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
     void                                               makeReady(const WCSPH_Parameters<N, RealType>& solverParams)
     {
-        kernels.kernelCubicSpline.setRadius(solverParams.kernelRadius);
+        kernels.kernelPoly6.setRadius(solverParams.kernelRadius);
         kernels.kernelSpiky.setRadius(solverParams.kernelRadius);
         kernels.nearKernelSpiky.setRadius(solverParams.nearKernelRadius);
     }
