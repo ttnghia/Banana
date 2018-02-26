@@ -202,6 +202,8 @@ struct SimulationParameters
     RealType particleRadiusSqr = 0_f;
     RealType particleMass      = RealType(1.0);
     UInt     maxNParticles     = 0u;
+    RealType overlappingThreshold;
+    RealType overlappingThresholdSqr;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -254,8 +256,10 @@ struct SimulationParameters
             cellSize     = 0_f;
             nExpandCells = 0u;
         }
-        particleRadiusSqr = particleRadius * particleRadius;
-        cellVolume        = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
+        particleRadiusSqr       = particleRadius * particleRadius;
+        overlappingThreshold    = RealType(0.01) * particleRadius;
+        overlappingThresholdSqr = overlappingThreshold * overlappingThreshold;
+        cellVolume              = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
 
         // expand domain simulation by nExpandCells for each dimension
         // this is necessary if the boundary is a box which coincides with the simulation domain
