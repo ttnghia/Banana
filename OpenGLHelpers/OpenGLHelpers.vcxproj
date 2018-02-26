@@ -113,19 +113,19 @@
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
-    <IncludePath>$(SolutionDir)Externals\json\src;$(QTDIR)\..\..\Examples\Qt-5.10.0\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(QTDIR)\..\..\Examples\Qt-5.10.0\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
-    <IncludePath>$(SolutionDir)Externals\json\src;$(QTDIR)\..\..\Examples\Qt-5.10.0\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(QTDIR)\..\..\Examples\Qt-5.10.0\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

@@ -68,21 +68,21 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\single_include\nlohmann;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">

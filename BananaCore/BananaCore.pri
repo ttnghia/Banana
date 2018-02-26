@@ -17,7 +17,7 @@
 
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/../Externals/spdlog/include
-INCLUDEPATH += $$PWD/../Externals/json/src
+INCLUDEPATH += $$PWD/../Externals/json/single_include/nlohmann
 
 CONFIG += c++17
 CONFIG += force_debug_info
