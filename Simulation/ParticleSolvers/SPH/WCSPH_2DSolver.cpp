@@ -352,12 +352,7 @@ Int WCSPH_2DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real WCSPH_2DSolver::timestepCFL()
 {
-    Real maxVel = ParallelSTL::maxNorm2(particleData().velocities);
-
-    static float mm = -1e100;
-    if(mm < maxVel) { mm = maxVel; }
-    printf("max vel: %f, max all: %f\n", maxVel, mm);
-
+    Real maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
     Real CFLTimeStep = maxVel > Tiny ? solverParams().CFLFactor * (2.0_f * solverParams().particleRadius / maxVel) : Huge;
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
@@ -457,8 +452,6 @@ void WCSPH_2DSolver::computeDensity()
                                                                                  solverParams().densityMin,
                                                                                  solverParams().densityMax);
                             });
-    auto m = ParallelSTL::max(particleData().densities);
-    printf("max den: %f\n", m);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -504,15 +497,6 @@ bool WCSPH_2DSolver::normalizeDensity()
                                                                                      solverParams().densityMax);
                             });
     particleData().densities = particleData().tmp_densities;
-    auto m  = ParallelSTL::max(particleData().densities);
-    auto m2 = ParallelSTL::min(particleData().densities);
-
-    static float mm  = -1e100;
-    static float mmm = 1e100;
-    if(mm < m) { mm = m; }
-    if(mmm > m2) { mmm = m2; }
-    printf("max den after normalized: %f, min=%f,  max all: %f, min all: %f\n\n\n", m, m2,
-           mm, mmm);
     ////////////////////////////////////////////////////////////////////////////////
     return true;
 }
@@ -664,9 +648,6 @@ void WCSPH_2DSolver::computeViscosity()
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().diffuseVelocities[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
-                                if(glm::length2(particleData().diffuseVelocities[p]) > 1.0_f) {
-                                    printf("p: %u, diffuse: %s\n", p, __BNN_TO_CSTRING(particleData().diffuseVelocities[p]));
-                                }
                             });
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocities[p]; });
 }
