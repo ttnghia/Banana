@@ -45,7 +45,7 @@ static const Real RatioCellSizeOverParticleRadius = 2.0_f;
 static const Real CellSize                        = 1.0_f / 64.0_f;
 static const Real ParticleRadius                  = 2.0_f / 64.0_f / 4.0_f;
 
-static const Real BoundaryRestitution = 0.9_f;
+static const Real BoundaryRestitution = 1.0_f;
 
 static const UInt CGMaxIteration      = 10'000u;
 static const Real CGRelativeTolerance = 1e-15_f;
@@ -196,7 +196,6 @@ struct SimulationParameters
     UInt     nExpandCells         = ParticleSolverDefaultParameters::NExpandCells;
     RealType cellVolume;
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
     RealType particleRadius    = 0_f;
@@ -218,18 +217,16 @@ struct SimulationParameters
     UInt     maxCGIteration      = ParticleSolverDefaultParameters::CGMaxIteration;
     ////////////////////////////////////////////////////////////////////////////////
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // data only for PIC/FLIP blending, if applicable
     RealType PIC_FLIP_ratio = RealType(ParticleSolverDefaultParameters::PIC_FLIP_Ratio);
     ////////////////////////////////////////////////////////////////////////////////
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // boundary condition
-    RealType boundaryRestitution = RealType(ParticleSolverDefaultParameters::BoundaryRestitution);
+    bool     bDampVelocityAtBoundary = false;
+    RealType boundaryRestitution     = RealType(ParticleSolverDefaultParameters::BoundaryRestitution);
     ////////////////////////////////////////////////////////////////////////////////
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // gravity
@@ -332,6 +329,7 @@ struct SimulationParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // boundary restitution, if applicable
+        logger->printLogIndent(String("Damp velocity at boundary: ") + (bDampVelocityAtBoundary ? String("Yes") : String("No")));
         logger->printLogIndent(String("Boundary restitution (if applicable): ") + std::to_string(boundaryRestitution));
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -413,7 +411,6 @@ struct GridSimulationData
     virtual void makeReady() {}
 };
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 struct SimulationData
@@ -421,7 +418,6 @@ struct SimulationData
     virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
     virtual ParticleSimulationData<N, RealType>&       generalParticleData()       = 0;
 };
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using SimulationParameters2D = SimulationParameters<2, Real>;
@@ -435,7 +431,6 @@ using GridSimulationData3D = GridSimulationData<3, Real>;
 
 using SimulationData2D = SimulationData<2, Real>;
 using SimulationData3D = SimulationData<3, Real>;
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

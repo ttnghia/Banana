@@ -45,10 +45,10 @@ bool loadDataPath(const String& sceneFile, String& dataPath);
 void loadGlobalParams(const JParams& jParams, ParticleSolvers::GlobalParameters& globalParams);
 
 template<Int N, class RealType> void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::SimulationParameters<N, RealType>& solverParams);
-template<Int N, class RealType> void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj);
-template<Int N, class RealType> void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs);
-template<Int N, class RealType> void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators);
-template<Int N, class RealType> void loadParticleRemovers(const JParams& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers);
+template<Int N, class RealType> void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType>>& obj);
+template<Int N, class RealType> void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType>>>& boundaryObjs);
+template<Int N, class RealType> void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType>>>& particleGenerators);
+template<Int N, class RealType> void loadParticleRemovers(const JParams& jParams, Vector<SharedPtr<ParticleRemover<N, RealType>>>& particleRemovers);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -155,6 +155,7 @@ void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::Simulation
 
     ////////////////////////////////////////////////////////////////////////////////
     // boundary condition
+    JSONHelpers::readBool(jParams, solverParams.bDampVelocityAtBoundary, "DampVelocityAtBoundary");
     JSONHelpers::readValue(jParams, solverParams.boundaryRestitution, "BoundaryRestitution");
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -181,7 +182,7 @@ void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::Simulation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
-void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj)
+void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType>>& obj)
 {
     __BNN_REQUIRE(obj != nullptr);
     __BNN_REQUIRE(JSONHelpers::readValue(jParams, obj->nameID(), "UniqueName"));
@@ -255,7 +256,7 @@ void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObje
 
     ////////////////////////////////////////////////////////////////////////////////
     // specialized for box object
-    auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
+    auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
     if(box != nullptr) {
         VecX<N, Real> bMin, bMax;
         if(JSONHelpers::readVector(jParams, bMin, "BoxMin") && JSONHelpers::readVector(jParams, bMax, "BoxMax")) {
@@ -287,7 +288,7 @@ void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObje
 
     ////////////////////////////////////////////////////////////////////////////////
     // specialized for trimesh object
-    auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType> >(obj->geometry());
+    auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType>>(obj->geometry());
     if(meshObj != nullptr) {
         __BNN_REQUIRE(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");
@@ -297,36 +298,36 @@ void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObje
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs)
+void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType>>>& boundaryObjs)
 {
     for(auto& jObj : jParams) {
         String geometryType;
         __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_REQUIRE(!geometryType.empty());
 
-        SharedPtr<BoundaryObject<N, RealType> > obj = nullptr;
+        SharedPtr<BoundaryObject<N, RealType>> obj = nullptr;
         if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX") {
-            obj = std::make_shared<BoxBoundary<N, RealType> >(jObj);
+            obj = std::make_shared<BoxBoundary<N, RealType>>(jObj);
         } else {
-            obj = std::make_shared<BoundaryObject<N, RealType> >(jObj, geometryType);
+            obj = std::make_shared<BoundaryObject<N, RealType>>(jObj, geometryType);
         }
         boundaryObjs.push_back(obj);
-        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
+        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType>>(obj));
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators)
+void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType>>>& particleGenerators)
 {
     for(auto& jObj : jParams) {
         String geometryType;
         __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_REQUIRE(!geometryType.empty());
 
-        auto obj = std::make_shared<ParticleGenerator<N, RealType> >(jObj, geometryType);
+        auto obj = std::make_shared<ParticleGenerator<N, RealType>>(jObj, geometryType);
         particleGenerators.push_back(obj);
-        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
+        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType>>(obj));
 
         JSONHelpers::readVector(jObj, obj->v0(), "InitialVelocity");
         JSONHelpers::readValue(jObj, obj->minDistanceRatio(),   "MinParticleDistanceRatio");
@@ -342,16 +343,16 @@ void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGen
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadParticleRemovers(const JParams& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers)
+void loadParticleRemovers(const JParams& jParams, Vector<SharedPtr<ParticleRemover<N, RealType>>>& particleRemovers)
 {
     for(auto& jObj : jParams) {
         String geometryType;
         __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_REQUIRE(!geometryType.empty());
 
-        auto obj = std::make_shared<ParticleRemover<N, RealType> >(jObj, geometryType);
+        auto obj = std::make_shared<ParticleRemover<N, RealType>>(jObj, geometryType);
         particleRemovers.push_back(obj);
-        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
+        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType>>(obj));
 
         JSONHelpers::readValue(jObj, obj->startFrame(), "StartFrame");
         JSONHelpers::readValue(jObj, obj->maxFrame(),   "MaxFrame");
