@@ -491,6 +491,7 @@ bool PIC_3DSolver::correctParticlePositions(Real timestep)
     logger().printRunTime("Find neighbors: ", [&]() { grid().collectIndexToCells(particleData().positions); });
     ////////////////////////////////////////////////////////////////////////////////
     const auto radius     = 2.0_f * solverParams().particleRadius / Real(sqrt(solverDimension()));
+    const auto radius2    = radius * radius;
     const auto threshold  = 0.01_f * radius;
     const auto threshold2 = threshold * threshold;
     const auto substep    = timestep / Real(solverParams().advectionSteps);
@@ -519,7 +520,7 @@ bool PIC_3DSolver::correctParticlePositions(Real timestep)
                                                 const auto& qpos = particleData().positions[q];
                                                 const auto xpq   = ppos - qpos;
                                                 const auto d2    = glm::length2(xpq);
-                                                const auto w     = MathHelpers::smooth_kernel(d2, radius);
+                                                const auto w     = MathHelpers::smooth_kernel(d2, radius2);
 
                                                 if(d2 > threshold2) {
                                                     spring += w * xpq / sqrt(d2);
