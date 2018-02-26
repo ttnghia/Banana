@@ -1,7 +1,7 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "HairMPM_2DSolver",
+        "Solver" : "MPM_2DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
         "FinalFrame" : 50,
