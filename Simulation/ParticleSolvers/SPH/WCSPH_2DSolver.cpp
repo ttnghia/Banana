@@ -106,35 +106,7 @@ void WCSPH_2DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_2DSolver::loadSimParams(const JParams& jParams)
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // forces
-    JSONHelpers::readValue(jParams, solverParams().pressureStiffness,       "PressureStiffness");
-    JSONHelpers::readValue(jParams, solverParams().nearPressureStiffness,   "NearPressureStiffness");
-    JSONHelpers::readValue(jParams, solverParams().bAttractivePressure,     "AttractivePressure");
-    JSONHelpers::readValue(jParams, solverParams().attractivePressureRatio, "AttractivePressureRatio");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // viscosity
-    JSONHelpers::readValue(jParams, solverParams().viscosityFluid,    "ViscosityFluid");
-    JSONHelpers::readValue(jParams, solverParams().viscosityBoundary, "ViscosityBoundary");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // density
-    JSONHelpers::readValue(jParams, solverParams().particleMassScale,     "ParticleMassScale");
-    JSONHelpers::readValue(jParams, solverParams().restDensity,           "RestDensity");
-    JSONHelpers::readValue(jParams, solverParams().densityVariationRatio, "DensityVariationRatio");
-    JSONHelpers::readBool(jParams, solverParams().bNormalizeDensity,    "NormalizeDensity");
-    JSONHelpers::readBool(jParams, solverParams().bDensityByBDParticle, "DensityByBDParticle");
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // kernel data
-    JSONHelpers::readValue(jParams, solverParams().ratioKernelPRadius,     "RatioKernelPRadius");
-    JSONHelpers::readValue(jParams, solverParams().ratioNearKernelPRadius, "RatioNearKernelPRadius");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
+    solverParams().loadSimParams(jParams);
     solverParams().makeReady();
     solverParams().printParams(m_Logger);
     ////////////////////////////////////////////////////////////////////////////////
@@ -565,6 +537,18 @@ void WCSPH_2DSolver::computeForces()
                                     return error * solverParams().attractivePressureRatio;
                                 }
                             };
+    auto shortRangeRepulsiveForce = [&](const auto& r)
+                                    {
+                                        const auto d2 = glm::length2(r);
+                                        const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
+                                        if(w < MEpsilon) {
+                                            return Vec2r(0);
+                                        } else if(d2 > solverParams().overlappingThresholdSqr) {
+                                            return -solverParams().shortRangeRepulsiveForceStiffness * w / Real(sqrt(d2)) * r;
+                                        } else {
+                                            return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<Vec2r>();
+                                        }
+                                    };
     ////////////////////////////////////////////////////////////////////////////////
     const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
@@ -583,8 +567,12 @@ void WCSPH_2DSolver::computeForces()
                                     const auto qdensity  = qInfo.z;
                                     const auto qpressure = particlePressure(qdensity);
                                     const auto fpressure = (ppressure + qpressure) * kernels().kernelSpiky.gradW(r);
-                                    __BNN_TODO_MSG("add surface tension");
                                     pforce += fpressure;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    if(solverParams().bAddShortRangeRepulsiveForce) {
+                                        pforce += shortRangeRepulsiveForce(r);
+                                    }
+                                    __BNN_TODO_MSG("add surface tension");
                                 }
                                 particleData().forces[p] = pforce * solverParams().particleMass;
                             });

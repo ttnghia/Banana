@@ -37,10 +37,11 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // pressure
-    RealType pressureStiffness       = 50000.0_f;
-    RealType nearPressureStiffness   = 5000.0_f;
-    bool     bAttractivePressure     = false;
-    RealType attractivePressureRatio = 0.1_f;
+    RealType pressureStiffness                 = 50000.0_f;
+    RealType shortRangeRepulsiveForceStiffness = 5000.0_f;
+    bool     bAttractivePressure               = false;
+    RealType attractivePressureRatio           = 0.1_f;
+    bool     bAddShortRangeRepulsiveForce      = true;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
         kernelRadiusSqr = kernelRadius * kernelRadius;
 
         nearKernelRadius    = particleRadius * ratioNearKernelPRadius;
-        nearKernelRadiusSqr = kernelRadius * nearKernelRadius;
+        nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
     }
 
     virtual void printParams(const SharedPtr<Logger>& logger) override
@@ -96,9 +97,11 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
         logger->printLog("SPH simulation parameters:");
         SimulationParameters<N, RealType>::printParams(logger);
         logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
-        logger->printLogIndent("Near pressure stiffness: " + NumberHelpers::formatWithCommas(nearPressureStiffness));
         logger->printLogIndent("Use attractive pressure: " + (bAttractivePressure ? std::string("Yes") : std::string("No")));
         logger->printLogIndentIf(bAttractivePressure, "Attractive pressure ratio: " + std::to_string(attractivePressureRatio));
+        logger->printLogIndent("Add short range repulsive force: " + (bAddShortRangeRepulsiveForce ? std::string("Yes") : std::string("No")));
+        logger->printLogIndentIf(bAddShortRangeRepulsiveForce, "Short range repulsive force stiffness: " +
+                                 NumberHelpers::formatWithCommas(shortRangeRepulsiveForceStiffness));
         logger->newLine();
         logger->printLogIndent("Viscosity fluid-fluid: " + NumberHelpers::formatToScientific(viscosityFluid, 2));
         logger->printLogIndent("Viscosity fluid-boundary: " + NumberHelpers::formatToScientific(viscosityBoundary, 2));
@@ -115,6 +118,37 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
         logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
         logger->printLogIndent("Near kernel radius: " + std::to_string(nearKernelRadius));
         logger->newLine();
+    }
+
+    void loadSimParams(const JParams& jParams)
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // forces
+        JSONHelpers::readValue(jParams, pressureStiffness,                 "PressureStiffness");
+        JSONHelpers::readValue(jParams, bAttractivePressure,               "AttractivePressure");
+        JSONHelpers::readValue(jParams, attractivePressureRatio,           "AttractivePressureRatio");
+        JSONHelpers::readValue(jParams, shortRangeRepulsiveForceStiffness, "ShortRangeRepulsiveForceStiffness");
+        JSONHelpers::readBool(jParams, bAddShortRangeRepulsiveForce, "AddShortRangeRepulsiveForce");
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // viscosity
+        JSONHelpers::readValue(jParams, viscosityFluid,    "ViscosityFluid");
+        JSONHelpers::readValue(jParams, viscosityBoundary, "ViscosityBoundary");
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // density
+        JSONHelpers::readValue(jParams, particleMassScale,     "ParticleMassScale");
+        JSONHelpers::readValue(jParams, restDensity,           "RestDensity");
+        JSONHelpers::readValue(jParams, densityVariationRatio, "DensityVariationRatio");
+        JSONHelpers::readBool(jParams, bNormalizeDensity,    "NormalizeDensity");
+        JSONHelpers::readBool(jParams, bDensityByBDParticle, "DensityByBDParticle");
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // kernel data
+        JSONHelpers::readValue(jParams, ratioKernelPRadius,     "RatioKernelPRadius");
+        JSONHelpers::readValue(jParams, ratioNearKernelPRadius, "RatioNearKernelPRadius");
     }
 };
 
