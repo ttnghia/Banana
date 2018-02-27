@@ -443,9 +443,7 @@ void WCSPH_3DSolver::computeDensity()
                                 computeDensity(pdensity, pNeighborInfo);
                                 pdensity *= solverParams().particleMass;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().densities[p] = MathHelpers::clamp(pdensity,
-                                                                                 solverParams().densityMin,
-                                                                                 solverParams().densityMax);
+                                particleData().densities[p] = MathHelpers::clamp(pdensity, solverParams().densityMin, solverParams().densityMax);
                             });
 }
 
@@ -487,9 +485,7 @@ bool WCSPH_3DSolver::normalizeDensity()
                                 }
                                 pdensity = pdensity / (tmp * solverParams().particleMass);
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().tmp_densities[p] = MathHelpers::clamp(pdensity,
-                                                                                     solverParams().densityMin,
-                                                                                     solverParams().densityMax);
+                                particleData().tmp_densities[p] = MathHelpers::clamp(pdensity, solverParams().densityMin, solverParams().densityMax);
                             });
     particleData().densities = particleData().tmp_densities;
     ////////////////////////////////////////////////////////////////////////////////

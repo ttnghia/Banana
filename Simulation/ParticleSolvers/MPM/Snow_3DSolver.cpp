@@ -55,7 +55,6 @@ void Snow3DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::advanceFrame()
 {
-    
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
@@ -147,7 +146,7 @@ bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt             nNewParticles = 0;
+    UInt nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(generator->isActive(frame)) {
             tmpPositions.resize(0);
@@ -228,7 +227,6 @@ Int Snow3DSolver::saveMemoryState()
         return -1;
     }
 
-    
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
@@ -289,7 +287,6 @@ void Snow3DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::updateParticles(Real timestep)
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
     logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });
@@ -301,51 +298,51 @@ void Snow3DSolver::updateParticles(Real timestep)
 void Snow3DSolver::massToGrid()
 {
     Scheduler::parallel_for<UInt>(particleData().getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          Real ox = particleData().particleGridPos[p][0];
-                                          Real oy = particleData().particleGridPos[p][1];
-                                          Real oz = particleData().particleGridPos[p][2];
+                                  [&](UInt p)
+                                  {
+                                      Real ox = particleData().particleGridPos[p][0];
+                                      Real oy = particleData().particleGridPos[p][1];
+                                      Real oz = particleData().particleGridPos[p][2];
 
-                                          //Shape function gives a blending radius of two;
-                                          //so we do computations within a 2x2 square for each particle
-                                          for(Int idx = 0, z = Int(oz) - 1, z_end = z + 3; z <= z_end; ++z) {
-                                              //Z-dimension interpolation
-                                              Real z_pos = oz - z,
-                                              wz         = MathHelpers::cubic_bspline_kernel(z_pos),
-                                              dz         = MathHelpers::cubic_bspline_grad(z_pos);
+                                      //Shape function gives a blending radius of two;
+                                      //so we do computations within a 2x2 square for each particle
+                                      for(Int idx = 0, z = Int(oz) - 1, z_end = z + 3; z <= z_end; ++z) {
+                                          //Z-dimension interpolation
+                                          Real z_pos = oz - z,
+                                          wz         = MathHelpers::cubic_bspline_kernel(z_pos),
+                                          dz         = MathHelpers::cubic_bspline_grad(z_pos);
 
-                                              for(Int y = Int(oy) - 1, y_end = y + 3; y <= y_end; ++y) {
-                                                  //Y-dimension interpolation
-                                                  Real y_pos = oy - y,
-                                                  wy         = MathHelpers::cubic_bspline_kernel(y_pos),
-                                                  dy         = MathHelpers::cubic_bspline_grad(y_pos);
+                                          for(Int y = Int(oy) - 1, y_end = y + 3; y <= y_end; ++y) {
+                                              //Y-dimension interpolation
+                                              Real y_pos = oy - y,
+                                              wy         = MathHelpers::cubic_bspline_kernel(y_pos),
+                                              dy         = MathHelpers::cubic_bspline_grad(y_pos);
 
-                                                  for(Int x = Int(ox) - 1, x_end = x + 3; x <= x_end; ++x, ++idx) {
-                                                      if(!m_Grid.isValidNode(x, y, z)) {
-                                                          continue;
-                                                      }
-
-                                                      //X-dimension interpolation
-                                                      Real x_pos = ox - x,
-                                                      wx         = MathHelpers::cubic_bspline_kernel(x_pos),
-                                                      dx         = MathHelpers::cubic_bspline_grad(x_pos);
-
-                                                      //Final weight is dyadic product of weights in each dimension
-                                                      Real weight = wx * wy * wz;
-                                                      particleData().weights[p * 64 + idx] = weight;
-
-                                                      //Weight gradient is a vector of partial derivatives
-                                                      particleData().weightGradients[p * 64 + idx] = Vec3r(dx * wy * wz, dy * wx * wz, dz * wx * wy) / solverParams().cellSize;
-
-                                                      //Interpolate mass
-                                                      gridData().nodeLocks(x, y, z).lock();
-                                                      gridData().mass(x, y, z) += weight * solverParams().particleMass;
-                                                      gridData().nodeLocks(x, y, z).unlock();
+                                              for(Int x = Int(ox) - 1, x_end = x + 3; x <= x_end; ++x, ++idx) {
+                                                  if(!m_Grid.isValidNode(x, y, z)) {
+                                                      continue;
                                                   }
+
+                                                  //X-dimension interpolation
+                                                  Real x_pos = ox - x,
+                                                  wx         = MathHelpers::cubic_bspline_kernel(x_pos),
+                                                  dx         = MathHelpers::cubic_bspline_grad(x_pos);
+
+                                                  //Final weight is dyadic product of weights in each dimension
+                                                  Real weight = wx * wy * wz;
+                                                  particleData().weights[p * 64 + idx] = weight;
+
+                                                  //Weight gradient is a vector of partial derivatives
+                                                  particleData().weightGradients[p * 64 + idx] = Vec3r(dx * wy * wz, dy * wx * wz, dz * wx * wy) / solverParams().cellSize;
+
+                                                  //Interpolate mass
+                                                  gridData().nodeLocks(x, y, z).lock();
+                                                  gridData().mass(x, y, z) += weight * solverParams().particleMass;
+                                                  gridData().nodeLocks(x, y, z).unlock();
                                               }
                                           }
-                                      });
+                                      }
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -353,39 +350,39 @@ void Snow3DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
+                            [&](UInt p)
+                            {
+                                Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
+                                Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
+                                Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
 
-                                    for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
-                                        for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
-                                            for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
-                                                if(!m_Grid.isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
+                                    for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
+                                        for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
+                                            if(!m_Grid.isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                Real w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    gridData().nodeLocks(x, y, z).lock();
-                                                    //We could also do a separate loop to divide by nodes[n].mass only once
-                                                    gridData().velocity(x, y, z) += particleData().velocities[p] * w * solverParams().particleMass;
-                                                    gridData().active(x, y, z)    = 1;
-                                                    gridData().nodeLocks(x, y, z).unlock();
-                                                }
+                                            Real w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                gridData().nodeLocks(x, y, z).lock();
+                                                //We could also do a separate loop to divide by nodes[n].mass only once
+                                                gridData().velocity(x, y, z) += particleData().velocities[p] * w * solverParams().particleMass;
+                                                gridData().active(x, y, z)    = 1;
+                                                gridData().nodeLocks(x, y, z).unlock();
                                             }
                                         }
                                     }
-                                });
+                                }
+                            });
 
     Scheduler::parallel_for(gridData().active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().active.data()[i]) {
-                                        gridData().velocity.data()[i] /= gridData().mass.data()[i];
-                                    }
-                                });
+                            [&](size_t i)
+                            {
+                                if(gridData().active.data()[i]) {
+                                    gridData().velocity.data()[i] /= gridData().mass.data()[i];
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -395,34 +392,34 @@ void Snow3DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
+                            [&](UInt p)
+                            {
+                                Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
+                                Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
+                                Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
 
-                                    Real pdensity = 0_f;
-                                    //First compute particle density
-                                    for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
-                                        for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
-                                            for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
-                                                if(!m_Grid.isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                Real pdensity = 0_f;
+                                //First compute particle density
+                                for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
+                                    for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
+                                        for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
+                                            if(!m_Grid.isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                Real w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    pdensity += w * gridData().mass(x, y, z);
-                                                }
+                                            Real w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                pdensity += w * gridData().mass(x, y, z);
                                             }
                                         }
                                     }
+                                }
 
-                                    pdensity                   /= solverParams().cellArea;
-                                    particleData().densities[p] = pdensity;
-                                    //Volume for each particle can be found from density
-                                    particleData().volumes[p] = solverParams().particleMass / pdensity;
-                                });
+                                pdensity                   /= solverParams().cellArea;
+                                particleData().densities[p] = pdensity;
+                                //Volume for each particle can be found from density
+                                particleData().volumes[p] = solverParams().particleMass / pdensity;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -432,42 +429,42 @@ void Snow3DSolver::explicitVelocities(Real timestep)
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    //Solve for grid internal forces
-                                    Mat3x3r energy = computeEnergyDerivative(p);
-                                    Int ox         = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy         = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz         = static_cast<Int>(particleData().particleGridPos[p][2]);
+                            [&](UInt p)
+                            {
+                                //Solve for grid internal forces
+                                Mat3x3r energy = computeEnergyDerivative(p);
+                                Int ox         = static_cast<Int>(particleData().particleGridPos[p][0]);
+                                Int oy         = static_cast<Int>(particleData().particleGridPos[p][1]);
+                                Int oz         = static_cast<Int>(particleData().particleGridPos[p][2]);
 
-                                    for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
-                                        for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
-                                            for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
-                                                if(!m_Grid.isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
+                                    for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
+                                        for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
+                                            if(!m_Grid.isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                Real w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    //Weight the force onto nodes
-                                                    gridData().nodeLocks(x, y, z).lock();
-                                                    gridData().velocity_new(x, y, z) += energy * particleData().weightGradients[p * 64 + idx];
-                                                    gridData().nodeLocks(x, y, z).unlock();
-                                                }
+                                            Real w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                //Weight the force onto nodes
+                                                gridData().nodeLocks(x, y, z).lock();
+                                                gridData().velocity_new(x, y, z) += energy * particleData().weightGradients[p * 64 + idx];
+                                                gridData().nodeLocks(x, y, z).unlock();
                                             }
                                         }
                                     }
-                                });
+                                }
+                            });
 
     //Now we have all grid forces, compute velocities (euler integration)
     Scheduler::parallel_for(gridData().active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().active.data()[i]) {
-                                        gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                            timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
-                                    }
-                                });
+                            [&](size_t i)
+                            {
+                                if(gridData().active.data()[i]) {
+                                    gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
+                                                                        timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -487,73 +484,73 @@ void Snow3DSolver::implicitVelocities(Real timestep)
 
     //INITIALIZE LINEAR SOLVE
     Scheduler::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    gridData().imp_active.data()[i] = gridData().active.data()[i];
-                                    if(gridData().imp_active.data()[i]) {
-                                        //recomputeImplicitForces will compute Er, given r
-                                        //Initially, we want vf - E*vf; so we'll temporarily set r to vf
-                                        gridData().r.data()[i] = gridData().velocity_new.data()[i];
-                                        //Also set the error to 1
-                                        gridData().err.data()[i] = Vec3r(1.0);
-                                    }
-                                });
+                            [&](size_t i)
+                            {
+                                gridData().imp_active.data()[i] = gridData().active.data()[i];
+                                if(gridData().imp_active.data()[i]) {
+                                    //recomputeImplicitForces will compute Er, given r
+                                    //Initially, we want vf - E*vf; so we'll temporarily set r to vf
+                                    gridData().r.data()[i] = gridData().velocity_new.data()[i];
+                                    //Also set the error to 1
+                                    gridData().err.data()[i] = Vec3r(1.0);
+                                }
+                            });
 
     //As said before, we need to compute vf-E*vf as our initial "r" residual
     recomputeImplicitForces(timestep);
 
     Scheduler::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().imp_active.data()[i]) {
-                                        gridData().r.data()[i] = gridData().velocity_new.data()[i] - gridData().Er.data()[i];
-                                        //p starts out equal to residual
-                                        gridData().p.data()[i] = gridData().r.data()[i];
-                                        //cache r.dot(Er)
-                                        gridData().rDotEr.data()[i] = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
-                                    }
-                                });
+                            [&](size_t i)
+                            {
+                                if(gridData().imp_active.data()[i]) {
+                                    gridData().r.data()[i] = gridData().velocity_new.data()[i] - gridData().Er.data()[i];
+                                    //p starts out equal to residual
+                                    gridData().p.data()[i] = gridData().r.data()[i];
+                                    //cache r.dot(Er)
+                                    gridData().rDotEr.data()[i] = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
+                                }
+                            });
 
     //Since we updated r, we need to recompute Er
     recomputeImplicitForces(timestep);
 
     //Ep starts out the same as Er
     Scheduler::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().imp_active.data()[i]) {
-                                        gridData().Ep.data()[i] = gridData().Er.data()[i];
-                                    }
-                                });
+                            [&](size_t i)
+                            {
+                                if(gridData().imp_active.data()[i]) {
+                                    gridData().Ep.data()[i] = gridData().Er.data()[i];
+                                }
+                            });
 
     //LINEAR SOLVE
     for(UInt i = 0; i < solverParams().maxCGIteration; i++) {
         bool done = true;
 
         Scheduler::parallel_for(gridData().imp_active.dataSize(),
-                                    [&](size_t i)
-                                    {
-                                        //Only perform calculations on nodes that haven't been solved yet
-                                        if(gridData().imp_active.data()[i]) {
-                                            //Alright, so we'll handle each node's solve separately
-                                            //First thing to do is update our vf guess
-                                            Real div   = glm::dot(gridData().Ep.data()[i], gridData().Ep.data()[i]);
-                                            Real alpha = gridData().rDotEr.data()[i] / div;
-                                            gridData().err.data()[i] = alpha * gridData().p.data()[i];
-                                            //If the error is small enough, we're done
-                                            Real err = glm::length(gridData().err.data()[i]);
-                                            if(err < solverParams().maxImplicitError || err > solverParams().minImplicitError || isnan(err)) {
-                                                gridData().imp_active.data()[i] = 0;;
-                                                return;
-                                            } else {
-                                                done = false;
-                                            }
-
-                                            //Update vf and residual
-                                            gridData().velocity_new.data()[i] += gridData().err.data()[i];
-                                            gridData().r.data()[i]            -= alpha * gridData().Ep.data()[i];
+                                [&](size_t i)
+                                {
+                                    //Only perform calculations on nodes that haven't been solved yet
+                                    if(gridData().imp_active.data()[i]) {
+                                        //Alright, so we'll handle each node's solve separately
+                                        //First thing to do is update our vf guess
+                                        Real div   = glm::dot(gridData().Ep.data()[i], gridData().Ep.data()[i]);
+                                        Real alpha = gridData().rDotEr.data()[i] / div;
+                                        gridData().err.data()[i] = alpha * gridData().p.data()[i];
+                                        //If the error is small enough, we're done
+                                        Real err = glm::length(gridData().err.data()[i]);
+                                        if(err < solverParams().maxImplicitError || err > solverParams().minImplicitError || isnan(err)) {
+                                            gridData().imp_active.data()[i] = 0;;
+                                            return;
+                                        } else {
+                                            done = false;
                                         }
-                                    });
+
+                                        //Update vf and residual
+                                        gridData().velocity_new.data()[i] += gridData().err.data()[i];
+                                        gridData().r.data()[i]            -= alpha * gridData().Ep.data()[i];
+                                    }
+                                });
         //If all the velocities converged, we're done
         if(done) {
             break;
@@ -563,20 +560,20 @@ void Snow3DSolver::implicitVelocities(Real timestep)
 
         //Calculate the gradient for our next guess
         Scheduler::parallel_for(gridData().imp_active.dataSize(),
-                                    [&](size_t i)
-                                    {
-                                        if(gridData().imp_active.data()[i]) {
-                                            Real temp = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
-                                            Real beta = temp / gridData().rDotEr.data()[i];
-                                            gridData().rDotEr.data()[i] = temp;
-                                            //Update p
-                                            gridData().p.data()[i] *= beta;
-                                            gridData().p.data()[i] += gridData().r.data()[i];
-                                            //Update Ep
-                                            gridData().Ep.data()[i] *= beta;
-                                            gridData().Ep.data()[i] += gridData().Er.data()[i];
-                                        }
-                                    });
+                                [&](size_t i)
+                                {
+                                    if(gridData().imp_active.data()[i]) {
+                                        Real temp = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
+                                        Real beta = temp / gridData().rDotEr.data()[i];
+                                        gridData().rDotEr.data()[i] = temp;
+                                        //Update p
+                                        gridData().p.data()[i] *= beta;
+                                        gridData().p.data()[i] += gridData().r.data()[i];
+                                        //Update Ep
+                                        gridData().Ep.data()[i] *= beta;
+                                        gridData().Ep.data()[i] += gridData().Er.data()[i];
+                                    }
+                                });
     }
 }
 
@@ -584,39 +581,39 @@ void Snow3DSolver::implicitVelocities(Real timestep)
 void Snow3DSolver::recomputeImplicitForces(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
+                            [&](UInt p)
+                            {
+                                Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
+                                Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
+                                Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
 
-                                    for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
-                                        for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
-                                            for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
-                                                if(!m_Grid.isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
-
-                                                gridData().nodeLocks(x, y, z).lock();
-                                                if(gridData().imp_active(x, y, z)) {
-                                                    gridData().force(x, y, z) += computeDeltaForce(p, gridData().r(x, y, z), particleData().weightGradients[p * 64 + idx], timestep);
-                                                }
-                                                gridData().nodeLocks(x, y, z).unlock();
+                                for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
+                                    for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
+                                        for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
+                                            if(!m_Grid.isValidNode(x, y, z)) {
+                                                continue;
                                             }
+
+                                            gridData().nodeLocks(x, y, z).lock();
+                                            if(gridData().imp_active(x, y, z)) {
+                                                gridData().force(x, y, z) += computeDeltaForce(p, gridData().r(x, y, z), particleData().weightGradients[p * 64 + idx], timestep);
+                                            }
+                                            gridData().nodeLocks(x, y, z).unlock();
                                         }
                                     }
-                                });
+                                }
+                            });
 
     //We have delta force for each node; to get Er, we use the following formula:
     //	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
     Scheduler::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().imp_active.data()[i]) {
-                                                                  gridData().Er.data()[i] = gridData().r.data()[i] -
-                                                                  gridData().force.data()[i] / gridData().mass.data()[i] * solverParams().implicitRatio * timestep;
-                                    }
-                                });
+                            [&](size_t i)
+                            {
+                                if(gridData().imp_active.data()[i]) {
+                                                              gridData().Er.data()[i] = gridData().r.data()[i] -
+                                                              gridData().force.data()[i] / gridData().mass.data()[i] * solverParams().implicitRatio * timestep;
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -624,49 +621,49 @@ void Snow3DSolver::recomputeImplicitForces(Real timestep)
 void Snow3DSolver::velocityToParticles(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    //We calculate PIC and FLIP velocities separately
-                                    Vec3r pic(0), flip = particleData().velocities[p];
-                                    //Also keep track of velocity gradient
-                                    Mat3x3r& grad = particleData().velocityGradients[p];
-                                    grad = Mat3x3r(0.0);
+                            [&](UInt p)
+                            {
+                                //We calculate PIC and FLIP velocities separately
+                                Vec3r pic(0), flip = particleData().velocities[p];
+                                //Also keep track of velocity gradient
+                                Mat3x3r& grad = particleData().velocityGradients[p];
+                                grad = Mat3x3r(0.0);
 
-                                    //VISUALIZATION PURPOSES ONLY:
-                                    //Recompute density
-                                    Real pdensity = 0;
-                                    Int ox        = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy        = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz        = static_cast<Int>(particleData().particleGridPos[p][2]);
+                                //VISUALIZATION PURPOSES ONLY:
+                                //Recompute density
+                                Real pdensity = 0;
+                                Int ox        = static_cast<Int>(particleData().particleGridPos[p][0]);
+                                Int oy        = static_cast<Int>(particleData().particleGridPos[p][1]);
+                                Int oz        = static_cast<Int>(particleData().particleGridPos[p][2]);
 
-                                    for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
-                                        for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
-                                            for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
-                                                if(!m_Grid.isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
+                                    for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
+                                        for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
+                                            if(!m_Grid.isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                Real w = particleData().weights[p * 16 + idx];
-                                                if(w > Tiny) {
-                                                    const Vec3r& velocity_new = gridData().velocity_new(x, y, z);
-                                                    //Particle in cell
-                                                    pic += velocity_new * w;
-                                                    //Fluid implicit particle
-                                                    flip += (velocity_new - gridData().velocity(x, y, z)) * w;
-                                                    //Velocity gradient
-                                                    grad += glm::outerProduct(velocity_new, particleData().weightGradients[p * 64 + idx]);
+                                            Real w = particleData().weights[p * 16 + idx];
+                                            if(w > Tiny) {
+                                                const Vec3r& velocity_new = gridData().velocity_new(x, y, z);
+                                                //Particle in cell
+                                                pic += velocity_new * w;
+                                                //Fluid implicit particle
+                                                flip += (velocity_new - gridData().velocity(x, y, z)) * w;
+                                                //Velocity gradient
+                                                grad += glm::outerProduct(velocity_new, particleData().weightGradients[p * 64 + idx]);
 
-                                                    //VISUALIZATION ONLY: Update density
-                                                    pdensity += w * gridData().mass(x, y, z);
-                                                }
+                                                //VISUALIZATION ONLY: Update density
+                                                pdensity += w * gridData().mass(x, y, z);
                                             }
                                         }
                                     }
-                                    //Final velocity is a linear combination of PIC and FLIP components
-                                    particleData().velocities[p] = MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
-                                    //VISUALIZATION: Update density
-                                    particleData().densities[p] = pdensity / solverParams().cellArea;
-                                });
+                                }
+                                //Final velocity is a linear combination of PIC and FLIP components
+                                particleData().velocities[p] = MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
+                                //VISUALIZATION: Update density
+                                particleData().densities[p] = pdensity / solverParams().cellArea;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -676,50 +673,50 @@ void Snow3DSolver::constrainGridVelocity(Real timestep)
     delta_scale /= solverParams().cellSize;
 
     Scheduler::parallel_for<UInt>(m_Grid.getNNodes(),
-                                      [&](UInt x, UInt y, UInt z)
-                                      {
-                                          if(gridData().active(x, y, z)) {
-                                              bool velChanged    = false;
-                                              Vec3r velocity_new = gridData().velocity_new(x, y, z);
-                                              Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
+                                  [&](UInt x, UInt y, UInt z)
+                                  {
+                                      if(gridData().active(x, y, z)) {
+                                          bool velChanged    = false;
+                                          Vec3r velocity_new = gridData().velocity_new(x, y, z);
+                                          Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
 
-                                              for(UInt i = 0; i < solverDimension(); ++i) {
-                                                  if(new_pos[i] < Real(solverParams().kernelSpan) || new_pos[i] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan - 1)) {
-                                                      velocity_new[i]                          = 0;
-                                                      velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
-                                                      velChanged                               = true;
-                                                  }
-                                              }
-
-                                              if(velChanged) {
-                                                  gridData().velocity_new(x, y, z) = velocity_new;
+                                          for(UInt i = 0; i < solverDimension(); ++i) {
+                                              if(new_pos[i] < Real(solverParams().kernelSpan) || new_pos[i] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan - 1)) {
+                                                  velocity_new[i]                          = 0;
+                                                  velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
+                                                  velChanged                               = true;
                                               }
                                           }
-                                      });
+
+                                          if(velChanged) {
+                                              gridData().velocity_new(x, y, z) = velocity_new;
+                                          }
+                                      }
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::constrainParticleVelocity(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    bool velChanged = false;
-                                    Vec3r pVel      = particleData().velocities[p];
-                                    Vec3r new_pos   = particleData().particleGridPos[p] + pVel * timestep / solverParams().cellSize;
+                            [&](UInt p)
+                            {
+                                bool velChanged = false;
+                                Vec3r pVel      = particleData().velocities[p];
+                                Vec3r new_pos   = particleData().particleGridPos[p] + pVel * timestep / solverParams().cellSize;
 
-                                    //Left border, right border
-                                    for(UInt i = 0; i < solverDimension(); ++i) {
-                                        if(new_pos[i] < Real(solverParams().kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan)) {
-                                            pVel[i]   *= -solverParams().boundaryRestitution;
-                                            velChanged = true;
-                                        }
+                                //Left border, right border
+                                for(UInt i = 0; i < solverDimension(); ++i) {
+                                    if(new_pos[i] < Real(solverParams().kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan)) {
+                                        pVel[i]   *= -solverParams().boundaryRestitution;
+                                        velChanged = true;
                                     }
+                                }
 
-                                    if(velChanged) {
-                                        particleData().velocities[p] = pVel;
-                                    }
-                                });
+                                if(velChanged) {
+                                    particleData().velocities[p] = pVel;
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -727,86 +724,86 @@ void Snow3DSolver::constrainParticleVelocity(Real timestep)
 void Snow3DSolver::updateParticlePositions(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
-                                    //const Vec3r gridPos = particleData().particleGridPos[p];
-                                    //const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - solverParams().particleRadius;
+                            [&](UInt p)
+                            {
+                                Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
+                                //const Vec3r gridPos = particleData().particleGridPos[p];
+                                //const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - solverParams().particleRadius;
 
-                                    //if(phiVal < 0)
-                                    //{
-                                    //    Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                    //    Real mag2Grad = glm::length2(grad);
+                                //if(phiVal < 0)
+                                //{
+                                //    Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                //    Real mag2Grad = glm::length2(grad);
 
-                                    //    if(mag2Grad > Tiny)
-                                    //        ppos -= phiVal * grad / sqrt(mag2Grad);
-                                    //}
+                                //    if(mag2Grad > Tiny)
+                                //        ppos -= phiVal * grad / sqrt(mag2Grad);
+                                //}
 
-                                    particleData().positions[p] = ppos;
-                                });
+                                particleData().positions[p] = ppos;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::updateGradients(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Mat3x3r velGrad = particleData().velocityGradients[p];
-                                    velGrad *= timestep;
-                                    LinaHelpers::sumToDiag(velGrad, 1.0_f);
+                            [&](UInt p)
+                            {
+                                Mat3x3r velGrad = particleData().velocityGradients[p];
+                                velGrad *= timestep;
+                                LinaHelpers::sumToDiag(velGrad, 1.0_f);
 
-                                    particleData().velocityGradients[p] = velGrad;
-                                    particleData().elasticDeformGrad[p] = velGrad * particleData().elasticDeformGrad[p];
-                                });
+                                particleData().velocityGradients[p] = velGrad;
+                                particleData().elasticDeformGrad[p] = velGrad * particleData().elasticDeformGrad[p];
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::applyPlasticity()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Mat3x3r elasticDeformGrad = particleData().elasticDeformGrad[p];
-                                    Mat3x3r plasticDeformGrad = particleData().plasticDeformGrad[p];
-                                    Mat3x3r f_all             = elasticDeformGrad * plasticDeformGrad;
+                            [&](UInt p)
+                            {
+                                Mat3x3r elasticDeformGrad = particleData().elasticDeformGrad[p];
+                                Mat3x3r plasticDeformGrad = particleData().plasticDeformGrad[p];
+                                Mat3x3r f_all             = elasticDeformGrad * plasticDeformGrad;
 
-                                    //We compute the SVD decomposition
-                                    //The singular values (basically a scale transform) tell us if
-                                    //the particle has exceeded critical stretch/compression
-                                    Mat3x3r svd_w, svd_v;
-                                    Vec3r svd_e;
-                                    QRSVD::svd(elasticDeformGrad, svd_w, svd_e, svd_v);
+                                //We compute the SVD decomposition
+                                //The singular values (basically a scale transform) tell us if
+                                //the particle has exceeded critical stretch/compression
+                                Mat3x3r svd_w, svd_v;
+                                Vec3r svd_e;
+                                QRSVD::svd(elasticDeformGrad, svd_w, svd_e, svd_v);
 
-                                    Mat3x3r svd_v_trans = glm::transpose(svd_v);
-                                    //Clamp singular values to within elastic region
-                                    for(UInt j = 0; j < solverDimension(); ++j) {
-                                        svd_e[j] = MathHelpers::clamp(svd_e[j], solverParams().thresholdCompression, solverParams().thresholdStretching);
-                                    }
+                                Mat3x3r svd_v_trans = glm::transpose(svd_v);
+                                //Clamp singular values to within elastic region
+                                for(UInt j = 0; j < solverDimension(); ++j) {
+                                    svd_e[j] = MathHelpers::clamp(svd_e[j], solverParams().thresholdCompression, solverParams().thresholdStretching);
+                                }
 
-                                    //Compute polar decomposition, from clamped SVD
-                                    Mat3x3r polar_r = svd_w * svd_v_trans;
-                                    Mat3x3r polar_s = svd_v;
-                                    LinaHelpers::diagProduct(polar_s, svd_e);
-                                    polar_s = polar_s * svd_v_trans;
+                                //Compute polar decomposition, from clamped SVD
+                                Mat3x3r polar_r = svd_w * svd_v_trans;
+                                Mat3x3r polar_s = svd_v;
+                                LinaHelpers::diagProduct(polar_s, svd_e);
+                                polar_s = polar_s * svd_v_trans;
 
-                                    //Recompute elastic and plastic gradient
-                                    //We're basically just putting the SVD back together again
-                                    Mat3x3r v_cpy(svd_v), w_cpy(svd_w);
-                                    LinaHelpers::diagProductInv(v_cpy, svd_e);
-                                    LinaHelpers::diagProduct(w_cpy, svd_e);
-                                    plasticDeformGrad = v_cpy * glm::transpose(svd_w) * f_all;
-                                    elasticDeformGrad = w_cpy * glm::transpose(svd_v);
+                                //Recompute elastic and plastic gradient
+                                //We're basically just putting the SVD back together again
+                                Mat3x3r v_cpy(svd_v), w_cpy(svd_w);
+                                LinaHelpers::diagProductInv(v_cpy, svd_e);
+                                LinaHelpers::diagProduct(w_cpy, svd_e);
+                                plasticDeformGrad = v_cpy * glm::transpose(svd_w) * f_all;
+                                elasticDeformGrad = w_cpy * glm::transpose(svd_v);
 
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    particleData().svd_w[p]             = svd_w;
-                                    particleData().svd_e[p]             = svd_e;
-                                    particleData().svd_v[p]             = svd_v;
-                                    particleData().polar_r[p]           = polar_r;
-                                    particleData().polar_s[p]           = polar_s;
-                                    particleData().plasticDeformGrad[p] = plasticDeformGrad;
-                                    particleData().elasticDeformGrad[p] = elasticDeformGrad;
-                                });
+                                ////////////////////////////////////////////////////////////////////////////////
+                                particleData().svd_w[p]             = svd_w;
+                                particleData().svd_e[p]             = svd_e;
+                                particleData().svd_v[p]             = svd_v;
+                                particleData().polar_r[p]           = polar_r;
+                                particleData().polar_s[p]           = polar_s;
+                                particleData().plasticDeformGrad[p] = plasticDeformGrad;
+                                particleData().elasticDeformGrad[p] = elasticDeformGrad;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
