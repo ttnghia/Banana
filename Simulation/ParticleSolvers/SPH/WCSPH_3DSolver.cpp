@@ -144,18 +144,18 @@ void WCSPH_3DSolver::generateParticles(const JParams& jParams)
     if(solverParams().bDensityByBDParticle) {
         __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
         for(auto& bdObj : m_BoundaryObjects) {
-            UInt nGen = bdObj->generateBoundaryParticles(particleData().BDParticles, 0.85_f * solverParams().particleRadius);
+            UInt nGen = bdObj->generateBoundaryParticles(particleData().boundaryParticles, 0.85_f * solverParams().particleRadius);
             logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" boundary particles by ") + bdObj->nameID());
         }
 
-        __BNN_REQUIRE(particleData().BDParticles.size() > 0);
-        m_NSearch->add_point_set(glm::value_ptr(particleData().BDParticles.front()), static_cast<UInt>(particleData().BDParticles.size()), false, true);
+        __BNN_REQUIRE(particleData().boundaryParticles.size() > 0);
+        m_NSearch->add_point_set(glm::value_ptr(particleData().boundaryParticles.front()), static_cast<UInt>(particleData().boundaryParticles.size()), false, true);
         logger().printRunTime("Sort boundary particles: ",
                               [&]()
                               {
                                   m_NSearch->z_sort();
                                   auto const& d = m_NSearch->point_set(1);
-                                  d.sort_field(particleData().BDParticles.data());
+                                  d.sort_field(particleData().boundaryParticles.data());
                               });
     }
 }
@@ -415,7 +415,7 @@ void WCSPH_3DSolver::computeNeighborRelativePositions()
                                 ////////////////////////////////////////////////////////////////////////////////
                                 if(solverParams().bDensityByBDParticle) {
                                     const auto& PDNeighborList = fluidPointSet.neighbors(1, p);
-                                    computeRelativePositions(ppos, PDNeighborList, particleData().BDParticles, pNeighborInfo);
+                                    computeRelativePositions(ppos, PDNeighborList, particleData().boundaryParticles, pNeighborInfo);
                                 }
                             });
 }

@@ -384,6 +384,7 @@ struct ParticleSimulationData
     Vector<VecX<N, RealType>> position_t0;       // positions at time t = 0, if needed
     Vec_VecUInt               neighborIdx;       // list of neighbors particles, if needed
     Vec_Vec<RealType>         neighbor_d0;       // list of distances to neighbors particles, at time t = 0, if needed
+    Vec_VecX<N, RealType>     boundaryParticles; // store particles generated inside boundary, if applicable
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

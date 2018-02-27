@@ -172,7 +172,6 @@ struct WCSPH_Data : public SimulationData<N, RealType>
         Vec_VecX<N, RealType>             diffuseVelocities;
         Vec_VecX<N, RealType>             aniKernelCenters;
         Vec_MatXxX<N, RealType>           aniKernelMatrices;
-        Vec_VecX<N, RealType>             BDParticles;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override
         {
