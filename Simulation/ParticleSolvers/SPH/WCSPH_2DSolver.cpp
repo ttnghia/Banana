@@ -144,23 +144,18 @@ void WCSPH_2DSolver::generateParticles(const JParams& jParams)
     if(solverParams().bDensityByBDParticle) {
         __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
         for(auto& bdObj : m_BoundaryObjects) {
-            __BNN_TODO_MSG("Unify boundary particles into solver data")
             UInt nGen = bdObj->generateBoundaryParticles(particleData().BDParticles, 0.85_f * solverParams().particleRadius);
             logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" boundary particles by ") + bdObj->nameID());
         }
 
         __BNN_REQUIRE(particleData().BDParticles.size() > 0);
-        m_NSearch->add_point_set(glm::value_ptr(particleData().BDParticles.front()), particleData().BDParticles.size(), false, true);
+        m_NSearch->add_point_set(glm::value_ptr(particleData().BDParticles.front()), static_cast<UInt>(particleData().BDParticles.size()), false, true);
         logger().printRunTime("Sort boundary particles: ",
                               [&]()
                               {
                                   m_NSearch->z_sort();
-                                  __BNN_TODO_MSG("Fix below, it is not correct!");
-                                  for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i) {
-                                      auto& bdObj   = m_BoundaryObjects[i];
-                                      auto const& d = m_NSearch->point_set(i + 1);
-                                      d.sort_field(&(particleData().BDParticles[0]));
-                                  }
+                                  auto const& d = m_NSearch->point_set(1);
+                                  d.sort_field(particleData().BDParticles.data());
                               });
     }
 }
@@ -643,7 +638,6 @@ void WCSPH_2DSolver::computeViscosity()
                                         const auto qdensity = qInfo.z;
                                         diffVelBoundary -= (1.0_f / qdensity) * kernels().kernelPoly6.W(r) * pvel;
                                     }
-                                    __BNN_DIE_UNKNOWN_ERROR
                                     diffVelBoundary *= solverParams().viscosityBoundary;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////

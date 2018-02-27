@@ -90,14 +90,13 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec2r minLX = boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(1.001)));
-        Vec2r maxLX = boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(1.001)));
-        maxLX[0] = boxMin()[0];
+        Vec2r minLX = boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec2r maxLX = boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        maxLX.x = boxMin().x;
         Vec2i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
-
-        for(Int x = 0; x < gridLX[0]; ++x) {
-            for(Int y = 0; y < gridLX[1]; ++y) {
-                const Vec2r gridPos = minLX + Vec2r(x + 0.5, y + 0.5) * spacing;
+        for(Int x = 0; x < gridLX.x; ++x) {
+            for(Int y = 0; y < gridLX.y + 1; ++y) {
+                const Vec2r gridPos = minLX + Vec2r(x, y) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disSmall(gen), disLarge(gen));
                 PDPositions.push_back(ppos);
             }
@@ -107,14 +106,13 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec2r minUX = boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(1.001)));
-        Vec2r maxUX = boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(1.001)));
-        minUX[0] = boxMax()[0];
+        Vec2r minUX = boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec2r maxUX = boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        minUX.x = boxMax().x;
         Vec2i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
-
-        for(Int x = 0; x < gridUX[0]; ++x) {
-            for(Int y = 0; y < gridUX[1]; ++y) {
-                const Vec2r gridPos = minUX + Vec2r(x + 0.5, y + 0.5) * spacing;
+        for(Int x = 0; x < gridUX.x; ++x) {
+            for(Int y = 0; y < gridUX.y + 1; ++y) {
+                const Vec2r gridPos = minUX + Vec2r(x + 1, y) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disSmall(gen), disLarge(gen));
                 PDPositions.push_back(ppos);
             }
@@ -124,16 +122,15 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec2r minLY = boxMin() - Vec2r(spacing * RealType(numBDLayers) * RealType(1.001));
-        Vec2r maxLY = boxMax() + Vec2r(spacing * RealType(numBDLayers) * RealType(1.001));
-        minLY[0] = boxMin()[0];
-        maxLY[0] = boxMax()[0];
-        maxLY[1] = boxMin()[1];
+        Vec2r minLY = boxMin() - Vec2r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec2r maxLY;
+        minLY.x = boxMin().x;
+        maxLY.x = boxMax().x;
+        maxLY.y = boxMin().y;
         Vec2i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
-
-        for(Int x = 0; x < gridLY[0]; ++x) {
-            for(Int y = 0; y < gridLY[1]; ++y) {
-                const Vec2r gridPos = minLY + Vec2r(x + 0.5, y + 0.5) * spacing;
+        for(Int x = 0; x < gridLY.x + 1; ++x) {
+            for(Int y = 0; y < gridLY.y; ++y) {
+                const Vec2r gridPos = minLY + Vec2r(x, y) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disLarge(gen), disSmall(gen));
                 PDPositions.push_back(ppos);
             }
@@ -143,16 +140,15 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y > 0
     {
-        Vec2r minUY = boxMin() - Vec2r(spacing * RealType(numBDLayers) * RealType(1.001));
-        Vec2r maxUY = boxMax() + Vec2r(spacing * RealType(numBDLayers) * RealType(1.001));
-        minUY[0] = boxMin()[0];
-        maxUY[0] = boxMax()[0];
-        minUY[1] = boxMax()[1];
+        Vec2r minUY;
+        Vec2r maxUY = boxMax() + Vec2r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minUY.x = boxMin().x;
+        minUY.y = boxMax().y;
+        maxUY.x = boxMax().x;
         Vec2i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
-
-        for(Int x = 0; x < gridUY[0]; ++x) {
-            for(Int y = 0; y < gridUY[1]; ++y) {
-                const Vec2r gridPos = minUY + Vec2r(x + 0.5, y + 0.5) * spacing;
+        for(Int x = 0; x < gridUY.x + 1; ++x) {
+            for(Int y = 0; y < gridUY.y; ++y) {
+                const Vec2r gridPos = minUY + Vec2r(x, y + 1) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disLarge(gen), disSmall(gen));
                 PDPositions.push_back(ppos);
             }
@@ -175,15 +171,15 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec3r minLX = boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(1.001)));
-        Vec3r maxLX = boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(1.001)));
-        maxLX[0] = boxMin()[0];
+        Vec3r minLX = boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec3r maxLX = boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        maxLX.x = boxMin().x;
         Vec3i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
 
-        for(Int x = 0; x < gridLX[0]; ++x) {
-            for(Int y = 0; y < gridLX[1]; ++y) {
-                for(Int z = 0; z < gridLX[2]; ++z) {
-                    const Vec3r gridPos = minLX + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+        for(Int x = 0; x < gridLX.x; ++x) {
+            for(Int y = 0; y < gridLX.y + 1; ++y) {
+                for(Int z = 0; z < gridLX.z + 1; ++z) {
+                    const Vec3r gridPos = minLX + Vec3r(x, y, z) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disSmall(gen), disLarge(gen), disLarge(gen));
                     PDPositions.push_back(ppos);
                 }
@@ -194,15 +190,15 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec3r minUX = boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(1.001)));
-        Vec3r maxUX = boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(1.001)));
-        minUX[0] = boxMax()[0];
+        Vec3r minUX = boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec3r maxUX = boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        minUX.x = boxMax().x;
         Vec3i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
 
-        for(Int x = 0; x < gridUX[0]; ++x) {
-            for(Int y = 0; y < gridUX[1]; ++y) {
-                for(Int z = 0; z < gridUX[2]; ++z) {
-                    const Vec3r gridPos = minUX + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+        for(Int x = 0; x < gridUX.x; ++x) {
+            for(Int y = 0; y < gridUX.y + 1; ++y) {
+                for(Int z = 0; z < gridUX.z + 1; ++z) {
+                    const Vec3r gridPos = minUX + Vec3r(x + 1, y, z) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disSmall(gen), disLarge(gen), disLarge(gen));
                     PDPositions.push_back(ppos);
                 }
@@ -213,17 +209,17 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec3r minLY = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        Vec3r maxLY = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        minLY[0] = boxMin()[0];
-        maxLY[0] = boxMax()[0];
-        maxLY[1] = boxMin()[1];
+        Vec3r minLY = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec3r maxLY = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minLY.x = boxMin().x;
+        maxLY.x = boxMax().x;
+        maxLY.y = boxMin().y;
         Vec3i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
 
-        for(Int x = 0; x < gridLY[0]; ++x) {
-            for(Int y = 0; y < gridLY[1]; ++y) {
-                for(Int z = 0; z < gridLY[2]; ++z) {
-                    const Vec3r gridPos = minLY + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+        for(Int x = 0; x < gridLY.x + 1; ++x) {
+            for(Int y = 0; y < gridLY.y; ++y) {
+                for(Int z = 0; z < gridLY.z + 1; ++z) {
+                    const Vec3r gridPos = minLY + Vec3r(x, y, z) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disSmall(gen), disLarge(gen));
                     PDPositions.push_back(ppos);
                 }
@@ -234,17 +230,17 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y > 0
     {
-        Vec3r minUY = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        Vec3r maxUY = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        minUY[0] = boxMin()[0];
-        maxUY[0] = boxMax()[0];
-        minUY[1] = boxMax()[1];
+        Vec3r minUY = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec3r maxUY = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minUY.x = boxMin().x;
+        minUY.y = boxMax().y;
+        maxUY.x = boxMax().x;
         Vec3i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
 
-        for(Int x = 0; x < gridUY[0]; ++x) {
-            for(Int y = 0; y < gridUY[1]; ++y) {
-                for(Int z = 0; z < gridUY[2]; ++z) {
-                    const Vec3r gridPos = minUY + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+        for(Int x = 0; x < gridUY.x + 1; ++x) {
+            for(Int y = 0; y < gridUY.y; ++y) {
+                for(Int z = 0; z < gridUY.z + 1; ++z) {
+                    const Vec3r gridPos = minUY + Vec3r(x, y + 1, z) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disSmall(gen), disLarge(gen));
                     PDPositions.push_back(ppos);
                 }
@@ -255,19 +251,19 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane z < 0
     {
-        Vec3r minLZ = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        Vec3r maxLZ = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        minLZ[0] = boxMin()[0];
-        maxLZ[0] = boxMax()[0];
-        minLZ[1] = boxMin()[1];
-        maxLZ[1] = boxMax()[1];
-        maxLZ[2] = boxMin()[2];
+        Vec3r minLZ = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec3r maxLZ;
+        minLZ.x = boxMin().x;
+        minLZ.y = boxMin().y;
+        maxLZ.x = boxMax().x;
+        maxLZ.y = boxMax().y;
+        maxLZ.z = boxMin().z;
         Vec3i gridLZ = NumberHelpers::createGrid<Int>(minLZ, maxLZ, spacing);
 
-        for(Int x = 0; x < gridLZ[0]; ++x) {
-            for(Int y = 0; y < gridLZ[1]; ++y) {
-                for(Int z = 0; z < gridLZ[2]; ++z) {
-                    const Vec3r gridPos = minLZ + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+        for(Int x = 0; x < gridLZ.x + 1; ++x) {
+            for(Int y = 0; y < gridLZ.y + 1; ++y) {
+                for(Int z = 0; z < gridLZ.z; ++z) {
+                    const Vec3r gridPos = minLZ + Vec3r(x, y, z) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disLarge(gen), disSmall(gen));
                     PDPositions.push_back(ppos);
                 }
@@ -278,19 +274,19 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane z > 0
     {
-        Vec3r minUZ = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        Vec3r maxUZ = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(1.001));
-        minUZ[0] = boxMin()[0];
-        maxUZ[0] = boxMax()[0];
-        minUZ[1] = boxMin()[1];
-        maxUZ[1] = boxMax()[1];
-        minUZ[2] = boxMax()[2];
+        Vec3r minUZ;
+        Vec3r maxUZ = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minUZ.x = boxMin().x;
+        minUZ.y = boxMin().y;
+        minUZ.z = boxMax().z;
+        maxUZ.x = boxMax().x;
+        maxUZ.y = boxMax().y;
         Vec3i gridUX = NumberHelpers::createGrid<Int>(minUZ, maxUZ, spacing);
 
-        for(Int x = 0; x < gridUX[0]; ++x) {
-            for(Int y = 0; y < gridUX[1]; ++y) {
-                for(Int z = 0; z < gridUX[2]; ++z) {
-                    const Vec3r gridPos = minUZ + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+        for(Int x = 0; x < gridUX.x + 1; ++x) {
+            for(Int y = 0; y < gridUX.y + 1; ++y) {
+                for(Int z = 0; z < gridUX.z; ++z) {
+                    const Vec3r gridPos = minUZ + Vec3r(x, y, z + 1) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disLarge(gen), disSmall(gen));
                     PDPositions.push_back(ppos);
                 }
