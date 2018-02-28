@@ -171,9 +171,6 @@
     <ClInclude Include="ParticleSolvers\SPH\PCISPH_3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH_3DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimulationObjects\HairObjectGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -187,9 +184,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH_2DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h">
@@ -257,9 +251,6 @@
     <ClCompile Include="ParticleSolvers\MPM\MPM_2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_3DSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -269,7 +260,7 @@
     <ClCompile Include="ParticleSolvers\MPM\HairMPM_2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_2DSolver.cpp">
+    <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

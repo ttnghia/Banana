@@ -78,10 +78,10 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             JSONHelpers::readValue(jBoxParams, obj->particleFile(), "ParticleFile");
 
             // domain box can only has translation, scale and size scale
-            VecX<N, RealType> translation;
-            RealType          scale;
-            VecX<N, RealType> boxMin;
-            VecX<N, RealType> boxMax;
+            VecNR    translation;
+            RealType scale;
+            VecNR    boxMin;
+            VecNR    boxMax;
             __BNN_REQUIRE(box != nullptr);
 
             if(JSONHelpers::readVector(jBoxParams, translation, "Translation")) {

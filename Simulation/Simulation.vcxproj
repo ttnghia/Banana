@@ -186,7 +186,6 @@
     <ClInclude Include="ParticleSolvers\SPH\PCISPH_3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPHSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\Mass-Spring-System\PeridynamicsSolver.h" />
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH_3DSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
@@ -199,7 +198,6 @@
     <ClInclude Include="SimulationObjects\ParticleGenerator.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH_2DSolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp" />
@@ -211,8 +209,7 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\APIC_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\FLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\PIC_3DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_2DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_3DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
