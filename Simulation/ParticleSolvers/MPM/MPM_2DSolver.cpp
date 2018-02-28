@@ -28,143 +28,6 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM_2DData implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DData::ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
-    volumes.reserve(nParticles);
-    velocityGrad.reserve(nParticles);
-
-    deformGrad.reserve(nParticles);
-    PiolaStress.reserve(nParticles);
-    CauchyStress.reserve(nParticles);
-
-    energy.reserve(nParticles);
-    energyDensity.reserve(nParticles);
-
-    gridCoordinate.reserve(nParticles);
-
-    weightGradients.reserve(nParticles * 16);
-    weights.reserve(nParticles * 16);
-
-    B.reserve(nParticles);
-    D.reserve(nParticles);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DData::ParticleData::addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
-{
-    __BNN_REQUIRE(newPositions.size() == newVelocities.size());
-
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-
-    volumes.resize(positions.size(), 0);
-    velocityGrad.resize(positions.size(), Mat2x2r(0));
-
-    deformGrad.resize(positions.size(), Mat2x2r(1.0));
-    PiolaStress.resize(positions.size(), Mat2x2r(1.0));
-    CauchyStress.resize(positions.size(), Mat2x2r(1.0));
-
-    energy.resize(positions.size(), 0);
-    energyDensity.resize(positions.size(), 0);
-
-    gridCoordinate.resize(positions.size(), Vec2r(0));
-    weightGradients.resize(positions.size() * 16, Vec2r(0));
-    weights.resize(positions.size() * 16, 0_f);
-
-    B.resize(positions.size(), Mat2x2r(0));
-    D.resize(positions.size(), Mat2x2r(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int16>(nObjects));
-    ++nObjects;     // increase the number of objects
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt MPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
-    __BNN_REQUIRE(removeMarker.size() == positions.size());
-    if(!STLHelpers::contain(removeMarker, Int8(1))) {
-        return 0u;
-    }
-
-    STLHelpers::eraseByMarker(positions,    removeMarker);
-    STLHelpers::eraseByMarker(velocities,   removeMarker);
-    STLHelpers::eraseByMarker(objectIndex,  removeMarker);
-    STLHelpers::eraseByMarker(volumes,      removeMarker);
-    STLHelpers::eraseByMarker(velocityGrad, removeMarker);
-    STLHelpers::eraseByMarker(B,            removeMarker);
-    STLHelpers::eraseByMarker(D,            removeMarker);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    deformGrad.resize(positions.size());
-    PiolaStress.resize(positions.size());
-    CauchyStress.resize(positions.size());
-
-    energy.resize(positions.size());
-    energyDensity.resize(positions.size());
-
-    gridCoordinate.resize(positions.size());
-    weightGradients.resize(positions.size() * 16);
-    weights.resize(positions.size() * 16);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    return static_cast<UInt>(removeMarker.size() - positions.size());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DData::GridData::resize(const Vec2ui& nCells)
-{
-    auto nNodes = Vec2ui(nCells[0] + 1u, nCells[1] + 1u);
-    ////////////////////////////////////////////////////////////////////////////////
-    active.resize(nNodes, 0);
-    activeNodeIdx.resize(nNodes, 0u);
-    velocity.resize(nNodes, Vec2r(0));
-    velocity_new.resize(nNodes, Vec2r(0));
-
-    mass.resize(nNodes, 0);
-    energy.resize(nNodes, 0);
-    velocity.resize(nNodes, Vec2r(0));
-
-    weight.resize(nNodes);
-    weightGrad.resize(nNodes);
-
-    nodeLocks.resize(nNodes);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DData::GridData::resetGrid()
-{
-    active.assign(char(0));
-    activeNodeIdx.assign(0u);
-    mass.assign(0);
-    energy.assign(0);
-    velocity.assign(Vec2r(0));
-    velocity_new.assign(Vec2r(0));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DData::makeReady(const MPM_2DParameters& params)
-{
-    if(params.maxNParticles > 0) {
-        particleData.reserve(params.maxNParticles);
-    }
-    grid.setGrid(params.domainBMin, params.domainBMax, params.cellSize);
-    gridData.resize(grid.getNCells());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM_2DSolver implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_2DSolver::makeReady()
 {
     logger().printMemoryUsage();
@@ -285,8 +148,8 @@ bool MPM_2DSolver::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_2DSolver::allocateSolverMemory()
 {
-    m_SolverParams = std::make_shared<MPM_2DParameters>();
-    m_SolverData   = std::make_shared<MPM_2DData>();
+    m_SolverParams = std::make_shared<MPM_Parameters<2, Real>>();
+    m_SolverData   = std::make_shared<MPM_Data<2, Real>>();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -637,7 +500,7 @@ void MPM_2DSolver::explicitIntegration(Real timestep)
                             {
                                 auto deformGrad = particleData().deformGrad[p];
                                 Mat2x2r Ftemp;
-                                auto [U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
+                                auto[U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
                                 if(S[1] < 0) {
                                     S[1] *= -1.0_f;
                                 }
@@ -647,7 +510,7 @@ void MPM_2DSolver::explicitIntegration(Real timestep)
                                 Real J = glm::determinant(Ftemp);
                                 __BNN_REQUIRE(J > 0.0);
                                 assert(NumberHelpers::isValidNumber(J));
-                                Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp));     // F^(-T)
+                                Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
                                 Mat2x2r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
                                 assert(LinaHelpers::hasValidElements(P));
 
@@ -712,7 +575,7 @@ void MPM_2DSolver::implicitIntegration(Real timestep)
                             });
 
     ////////////////////////////////////////////////////////////////////////////////
-    MPM_2DObjective obj(solverParams(), solverData(), timestep);
+    MPM_Objective<2, Real> obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -726,7 +589,8 @@ void MPM_2DSolver::implicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM_2DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+template<>
+Real MPM_Objective<2, Real >::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 {
     auto vPtr    = reinterpret_cast<const Vec2r*>(v.data());
     auto gradPtr = reinterpret_cast<Vec2r*>(grad.data());
@@ -764,7 +628,7 @@ Real MPM_2DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 pVelGrad *= m_timestep;
                                 LinaHelpers::sumToDiag(pVelGrad, 1.0_f);
                                 Mat2x2r newF = pVelGrad * pF;
-                                auto [U, S, Vt] = LinaHelpers::orientedSVD(newF);
+                                auto[U, S, Vt] = LinaHelpers::orientedSVD(newF);
                                 if(S[1] < 0) {
                                     S[1] *= -1.0_f;
                                 }
@@ -776,7 +640,7 @@ Real MPM_2DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 __BNN_REQUIRE(J > 0);
                                 assert(NumberHelpers::isValidNumber(J));
                                 Real logJ   = log(J);
-                                Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp));     // F^(-T)
+                                Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
                                 Mat2x2r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
                                 assert(LinaHelpers::hasValidElements(P));
                                 particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);

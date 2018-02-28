@@ -72,7 +72,7 @@ void HairMPM_2DData::GridData::resetGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData)
+void HairMPM_2DData::makeReady(const MPM_Parameters<2, Real>& params,  MPM_Data<2, Real>& mpmData)
 {
     particleData.reserve(params.maxNParticles);
     particleData.resize(mpmData.particleData.getNParticles());
@@ -85,7 +85,7 @@ void HairMPM_2DData::makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmD
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData)
+void HairMPM_2DData::classifyParticles(const MPM_Parameters<2, Real>& params,  MPM_Data<2, Real>& mpmData)
 {
     auto& positions    = mpmData.particleData.positions;
     auto& particleType = particleData.particleType;
@@ -115,7 +115,7 @@ void HairMPM_2DData::classifyParticles(const MPM_2DParameters& params,  MPM_2DDa
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::find_d0(const MPM_2DParameters& params, MPM_2DData& mpmData)
+void HairMPM_2DData::find_d0(const MPM_Parameters<2, Real>& params, MPM_Data<2, Real>& mpmData)
 {
     auto& positions    = mpmData.particleData.positions;
     auto& d0           = mpmData.particleData.neighbor_d0;
@@ -159,7 +159,7 @@ void HairMPM_2DData::find_d0(const MPM_2DParameters& params, MPM_2DData& mpmData
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::computeLocalDirections(MPM_2DData& mpmData)
+void HairMPM_2DData::computeLocalDirections(MPM_Data<2, Real>& mpmData)
 {
     auto& positions       = mpmData.particleData.positions;
     auto& neighborIdx     = mpmData.particleData.neighborIdx;

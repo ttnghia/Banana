@@ -28,186 +28,6 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM_3DParameters implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DParameters::makeReady()
-{
-    SimulationParameters3D::makeReady();
-    nExpandCells = MathHelpers::max(nExpandCells, 2u);
-    particleMass = MathHelpers::cube(2.0_f * particleRadius) * materialDensity;
-
-    __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
-    if(mu == 0 || lambda == 0) {
-        mu     = YoungsModulus / 2.0_f / (1.0_f + PoissonsRatio);
-        lambda = YoungsModulus * PoissonsRatio / ((1.0_f + PoissonsRatio) * (1.0_f - 2.0_f * PoissonsRatio));
-    } else {
-        YoungsModulus = mu * (3.0_f * lambda + 2.0_f * mu) / (lambda + mu);
-        PoissonsRatio = lambda / 2.0_f / (lambda + mu);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DParameters::printParams(const SharedPtr<Logger>& logger)
-{
-    logger->printLog(String("MPM-3D parameters:"));
-    SimulationParameters3D::printParams(logger);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // MPM parameters
-    logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // material parameters
-    logger->printLogIndent(String("Youngs modulus/Poissons ratio: ") + std::to_string(YoungsModulus) + String("/") + std::to_string(PoissonsRatio));
-    logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
-    logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
-    logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
-    ////////////////////////////////////////////////////////////////////////////////
-    logger->newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM_3DData implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DData::ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
-    volumes.reserve(nParticles);
-    velocityGrad.reserve(nParticles);
-
-    deformGrad.reserve(nParticles);
-    PiolaStress.reserve(nParticles);
-    CauchyStress.reserve(nParticles);
-
-    energy.reserve(nParticles);
-    energyDensity.reserve(nParticles);
-
-    gridCoordinate.reserve(nParticles);
-
-    weightGradients.reserve(nParticles * 64);
-    weights.reserve(nParticles * 64);
-
-    B.reserve(nParticles);
-    D.reserve(nParticles);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
-{
-    __BNN_REQUIRE(newPositions.size() == newVelocities.size());
-
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-
-    volumes.resize(positions.size(), 0);
-    velocityGrad.resize(positions.size(), Mat3x3r(0));
-
-    deformGrad.resize(positions.size(), Mat3x3r(1.0));
-    PiolaStress.resize(positions.size(), Mat3x3r(1.0));
-    CauchyStress.resize(positions.size(), Mat3x3r(1.0));
-
-    energy.resize(positions.size(), 0);
-    energyDensity.resize(positions.size(), 0);
-
-    gridCoordinate.resize(positions.size(), Vec3r(0));
-    weightGradients.resize(positions.size() * 64, Vec3r(0));
-    weights.resize(positions.size() * 64, 0_f);
-
-    B.resize(positions.size(), Mat3x3r(0));
-    D.resize(positions.size(), Mat3x3r(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int16>(nObjects));
-    ++nObjects;     // increase the number of objects
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt MPM_3DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
-    __BNN_REQUIRE(removeMarker.size() == positions.size());
-    if(!STLHelpers::contain(removeMarker, Int8(1))) {
-        return 0u;
-    }
-
-    STLHelpers::eraseByMarker(positions,    removeMarker);
-    STLHelpers::eraseByMarker(velocities,   removeMarker);
-    STLHelpers::eraseByMarker(objectIndex,  removeMarker);
-    STLHelpers::eraseByMarker(volumes,      removeMarker);
-    STLHelpers::eraseByMarker(velocityGrad, removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
-    STLHelpers::eraseByMarker(B,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
-    STLHelpers::eraseByMarker(D,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    deformGrad.resize(positions.size());
-    PiolaStress.resize(positions.size());
-    CauchyStress.resize(positions.size());
-
-    energy.resize(positions.size());
-    energyDensity.resize(positions.size());
-
-    gridCoordinate.resize(positions.size());
-    weightGradients.resize(positions.size() * 64);
-    weights.resize(positions.size() * 64);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    return static_cast<UInt>(removeMarker.size() - positions.size());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DData::GridData::resize(const Vec3ui& nCells)
-{
-    auto nNodes = Vec3ui(nCells[0] + 1u, nCells[1] + 1u, nCells[2] + 1u);
-    ////////////////////////////////////////////////////////////////////////////////
-    active.resize(nNodes, 0);
-    activeNodeIdx.resize(nNodes, 0u);
-    velocity.resize(nNodes, Vec3r(0));
-    velocity_new.resize(nNodes, Vec3r(0));
-
-    mass.resize(nNodes, 0);
-    energy.resize(nNodes, 0);
-    velocity.resize(nNodes, Vec3r(0));
-
-    weight.resize(nNodes);
-    weightGrad.resize(nNodes);
-
-    nodeLocks.resize(nNodes);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DData::GridData::resetGrid()
-{
-    active.assign(char(0));
-    activeNodeIdx.assign(0u);
-    mass.assign(0);
-    energy.assign(0);
-    velocity.assign(Vec3r(0));
-    velocity_new.assign(Vec3r(0));
-    __BNN_TODO;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DData::makeReady(const MPM_3DParameters& params)
-{
-    if(params.maxNParticles > 0) {
-        particleData.reserve(params.maxNParticles);
-    }
-    grid.setGrid(params.domainBMin, params.domainBMax, params.cellSize);
-    gridData.resize(grid.getNCells());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM_3DSolver implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::makeReady()
 {
     logger().printMemoryUsage();
@@ -329,8 +149,8 @@ bool MPM_3DSolver::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::allocateSolverMemory()
 {
-    m_SolverParams = std::make_shared<MPM_3DParameters>();
-    m_SolverData   = std::make_shared<MPM_3DData>();
+    m_SolverParams = std::make_shared<MPM_Parameters<3, Real>>();
+    m_SolverData   = std::make_shared<MPM_Data<3, Real>>();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -768,7 +588,7 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
     ////////////////////////////////////////////////////////////////////////////////
     static Timer timer;
     timer.tick();
-    MPM_3DObjective obj(solverParams(), solverData(), timestep);
+    MPM_Objective<3, Real> obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
     timer.tock();
     logger().printLogIndent(timer.getRunTime("Minimize energy: ") + String(". Iterations: ") +
@@ -786,7 +606,8 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+template<>
+Real MPM_Objective<3, Real >::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 {
     auto vPtr    = reinterpret_cast<const Vec3r*>(v.data());
     auto gradPtr = reinterpret_cast<Vec3r*>(grad.data());

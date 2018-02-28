@@ -153,6 +153,8 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h" />
+    <ClInclude Include="ParticleSolvers\MPM\MPM_Data.h" />
+    <ClInclude Include="ParticleSolvers\MPM\MPM_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM\Snow_2DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
@@ -203,7 +205,6 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_2DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\HairMPM_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\AFLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\APIC_3DSolver.cpp" />

@@ -121,10 +121,10 @@ struct HairMPM_2DData
 
     Vector<SharedPtr<GeometryObjects::GeometryObject2D>> hairObjs;
 
-    void makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData);
-    void classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData);
-    void find_d0(const MPM_2DParameters& params,  MPM_2DData& mpmData);
-    void computeLocalDirections(MPM_2DData& mpmData);
+    void makeReady(const MPM_Parameters<2, Real>& params,  MPM_Data<2, Real>& mpmData);
+    void classifyParticles(const MPM_Parameters<2, Real>& params,  MPM_Data<2, Real>& mpmData);
+    void find_d0(const MPM_Parameters<2, Real>& params,  MPM_Data<2, Real>& mpmData);
+    void computeLocalDirections(MPM_Data<2, Real>& mpmData);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
