@@ -156,12 +156,6 @@
     <ClInclude Include="ParticleSolvers\HybridFluid\PIC_3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPM_2DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPM_3DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\Snow_2DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
