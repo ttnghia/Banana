@@ -37,24 +37,24 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // pressure
-    RealType pressureStiffness                 = 50000.0_f;
-    RealType shortRangeRepulsiveForceStiffness = 5000.0_f;
+    RealType pressureStiffness                 = RealType(50000.0);
+    RealType shortRangeRepulsiveForceStiffness = RealType(5000.0);
     bool     bAttractivePressure               = false;
-    RealType attractivePressureRatio           = 0.1_f;
+    RealType attractivePressureRatio           = RealType(0.1);
     bool     bAddShortRangeRepulsiveForce      = true;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // viscosity
-    RealType viscosityFluid    = 1e-2_f;
-    RealType viscosityBoundary = 1e-5_f;
+    RealType viscosityFluid    = RealType(1e-2);
+    RealType viscosityBoundary = RealType(1e-5);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // density
-    RealType particleMassScale     = 0.9_f;
-    RealType restDensity           = 1000.0_f;
-    RealType densityVariationRatio = 10.0_f;
+    RealType particleMassScale     = RealType(0.9);
+    RealType restDensity           = RealType(1000.0);
+    RealType densityVariationRatio = RealType(10.0);
     bool     bNormalizeDensity     = false;
     bool     bDensityByBDParticle  = false;
     RealType restDensitySqr;
@@ -64,8 +64,8 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
 
     ////////////////////////////////////////////////////////////////////////////////
     // kernel data
-    RealType ratioKernelPRadius     = 4.0_f;
-    RealType ratioNearKernelPRadius = 1.5_f;
+    RealType ratioKernelPRadius     = RealType(4.0);
+    RealType ratioNearKernelPRadius = RealType(1.5);
     RealType kernelRadius;
     RealType kernelRadiusSqr;
     RealType nearKernelRadius;
@@ -90,13 +90,13 @@ struct WCSPH_Data : public SimulationData<N, RealType>
 {
     struct ParticleData : public ParticleSimulationData<N, RealType>
     {
-        Vector<RealType>                  densities;
-        Vector<RealType>                  tmp_densities;
-        Vector<Vec_VecX<N + 1, RealType>> neighborInfo; // store relative position and density of neighbors, including boundary particles
-        Vec_VecX<N, RealType>             accelerations;
-        Vec_VecX<N, RealType>             diffuseVelocities;
-        Vec_VecX<N, RealType>             aniKernelCenters;
-        Vec_MatXxX<N, RealType>           aniKernelMatrices;
+        Vector<RealType>             densities;
+        Vector<RealType>             tmp_densities;
+        Vec_VecX<N, RealType>        accelerations;
+        Vec_VecX<N, RealType>        diffuseVelocities;
+        Vec_VecX<N, RealType>        aniKernelCenters;
+        Vec_MatXxX<N, RealType>      aniKernelMatrices;
+        Vec_VecVecX<N + 1, RealType> neighborInfo; // store relative position and density of neighbors, including boundary particles
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) override;

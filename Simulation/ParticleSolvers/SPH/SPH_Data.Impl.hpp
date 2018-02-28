@@ -33,7 +33,7 @@ void WCSPH_Parameters<N, RealType >::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters<N, RealType>::makeReady();
-    particleMass   = RealType(pow(2.0_f * particleRadius, N)) * restDensity * particleMassScale;
+    particleMass   = RealType(pow(RealType(2.0) * particleRadius, N)) * restDensity * particleMassScale;
     restDensitySqr = restDensity * restDensity;
     densityMin     = restDensity / densityVariationRatio;
     densityMax     = restDensity * densityVariationRatio;

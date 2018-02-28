@@ -51,8 +51,8 @@ void WCSPH_Solver<N, RealType >::advanceFrame()
                                   auto remainingTime = frameDuration - frameTime;
                                   if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + 1.5_f * substep >= frameDuration) {
-                                      substep = remainingTime * 0.5_f;
+                                  } else if(frameTime + RealType(1.5) * substep >= frameDuration) {
+                                      substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
@@ -115,6 +115,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
@@ -130,7 +131,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
     if(solverParams().bDensityByBDParticle) {
         __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
         for(auto& bdObj : m_BoundaryObjects) {
-            UInt nGen = bdObj->generateBoundaryParticles(particleData().boundaryParticles, 0.85_f * solverParams().particleRadius);
+            UInt nGen = bdObj->generateBoundaryParticles(particleData().boundaryParticles, RealType(0.85) * solverParams().particleRadius);
             logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" boundary particles by ") + bdObj->nameID());
         }
 
@@ -341,7 +342,7 @@ template<Int N, class RealType>
 RealType WCSPH_Solver<N, RealType >::timestepCFL()
 {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
-    RealType CFLTimeStep = maxVel > Tiny ? solverParams().CFLFactor * (2.0 * solverParams().particleRadius / maxVel) : Huge;
+    RealType CFLTimeStep = maxVel > Tiny ? solverParams().CFLFactor * (RealType(2.0) * solverParams().particleRadius / maxVel) : Huge;
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
@@ -522,7 +523,7 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
                                 if(error > 0) {
                                     return error;
                                 } else if(!solverParams().bAttractivePressure) {
-                                    return 0;
+                                    return RealType(0);
                                 } else {
                                     return error * solverParams().attractivePressureRatio;
                                 }
