@@ -78,9 +78,6 @@
     <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\SceneLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -192,10 +189,34 @@
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\SPH\SPHSolverData.h">
+    <ClInclude Include="ParticleSolvers\SPH\WCSPH_2DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH_2DSolver.h">
+    <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\SPH\SPH_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\SPH\SPH_Data.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\ParticleSolverData.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\SimulationObject.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleGenerator.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleRemover.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\ParticleSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

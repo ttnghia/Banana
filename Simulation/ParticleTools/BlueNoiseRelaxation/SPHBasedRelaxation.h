@@ -27,7 +27,7 @@
 #include <Banana/Grid/Grid.h>
 #include <ParticleTools/BlueNoiseRelaxation/BlueNoiseRelaxation.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
-#include <ParticleSolvers/SPH/SPHSolverData.h>
+#include <ParticleSolvers/SPH/SPH_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleTools
