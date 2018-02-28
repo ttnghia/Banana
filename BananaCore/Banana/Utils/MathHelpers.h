@@ -92,6 +92,16 @@ inline T pow8(T x)
     return sqr(pow4(x));
 }
 
+template<class T, class I>
+inline T pow(T x, I n)
+{
+    T result = T(1);
+    for(I i = 0; i < n; ++i) {
+        result *= x;
+    }
+    return result;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline float approx_rsqrt(float x)
 {
