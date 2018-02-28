@@ -46,7 +46,7 @@ class BoundaryObject : public SimulationObject<N, RealType>
 {
 public:
     BoundaryObject() = delete;
-    BoundaryObject(const JParams& jParams, const String& geometryType) : SimulationObject<N, RealType>(jParams, geometryType) {}
+    BoundaryObject(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
     ////////////////////////////////////////////////////////////////////////////////
     auto& boundaryReflectionMultiplier() { return m_BoundaryReflectionMultiplier; }
     auto& reflectVelocityAtBoundary() { return m_bReflectVelocityAtBoundary; }
@@ -77,7 +77,7 @@ class BoxBoundaryInterface : public BoundaryObject<N, RealType>
 {
     using BoxPtr = SharedPtr<GeometryObjects::BoxObject<N, RealType>>;
 public:
-    BoxBoundaryInterface(const JParams& jParams) : BoundaryObject<N, RealType>(jParams, "Box")
+    BoxBoundaryInterface(const JParams& jParams) : BoundaryObject<N, RealType>(jParams)
     {
         m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(m_GeometryObj);
         __BNN_REQUIRE(m_Box != nullptr);

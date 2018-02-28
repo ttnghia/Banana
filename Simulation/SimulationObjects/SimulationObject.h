@@ -32,16 +32,23 @@ template<Int N, class RealType>
 class SimulationObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType> >;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType>>;
     using VecNr       = VecX<N, RealType>;
     using Vec_VecNr   = Vec_VecX<N, RealType>;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
     ////////////////////////////////////////////////////////////////////////////////
     SimulationObject() = delete;
-    SimulationObject(const JParams& jParams, const String& geometryType) :
-        m_jParams(jParams), m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType))
+    SimulationObject(const JParams& jParams, bool bCSGObj = false) : m_jParams(jParams)
     {
+        if(bCSGObj) {
+            m_GeometryObj = GeometryObjectFactory::createGeometry<N, RealType>("CSGObject");
+        } else {
+            String geometryType;
+            __BNN_REQUIRE(JSONHelpers::readValue(jParams, geometryType, "GeometryType"));
+            m_GeometryObj = GeometryObjectFactory::createGeometry<N, RealType>(geometryType);
+        }
         __BNN_REQUIRE(m_GeometryObj != nullptr);
+        parseParameters(jParams);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +60,7 @@ public:
     auto& isDynamic() { return m_bDynamics; }
     auto& geometry() { return m_GeometryObj; }
     ////////////////////////////////////////////////////////////////////////////////
+    virtual void     parseParameters(const JParams& jParams);
     virtual RealType signedDistance(const VecNr& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
     virtual VecNr    gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
     virtual bool     isInside(const VecNr& ppos) const { return m_GeometryObj->isInside(ppos, true); }
@@ -75,6 +83,8 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool m_bObjReady = false;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <SimulationObjects/SimulationObject.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::SimulationObjects

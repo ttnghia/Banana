@@ -8,7 +8,7 @@
 //     ___________________________.""`-------`"".____________________________
 //    /                                                                      \
 //    \    This file is part of Banana - a graphics programming framework    /
-//    /                    Created: 2017 by Nghia Truong                     \
+//    /                    Created: 2018 by Nghia Truong                     \
 //    \                      <nghiatruong.vn@gmail.com>                      /
 //    /                      https://ttnghia.github.io                       \
 //    \                        All rights reserved.                          /
@@ -18,43 +18,33 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#pragma once
-
-#include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/ParallelHelpers/Scheduler.h>
-#include <SimulationObjects/SimulationObject.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::SimulationObjects
+template<Int N, class RealType>
+bool ParticleRemover<N, RealType >::isActive(UInt currentFrame)
 {
+    if(m_ActiveFrames.size() > 0 && m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
+        return false;
+    } else {
+        return (currentFrame >= m_StartFrame && currentFrame <= m_MaxFrame);
+    }
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class ParticleRemover : public SimulationObject<N, RealType>
+void ParticleRemover<N, RealType >::findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecX<N, RealType>& positions)
 {
-public:
-    ParticleRemover() = delete;
-    ParticleRemover(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto& startFrame() { return m_StartFrame; }
-    auto& maxFrame() { return m_MaxFrame; }
-    auto& activeFrames() { return m_ActiveFrames; }
-    bool  isActive(UInt currentFrame);
-    void  findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecX<N, RealType>& positions);
-    bool  removingFinished(UInt currentFrame) { return currentFrame < m_StartFrame || currentFrame >= m_MaxFrame; }
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual void parseParameters(const JParams& jParams) override;
-
-protected:
-    UInt m_StartFrame = 0u;
-    UInt m_MaxFrame   = 0u;
-
-    std::unordered_set<UInt> m_ActiveFrames;
-};
+    __BNN_REQUIRE(m_bObjReady);
+    removeMarker.resize(positions.size());
+    Scheduler::parallel_for(removeMarker.size(),
+                            [&](size_t p)
+                            {
+                                removeMarker[p] = (signedDistance(positions[p]) < 0) ? Int8(1) : Int8(0);
+                            });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <SimulationObjects/ParticleRemover.Impl.hpp>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::SimulationObjects
+template<Int N, class RealType>
+void ParticleRemover<N, RealType >::parseParameters(const JParams& jParams)
+{
+    JSONHelpers::readValue(jParams, startFrame(), "StartFrame");
+    JSONHelpers::readValue(jParams, maxFrame(),   "MaxFrame");
+}
