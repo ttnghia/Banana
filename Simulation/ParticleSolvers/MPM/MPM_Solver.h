@@ -8,7 +8,7 @@
 //     ___________________________.""`-------`"".____________________________
 //    /                                                                      \
 //    \    This file is part of Banana - a graphics programming framework    /
-//    /                    Created: 2017 by Nghia Truong                     \
+//    /                    Created: 2018 by Nghia Truong                     \
 //    \                      <nghiatruong.vn@gmail.com>                      /
 //    /                      https://ttnghia.github.io                       \
 //    \                        All rights reserved.                          /
@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
 #include <ParticleSolvers/MPM/MPM_Data.h>
@@ -29,26 +31,27 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM_3DSolver : public ParticleSolver3D, public RegisteredInSolverFactory<MPM_3DSolver>
+template<Int N, class RealType>
+class MPM_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolverFactory<MPM_Solver<N, RealType>>
 {
 public:
-    MPM_3DSolver() = default;
+    MPM_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("MPM_3DXSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<MPM_3DSolver>(); }
+    static String                                 solverName() { return String("MPM_") + std::to_string(N) + String("DSolver"); }
+    static SharedPtr<ParticleSolver<N, RealType>> createSolver() { return std::make_shared<MPM_Solver<N, RealType>>(); }
 
-    virtual String getSolverName() { return MPM_3DSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Simulation using MPM-3D Solver"); }
+    virtual String getSolverName() { return MPM_Solver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using MPM-") + std::to_string(N) + String("D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<3, Real>>(m_SolverParams); return *ptrParams; }
-    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<3, Real>>(m_SolverParams); return *ptrParams; }
-    auto&       solverData() { static auto ptrData = std::static_pointer_cast<MPM_Data<3, Real>>(m_SolverData); return *ptrData; }
-    const auto& solverData() const { static auto ptrData = std::static_pointer_cast<MPM_Data<3, Real>>(m_SolverData); return *ptrData; }
+    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
+    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
+    auto&       solverData() { static auto ptrData = std::static_pointer_cast<MPM_Data<N, RealType>>(m_SolverData); return *ptrData; }
+    const auto& solverData() const { static auto ptrData = std::static_pointer_cast<MPM_Data<N, RealType>>(m_SolverData); return *ptrData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
@@ -66,26 +69,28 @@ protected:
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-    virtual void advanceVelocity(Real timestep);
 
-    Real timestepCFL();
-    void moveParticles(Real timestep);
-    void mapParticleMasses2Grid();
-    bool initParticleVolumes();
-    void mapParticleVelocities2Grid(Real timestep);
-    void mapParticleVelocities2GridFLIP(Real timestep);
-    void mapParticleVelocities2GridAPIC(Real timestep);
-    void constrainGridVelocity(Real timestep);
-    void explicitIntegration(Real timestep);
-    void implicitIntegration(Real timestep);
-    void mapGridVelocities2Particles(Real timestep);
-    void mapGridVelocities2ParticlesFLIP(Real timestep);
-    void mapGridVelocities2ParticlesAPIC(Real timestep);
-    void mapGridVelocities2ParticlesAFLIP(Real timestep);
-    void constrainParticleVelocity(Real timestep);
-    void updateParticleDeformGradients(Real timestep);
+    virtual void     advanceVelocity(RealType timestep);
+    virtual RealType timestepCFL();
+    virtual void     moveParticles(RealType timestep);
+    virtual void     mapParticleMasses2Grid();
+    virtual bool     initParticleVolumes();
+    virtual void     mapParticleVelocities2Grid(RealType timestep);
+    virtual void     mapParticleVelocities2GridFLIP(RealType timestep);
+    virtual void     mapParticleVelocities2GridAPIC(RealType timestep);
+    virtual void     gridCollision(RealType timestep);
+    virtual void     explicitIntegration(RealType timestep);
+    virtual void     implicitIntegration(RealType timestep);
+    virtual void     mapGridVelocities2Particles(RealType timestep);
+    virtual void     mapGridVelocities2ParticlesFLIP(RealType timestep);
+    virtual void     mapGridVelocities2ParticlesAPIC(RealType timestep);
+    virtual void     mapGridVelocities2ParticlesAFLIP(RealType timestep);
+    virtual void     constrainParticleVelocity(RealType timestep);
+    virtual void     updateParticleStates(RealType timestep);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/MPM/MPM_Solver.Impl.hpp>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

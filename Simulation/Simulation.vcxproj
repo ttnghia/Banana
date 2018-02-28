@@ -155,6 +155,8 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_Data.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_Data.Impl.hpp" />
+    <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.h" />
+    <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM\Snow_2DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
@@ -204,12 +206,11 @@
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\MPM_2DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\MPM_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\AFLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\APIC_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\FLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\PIC_3DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />

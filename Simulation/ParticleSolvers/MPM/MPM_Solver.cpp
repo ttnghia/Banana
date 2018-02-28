@@ -19,7 +19,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/SPH/WCSPH_Solver.h>
+#include <ParticleSolvers/MPM/MPM_Solver.h>
 
-template class Banana::ParticleSolvers::WCSPH_Solver<2, Real>;
-template class Banana::ParticleSolvers::WCSPH_Solver<3, Real>;
+template class Banana::ParticleSolvers::MPM_Solver<2, Real>;
+template class Banana::ParticleSolvers::MPM_Solver<3, Real>;

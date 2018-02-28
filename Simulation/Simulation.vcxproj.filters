@@ -219,6 +219,12 @@
     <ClInclude Include="ParticleSolvers\MPM\MPM_Data.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
@@ -239,9 +245,6 @@
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\MPM\MPM_3DSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSolvers\HybridFluid\AFLIP_3DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -254,9 +257,6 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\PIC_3DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\MPM\MPM_2DSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -264,6 +264,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
