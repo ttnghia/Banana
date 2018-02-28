@@ -29,7 +29,7 @@
 class ParticleSolverInterface
 {
 public:
-    void createSolver(const String& solverName);
+    void createSolver(const String& sceneFile);
     void loadScene(const String& sceneFile);
     void doFrameSimulation(UInt frame);
     void finalizeSimulation();
@@ -56,14 +56,14 @@ private:
 // implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void ParticleSolverInterface::createSolver(const String& solverName)
+inline void ParticleSolverInterface::createSolver(const String& sceneFile)
 {
     m_Solver2D.reset();
     m_Solver3D.reset();
-    m_Solver2D = ParticleSolverFactory2D::createSolver(solverName);
-    m_Solver3D = ParticleSolverFactory3D::createSolver(solverName);
+    m_Solver2D = ParticleSolverFactory2D::createSolverFromJSon(sceneFile);
+    m_Solver3D = ParticleSolverFactory3D::createSolverFromJSon(sceneFile);
     if(m_Solver2D == nullptr && m_Solver3D == nullptr) {
-        QMessageBox::critical(nullptr, QString("Error"), QString("The solver named '%1' is not supported!").arg(QString::fromStdString(solverName)));
+        QMessageBox::critical(nullptr, QString("Error"), QString("The solver in scene file '%1' is not supported!").arg(QString::fromStdString(sceneFile)));
     }
     __BNN_REQUIRE(m_Solver2D == nullptr ^ m_Solver3D == nullptr);
 }

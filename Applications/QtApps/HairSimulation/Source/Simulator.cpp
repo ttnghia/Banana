@@ -106,14 +106,8 @@ void Simulator::changeScene(const QString& scene)
     nlohmann::json jParams = nlohmann::json::parse(inFile);
     inFile.close();
     ////////////////////////////////////////////////////////////////////////////////
-    __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
-    auto   jGlobalParams = jParams["GlobalParameters"];
-    String solverName;
-    __BNN_REQUIRE(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
-    ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver = std::make_shared<ParticleSolverInterface>();
-    m_ParticleSolver->createSolver(solverName);
-    __BNN_REQUIRE(m_ParticleSolver != nullptr);
+    m_ParticleSolver->createSolver(sceneFile.toStdString());
     m_ParticleSolver->loadScene(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////
     m_VizData->resetData();

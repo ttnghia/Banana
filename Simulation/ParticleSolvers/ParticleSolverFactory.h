@@ -23,6 +23,7 @@
 
 #include <ParticleSolvers/ParticleSolver.h>
 #include <map>
+#include <fstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -37,15 +38,15 @@ class ParticleSolverFactory
 {
 public:
     ParticleSolverFactory() = delete;
-    using CreateMethodPtr   = SharedPtr<ParticleSolver<N, RealType> >(*)();
+    using CreateMethodPtr   = SharedPtr<ParticleSolver<N, RealType>>(*)();
     ////////////////////////////////////////////////////////////////////////////////
-    static bool                                    registerSolver(const String& solverName, CreateMethodPtr funcCreate);
-    static SharedPtr<ParticleSolver<N, RealType> > createSolver(const String& solverName);
+    static bool                                   registerSolver(const String& solverName, CreateMethodPtr funcCreate);
+    static SharedPtr<ParticleSolver<N, RealType>> createSolver(const String& solverName);
+    static SharedPtr<ParticleSolver<N, RealType>> createSolverFromJSon(const String& fileName);
 
 private:
     static std::map<String, CreateMethodPtr>& getCreateMethods();
 };
-
 
 using ParticleSolverFactory2D = ParticleSolverFactory<2, Real>;
 using ParticleSolverFactory3D = ParticleSolverFactory<3, Real>;
@@ -65,12 +66,32 @@ bool ParticleSolverFactory<N, RealType >::registerSolver(const String& solverNam
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-SharedPtr<ParticleSolver<N, RealType> > ParticleSolverFactory<N, RealType >::createSolver(const String& solverName)
+SharedPtr<ParticleSolver<N, RealType>> ParticleSolverFactory<N, RealType >::createSolver(const String& solverName)
 {
     if(auto it = getCreateMethods().find(solverName); it != getCreateMethods().end()) {
         return it->second();     // call the createFunc
     }
     return nullptr;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+SharedPtr<ParticleSolver<N, RealType>> ParticleSolverFactory<N, RealType >::createSolverFromJSon(const String& fileName)
+{
+    std::ifstream inputFile(fileName);
+    if(!inputFile.is_open()) {
+        return nullptr;
+    }
+
+    auto jParams = JParams::parse(inputFile);
+    if(jParams.find("GlobalParameters") == jParams.end()) {
+        return nullptr;
+    } else {
+        auto   jGlobalParams = jParams["GlobalParameters"];
+        String solverName;
+        JSONHelpers::readValue(jGlobalParams, solverName, "Solver");
+        return createSolver(solverName);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
