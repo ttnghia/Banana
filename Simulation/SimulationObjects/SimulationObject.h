@@ -33,8 +33,8 @@ class SimulationObject
 {
 public:
     using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType>>;
-    using VecNr       = VecX<N, RealType>;
-    using Vec_VecNr   = Vec_VecX<N, RealType>;
+    using VecNR       = VecX<N, RealType>;
+    using Vec_VecNR   = Vec_VecX<N, RealType>;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
     ////////////////////////////////////////////////////////////////////////////////
     SimulationObject() = delete;
@@ -61,9 +61,9 @@ public:
     auto& geometry() { return m_GeometryObj; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void     parseParameters(const JParams& jParams);
-    virtual RealType signedDistance(const VecNr& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
-    virtual VecNr    gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
-    virtual bool     isInside(const VecNr& ppos) const { return m_GeometryObj->isInside(ppos, true); }
+    virtual RealType signedDistance(const VecNR& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
+    virtual VecNR    gradSignedDistance(const VecNR& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
+    virtual bool     isInside(const VecNR& ppos) const { return m_GeometryObj->isInside(ppos, true); }
     ////////////////////////////////////////////////////////////////////////////////
     virtual bool advanceScene(UInt frame, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f))
     {

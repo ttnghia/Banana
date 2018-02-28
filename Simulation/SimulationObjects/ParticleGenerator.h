@@ -67,24 +67,24 @@ public:
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs, UInt frame = 0u,
+    UInt generateParticles(const Vec_VecNR& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs, UInt frame = 0u,
                            VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
                            PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addFullShapeParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+    UInt addFullShapeParticles(const Vec_VecNR& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+    UInt addParticles(const Vec_VecNR& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                       VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
-    void relaxPositions(Vector<VecNr>& positions, RealType particleRadius);
-    void collectNeighborParticles(const Vec_VecNr& positions);
+    void relaxPositions(Vector<VecNR>& positions, RealType particleRadius);
+    void collectNeighborParticles(const Vec_VecNR& positions);
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_VecNr m_ObjParticles;
-    VecNr     m_v0                 = VecNr(0);
+    Vec_VecNR m_ObjParticles;
+    VecNR     m_v0                 = VecNR(0);
     UInt      m_StartFrame         = 0u;
     UInt      m_MaxFrame           = 0u;
     UInt      m_MaxNParticles      = std::numeric_limits<UInt>::max();
@@ -98,8 +98,8 @@ protected:
     std::unordered_set<UInt> m_ActiveFrames;
 
     UInt                                     m_NGeneratedParticles = 0;
-    Vec_VecNr                                m_GeneratedPositions;
-    Vec_VecNr                                m_GeneratedVelocities;
+    Vec_VecNR                                m_GeneratedPositions;
+    Vec_VecNR                                m_GeneratedVelocities;
     SharedPtr<SimulationObject<N, RealType>> m_GeneratedConstraintObj;
 
     Grid<N, RealType>                   m_Grid;

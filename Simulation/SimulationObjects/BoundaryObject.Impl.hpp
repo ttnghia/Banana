@@ -38,7 +38,7 @@ UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecX<N, RealTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObject<N, RealType >::constrainToBoundary(VecNr& ppos)
+void BoundaryObject<N, RealType >::constrainToBoundary(VecNR& ppos)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {
@@ -54,7 +54,7 @@ void BoundaryObject<N, RealType >::constrainToBoundary(VecNr& ppos)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BoundaryObject<N, RealType >::constrainToBoundary(VecNr& ppos, VecNr& pvel)
+bool BoundaryObject<N, RealType >::constrainToBoundary(VecNR& ppos, VecNR& pvel)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {

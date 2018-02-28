@@ -52,12 +52,12 @@ public:
     auto& reflectVelocityAtBoundary() { return m_bReflectVelocityAtBoundary; }
     auto& isDynamic() { return m_bDynamics; }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual RealType signedDistance(const VecNr& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
-    virtual VecNr    gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
-    virtual bool     isInside(const VecNr& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
+    virtual RealType signedDistance(const VecNR& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
+    virtual VecNR    gradSignedDistance(const VecNR& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
+    virtual bool     isInside(const VecNR& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
     ////////////////////////////////////////////////////////////////////////////////
-    void constrainToBoundary(VecNr& ppos);
-    bool constrainToBoundary(VecNr& ppos, VecNr& pvel); // return true if pvel has been modified
+    void constrainToBoundary(VecNR& ppos);
+    bool constrainToBoundary(VecNR& ppos, VecNR& pvel); // return true if pvel has been modified
     UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 
 protected:
@@ -83,9 +83,9 @@ public:
         __BNN_REQUIRE(m_Box != nullptr);
     }
 
-    VecNr boxMin() const noexcept { return m_Box->boxMin(); }
-    VecNr boxMax() const noexcept { return m_Box->boxMax(); }
-    void  setSizeScale(const VecNr& sizeScale) { m_Box->setSizeScale(sizeScale); }
+    VecNR boxMin() const noexcept { return m_Box->boxMin(); }
+    VecNR boxMax() const noexcept { return m_Box->boxMax(); }
+    void  setSizeScale(const VecNR& sizeScale) { m_Box->setSizeScale(sizeScale); }
 
 protected:
     BoxPtr m_Box;

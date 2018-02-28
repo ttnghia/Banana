@@ -77,7 +77,7 @@ void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Boundar
     NumberHelpers::scan(pGrid,
                         [&](const auto& idx)
                         {
-                            VecNr ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
+                            VecNR ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
                             for(auto& bdObj : boundaryObjects) {
                                 if(bdObj->signedDistance(ppos) < 0) {
                                     return;
@@ -110,7 +110,7 @@ void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Boundar
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
          class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecNr& currentPositions,
+UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecNR& currentPositions,
                                                         const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                                                         UInt frame /*= 0u*/, VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {
@@ -135,7 +135,7 @@ UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecNr& current
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt ParticleGenerator<N, RealType >::addFullShapeParticles(const Vec_VecNr& currentPositions,
+UInt ParticleGenerator<N, RealType >::addFullShapeParticles(const Vec_VecNR& currentPositions,
                                                             const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                                                             VelocityGenerator&& velGenerator)
 {
@@ -175,7 +175,7 @@ UInt ParticleGenerator<N, RealType >::addFullShapeParticles(const Vec_VecNr& cur
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecNr& currentPositions,
+UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecNR& currentPositions,
                                                    const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                                                    VelocityGenerator&& velGenerator)
 
@@ -189,7 +189,7 @@ UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecNr& currentPosit
         for(const auto& ppos0 : m_ObjParticles) {
             for(UInt i = 0; i < m_MaxIters; ++i) {
                 bool  bValid = true;
-                VecNr ppos   = ppos0;
+                VecNR ppos   = ppos0;
                 NumberHelpers::jitter(ppos, m_Jitter);
                 const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
 
@@ -216,7 +216,7 @@ UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecNr& currentPosit
         }
     } else {
         for(const auto& ppos0 : m_ObjParticles) {
-            VecNr ppos = ppos0;
+            VecNR ppos = ppos0;
             NumberHelpers::jitter(ppos, m_Jitter);
             m_GeneratedPositions.push_back(ppos);
             ++nGenerated;
@@ -231,7 +231,7 @@ UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecNr& currentPosit
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecNr>& positions, RealType particleRadius)
+void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecNR>& positions, RealType particleRadius)
 {
     __BNN_UNUSED(positions);
     __BNN_UNUSED(particleRadius);
@@ -246,7 +246,7 @@ void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecNr>& positions, R
         //    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
         //else
         //{
-        //    Vector<VecNr > denseSamples;
+        //    Vector<VecNR > denseSamples;
         //    RealType                       denseSampleRatio = 0.1;
         //    JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
 
@@ -258,7 +258,7 @@ void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecNr>& positions, R
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::collectNeighborParticles(const Vec_VecNr& positions)
+void ParticleGenerator<N, RealType >::collectNeighborParticles(const Vec_VecNR& positions)
 {
     for(auto& cell : m_ParticleIdxInCell.data()) {
         cell.resize(0);
