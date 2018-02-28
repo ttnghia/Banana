@@ -121,12 +121,10 @@ struct MPM_2DData : public SimulationData2D
 
         Vec_Mat2x2r B, D;                  // affine matrix and auxiliary
 
-
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
-
 
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData : public GridSimulationData2D
@@ -138,8 +136,8 @@ struct MPM_2DData : public SimulationData2D
         Array2r       energy;
         Array2<Vec2r> velocity, velocity_new;
 
-        Array2<Vector<Real> >  weight;
-        Array2<Vector<Vec2r> > weightGrad;
+        Array2<Vector<Real>>  weight;
+        Array2<Vector<Vec2r>> weightGrad;
 
         Array2SpinLock nodeLocks;
 
@@ -157,8 +155,8 @@ struct MPM_2DData : public SimulationData2D
     virtual const ParticleSimulationData2D& generalParticleData() const override { return particleData; }
     virtual ParticleSimulationData2D&       generalParticleData() override { return particleData; }
     void                                    makeReady(const MPM_2DParameters& params);
+    virtual void                            makeReady(const SharedPtr<SimulationParameters2D>& simParams) override {}
 };
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -192,7 +190,6 @@ private:
     MPM_2DData&             m_SimData;
     Real                    m_timestep;
 };
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

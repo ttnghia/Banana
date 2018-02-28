@@ -61,7 +61,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     __BNN_REQUIRE(m_SceneJParams.find("SimulationParameters") != m_SceneJParams.end());
     {
         JParams jSimParams = m_SceneJParams["SimulationParameters"];
-        generalSolverParams().parseParameters(jSimParams);
+        m_SolverParams->parseParameters(jSimParams);
 
         // load simulation domain box from sim param and set it as the first boundary object
         __BNN_REQUIRE(jSimParams.find("SimulationDomainBox") != jSimParams.end());
@@ -100,7 +100,11 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             generalSolverParams().domainBMax = box->boxMax();
         }
 
-        loadSimParams(jSimParams);         // do this by derived solver
+        ////////////////////////////////////////////////////////////////////////////////
+        // do this by derived solver
+        m_SolverParams->makeReady();
+        m_SolverParams->printParams(m_Logger);
+        m_SolverData->makeReady(m_SolverParams);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

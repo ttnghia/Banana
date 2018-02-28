@@ -99,8 +99,8 @@ struct MPM_3DData : public SimulationData3D
         Array3r       energy;
         Array3<Vec3r> velocity, velocity_new;
 
-        Array3<Vector<Real> >  weight;
-        Array3<Vector<Vec3r> > weightGrad;
+        Array3<Vector<Real>>  weight;
+        Array3<Vector<Vec3r>> weightGrad;
 
         Array3SpinLock nodeLocks;
 
@@ -117,6 +117,7 @@ struct MPM_3DData : public SimulationData3D
     virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
     virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
     void                                    makeReady(const MPM_3DParameters& params);
+    virtual void                            makeReady(const SharedPtr<SimulationParameters3D>& simParams) override {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

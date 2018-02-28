@@ -191,10 +191,11 @@ struct SimulationParameters
     VecX<N, RealType> gravityDirection = VecX<N, RealType>(0);
     VecX<N, RealType> gravityCenter    = VecX<N, RealType>(0);
 
-    virtual void              parseParameters(const JParams& jParams);
+    virtual void parseParameters(const JParams& jParams);
+    virtual void makeReady();
+    virtual void printParams(const SharedPtr<Logger>& logger);
+
     virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const;
-    virtual void              makeReady();
-    virtual void              printParams(const SharedPtr<Logger>& logger);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -261,7 +262,8 @@ template<Int N, class RealType>
 struct SimulationData
 {
     virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData()       = 0;
+    virtual ParticleSimulationData<N, RealType>&       generalParticleData() = 0;
+    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

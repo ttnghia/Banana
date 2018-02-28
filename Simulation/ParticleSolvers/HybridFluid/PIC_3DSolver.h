@@ -101,6 +101,7 @@ struct PIC_3DData : public SimulationData3D
     virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
     virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
     void                                    makeReady(const PIC_3DParameters& params);
+    virtual void                            makeReady(const SharedPtr<SimulationParameters3D>& simParams) override {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
