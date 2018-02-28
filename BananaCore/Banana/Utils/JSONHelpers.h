@@ -24,17 +24,15 @@
 #include <Banana/Setup.h>
 
 #include <json.hpp>
-#include <vector>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+namespace Banana::JSONHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace JSONHelpers
-{
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readValue(const JParams& j, T& v, const String& valueName)
+bool readValue(const JParams& j, T& v, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
@@ -73,7 +71,7 @@ inline bool readBool(const JParams& j, bool& v, const String& valueName)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-inline bool readVector(const JParams& j, VecX<N, T>& vec, const String& valueName)
+bool readVector(const JParams& j, VecX<N, T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
@@ -83,7 +81,7 @@ inline bool readVector(const JParams& j, VecX<N, T>& vec, const String& valueNam
     if(jval.is_null()) {
         return false;
     }
-    Vector<T> values = jval.get<Vector<T> >();
+    Vector<T> values = jval.get<Vector<T>>();
 
     Int minSize = static_cast<Int>(values.size());
     Int maxSize = N;
@@ -104,7 +102,7 @@ inline bool readVector(const JParams& j, VecX<N, T>& vec, const String& valueNam
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readVector(const JParams& j, Vector<T>& vec, const String& valueName)
+bool readVector(const JParams& j, Vector<T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
@@ -115,11 +113,9 @@ inline bool readVector(const JParams& j, Vector<T>& vec, const String& valueName
         return false;
     }
 
-    vec = jval.get<Vector<T> >();
+    vec = jval.get<Vector<T>>();
     return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace JSONHelpers
-  //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+} // end namespace Banana::JSONHelpers
