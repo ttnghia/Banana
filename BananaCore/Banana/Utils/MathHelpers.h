@@ -45,55 +45,55 @@ namespace MathHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T sqr(T x)
+inline constexpr T sqr(T x)
 {
     return x * x;
 }
 
 template<class T>
-inline T cube(T x)
+inline constexpr T cube(T x)
 {
     return x * x * x;
 }
 
 template<class T>
-inline T pow3(T x)
+inline constexpr T pow3(T x)
 {
     return x * x * x;
 }
 
 template<class T>
-inline T pow4(T x)
+inline constexpr T pow4(T x)
 {
     return sqr(sqr(x));
 }
 
 template<class T>
-inline T pow5(T x)
+inline constexpr T pow5(T x)
 {
     return pow4(x) * x;
 }
 
 template<class T>
-inline T pow6(T x)
+inline constexpr T pow6(T x)
 {
     return pow3(sqr(x));
 }
 
 template<class T>
-inline T pow7(T x)
+inline constexpr T pow7(T x)
 {
     return pow6(x) * x;
 }
 
 template<class T>
-inline T pow8(T x)
+inline constexpr T pow8(T x)
 {
     return sqr(pow4(x));
 }
 
 template<class T, class I>
-inline T pow(T x, I n)
+inline constexpr T pow(T x, I n)
 {
     T result = T(1);
     for(I i = 0; i < n; ++i) {
@@ -128,135 +128,135 @@ inline double approx_rsqrt(double x)
 }
 
 template<class T>
-inline T approx_sqrt(T x)
+inline constexpr T approx_sqrt(T x)
 {
     return x * approx_rsqrt(x);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T norm2(T x1, T x2)
+inline constexpr T norm2(T x1, T x2)
 {
     return std::sqrt(sqr(x1) + sqr(x2));
 }
 
 template<class T>
-inline T norm2(T x1, T x2, T x3)
+inline constexpr T norm2(T x1, T x2, T x3)
 {
     return std::sqrt(sqr(x1) + sqr(x2) + sqr(x3));
 }
 
 template<class T>
-inline T norm3(T x1, T x2)
+inline constexpr T norm3(T x1, T x2)
 {
     return std::pow(pow3(x1) + pow3(x2), T(1.0 / 3.0));
 }
 
 template<class T>
-inline T norm3(T x1, T x2, T x3)
+inline constexpr T norm3(T x1, T x2, T x3)
 {
     return std::pow(pow3(x1) + pow3(x2) + pow3(x3), T(1.0 / 3.0));
 }
 
 template<class T>
-inline T norm4(T x1, T x2)
+inline constexpr T norm4(T x1, T x2)
 {
     return std::pow(pow4(x1) + pow4(x2), T(1.0 / 4.0));
 }
 
 template<class T>
-inline T norm4(T x1, T x2, T x3)
+inline constexpr T norm4(T x1, T x2, T x3)
 {
     return std::pow(pow4(x1) + pow4(x2) + pow4(x3), T(1.0 / 4.0));
 }
 
 template<class T>
-inline T norm5(T x1, T x2)
+inline constexpr T norm5(T x1, T x2)
 {
     return std::pow(pow5(x1) + pow5(x2), T(1.0 / 5.0));
 }
 
 template<class T>
-inline T norm5(T x1, T x2, T x3)
+inline constexpr T norm5(T x1, T x2, T x3)
 {
     return std::pow(pow5(x1) + pow5(x2) + pow5(x3), T(1.0 / 5.0));
 }
 
 template<class T>
-inline T norm6(T x1, T x2)
+inline constexpr T norm6(T x1, T x2)
 {
     return std::pow(pow6(x1) + pow6(x2), T(1.0 / 6.0));
 }
 
 template<class T>
-inline T norm6(T x1, T x2, T x3)
+inline constexpr T norm6(T x1, T x2, T x3)
 {
     return std::pow(pow6(x1) + pow6(x2) + pow6(x3), T(1.0 / 6.0));
 }
 
 template<class T>
-inline T norm7(T x1, T x2)
+inline constexpr T norm7(T x1, T x2)
 {
     return std::pow(pow7(x1) + pow7(x2), T(1.0 / 7.0));
 }
 
 template<class T>
-inline T norm7(T x1, T x2, T x3)
+inline constexpr T norm7(T x1, T x2, T x3)
 {
     return std::pow(pow7(x1) + pow7(x2) + pow7(x3), T(1.0 / 7.0));
 }
 
 template<class T>
-inline T norm8(T x1, T x2)
+inline constexpr T norm8(T x1, T x2)
 {
     return std::pow(pow8(x1) + pow8(x2), T(1.0 / 8.0));
 }
 
 template<class T>
-inline T norm8(T x1, T x2, T x3)
+inline constexpr T norm8(T x1, T x2, T x3)
 {
     return std::pow(pow8(x1) + pow8(x2) + pow8(x3), T(1.0 / 8.0));
 }
 
 template<class T>
-inline T norm_inf(T x1, T x2)
+inline constexpr T norm_inf(T x1, T x2)
 {
     return max(std::abs(x1), std::abs(x2));
 }
 
 template<class T>
-inline T norm_inf(T x1, T x2, T x3)
+inline constexpr T norm_inf(T x1, T x2, T x3)
 {
     return max(std::abs(x1), std::abs(x2), std::abs(x3));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T min(T a1, T a2)
+inline constexpr T min(T a1, T a2)
 {
     return std::min(a1, a2);
 }
 
 template<class T>
-inline T min(T a1, T a2, T a3)
+inline constexpr T min(T a1, T a2, T a3)
 {
     return std::min(a1, std::min(a2, a3));
 }
 
 template<class T>
-inline T min(T a1, T a2, T a3, T a4)
+inline constexpr T min(T a1, T a2, T a3, T a4)
 {
     return std::min(std::min(a1, a2), std::min(a3, a4));
 }
 
 template<class T>
-inline T min(T a1, T a2, T a3, T a4, T a5)
+inline constexpr T min(T a1, T a2, T a3, T a4, T a5)
 {
     return min(std::min(a1, a2), std::min(a3, a4), a5);
 }
 
 template<class T>
-inline T min(T a1, T a2, T a3, T a4, T a5, T a6)
+inline constexpr T min(T a1, T a2, T a3, T a4, T a5, T a6)
 {
     return min(std::min(a1, a2), std::min(a3, a4), std::min(a5, a6));
 }
@@ -264,7 +264,7 @@ inline T min(T a1, T a2, T a3, T a4, T a5, T a6)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // exponential smooth min (k = 32);
 template<class T>
-inline T smin_exp(T a, T b, T k = T(32.0))
+inline constexpr T smin_exp(T a, T b, T k = T(32.0))
 {
     T res = exp(-k * a) + exp(-k * b);
     return -log(res) / k;
@@ -272,7 +272,7 @@ inline T smin_exp(T a, T b, T k = T(32.0))
 
 // polynomial smooth min (k = 0.1);
 template<class T>
-inline T smin_poly(T a, T b, T k = T(0.1))
+inline constexpr T smin_poly(T a, T b, T k = T(0.1))
 {
     T h = clamp(T(0.5) + T(0.5) * (b - a) / k, T(0), T(1.0));
     return lerp(b, a, h) - k * h * (T(1.0) - h);
@@ -280,7 +280,7 @@ inline T smin_poly(T a, T b, T k = T(0.1))
 
 // power smooth min (k = 8);
 template<class T>
-inline T smin_pow(T a, T b, T k = T(8.0))
+inline constexpr T smin_pow(T a, T b, T k = T(8.0))
 {
     a = pow(a, k); b = pow(b, k);
     return pow((a * b) / (a + b), T(1.0) / k);
@@ -288,7 +288,7 @@ inline T smin_pow(T a, T b, T k = T(8.0))
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-VecX<N, T> min(const VecX<N, T>& a, const VecX<N, T>& b)
+constexpr VecX<N, T> min(const VecX<N, T>& a, const VecX<N, T>& b)
 {
     VecX<N, T> result;
     for(Int i = 0; i < N; ++i) {
@@ -299,31 +299,31 @@ VecX<N, T> min(const VecX<N, T>& a, const VecX<N, T>& b)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T max(T a1, T a2)
+inline constexpr T max(T a1, T a2)
 {
     return std::max(a1, a2);
 }
 
 template<class T>
-inline T max(T a1, T a2, T a3)
+inline constexpr T max(T a1, T a2, T a3)
 {
     return std::max(a1, std::max(a2, a3));
 }
 
 template<class T>
-inline T max(T a1, T a2, T a3, T a4)
+inline constexpr T max(T a1, T a2, T a3, T a4)
 {
     return std::max(std::max(a1, a2), std::max(a3, a4));
 }
 
 template<class T>
-inline T max(T a1, T a2, T a3, T a4, T a5)
+inline constexpr T max(T a1, T a2, T a3, T a4, T a5)
 {
     return max(std::max(a1, a2), std::max(a3, a4), a5);
 }
 
 template<class T>
-inline T max(T a1, T a2, T a3, T a4, T a5, T a6)
+inline constexpr T max(T a1, T a2, T a3, T a4, T a5, T a6)
 {
     return max(std::max(a1, a2), std::max(a3, a4), std::max(a5, a6));
 }
@@ -398,12 +398,12 @@ inline void sort(T& a, T& b, T& c)
 
     if(a < b) {
         if(a < c) {
-            if(c < b) { // a<c<b
+            if(c < b) {   // a<c<b
                 temp = c;
                 c    = b;
                 b    = temp;
-            }    // else: a<b<c
-        } else { // c<a<b
+            }                // else: a<b<c
+        } else {  // c<a<b
             temp = c;
             c    = b;
             b    = a;
@@ -411,17 +411,17 @@ inline void sort(T& a, T& b, T& c)
         }
     } else {
         if(b < c) {
-            if(a < c) { //b<a<c
+            if(a < c) {   //b<a<c
                 temp = b;
                 b    = a;
                 a    = temp;
-            } else {    // b<c<a
+            } else {         // b<c<a
                 temp = b;
                 b    = c;
                 c    = a;
                 a    = temp;
             }
-        } else {    // c<b<a
+        } else {     // c<b<a
             temp = c;
             c    = a;
             a    = temp;
@@ -431,7 +431,7 @@ inline void sort(T& a, T& b, T& c)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T clamp(T a, T lower, T upper)
+inline constexpr T clamp(T a, T lower, T upper)
 {
     if(a < lower) {
         return lower;
@@ -443,7 +443,7 @@ inline T clamp(T a, T lower, T upper)
 }
 
 template<class T>
-inline T clamp01(T a)
+inline constexpr T clamp01(T a)
 {
     if(a < T(0)) {
         return T(0);
@@ -455,7 +455,7 @@ inline T clamp01(T a)
 }
 
 template<class T, class S>
-inline T clamp(T a, S lower, S upper)
+inline constexpr T clamp(T a, S lower, S upper)
 {
     if(a < T(lower)) {
         return T(lower);
@@ -481,7 +481,7 @@ inline VecX<N, T> clamp(const VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, 
 
 // only makes sense with T=float or double
 template<class T>
-inline T smooth_step(T r)
+inline constexpr T smooth_step(T r)
 {
     if(r < 0) {
         return 0;
@@ -494,14 +494,14 @@ inline T smooth_step(T r)
 
 // only makes sense with T=float or double
 template<class T>
-inline T smooth_step(T r, T r_lower, T r_upper, T value_lower, T value_upper)
+inline constexpr T smooth_step(T r, T r_lower, T r_upper, T value_lower, T value_upper)
 {
     return value_lower + smooth_step((r - r_lower) / (r_upper - r_lower)) * (value_upper - value_lower);
 }
 
 // only makes sense with T=float or double
 template<class T>
-inline T ramp(T r)
+inline constexpr T ramp(T r)
 {
     return smooth_step((r + T(1.0)) / T(2.0)) * T(2.0) - T(1.0);
 }
@@ -785,14 +785,14 @@ T smooth_kernel(T r2, T h2)
 }
 
 template<class T>
-inline T smooth_kernel_laplacian(T r2, T h2)
+inline constexpr T smooth_kernel_laplacian(T r2, T h2)
 {
     T x2 = T(sqrt(r2 / h2));
     return x2 > T(1.0) ? 0 : (T(1.0) - x2);
 }
 
 template<class T>
-inline T bilinear_kernel(T dx_, T dy_)
+inline constexpr T bilinear_kernel(T dx_, T dy_)
 {
     T dx = dx_ > 0 ? dx_ : -dx_;
     T dy = dy_ > 0 ? dy_ : -dy_;
@@ -805,7 +805,7 @@ inline T bilinear_kernel(T dx_, T dy_)
 }
 
 template<class T>
-inline T trilinear_kernel(T dx_, T dy_, T dz_)
+inline constexpr T trilinear_kernel(T dx_, T dy_, T dz_)
 {
     T dx = dx_ > 0 ? dx_ : -dx_;
     T dy = dy_ > 0 ? dy_ : -dy_;
@@ -819,7 +819,7 @@ inline T trilinear_kernel(T dx_, T dy_, T dz_)
 }
 
 template<class T>
-inline T spiky_kernel(T r, T h)
+inline constexpr T spiky_kernel(T r, T h)
 {
     if(r > h) {
         return 0;
@@ -834,7 +834,7 @@ inline T spiky_kernel(T r, T h)
 }
 
 template<class T>
-inline T quad_bspline_kernel(T f)
+inline constexpr T quad_bspline_kernel(T f)
 {
     T x  = f > 0 ? f : -f;
     T x2 = x * x;
@@ -851,7 +851,7 @@ inline T quad_bspline_kernel(T f)
 }
 
 template<class T>
-inline T quad_bspline_grad(T f)
+inline constexpr T quad_bspline_grad(T f)
 {
     T x  = f > 0 ? f : -f;
     T x2 = x * x;
@@ -872,7 +872,7 @@ inline T quad_bspline_grad(T f)
 }
 
 template<class T>
-inline T cubic_bspline_kernel(T f)
+inline constexpr T cubic_bspline_kernel(T f)
 {
     T x = f > 0 ? f : -f;
 
@@ -889,19 +889,19 @@ inline T cubic_bspline_kernel(T f)
 }
 
 template<class T>
-inline T cubic_bspline_2d(T x, T y)
+inline constexpr T cubic_bspline_2d(T x, T y)
 {
     return cubic_bspline_kernel(x) * cubic_bspline_kernel(y);
 }
 
 template<class T>
-inline T cubic_bspline_3d(T x, T y, T z)
+inline constexpr T cubic_bspline_3d(T x, T y, T z)
 {
     return cubic_bspline_kernel(x) * cubic_bspline_kernel(y) * cubic_bspline_kernel(z);
 }
 
 template<class T>
-inline T cubic_bspline_grad(T x)
+inline constexpr T cubic_bspline_grad(T x)
 {
     T abs_x = x > 0 ? x : -x;
 
@@ -933,7 +933,7 @@ inline void cycle_array(T* arr, int size)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // value < 0 is inside
 template<class T>
-inline T fraction_inside(T left_val, T right_val)
+inline constexpr T fraction_inside(T left_val, T right_val)
 {
     if(left_val < 0 && right_val < 0) {
         return T(1.0);
@@ -980,7 +980,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
             T side_left  = fraction_inside(list[0], list[3]);
             T side_right = fraction_inside(list[1], list[2]);
             return T(0.5) * (side_left + side_right);
-        } else {    //matching signs are diagonally opposite
+        } else {     //matching signs are diagonally opposite
             //determine the centre point's sign to disambiguate this case
             T middle_point = T(0.25) * (list[0] + list[1] + list[2] + list[3]);
 
