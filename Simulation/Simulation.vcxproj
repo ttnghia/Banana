@@ -151,6 +151,10 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h" />
+    <ClInclude Include="ParticleSolvers\MPM\HairMPM_Data.h" />
+    <ClInclude Include="ParticleSolvers\MPM\HairMPM_Data.Impl.hpp" />
+    <ClInclude Include="ParticleSolvers\MPM\HairMPM_Solver.h" />
+    <ClInclude Include="ParticleSolvers\MPM\HairMPM_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_Data.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.h" />
@@ -208,6 +212,7 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\APIC_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\FLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\PIC_3DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\MPM\HairMPM_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
