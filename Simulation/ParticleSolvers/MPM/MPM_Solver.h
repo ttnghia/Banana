@@ -46,6 +46,7 @@ public:
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
+    virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
