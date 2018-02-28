@@ -105,11 +105,11 @@ void WCSPH_3DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::loadSimParams(const JParams& jParams)
 {
-    solverParams().loadSimParams(jParams);
-    solverParams().makeReady();
-    solverParams().printParams(m_Logger);
-    ////////////////////////////////////////////////////////////////////////////////
-    solverData().makeReady(solverParams());
+    //solverParams().parseParameters(jParams);
+    //solverParams().makeReady();
+    //solverParams().printParams(m_Logger);
+    //////////////////////////////////////////////////////////////////////////////////
+    //solverData().makeReady(solverParams());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

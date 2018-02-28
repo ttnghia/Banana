@@ -24,7 +24,7 @@
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
-#include <ParticleSolvers/SPH/SPHSolverData.h>
+#include <ParticleSolvers/SPH/SPH_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
