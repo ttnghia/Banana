@@ -26,6 +26,17 @@ void HairMPM_Solver<N, RealType >::makeReady()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void HairMPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
+{
+    MPM_Solver<N, RealType>::generateParticles(jParams);
+    ////////////////////////////////////////////////////////////////////////////////
+    solverData().classifyParticles(m_SolverParams);
+    solverData().find_d0(m_SolverParams);
+    solverData().computeLocalDirections();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void HairMPM_Solver<N, RealType >::allocateSolverMemory()
 {
     m_HairMPMParams = std::make_shared<HairMPM_Parameters<N, RealType>>();

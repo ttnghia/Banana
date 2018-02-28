@@ -242,11 +242,4 @@ void HairMPM_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<
 {
     MPM_Data<N, RealType>::makeReady(simParams);
     ////////////////////////////////////////////////////////////////////////////////
-    HairMPM_particleData->reserve(simParams->maxNParticles);
-    HairMPM_gridData->resize(grid.getNCells());
-
-    ////////////////////////////////////////////////////////////////////////////////
-    classifyParticles(simParams);
-    find_d0(simParams);
-    computeLocalDirections();
 }

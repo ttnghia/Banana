@@ -57,6 +57,7 @@ public:
     const auto& grid() const { return solverData().grid; }
 
 protected:
+    virtual void generateParticles(const JParams& jParams) override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
