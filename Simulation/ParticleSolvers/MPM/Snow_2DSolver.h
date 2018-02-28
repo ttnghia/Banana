@@ -75,6 +75,18 @@ struct SimulationParameters_Snow2D : public SimulationParameters
     Real lambda, mu;     //Lame parameters (_s denotes starting configuration)
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual void parseParameters(const JParams& jParams)
+    {
+        JSONHelpers::readValue(jParams, thresholdCompression, "ThresholdCompression");
+        JSONHelpers::readValue(jParams, thresholdStretching,  "ThresholdStretching");
+        JSONHelpers::readValue(jParams, hardening,            "Hardening");
+        JSONHelpers::readValue(jParams, materialDensity,      "MaterialDensity");
+        JSONHelpers::readValue(jParams, YoungsModulus,        "YoungsModulus");
+        JSONHelpers::readValue(jParams, PoissonsRatio,        "PoissonsRatio");
+
+        JSONHelpers::readValue(jParams, implicitRatio,        "ImplicitRatio");
+    }
+
     virtual void makeReady() override
     {
         particleRadius = cellSize / ratioCellSizeParticleRadius;
@@ -313,7 +325,6 @@ public:
     const auto& solverData() const { return m_SimData; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override {}

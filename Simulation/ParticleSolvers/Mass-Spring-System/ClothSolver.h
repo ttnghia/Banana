@@ -107,7 +107,6 @@ struct SimulationParameters_Cloth3D
             logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         }
 
-
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
         logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
 
@@ -230,7 +229,6 @@ public:
     const auto& solverData() const { return m_SimData; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;

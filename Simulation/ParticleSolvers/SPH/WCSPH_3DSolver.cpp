@@ -103,16 +103,6 @@ void WCSPH_3DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DSolver::loadSimParams(const JParams& jParams)
-{
-    //solverParams().parseParameters(jParams);
-    //solverParams().makeReady();
-    //solverParams().printParams(m_Logger);
-    //////////////////////////////////////////////////////////////////////////////////
-    //solverData().makeReady(solverParams());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);

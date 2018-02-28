@@ -226,29 +226,6 @@ void MPM_2DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DSolver::loadSimParams(const JParams& jParams)
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    // MPM parameters
-    JSONHelpers::readValue(jParams, solverParams().KDamping,      "KDamping");
-    JSONHelpers::readValue(jParams, solverParams().implicitRatio, "ImplicitRatio");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // material parameters
-    JSONHelpers::readValue(jParams, solverParams().YoungsModulus,   "YoungsModulus");
-    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,   "PoissonsRatio");
-    JSONHelpers::readValue(jParams, solverParams().mu,              "mu");
-    JSONHelpers::readValue(jParams, solverParams().lambda,          "lambda");
-    JSONHelpers::readValue(jParams, solverParams().materialDensity, "MaterialDensity");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    solverParams().makeReady();
-    solverParams().printParams(m_Logger);
-    ////////////////////////////////////////////////////////////////////////////////
-    solverData().makeReady(solverParams());
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_2DSolver::generateParticles(const JParams& jParams)

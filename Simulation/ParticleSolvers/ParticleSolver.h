@@ -88,7 +88,6 @@ protected:
     auto&       dataLogger(const String& dataName) { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
     const auto& dataLogger(const String& dataName) const { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
 
-    virtual void loadSimParams(const JParams& jParams) { __BNN_UNUSED(jParams); }
     virtual void generateBoundaries(const JParams& jParams);
     virtual void generateParticles(const JParams& jParams);
     virtual void generateRemovers(const JParams& jParams);

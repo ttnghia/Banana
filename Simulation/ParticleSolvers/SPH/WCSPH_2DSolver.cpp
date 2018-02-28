@@ -103,16 +103,6 @@ void WCSPH_2DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_2DSolver::loadSimParams(const JParams& jParams)
-{
-    //solverParams().parseParameters(jParams);
-    //solverParams().makeReady();
-    //solverParams().printParams(m_Logger);
-    //////////////////////////////////////////////////////////////////////////////////
-    //solverData().makeReady(solverParams());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_2DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);

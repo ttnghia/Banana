@@ -57,6 +57,22 @@ struct MPM_3DParameters : public SimulationParameters3D
     Real lambda          = 0_f;
     Real materialDensity = 1000.0_f;
     ////////////////////////////////////////////////////////////////////////////////
+    virtual void parseParameters(const JParams& jParams)
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // MPM parameters
+        JSONHelpers::readValue(jParams, implicitRatio, "ImplicitRatio");
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // material parameters
+        JSONHelpers::readValue(jParams, YoungsModulus,   "YoungsModulus");
+        JSONHelpers::readValue(jParams, PoissonsRatio,   "PoissonsRatio");
+        JSONHelpers::readValue(jParams, mu,              "mu");
+        JSONHelpers::readValue(jParams, lambda,          "lambda");
+        JSONHelpers::readValue(jParams, materialDensity, "MaterialDensity");
+        ////////////////////////////////////////////////////////////////////////////////
+    }
 
     virtual void makeReady() override;
     virtual void printParams(const SharedPtr<Logger>& logger) override;
@@ -188,7 +204,6 @@ public:
     const auto& grid() const { return solverData().grid; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;

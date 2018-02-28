@@ -225,7 +225,6 @@ public:
     const auto& solverData() const { return m_SimData; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override {}

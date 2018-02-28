@@ -102,17 +102,6 @@ void Snow2DSolver::sortParticles()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow2DSolver::loadSimParams(const JParams& jParams)
-{
-    JSONHelpers::readValue(jParams, solverParams().thresholdCompression, "ThresholdCompression");
-    JSONHelpers::readValue(jParams, solverParams().thresholdStretching,  "ThresholdStretching");
-    JSONHelpers::readValue(jParams, solverParams().hardening,            "Hardening");
-    JSONHelpers::readValue(jParams, solverParams().materialDensity,      "MaterialDensity");
-    JSONHelpers::readValue(jParams, solverParams().YoungsModulus,        "YoungsModulus");
-    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,        "PoissonsRatio");
-
-    JSONHelpers::readValue(jParams, solverParams().implicitRatio,        "ImplicitRatio");
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::generateParticles(const JParams& jParams)

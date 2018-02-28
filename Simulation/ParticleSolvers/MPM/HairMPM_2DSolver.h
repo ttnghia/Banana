@@ -23,7 +23,6 @@
 
 #include <ParticleSolvers/MPM/MPM_2DSolver.h>
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
@@ -48,6 +47,28 @@ struct HairMPM_2DParameters
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual void parseParameters(const JParams& jParams)
+    {
+        //MPM_2DSolver::loadSimParams(jParams);
+        //////////////////////////////////////////////////////////////////////////////////
+        //String stretchProcessingMethod("Projection");
+        //JSONHelpers::readValue(jParams, stretchProcessingMethod, "StretchProcessingMethod");
+        //__BNN_REQUIRE(stretchProcessingMethod == "Projection" || stretchProcessingMethod == "SpringForce");
+        //if(stretchProcessingMethod == "Projection")
+        //{
+        //	aniParams().stretchProcessingMethod = HairStretchProcessingMethod::Projection;
+        //}
+        //else
+        //{
+        //	aniParams().stretchProcessingMethod = HairStretchProcessingMethod::SpringForce;
+        //	JSONHelpers::readValue(jParams, aniParams().KSpring, "KSpring");
+        //}
+
+        //////////////////////////////////////////////////////////////////////////////////
+        //aniParams().makeReady();
+        //aniParams().printParams(m_Logger);
+    }
+
     void makeReady() {}
     void printParams(const SharedPtr<Logger>& logger)
     {
@@ -85,7 +106,6 @@ struct HairMPM_2DData
         UInt removeParticles(const Vec_Int8& removeMarker);
     };
 
-
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData : public GridSimulationData2D
     {
@@ -99,14 +119,13 @@ struct HairMPM_2DData
     ParticleData particleData;
     GridData     gridData;
 
-    Vector<SharedPtr<GeometryObjects::GeometryObject2D> > hairObjs;
+    Vector<SharedPtr<GeometryObjects::GeometryObject2D>> hairObjs;
 
     void makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData);
     void classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData);
     void find_d0(const MPM_2DParameters& params,  MPM_2DData& mpmData);
     void computeLocalDirections(MPM_2DData& mpmData);
 };
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -138,7 +157,6 @@ public:
     const auto& aniGridData() const { return aniData().gridData; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
     virtual void setupDataIO() override;

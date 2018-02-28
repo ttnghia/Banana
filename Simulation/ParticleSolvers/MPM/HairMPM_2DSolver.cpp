@@ -205,24 +205,6 @@ void HairMPM_2DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::loadSimParams(const JParams& jParams)
-{
-    MPM_2DSolver::loadSimParams(jParams);
-    ////////////////////////////////////////////////////////////////////////////////
-    String stretchProcessingMethod("Projection");
-    JSONHelpers::readValue(jParams, stretchProcessingMethod, "StretchProcessingMethod");
-    __BNN_REQUIRE(stretchProcessingMethod == "Projection" || stretchProcessingMethod == "SpringForce");
-    if(stretchProcessingMethod == "Projection") {
-        aniParams().stretchProcessingMethod = HairStretchProcessingMethod::Projection;
-    } else {
-        aniParams().stretchProcessingMethod = HairStretchProcessingMethod::SpringForce;
-        JSONHelpers::readValue(jParams, aniParams().KSpring, "KSpring");
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    aniParams().makeReady();
-    aniParams().printParams(m_Logger);
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void HairMPM_2DSolver::generateParticles(const JParams& jParams)
