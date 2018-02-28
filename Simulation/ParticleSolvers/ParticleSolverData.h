@@ -83,9 +83,9 @@ struct GlobalParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // frame and time parameters
-    RealType frameLocalTime    = 0_f;
+    RealType frameLocalTime    = RealType(0);
     RealType frameDuration     = RealType(1.0 / ParticleSolverDefaultParameters::FrameRate);
-    RealType frameSubstep      = 0_f;
+    RealType frameSubstep      = RealType(0);
     UInt     frameSubstepCount = 0u;
     UInt     startFrame        = 1u;
     UInt     finalFrame        = 1u;
@@ -153,8 +153,8 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    RealType particleRadius    = 0_f;
-    RealType particleRadiusSqr = 0_f;
+    RealType particleRadius    = RealType(0);
+    RealType particleRadiusSqr = RealType(0);
     RealType particleMass      = RealType(1.0);
     UInt     maxNParticles     = 0u;
     RealType overlappingThreshold;
