@@ -27,6 +27,7 @@
 template<Int N, class RealType>
 void MPM_Parameters<N, RealType >::parseParameters(const JParams& jParams)
 {
+    SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
     JSONHelpers::readValue(jParams, KDamping,      "KDamping");
