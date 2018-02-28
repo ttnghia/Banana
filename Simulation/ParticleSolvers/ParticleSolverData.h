@@ -76,20 +76,21 @@ using namespace Banana::ParticleSolverConstants;
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 struct GlobalParameters
 {
     UInt nThreads = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     // frame and time parameters
-    Real frameLocalTime    = 0_f;
-    Real frameDuration     = Real(1.0 / ParticleSolverDefaultParameters::FrameRate);
-    Real frameSubstep      = 0_f;
-    UInt frameSubstepCount = 0u;
-    UInt startFrame        = 1u;
-    UInt finalFrame        = 1u;
-    UInt finishedFrame     = 0u;
-    Real evolvedTime() const { return frameDuration * static_cast<Real>(finishedFrame) + frameLocalTime; }
+    RealType frameLocalTime    = 0_f;
+    RealType frameDuration     = RealType(1.0 / ParticleSolverDefaultParameters::FrameRate);
+    RealType frameSubstep      = 0_f;
+    UInt     frameSubstepCount = 0u;
+    UInt     startFrame        = 1u;
+    UInt     finalFrame        = 1u;
+    UInt     finishedFrame     = 0u;
+    RealType evolvedTime() const;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -119,55 +120,9 @@ struct GlobalParameters
     UInt sortFrequency       = 10;
     ////////////////////////////////////////////////////////////////////////////////
 
-    void printParams(Logger& logger)
-    {
-        logger.printLog(String("Global parameters:"));
-        logger.printLogIndent(String("Number of working threads: ") + (nThreads > 0 ? std::to_string(nThreads) : String("Automatic")));
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // frame and time parameters
-        logger.printLogIndent(String("Frame duration: ") + NumberHelpers::formatToScientific(frameDuration) +
-                              String(" (~") + std::to_string(static_cast<int>(round(1.0_f / frameDuration))) + String(" fps)"));
-        logger.printLogIndent(String("Start frame: ") + std::to_string(startFrame));
-        logger.printLogIndent(String("Final frame: ") + std::to_string(finalFrame));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // data IO parameters
-        logger.printLogIndentIf(bSaveMemoryState || bSaveFrameData || bPrintLog2File, ("Data path: ") + dataPath);
-        logger.printLogIndentIf(bSaveMemoryState,                                     ("Memory state data folder: ") + memoryStateDataFolder, 2);
-        logger.printLogIndentIf(bSaveFrameData,                                       ("Frame data folder: ") + frameDataFolder,              2);
-        logger.printLogIndent(String("Load saved memory state: ") + (bLoadMemoryState ? String("Yes") : String("No")));
-        logger.printLogIndent(String("Save memory state: ") + (bSaveMemoryState ? String("Yes") : String("No")));
-        logger.printLogIndentIf(bSaveMemoryState, String("Frames/state: ") + std::to_string(framePerState), 2);
-        logger.printLogIndent(String("Save simulation data each frame: ") + (bSaveFrameData ? String("Yes") : String("No")));
-        if(bSaveFrameData && SaveDataList.size() > 0) {
-            String str; for(const auto& s : SaveDataList) {
-                str += s; str += String(", ");
-            }
-            str.erase(str.find_last_of(","), str.size());             // remove last ',' character
-            logger.printLogIndent(String("Save data: ") + str, 2);
-        }
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // logging parameters
-        logger.printLogIndent(String("Log to file: ") + (bPrintLog2File ? String("Yes") : String("No")));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // misc parameters
-        logger.printLogIndent(String("Apply gravity: ") + (bApplyGravity ? String("Yes") : String("No")));
-        logger.printLogIndent(String("Sort particles during simulation: ") + (bEnableSortParticle ? String("Yes") : String("No")));
-        logger.printLogIndentIf(bEnableSortParticle, String("Sort frequency: ") + std::to_string(sortFrequency), 2);
-        ////////////////////////////////////////////////////////////////////////////////
-        logger.newLine();
-    }
-
-    bool savingData(const String& dataName)
-    {
-        return (std::find(SaveDataList.begin(), SaveDataList.end(), dataName) != SaveDataList.end());
-    }
+    void parseParameters(const JParams& jParams);
+    void printParams(Logger& logger);
+    bool savingData(const String& dataName) const;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -236,127 +191,10 @@ struct SimulationParameters
     VecX<N, RealType> gravityDirection = VecX<N, RealType>(0);
     VecX<N, RealType> gravityCenter    = VecX<N, RealType>(0);
 
-    virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const
-    {
-        if(gravityType == GravityType::Earth ||
-           gravityType == GravityType::Directional) {
-            return gravityDirection;
-        } else if(gravityType == GravityType::ToCenter) {
-            return 9.81_f * glm::normalize(gravityCenter - pos);
-        } else {
-            return 9.81_f * glm::normalize(pos - gravityCenter);
-        }
-    }
-
-    virtual void makeReady()
-    {
-        if(bUseGrid) {
-            particleRadius = cellSize / ratioCellSizePRadius;
-        } else {
-            cellSize     = 0_f;
-            nExpandCells = 0u;
-        }
-        particleRadiusSqr       = particleRadius * particleRadius;
-        overlappingThreshold    = RealType(0.01) * particleRadius;
-        overlappingThresholdSqr = overlappingThreshold * overlappingThreshold;
-        cellVolume              = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
-
-        // expand domain simulation by nExpandCells for each dimension
-        // this is necessary if the boundary is a box which coincides with the simulation domain
-        // movingBMin/BMax are used in printParams function only
-        movingBMin  = domainBMin;
-        movingBMax  = domainBMax;
-        domainBMin -= VecX<N, RealType>(cellSize * nExpandCells);
-        domainBMax += VecX<N, RealType>(cellSize * nExpandCells);
-
-        ////////////////////////////////////////////////////////////////////////////////
-        if(gravityType == GravityType::Directional) {
-            if(glm::length2(gravityDirection) < MEpsilon) {
-                gravityType = GravityType::Earth;
-            } else {
-                gravityDirection = 9.81_f * glm::normalize(gravityDirection);
-            }
-        }
-
-        if(gravityType == GravityType::Earth) {
-            if constexpr(N == 2) {
-                gravityDirection = Gravity2D;
-            } else {
-                gravityDirection = Gravity3D;
-            }
-        }
-    }
-
-    virtual void printParams(const SharedPtr<Logger>& logger)
-    {
-        ////////////////////////////////////////////////////////////////////////////////
-        // time step size
-        logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
-                               String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
-        logger->newLine();
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // domain size
-        auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
-        auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
-        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
-                               (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(domainGrid) : String("")));
-        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
-                               (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(movingGrid) : String("")));
-        logger->newLine();
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // grid
-        if(bUseGrid) {
-            logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
-            logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
-            logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
-            logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
-                                   String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
-            logger->newLine();
-        }
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // particle parameters
-        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
-        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
-        logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
-        logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
-        logger->newLine();
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // boundary restitution, if applicable
-        logger->printLogIndent(String("Reflect velocity at boundary: ") + (bReflectVelocityAtBoundary ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bReflectVelocityAtBoundary, String("Boundary velocity reflection multiplier: ") +
-                                 std::to_string(boundaryReflectionMultiplier));
-        logger->newLine();
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // gravity
-        switch(gravityType) {
-            case static_cast<Int>(GravityType::Earth):
-                logger->printLogIndent(String("Gravity: Earth"));
-            case static_cast<Int>(GravityType::Directional):
-                logger->printLogIndent(String("Gravity: Directional"));
-                logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
-                break;
-            case static_cast<Int>(GravityType::ToCenter):
-                logger->printLogIndent(String("Gravity: ToCenter"));
-            case static_cast<Int>(GravityType::FromCenter):
-                logger->printLogIndent(String("Gravity: FromCenter"));
-                logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
-            default:;
-        }
-        logger->newLine();
-        ////////////////////////////////////////////////////////////////////////////////
-    }
+    virtual void              parseParameters(const JParams& jParams);
+    virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const;
+    virtual void              makeReady();
+    virtual void              printParams(const SharedPtr<Logger>& logger);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -438,6 +276,9 @@ using GridSimulationData3D = GridSimulationData<3, Real>;
 
 using SimulationData2D = SimulationData<2, Real>;
 using SimulationData3D = SimulationData<3, Real>;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/ParticleSolverData.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers
