@@ -71,7 +71,7 @@ struct MPM_Parameters : public SimulationParameters<N, RealType>
 template<Int N, class RealType>
 struct MPM_Data : public SimulationData<N, RealType>
 {
-    struct ParticleData : public ParticleSimulationData<N, RealType>
+    struct MPM_ParticleData : public ParticleSimulationData<N, RealType>
     {
         Vector<RealType>        volumes;
         Vec_MatXxX<N, RealType> velocityGrad;
@@ -93,7 +93,7 @@ struct MPM_Data : public SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<N, RealType>
+    struct MPM_GridData : public GridSimulationData<N, RealType>
     {
         Array<N, char> active;
         Array<N, UInt> activeNodeIdx;                // store linearized indices of active nodes
@@ -109,17 +109,18 @@ struct MPM_Data : public SimulationData<N, RealType>
 
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const VecX<N, UInt>& gridSize);
-        void         resetGrid();
+        virtual void resetGrid() override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParticleData                        particleData;
-    GridData                            gridData;
+    SharedPtr<MPM_ParticleData>         particleData = nullptr;
+    SharedPtr<MPM_GridData>             gridData     = nullptr;
     Grid<N, RealType>                   grid;
     Optimization::LBFGSSolver<RealType> lbfgsSolver;
 
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return particleData; }
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
+    virtual void                                       initialize();
+    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return *particleData; }
+    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return *particleData; }
     virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
@@ -144,10 +145,10 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { return m_SimParams; }
     const auto& solverParams() const { return m_SimParams; }
-    auto&       particleData() { return m_SimData.particleData; }
-    const auto& particleData() const { return m_SimData.particleData; }
-    auto&       gridData() { return m_SimData.gridData; }
-    const auto& gridData() const { return m_SimData.gridData; }
+    auto&       particleData() { return *m_SimData.particleData; }
+    const auto& particleData() const { return *m_SimData.particleData; }
+    auto&       gridData() { return *m_SimData.gridData; }
+    const auto& gridData() const { return *m_SimData.gridData; }
     auto&       grid() { return m_SimData.grid; }
     const auto& grid() const { return m_SimData.grid; }
 

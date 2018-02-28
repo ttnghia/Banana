@@ -92,7 +92,7 @@ void Banana::ParticleSolvers::MPM_Parameters<N, RealType>::printParams(const Sha
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
+void MPM_Data<N, RealType>::MPM_ParticleData::reserve(UInt nParticles)
 {
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
@@ -118,7 +118,7 @@ void MPM_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::ParticleData::addParticles(const Vec_VecX<N, RealType>&newPositions, const Vec_VecX<N, RealType>&newVelocities)
+void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecX<N, RealType>&newPositions, const Vec_VecX<N, RealType>&newVelocities)
 {
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
@@ -150,7 +150,7 @@ void MPM_Data<N, RealType>::ParticleData::addParticles(const Vec_VecX<N, RealTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt MPM_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& removeMarker)
+UInt MPM_Data<N, RealType>::MPM_ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
@@ -183,7 +183,7 @@ UInt MPM_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& remove
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::GridData::resize(const VecX<N, UInt>&gridSize)
+void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>&gridSize)
 {
     auto nNodes = gridSize + VecX<N, UInt>(1u);
     ////////////////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ void MPM_Data<N, RealType>::GridData::resize(const VecX<N, UInt>&gridSize)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::GridData::resetGrid()
+void MPM_Data<N, RealType>::MPM_GridData::resetGrid()
 {
     active.assign(char(0));
     activeNodeIdx.assign(0u);
@@ -216,11 +216,19 @@ void MPM_Data<N, RealType>::GridData::resetGrid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void MPM_Data<N, RealType >::initialize()
+{
+    particleData = std::make_shared<MPM_ParticleData>();
+    gridData     = std::make_shared<MPM_GridData>();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void MPM_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
     if(simParams->maxNParticles > 0) {
-        particleData.reserve(simParams->maxNParticles);
+        particleData->reserve(simParams->maxNParticles);
     }
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
-    gridData.resize(grid.getNCells());
+    gridData->resize(grid.getNCells());
 }

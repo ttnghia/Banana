@@ -254,6 +254,7 @@ template<Int N, class RealType>
 struct GridSimulationData
 {
     virtual void resize(const VecX<N, UInt>& nCells) = 0;
+    virtual void resetGrid() {}
     virtual void makeReady() {}
 };
 
@@ -261,8 +262,8 @@ struct GridSimulationData
 template<Int N, class RealType>
 struct SimulationData
 {
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
     virtual ParticleSimulationData<N, RealType>&       generalParticleData() = 0;
+    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
     virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) = 0;
 };
 

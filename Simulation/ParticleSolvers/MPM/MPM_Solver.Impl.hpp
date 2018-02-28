@@ -180,6 +180,7 @@ void MPM_Solver<N, RealType >::allocateSolverMemory()
 
     m_MPMData    = std::make_shared<MPM_Data<N, RealType>>();
     m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_MPMData);
+    m_MPMData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

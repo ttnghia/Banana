@@ -55,10 +55,10 @@ public:
     const auto& solverData() const { return *m_MPMData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
+    auto&       particleData() { return *solverData().particleData; }
+    const auto& particleData() const { return *solverData().particleData; }
+    auto&       gridData() { return *solverData().gridData; }
+    const auto& gridData() const { return *solverData().gridData; }
     auto&       grid() { return solverData().grid; }
     const auto& grid() const { return solverData().grid; }
 
