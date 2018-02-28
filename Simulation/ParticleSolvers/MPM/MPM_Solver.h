@@ -49,10 +49,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
-    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
-    auto&       solverData() { static auto ptrData = std::static_pointer_cast<MPM_Data<N, RealType>>(m_SolverData); return *ptrData; }
-    const auto& solverData() const { static auto ptrData = std::static_pointer_cast<MPM_Data<N, RealType>>(m_SolverData); return *ptrData; }
+    auto&       solverParams() { return *m_MPMParams; }
+    const auto& solverParams() const { return *m_MPMParams; }
+    auto&       solverData() { return *m_MPMData; }
+    const auto& solverData() const { return *m_MPMData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
@@ -88,6 +88,9 @@ protected:
     virtual void     mapGridVelocities2ParticlesAFLIP(RealType timestep);
     virtual void     constrainParticleVelocity(RealType timestep);
     virtual void     updateParticleStates(RealType timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    SharedPtr<MPM_Parameters<N, RealType>> m_MPMParams = nullptr;
+    SharedPtr<MPM_Data<N, RealType>>       m_MPMData   = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

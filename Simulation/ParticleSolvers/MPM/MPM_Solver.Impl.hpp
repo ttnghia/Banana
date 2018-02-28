@@ -175,8 +175,11 @@ bool MPM_Solver<N, RealType >::advanceScene()
 template<Int N, class RealType>
 void MPM_Solver<N, RealType >::allocateSolverMemory()
 {
-    m_SolverParams = std::make_shared<MPM_Parameters<N, RealType>>();
-    m_SolverData   = std::make_shared<MPM_Data<N, RealType>>();
+    m_MPMParams    = std::make_shared<MPM_Parameters<N, RealType>>();
+    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_MPMParams);
+
+    m_MPMData    = std::make_shared<MPM_Data<N, RealType>>();
+    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_MPMData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

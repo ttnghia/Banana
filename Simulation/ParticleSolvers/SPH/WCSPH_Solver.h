@@ -47,10 +47,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
-    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
-    auto&       solverData() { static auto ptrData = std::static_pointer_cast<WCSPH_Data<N, RealType>>(m_SolverData); return *ptrData; }
-    const auto& solverData() const { static auto ptrData = std::static_pointer_cast<WCSPH_Data<N, RealType>>(m_SolverData); return *ptrData; }
+    auto&       solverParams() { return *m_WCSPHParams; }
+    const auto& solverParams() const { return *m_WCSPHParams; }
+    auto&       solverData() { return *m_WCSPHData; }
+    const auto& solverData() const { return *m_WCSPHData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
@@ -77,6 +77,9 @@ protected:
     void     computeAccelerations();
     void     updateVelocity(RealType timestep);
     void     computeViscosity();
+    ////////////////////////////////////////////////////////////////////////////////
+    SharedPtr<WCSPH_Parameters<N, RealType>> m_WCSPHParams = nullptr;
+    SharedPtr<WCSPH_Data<N, RealType>>       m_WCSPHData   = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

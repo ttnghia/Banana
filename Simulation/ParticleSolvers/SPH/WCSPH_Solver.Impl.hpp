@@ -203,8 +203,11 @@ bool WCSPH_Solver<N, RealType >::advanceScene()
 template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::allocateSolverMemory()
 {
-    m_SolverParams = std::make_shared<WCSPH_Parameters<N, RealType>>();
-    m_SolverData   = std::make_shared<WCSPH_Data<N, RealType>>();
+    m_WCSPHParams  = std::make_shared<WCSPH_Parameters<N, RealType>>();
+    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_WCSPHParams);
+
+    m_WCSPHData  = std::make_shared<WCSPH_Data<N, RealType>>();
+    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_WCSPHData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
