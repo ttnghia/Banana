@@ -50,7 +50,7 @@ void Banana::ParticleSolvers::MPM_Parameters<N, RealType>::makeReady()
 {
     SimulationParameters<N, RealType>::makeReady();
     nExpandCells = MathHelpers::max(nExpandCells, 2u);
-    particleMass = MathHelpers::sqr(RealType(2.0) * particleRadius) * materialDensity;
+    particleMass = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
 
     __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
     if(mu == 0 || lambda == 0) {
