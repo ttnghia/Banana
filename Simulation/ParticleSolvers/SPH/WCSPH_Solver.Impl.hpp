@@ -427,7 +427,7 @@ void WCSPH_Solver<N, RealType >::computeDensity()
     auto computeDensity = [&](auto& density, const auto& neighborInfo)
                           {
                               for(const auto& qInfo : neighborInfo) {
-                                  const auto r = VecNR(qInfo);
+                                  const auto r = VecN(qInfo);
                                   density += kernels().kernelPoly6.W(r);
                               }
                           };
@@ -471,7 +471,7 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
 
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto& qInfo   = pNeighborInfo[i];
-                                    const auto r        = VecNR(qInfo);
+                                    const auto r        = VecN(qInfo);
                                     const auto q        = fluidNeighborList[i];
                                     const auto qdensity = particleData().densities[q];
                                     tmp += kernels().kernelPoly6.W(r) / qdensity;
@@ -481,7 +481,7 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
                                     assert(fluidNeighborList.size() + PDNeighborList.size() == pNeighborInfo.size());
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo = pNeighborInfo[i];
-                                        const auto r      = VecNR(qInfo);
+                                        const auto r      = VecN(qInfo);
                                         tmp += kernels().kernelPoly6.W(r) / solverParams().restDensity;
                                     }
                                 }
@@ -536,11 +536,11 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
                                                const auto d2 = glm::length2(r);
                                                const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
                                                if(w < MEpsilon) {
-                                                   return VecNR(0);
+                                                   return VecN(0);
                                                } else if(d2 > solverParams().overlappingThresholdSqr) {
                                                    return -solverParams().shortRangeRepulsiveForceStiffness * w / RealType(sqrt(d2)) * r;
                                                } else {
-                                                   return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<VecNR>();
+                                                   return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<VecN>();
                                                }
                                            };
     ////////////////////////////////////////////////////////////////////////////////
@@ -548,7 +548,7 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                VecNR pAcc(0);
+                                VecN pAcc(0);
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     particleData().accelerations[p] = pAcc;
@@ -558,7 +558,7 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
                                 const auto pdensity  = particleData().densities[p];
                                 const auto ppressure = particlePressure(pdensity);
                                 for(const auto& qInfo : pNeighborInfo) {
-                                    const auto r         = VecNR(qInfo);
+                                    const auto r         = VecN(qInfo);
                                     const auto qdensity  = qInfo[N];
                                     const auto qpressure = particlePressure(qdensity);
                                     const auto fpressure = (ppressure + qpressure) * kernels().kernelSpiky.gradW(r);
@@ -614,29 +614,29 @@ void WCSPH_Solver<N, RealType >::computeViscosity()
                             {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
-                                    particleData().diffuseVelocities[p] = VecNR(0);
+                                    particleData().diffuseVelocities[p] = VecN(0);
                                     return;
                                 }
 
                                 const auto& pvel = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                VecNR diffVelFluid(0);
+                                VecN diffVelFluid(0);
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto q        = fluidNeighborList[i];
                                     const auto& qvel    = particleData().velocities[q];
                                     const auto& qInfo   = pNeighborInfo[i];
-                                    const auto r        = VecNR(qInfo);
+                                    const auto r        = VecN(qInfo);
                                     const auto qdensity = qInfo[N];
                                     diffVelFluid += (RealType(1.0) / qdensity) * kernels().kernelPoly6.W(r) * (qvel - pvel);
                                 }
                                 diffVelFluid *= solverParams().viscosityFluid;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                VecNR diffVelBoundary(0);
+                                VecN diffVelBoundary(0);
                                 if(solverParams().bDensityByBDParticle) {
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo   = pNeighborInfo[i];
-                                        const auto r        = VecNR(qInfo);
+                                        const auto r        = VecN(qInfo);
                                         const auto qdensity = qInfo[N];
                                         diffVelBoundary -= (RealType(1.0) / qdensity) * kernels().kernelPoly6.W(r) * pvel;
                                     }

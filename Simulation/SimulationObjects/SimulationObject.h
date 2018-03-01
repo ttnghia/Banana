@@ -32,10 +32,16 @@ template<Int N, class RealType>
 class SimulationObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType>>;
-    using VecNR       = VecX<N, RealType>;
-    using Vec_VecNR   = Vec_VecX<N, RealType>;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
+    using GeometryPtr     = SharedPtr<GeometryObjects::GeometryObject<N, RealType>>;
     ////////////////////////////////////////////////////////////////////////////////
     SimulationObject() = delete;
     SimulationObject(const JParams& jParams, bool bCSGObj = false) : m_jParams(jParams)
@@ -61,9 +67,9 @@ public:
     auto& geometry() { return m_GeometryObj; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void     parseParameters(const JParams& jParams);
-    virtual RealType signedDistance(const VecNR& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
-    virtual VecNR    gradSignedDistance(const VecNR& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
-    virtual bool     isInside(const VecNR& ppos) const { return m_GeometryObj->isInside(ppos, true); }
+    virtual RealType signedDistance(const VecN& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
+    virtual VecN    gradSignedDistance(const VecN& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
+    virtual bool     isInside(const VecN& ppos) const { return m_GeometryObj->isInside(ppos, true); }
     ////////////////////////////////////////////////////////////////////////////////
     virtual bool advanceScene(UInt frame, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f))
     {

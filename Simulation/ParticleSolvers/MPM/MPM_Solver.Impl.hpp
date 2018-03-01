@@ -378,7 +378,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                           const auto& pg     = particleData().gridCoordinate[p];
                                           const auto lcorner = NumberHelpers::convert<Int>(pg);
 
-                                          auto pD = MatXxX<N, RealType>(0);
+                                          auto pD = MatNxN(0);
                                           ////////////////////////////////////////////////////////////////////////////////
 
                                           for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -389,7 +389,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                               for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                   if(!grid().isValidNode(x, y)) {
                                                       particleData().weights[p * MathHelpers::pow(4, N) + idx]         = 0;
-                                                      particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = VecX<N, RealType>(0);
+                                                      particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = VecN(0);
                                                       continue;
                                                   }
 
@@ -398,7 +398,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                                   auto dwx = MathHelpers::cubic_bspline_grad(dx);
 
                                                   auto weight     = wx * wy;
-                                                  auto weightGrad = VecX<N, RealType>(dwx * wy, dwy * wx) / grid().getCellSize();
+                                                  auto weightGrad = VecN(dwx * wy, dwy * wx) / grid().getCellSize();
                                                   particleData().weights[p * MathHelpers::pow(4, N) + idx]         = weight;
                                                   particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = weightGrad;
 
@@ -424,12 +424,12 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                     auto pD = Mat3x3r(0);
                                     ////////////////////////////////////////////////////////////////////////////////
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        auto dz  = pg.z - Real(z);
+                                        auto dz  = pg.z - RealType(z);
                                         auto wz  = MathHelpers::cubic_bspline_kernel(dz);
                                         auto dwz = MathHelpers::cubic_bspline_grad(dz);
 
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            auto dy  = pg.y - Real(y);
+                                            auto dy  = pg.y - RealType(y);
                                             auto wy  = MathHelpers::cubic_bspline_kernel(dy);
                                             auto dwy = MathHelpers::cubic_bspline_grad(dy);
 
@@ -440,7 +440,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                                     continue;
                                                 }
 
-                                                auto dx  = pg.x - Real(x);
+                                                auto dx  = pg.x - RealType(x);
                                                 auto wx  = MathHelpers::cubic_bspline_kernel(dx);
                                                 auto dwx = MathHelpers::cubic_bspline_grad(dx);
 
@@ -590,7 +590,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
                                 if(gridData().active.data()[i]) {
                                     assert(gridData().mass.data()[i] > 0);
                                     gridData().velocity.data()[i]    /= gridData().mass.data()[i];
-                                    gridData().velocity_new.data()[i] = VecX<N, RealType>(0);
+                                    gridData().velocity_new.data()[i] = VecN(0);
                                 }
                             });
 }
@@ -663,7 +663,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                 if(gridData().active.data()[i]) {
                                     assert(gridData().mass.data()[i] > 0);
                                     gridData().velocity.data()[i]    /= gridData().mass.data()[i];
-                                    gridData().velocity_new.data()[i] = VecX<N, RealType>(0);
+                                    gridData().velocity_new.data()[i] = VecN(0);
                                 }
                             });
 }
@@ -678,7 +678,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                 [&](UInt p)
                                 {
                                     auto deformGrad = particleData().deformGrad[p];
-                                    MatXxX<N, RealType> Ftemp;
+                                    MatNxN Ftemp;
                                     auto[U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
                                     if(S[1] < 0) {
                                         S[1] *= -RealType(1.0);
@@ -689,16 +689,16 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                     RealType J = glm::determinant(Ftemp);
                                     __BNN_REQUIRE(J > 0.0);
                                     assert(NumberHelpers::isValidNumber(J));
-                                    MatXxX<N, RealType> Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    MatXxX<N, RealType> P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
+                                    MatNxN Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    MatNxN P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
                                     assert(LinaHelpers::hasValidElements(P));
 
                                     __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                     particleData().PiolaStress[p]  = P;
                                     particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
 
-                                    MatXxX<N, RealType> f = particleData().CauchyStress[p];
-                                    auto lcorner          = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    MatNxN f     = particleData().CauchyStress[p];
+                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
 
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -728,7 +728,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                     Mat3x3r Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
                                     // Compute Piola stress tensor:
-                                    Real J = glm::compMul(S); // J = determinant(F)
+                                    RealType J = glm::compMul(S); // J = determinant(F)
                                     __BNN_REQUIRE(J > 0.0);
                                     assert(NumberHelpers::isValidNumber(J));
                                     Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
@@ -786,9 +786,9 @@ void MPM_Solver<N, RealType >::implicitIntegration(RealType timestep)
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    static Vector<RealType> v;
+    static Vec_RealType v;
     v.resize(nActives * N);
-    VecX<N, RealType>* vPtr = reinterpret_cast<VecX<N, RealType>*>(v.data());
+    VecN* vPtr = reinterpret_cast<VecN*>(v.data());
     __BNN_REQUIRE(vPtr != nullptr);
 
     if constexpr(N == 2) {
@@ -835,10 +835,10 @@ void MPM_Solver<N, RealType >::implicitIntegration(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType MPM_Objective<N, RealType >::valueGradient(const Vector<RealType>& v, Vector<RealType>& grad)
+RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_RealType& grad)
 {
-    auto vPtr    = reinterpret_cast<const VecX<N, RealType>*>(v.data());
-    auto gradPtr = reinterpret_cast<VecX<N, RealType>*>(grad.data());
+    auto vPtr    = reinterpret_cast<const VecN*>(v.data());
+    auto gradPtr = reinterpret_cast<VecN*>(grad.data());
 
     particleData().tmp_deformGrad.resize(particleData().getNParticles());
 
@@ -852,7 +852,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vector<RealType>& v, V
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // compute gradient velocity
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    auto pVelGrad      = MatXxX<N, RealType>(0);
+                                    auto pVelGrad      = MatNxN(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -874,21 +874,21 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vector<RealType>& v, V
 
                                     pVelGrad *= m_timestep;
                                     LinaHelpers::sumToDiag(pVelGrad, RealType(1.0));
-                                    MatXxX<N, RealType> newF = pVelGrad * pF;
+                                    MatNxN newF = pVelGrad * pF;
                                     auto[U, S, Vt] = LinaHelpers::orientedSVD(newF);
                                     if(S[1] < 0) {
                                         S[1] *= -RealType(1.0);
                                     }
-                                    MatXxX<N, RealType> Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+                                    MatNxN Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // Compute Piola stress tensor:
                                     RealType J = glm::determinant(Ftemp);
                                     __BNN_REQUIRE(J > 0);
                                     assert(NumberHelpers::isValidNumber(J));
-                                    RealType logJ           = log(J);
-                                    MatXxX<N, RealType> Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    MatXxX<N, RealType> P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
+                                    RealType logJ = log(J);
+                                    MatNxN Fit    = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    MatNxN P      = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
                                     assert(LinaHelpers::hasValidElements(P));
                                     particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
 
@@ -981,21 +981,21 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vector<RealType>& v, V
 
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // Compute Piola stress tensor:
-                                    Real J = glm::determinant(Ftemp);
+                                    RealType J = glm::determinant(Ftemp);
                                     __BNN_REQUIRE(J > 0);
                                     assert(NumberHelpers::isValidNumber(J));
-                                    Real logJ   = log(J);
-                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
+                                    RealType logJ = log(J);
+                                    Mat3x3r Fit   = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    Mat3x3r P     = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
                                     assert(LinaHelpers::hasValidElements(P));
                                     //particleData().PiolaStress[p]    = P;
                                     particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
 
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // compute energy density function
-                                    Real t1 = 0.5_f * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - 3.0_f);
-                                    Real t2 = -solverParams().mu * logJ;
-                                    Real t3 = 0.5_f * solverParams().lambda * (logJ * logJ);
+                                    RealType t1 = 0.5_f * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - 3.0_f);
+                                    RealType t2 = -solverParams().mu * logJ;
+                                    RealType t3 = 0.5_f * solverParams().lambda * (logJ * logJ);
                                     assert(NumberHelpers::isValidNumber(t1));
                                     assert(NumberHelpers::isValidNumber(t2));
                                     assert(NumberHelpers::isValidNumber(t3));
@@ -1051,16 +1051,16 @@ template<Int N, class RealType>
 void MPM_Solver<N, RealType >::gridCollision(RealType timestep)
 {
 #if 0
-    VecX<N, RealType> delta_scale = VecX<N, RealType>(timestep);
+    VecN delta_scale = VecN(timestep);
     delta_scale /= solverParams().cellSize;
 
     Scheduler::parallel_for<UInt>(grid().getNNodes(),
                                   [&](UInt x, UInt y, UInt z)
                                   {
                                       if(gridData().active(x, y)) {
-                                          bool velChanged                = false;
-                                          VecX<N, RealType> velocity_new = gridData().velocity_new(x, y);
-                                          VecX<N, RealType> new_pos      = gridData().velocity_new(x, y) * delta_scale + VecX<N, RealType>(x, y);
+                                          bool velChanged   = false;
+                                          VecN velocity_new = gridData().velocity_new(x, y);
+                                          VecN new_pos      = gridData().velocity_new(x, y) * delta_scale + VecN(x, y);
 
                                           for(UInt i = 0; i < solverDimension(); ++i) {
                                               if(new_pos[i] < RealType(2.0) || new_pos[i] > RealType(grid().getNNodes()[i] - 2 - 1)) {
@@ -1084,7 +1084,7 @@ void MPM_Solver<N, RealType >::gridCollision(RealType timestep)
                                              j < 3 ||
                                              i > grid().getNNodes().x - 4 ||
                                              j > grid().getNNodes().y - 4) {
-                                              gridData().velocity_new(i, j) = VecX<N, RealType>(0);
+                                              gridData().velocity_new(i, j) = VecN(0);
                                           }
                                       });
     } else {
@@ -1119,8 +1119,8 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                     //also keep track of velocity gradient
                                     auto flipVel     = particleData().velocities[p];
                                     auto flipVelGrad = particleData().velocityGrad[p];
-                                    auto picVel      = VecX<N, RealType>(0);
-                                    auto picVelGrad  = MatXxX<N, RealType>(0);
+                                    auto picVel      = VecN(0);
+                                    auto picVelGrad  = MatNxN(0);
 
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -1190,9 +1190,9 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                 {
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
-                                    auto apicVel       = VecX<N, RealType>(0);
-                                    auto apicVelGrad   = MatXxX<N, RealType>(0);
-                                    auto pB            = MatXxX<N, RealType>(0);
+                                    auto apicVel       = VecN(0);
+                                    auto apicVelGrad   = MatNxN(0);
+                                    auto pB            = MatNxN(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -1262,9 +1262,9 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
                                     auto flipVel       = particleData().velocities[p];
                                     auto flipVelGrad   = particleData().velocityGrad[p];
                                     auto flipB         = particleData().B[p];
-                                    auto apicVel       = VecX<N, RealType>(0);
-                                    auto apicVelGrad   = MatXxX<N, RealType>(0);
-                                    auto apicB         = MatXxX<N, RealType>(0);
+                                    auto apicVel       = VecN(0);
+                                    auto apicVelGrad   = MatNxN(0);
+                                    auto apicB         = MatNxN(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {

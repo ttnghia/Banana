@@ -131,7 +131,7 @@ void WCSPH_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecX<N, RealType>&newPositions, const Vec_VecX<N, RealType>&newVelocities)
+void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
 {
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
@@ -140,8 +140,8 @@ void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecX<N, RealT
     densities.resize(positions.size(), 0);
     tmp_densities.resize(positions.size(), 0);
     neighborInfo.resize(positions.size());
-    accelerations.resize(positions.size(), VecX<N, RealType>(0));
-    diffuseVelocities.resize(positions.size(), VecX<N, RealType>(0));
+    accelerations.resize(positions.size(), VecN(0));
+    diffuseVelocities.resize(positions.size(), VecN(0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list

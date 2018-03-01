@@ -118,7 +118,7 @@ void MPM_Data<N, RealType>::MPM_ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecX<N, RealType>&newPositions, const Vec_VecX<N, RealType>&newVelocities)
+void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
 {
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
@@ -126,21 +126,21 @@ void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecX<N, Rea
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
 
     volumes.resize(positions.size(), 0);
-    velocityGrad.resize(positions.size(), MatXxX<N, RealType>(0));
+    velocityGrad.resize(positions.size(), MatNxN(0));
 
-    deformGrad.resize(positions.size(), MatXxX<N, RealType>(1.0));
-    PiolaStress.resize(positions.size(), MatXxX<N, RealType>(1.0));
-    CauchyStress.resize(positions.size(), MatXxX<N, RealType>(1.0));
+    deformGrad.resize(positions.size(), MatNxN(1.0));
+    PiolaStress.resize(positions.size(), MatNxN(1.0));
+    CauchyStress.resize(positions.size(), MatNxN(1.0));
 
     energy.resize(positions.size(), 0);
     energyDensity.resize(positions.size(), 0);
 
-    gridCoordinate.resize(positions.size(), VecX<N, RealType>(0));
-    weightGradients.resize(positions.size() * MathHelpers::pow(4, N), VecX<N, RealType>(0));
+    gridCoordinate.resize(positions.size(), VecN(0));
+    weightGradients.resize(positions.size() * MathHelpers::pow(4, N), VecN(0));
     weights.resize(positions.size() * MathHelpers::pow(4, N), 0);
 
-    B.resize(positions.size(), MatXxX<N, RealType>(0));
-    D.resize(positions.size(), MatXxX<N, RealType>(0));
+    B.resize(positions.size(), MatNxN(0));
+    D.resize(positions.size(), MatNxN(0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
@@ -189,12 +189,12 @@ void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>&gridSize)
     ////////////////////////////////////////////////////////////////////////////////
     active.resize(nNodes, 0);
     activeNodeIdx.resize(nNodes, 0u);
-    velocity.resize(nNodes, VecX<N, RealType>(0));
-    velocity_new.resize(nNodes, VecX<N, RealType>(0));
+    velocity.resize(nNodes, VecN(0));
+    velocity_new.resize(nNodes, VecN(0));
 
     mass.resize(nNodes, 0);
     energy.resize(nNodes, 0);
-    velocity.resize(nNodes, VecX<N, RealType>(0));
+    velocity.resize(nNodes, VecN(0));
 
     weight.resize(nNodes);
     weightGrad.resize(nNodes);
@@ -210,8 +210,8 @@ void MPM_Data<N, RealType>::MPM_GridData::resetGrid()
     activeNodeIdx.assign(0u);
     mass.assign(0);
     energy.assign(0);
-    velocity.assign(VecX<N, RealType>(0));
-    velocity_new.assign(VecX<N, RealType>(0));
+    velocity.assign(VecN(0));
+    velocity_new.assign(VecN(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

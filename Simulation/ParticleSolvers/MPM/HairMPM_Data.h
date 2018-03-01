@@ -63,20 +63,20 @@ struct HairMPM_Data : MPM_Data<N, RealType>
 {
     struct HairMPM_ParticleData : MPM_Data<N, RealType>::MPM_ParticleData
     {
-        Vec_MatXxX<N, RealType> localDirections;
-        Vec_Int8                particleType;
-        Vec_VecX<N, RealType>   predictPositions;
-        Vec_MatXxX<N, RealType> predictPositionGradients;
+        Vec_MatNxN localDirections;
+        Vec_Int8   particleType;
+        Vec_VecN   predictPositions;
+        Vec_MatNxN predictPositionGradients;
 
         virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) override;
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
     struct HairMPM_GridData :  MPM_Data<N, RealType>::MPM_GridData
     {
-        Array<N, VecX<N, RealType>> predictNodePositions;
+        Array<N, VecN> predictNodePositions;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const VecX<N, UInt>& gridSize);
         virtual void resetGrid() override;

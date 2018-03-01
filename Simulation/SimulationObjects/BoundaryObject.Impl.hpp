@@ -19,10 +19,10 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions,
+UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecN& PDPositions,
                                                              RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
 {
-    Vec_VecX<N, RealType> tmpPositions;
+    Vec_VecN tmpPositions;
     if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
         ParticleSerialization::loadParticle(m_ParticleFile, tmpPositions, particleRadius);
     } else {
@@ -38,7 +38,7 @@ UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecX<N, RealTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObject<N, RealType >::constrainToBoundary(VecNR& ppos)
+void BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {
@@ -54,7 +54,7 @@ void BoundaryObject<N, RealType >::constrainToBoundary(VecNR& ppos)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BoundaryObject<N, RealType >::constrainToBoundary(VecNR& ppos, VecNR& pvel)
+bool BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos, VecN& pvel)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {

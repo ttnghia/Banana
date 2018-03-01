@@ -198,15 +198,15 @@ void Banana::ParticleSolvers::SimulationParameters<N, RealType>::parseParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> SimulationParameters<N, RealType >::gravity(const VecX<N, RealType>& pos) const
+VecX<N, RealType> SimulationParameters<N, RealType >::gravity(const VecN& pos) const
 {
     if(gravityType == GravityType::Earth ||
        gravityType == GravityType::Directional) {
         return gravityDirection;
     } else if(gravityType == GravityType::ToCenter) {
-        return 9.81_f * glm::normalize(gravityCenter - pos);
+        return RealType(9.81) * glm::normalize(gravityCenter - pos);
     } else {
-        return 9.81_f * glm::normalize(pos - gravityCenter);
+        return RealType(9.81) * glm::normalize(pos - gravityCenter);
     }
 }
 
@@ -217,7 +217,7 @@ void SimulationParameters<N, RealType >::makeReady()
     if(bUseGrid) {
         particleRadius = cellSize / ratioCellSizePRadius;
     } else {
-        cellSize     = 0_f;
+        cellSize     = RealType(0);
         nExpandCells = 0u;
     }
     particleRadiusSqr       = particleRadius * particleRadius;
@@ -230,15 +230,15 @@ void SimulationParameters<N, RealType >::makeReady()
     // movingBMin/BMax are used in printParams function only
     movingBMin  = domainBMin;
     movingBMax  = domainBMax;
-    domainBMin -= VecX<N, RealType>(cellSize * nExpandCells);
-    domainBMax += VecX<N, RealType>(cellSize * nExpandCells);
+    domainBMin -= VecN(cellSize * nExpandCells);
+    domainBMax += VecN(cellSize * nExpandCells);
 
     ////////////////////////////////////////////////////////////////////////////////
     if(gravityType == GravityType::Directional) {
         if(glm::length2(gravityDirection) < MEpsilon) {
             gravityType = GravityType::Earth;
         } else {
-            gravityDirection = 9.81_f * glm::normalize(gravityDirection);
+            gravityDirection = RealType(9.81) * glm::normalize(gravityDirection);
         }
     }
 

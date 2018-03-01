@@ -130,6 +130,16 @@ template<Int N, class RealType>
 struct SimulationParameters
 {
     ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
     // time step size
     RealType minTimestep = RealType(ParticleSolverDefaultParameters::MinTimestep);
     RealType maxTimestep = RealType(ParticleSolverDefaultParameters::MaxTimestep);
@@ -137,10 +147,10 @@ struct SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
-    VecX<N, RealType> domainBMin = VecX<N, RealType>(-1);
-    VecX<N, RealType> domainBMax = VecX<N, RealType>(1);
-    VecX<N, RealType> movingBMin;
-    VecX<N, RealType> movingBMax;
+    VecN domainBMin = VecN(-1);
+    VecN domainBMax = VecN(1);
+    VecN movingBMin;
+    VecN movingBMax;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -187,30 +197,41 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // gravity
-    GravityType       gravityType      = GravityType::Directional;
-    VecX<N, RealType> gravityDirection = VecX<N, RealType>(0);
-    VecX<N, RealType> gravityCenter    = VecX<N, RealType>(0);
+    GravityType gravityType      = GravityType::Directional;
+    VecN        gravityDirection = VecN(0);
+    VecN        gravityCenter    = VecN(0);
 
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams);
     virtual void makeReady();
     virtual void printParams(const SharedPtr<Logger>& logger);
 
-    virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const;
+    virtual VecX<N, RealType> gravity(const VecN& pos = VecN(0)) const;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 struct ParticleSimulationData
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
+    ////////////////////////////////////////////////////////////////////////////////
+
     virtual void reserve(UInt nParticles) = 0;
-    virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
+    virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
     virtual UInt removeParticles(const Vec_Int8& removeMarker) = 0;
 
     UInt getNParticles() const { return static_cast<UInt>(positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // main variables
-    Vector<VecX<N, RealType>> positions, velocities;
+    Vec_VecN positions, velocities;
 
     UInt      nObjects = 0;                     // number of individual objects that are added each time by particle generator
     Vec_Int16 objectIndex;                      // store the index of individual objects based on the order they are added
@@ -218,12 +239,12 @@ struct ParticleSimulationData
 
     ////////////////////////////////////////////////////////////////////////////////
     // optional variables
-    Vec_Int8                  activity;          // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
-    Vec_Int8                  removeMarker;      // mark the candidate particles for removal ( 1 = remove, 0 = intact)
-    Vector<VecX<N, RealType>> position_t0;       // positions at time t = 0, if needed
-    Vec_VecUInt               neighborIdx;       // list of neighbors particles, if needed
-    Vec_Vec<RealType>         neighbor_d0;       // list of distances to neighbors particles, at time t = 0, if needed
-    Vec_VecX<N, RealType>     boundaryParticles; // store particles generated inside boundary, if applicable
+    Vec_Int8          activity;          // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
+    Vec_Int8          removeMarker;      // mark the candidate particles for removal ( 1 = remove, 0 = intact)
+    Vec_VecN          position_t0;       // positions at time t = 0, if needed
+    Vec_VecUInt       neighborIdx;       // list of neighbors particles, if needed
+    Vec_Vec<RealType> neighbor_d0;       // list of distances to neighbors particles, at time t = 0, if needed
+    Vec_VecN          boundaryParticles; // store particles generated inside boundary, if applicable
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +254,7 @@ struct ParticleSimulationData
 
     ////////////////////////////////////////////////////////////////////////////////
     // temporary variables
-    Vector<VecX<N, RealType>> tmp_positions, tmp_velocities;
+    Vec_VecN tmp_positions, tmp_velocities;
     ////////////////////////////////////////////////////////////////////////////////
 };
 
@@ -242,7 +263,7 @@ template<Int N, class RealType>
 struct HairSimulationData : public ParticleSimulationData<N, RealType>
 {
     //virtual void reserve(UInt nParticles) = 0;
-    //virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
+    //virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
     //virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +274,16 @@ struct HairSimulationData : public ParticleSimulationData<N, RealType>
 template<Int N, class RealType>
 struct GridSimulationData
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
+    ////////////////////////////////////////////////////////////////////////////////
+
     virtual void resize(const VecX<N, UInt>& nCells) = 0;
     virtual void resetGrid() {}
     virtual void makeReady() {}
@@ -262,6 +293,17 @@ struct GridSimulationData
 template<Int N, class RealType>
 struct SimulationData
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
     virtual ParticleSimulationData<N, RealType>&       generalParticleData() = 0;
     virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
     virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) = 0;

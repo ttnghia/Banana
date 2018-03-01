@@ -90,16 +90,16 @@ struct WCSPH_Data : public SimulationData<N, RealType>
 {
     struct ParticleData : public ParticleSimulationData<N, RealType>
     {
-        Vector<RealType>             densities;
-        Vector<RealType>             tmp_densities;
-        Vec_VecX<N, RealType>        accelerations;
-        Vec_VecX<N, RealType>        diffuseVelocities;
-        Vec_VecX<N, RealType>        aniKernelCenters;
-        Vec_MatXxX<N, RealType>      aniKernelMatrices;
+        Vec_RealType                 densities;
+        Vec_RealType                 tmp_densities;
+        Vec_VecN                     accelerations;
+        Vec_VecN                     diffuseVelocities;
+        Vec_VecN                     aniKernelCenters;
+        Vec_MatNxN                   aniKernelMatrices;
         Vec_VecVecX<N + 1, RealType> neighborInfo; // store relative position and density of neighbors, including boundary particles
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) override;
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 

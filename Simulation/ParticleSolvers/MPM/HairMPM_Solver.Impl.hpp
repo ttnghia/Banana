@@ -149,7 +149,7 @@ void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
                                         particleData().velocities[p] = pvel;
                                     }
                                 } else {
-                                    VecX<N, RealType> ppos(0);
+                                    VecN ppos(0);
                                     __BNN_REQUIRE(nNeighbors > 0);
                                     for(size_t j = 0; j < nNeighbors; ++j) {
                                         UInt q = particleData().neighborIdx[p][j];
@@ -177,9 +177,9 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                     }
 
                                     auto deformGrad = particleData().deformGrad[p];
-                                    deformGrad[1] = VecX<N, RealType>(0, 1);
+                                    deformGrad[1] = VecN(0, 1);
 
-                                    MatXxX<N, RealType> Ftemp;
+                                    MatNxN Ftemp;
                                     auto[U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
                                     if(S[1] < 0) {
                                         S[1] *= -1.0_f;
@@ -190,15 +190,15 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                     RealType J = glm::determinant(Ftemp);
                                     __BNN_REQUIRE(J > 0.0);
                                     assert(NumberHelpers::isValidNumber(J));
-                                    MatXxX<N, RealType> Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    MatXxX<N, RealType> P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
+                                    MatNxN Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    MatNxN P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
                                     assert(LinaHelpers::hasValidElements(P));
 
                                     __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                     particleData().PiolaStress[p]  = P;
                                     particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
 
-                                    MatXxX<N, RealType> f = particleData().CauchyStress[p];
+                                    MatNxN f = particleData().CauchyStress[p];
 
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
 
@@ -250,7 +250,7 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
                                     if(particleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
                                         return;
                                     }
-                                    VecX<N, RealType> f(0);
+                                    VecN f(0);
                                     for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
                                         UInt q     = particleData().neighborIdx[p][j];
                                         auto xpq   = particleData().positions[q] - particleData().positions[p];
@@ -301,9 +301,9 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
                                 {
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
-                                    auto apicVel       = VecX<N, RealType>(0);
-                                    auto apicVelGrad   = MatXxX<N, RealType>(0);
-                                    auto pB            = MatXxX<N, RealType>(0);
+                                    auto apicVel       = VecN(0);
+                                    auto apicVelGrad   = MatNxN(0);
+                                    auto pB            = MatNxN(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -338,7 +338,7 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
                                     return;
                                 }
 
-                                VecX<N, RealType> pvel(0);
+                                VecN pvel(0);
                                 size_t nNeighbors = particleData().neighborIdx[p].size();
                                 __BNN_REQUIRE(nNeighbors > 0);
                                 for(size_t j = 0; j < nNeighbors; ++j) {
@@ -383,8 +383,8 @@ void HairMPM_Solver<N, RealType >::predictParticlePositions()
                                 {
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
-                                    VecX<N, RealType> ppos(0);
-                                    MatXxX<N, RealType> pposGrad(0);
+                                    VecN ppos(0);
+                                    MatNxN pposGrad(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -423,8 +423,8 @@ void HairMPM_Solver<N, RealType >::updateParticleStates(RealType timestep)
                             [&](UInt p)
                             {
                                 if(particleData().particleType[p] == static_cast<Int8>(HairParticleType::Quadrature)) {
-                                    size_t nNeighbors              = neighborIdx[p].size();
-                                    MatXxX<N, RealType> deformGrad = particleData().deformGrad[p];
+                                    size_t nNeighbors = neighborIdx[p].size();
+                                    MatNxN deformGrad = particleData().deformGrad[p];
                                     deformGrad[0] = nNeighbors == 1 ?
                                                     (predictPositions[p] - predictPositions[neighborIdx[p][0]]) :
                                                     (predictPositions[neighborIdx[p][1]] - predictPositions[neighborIdx[p][0]]);
@@ -446,14 +446,14 @@ template<Int N, class RealType>
 void HairMPM_Solver<N, RealType >::computeDamping()
 {
 #if 1
-    Vec_VecX<N, RealType> diffuseVelocity;
+    Vec_VecN diffuseVelocity;
     diffuseVelocity.resize(particleData().positions.size());
 
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                const auto& pvel               = particleData().velocities[p];
-                                VecX<N, RealType> diffVelFluid = VecX<N, RealType>(0);
+                                const auto& pvel  = particleData().velocities[p];
+                                VecN diffVelFluid = VecN(0);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
                                     UInt q           = particleData().neighborIdx[p][j];
@@ -471,8 +471,8 @@ void HairMPM_Solver<N, RealType >::computeDamping()
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                const auto& pvel               = particleData().velocities[p];
-                                VecX<N, RealType> diffVelFluid = VecX<N, RealType>(0);
+                                const auto& pvel  = particleData().velocities[p];
+                                VecN diffVelFluid = VecN(0);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
                                     UInt q           = particleData().neighborIdx[p][j];
@@ -500,8 +500,8 @@ void HairMPM_Solver<N, RealType >::computePlasticity()
                                         const auto& directions = particleData().localDirections[p];
                                         auto[Q, R] = LinaHelpers::QRDecomposition(deformGrad * directions);
 
-                                        MatXxX<N, RealType> stretch = particleData().CauchyStress[p];
-                                        MatXxX<N, RealType> sQ;
+                                        MatNxN stretch = particleData().CauchyStress[p];
+                                        MatNxN sQ;
                                         for(Int i = 0; i < 2; ++i) {
                                             for(Int j = 0; j < 2; ++j) {
                                                 sQ[i][j] = glm::dot(Q[i], stretch * Q[j]);
@@ -509,8 +509,8 @@ void HairMPM_Solver<N, RealType >::computePlasticity()
                                         }
                                         auto J2 = MathHelpers::sqr(sQ[2][2] - sQ[3][3]) + 4_f * sQ[3][2];
                                         auto R3 = R;
-                                        R3[0][0] = 1_f;
-                                        R3[0][1] = 0_f;
+                                        R3[0][0] = RealType(1);
+                                        R3[0][1] = RealType(0);
 
                                         auto[U, S, Vt] = LinaHelpers::orientedSVD(R3);
                                         auto lnS = S;

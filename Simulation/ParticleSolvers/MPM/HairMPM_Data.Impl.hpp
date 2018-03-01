@@ -70,17 +70,19 @@ void HairMPM_Data<N, RealType>::HairMPM_ParticleData::reserve(UInt nParticles)
     predictPositions.reserve(nParticles);
     predictPositionGradients.reserve(nParticles);
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::HairMPM_ParticleData::addParticles(const Vec_VecX<N, RealType>&newPositions, const Vec_VecX<N, RealType>&newVelocities)
+void HairMPM_Data<N, RealType>::HairMPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
 {
     MPM_Data<N, RealType>::MPM_ParticleData::addParticles(newPositions, newVelocities);
     ////////////////////////////////////////////////////////////////////////////////
-    localDirections.resize(getNParticles(), MatXxX<N, RealType>(1.0_f));
+    localDirections.resize(getNParticles(), MatNxN(1.0));
     particleType.resize(getNParticles(), static_cast<Int8>(HairParticleType::UnknownType));
-    predictPositions.resize(getNParticles(), VecX<N, RealType>(0));
-    predictPositionGradients.resize(getNParticles(), MatXxX<N, RealType>(0));
+    predictPositions.resize(getNParticles(), VecN(0));
+    predictPositionGradients.resize(getNParticles(), MatNxN(0));
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 UInt HairMPM_Data<N, RealType>::HairMPM_ParticleData::removeParticles(const Vec_Int8& removeMarker)
@@ -89,10 +91,11 @@ UInt HairMPM_Data<N, RealType>::HairMPM_ParticleData::removeParticles(const Vec_
     ////////////////////////////////////////////////////////////////////////////////
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
-    predictPositions.resize(localDirections.size(), VecX<N, RealType>(0));
-    predictPositionGradients.resize(localDirections.size(), MatXxX<N, RealType>(0));
+    predictPositions.resize(localDirections.size(), VecN(0));
+    predictPositionGradients.resize(localDirections.size(), MatNxN(0));
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void HairMPM_Data<N, RealType>::HairMPM_GridData::resize(const VecX<N, UInt>&gridSize)
@@ -101,13 +104,15 @@ void HairMPM_Data<N, RealType>::HairMPM_GridData::resize(const VecX<N, UInt>&gri
     auto nNodes = gridSize + VecX<N, UInt>(1u);
     predictNodePositions.resize(nNodes);
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void HairMPM_Data<N, RealType>::HairMPM_GridData::resetGrid()
 {
     MPM_Data<N, RealType>::MPM_GridData::resetGrid();
-    predictNodePositions.assign(VecX<N, RealType>(0));
+    predictNodePositions.assign(VecN(0));
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void HairMPM_Data<N, RealType >::classifyParticles(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
@@ -167,7 +172,7 @@ void HairMPM_Data<N, RealType >::find_d0(const SharedPtr<SimulationParameters<N,
                                         d0[p].push_back(glm::length(positions[p] - positions[i]));
 
                                         if(p < 30) {
-                                            printf("%u: j = %zu, d0=%f\n", p, neighborIdx[p].back(), d0[p].back());
+                                            printf("%u: j = %u, d0=%f\n", (UInt)p, neighborIdx[p].back(), d0[p].back());
                                             fflush(stdout);
                                         }
                                     }
@@ -200,7 +205,7 @@ void HairMPM_Data<N, RealType >::computeLocalDirections()
                                     if(particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
                                         size_t nNeighbors = neighborIdx[p].size();
                                         if(nNeighbors > 1) {
-                                            VecX<N, RealType> ppos(0);
+                                            VecN ppos(0);
                                             for(size_t j = 0; j < nNeighbors; ++j) {
                                                 UInt q = neighborIdx[p][j];
                                                 ppos += positions[q];
@@ -209,14 +214,14 @@ void HairMPM_Data<N, RealType >::computeLocalDirections()
                                             positions[p] = ppos / static_cast<Real>(nNeighbors);
                                         }
 
-                                        MatXxX<N, RealType> directions;
+                                        MatNxN directions;
                                         if(nNeighbors == 1) {
                                             directions[0] = positions[p] - positions[neighborIdx[p][0]];
                                         } else {
                                             directions[0] = positions[neighborIdx[p][1]] - positions[neighborIdx[p][0]];
                                         }
 
-                                        directions[1]      = glm::normalize(VecX<N, RealType>(directions[0].y, -directions[0].x));
+                                        directions[1]      = glm::normalize(VecN(directions[0].y, -directions[0].x));
                                         localDirections[p] = directions;
                                     }
                                 });

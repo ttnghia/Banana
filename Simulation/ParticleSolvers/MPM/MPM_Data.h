@@ -73,22 +73,22 @@ struct MPM_Data : public SimulationData<N, RealType>
 {
     struct MPM_ParticleData : public ParticleSimulationData<N, RealType>
     {
-        Vector<RealType>        volumes;
-        Vec_MatXxX<N, RealType> velocityGrad;
+        Vec_RealType volumes;
+        Vec_MatNxN   velocityGrad;
 
-        Vec_MatXxX<N, RealType> deformGrad, tmp_deformGrad;
-        Vec_MatXxX<N, RealType> PiolaStress, CauchyStress;
-        Vector<RealType>        energy, energyDensity;
+        Vec_MatNxN   deformGrad, tmp_deformGrad;
+        Vec_MatNxN   PiolaStress, CauchyStress;
+        Vec_RealType energy, energyDensity;
 
         //Grid interpolation weights
-        Vec_VecX<N, RealType> gridCoordinate;
-        Vec_VecX<N, RealType> weightGradients;     // * 4^N
-        Vector<RealType>      weights;             // * 4^N
+        Vec_VecN     gridCoordinate;
+        Vec_VecN     weightGradients; // * 4^N
+        Vec_RealType weights;         // * 4^N
 
-        Vec_MatXxX<N, RealType> B, D;              // affine matrix and auxiliary
+        Vec_MatNxN B, D;              // affine matrix and auxiliary
 
         virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) override;
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 
@@ -98,12 +98,12 @@ struct MPM_Data : public SimulationData<N, RealType>
         Array<N, char> active;
         Array<N, UInt> activeNodeIdx;                // store linearized indices of active nodes
 
-        Array<N, RealType>          mass;
-        Array<N, RealType>          energy;
-        Array<N, VecX<N, RealType>> velocity, velocity_new;
+        Array<N, RealType> mass;
+        Array<N, RealType> energy;
+        Array<N, VecN>     velocity, velocity_new;
 
-        Array<N, Vector<RealType>>          weight;
-        Array<N, Vector<VecX<N, RealType>>> weightGrad;
+        Array<N, Vec_RealType> weight;
+        Array<N, Vec_VecN>     weightGrad;
 
         Array<N, ParallelObjects::SpinLock> nodeLocks;
 
@@ -133,15 +133,25 @@ template<Int N, class RealType>
 class MPM_Objective : public Optimization::Problem<RealType>
 {
 public:
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
+    ////////////////////////////////////////////////////////////////////////////////
+
     MPM_Objective(const MPM_Parameters<N, RealType>& simParams, MPM_Data<N, RealType>& simData, RealType timestep) :
         m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
 
-    virtual RealType value(const Vector<RealType>&) { throw std::runtime_error("value function: shouldn't get here!"); }
+    virtual RealType value(const Vec_RealType&) { throw std::runtime_error("value function: shouldn't get here!"); }
 
     /**
        @brief Computes value and gradient of the objective function
      */
-    virtual RealType valueGradient(const Vector<RealType>& v, Vector<RealType>& grad);
+    virtual RealType valueGradient(const Vec_RealType& v, Vec_RealType& grad);
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { return m_SimParams; }
     const auto& solverParams() const { return m_SimParams; }

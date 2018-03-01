@@ -54,9 +54,15 @@ class ParticleSolver
 {
 public:
     static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
-    using SolverRealType = typename RealType;
-    using VecNR          = VecX<N, RealType>;
-    using Vec_VecNR      = Vec_VecX<N, RealType>;
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    using SolverRealType  = typename RealType;
+    using VecN            = VecX<N, RealType>;
+    using MatNxN          = MatXxX<N, RealType>;
+    using Vec_VecN        = Vec_VecX<N, RealType>;
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
+    using Vec_RealType    = Vector<RealType>;
+    using Vec_VecRealType = Vector<Vector<RealType>>;
     ////////////////////////////////////////////////////////////////////////////////
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
