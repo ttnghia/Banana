@@ -54,6 +54,10 @@ void MainWindow::showEvent(QShowEvent* ev)
         Q_ASSERT(m_Simulator != nullptr);
         updateStatusMemoryUsage();
         updateStatusSimulationTime(0, 0);
+
+        if(m_Controller->m_cbSimulationScene->count() == 2) {
+            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
+        }
     }
 }
 
@@ -162,10 +166,7 @@ void MainWindow::setupStatusBar()
     statusBar()->addPermanentWidget(m_lblStatusMemoryUsage, 1);
 
     QTimer* memTimer = new QTimer(this);
-    connect(memTimer, &QTimer::timeout, [&]
-    {
-        updateStatusMemoryUsage();
-    });
+    connect(memTimer, &QTimer::timeout, [&] { updateStatusMemoryUsage(); });
     memTimer->start(5000);
 }
 
@@ -185,6 +186,7 @@ void MainWindow::connectWidgets()
                     return;
                 }
                 m_Simulator->changeScene(sceneFile);
+                m_FrameNumber = 0;
             });
 
     connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
@@ -194,6 +196,7 @@ void MainWindow::connectWidgets()
                 }
 
                 m_Simulator->changeScene(sceneFile);
+                m_FrameNumber = 0;
                 updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
             });
 
