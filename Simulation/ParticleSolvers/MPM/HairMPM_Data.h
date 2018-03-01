@@ -92,10 +92,8 @@ struct HairMPM_Data : MPM_Data<N, RealType>
     void find_d0(const SharedPtr<SimulationParameters<N, RealType>>& simParams);
     void computeLocalDirections();
 
-    virtual void                                       initialize() override;
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return *particleData; }
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return *particleData; }
-    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void initialize() override;
+    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

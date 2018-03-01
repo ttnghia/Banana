@@ -47,10 +47,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return *m_WCSPHParams; }
-    const auto& solverParams() const { return *m_WCSPHParams; }
-    auto&       solverData() { return *m_WCSPHData; }
-    const auto& solverData() const { return *m_WCSPHData; }
+    auto&       solverParams() { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
+    const auto& solverParams() const { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
+    auto&       solverData() { assert(m_WCSPHData != nullptr); return *m_WCSPHData; }
+    const auto& solverData() const { assert(m_WCSPHData != nullptr); return *m_WCSPHData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }

@@ -43,16 +43,16 @@ public:
 
     virtual void makeReady() override;
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return *m_HairMPMParams; }
-    const auto& solverParams() const { return *m_HairMPMParams; }
-    auto&       solverData() { return *m_HairMPMData; }
-    const auto& solverData() const { return *m_HairMPMData; }
+    auto&       solverParams() { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
+    const auto& solverParams() const { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
+    auto&       solverData() { assert(m_HairMPMData != nullptr); return *m_HairMPMData; }
+    const auto& solverData() const { assert(m_HairMPMData != nullptr); return *m_HairMPMData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return *solverData().HairMPM_particleData; }
-    const auto& particleData() const { return *solverData().HairMPM_particleData; }
-    auto&       gridData() { return *solverData().HairMPM_gridData; }
-    const auto& gridData() const { return *solverData().HairMPM_gridData; }
+    auto&       particleData() { assert(solverData().HairMPM_particleData != nullptr); return *solverData().HairMPM_particleData; }
+    const auto& particleData() const { assert(solverData().HairMPM_particleData != nullptr); return *solverData().HairMPM_particleData; }
+    auto&       gridData() { assert(solverData().HairMPM_gridData != nullptr); return *solverData().HairMPM_gridData; }
+    const auto& gridData() const { assert(solverData().HairMPM_gridData != nullptr); return *solverData().HairMPM_gridData; }
     auto&       grid() { return solverData().grid; }
     const auto& grid() const { return solverData().grid; }
 

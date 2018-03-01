@@ -49,16 +49,16 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return *m_MPMParams; }
-    const auto& solverParams() const { return *m_MPMParams; }
-    auto&       solverData() { return *m_MPMData; }
-    const auto& solverData() const { return *m_MPMData; }
+    auto&       solverParams() { assert(m_MPMParams != nullptr); return *m_MPMParams; }
+    const auto& solverParams() const { assert(m_MPMParams != nullptr); return *m_MPMParams; }
+    auto&       solverData() { assert(m_MPMData != nullptr); return *m_MPMData; }
+    const auto& solverData() const { assert(m_MPMData != nullptr); return *m_MPMData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return *solverData().particleData; }
-    const auto& particleData() const { return *solverData().particleData; }
-    auto&       gridData() { return *solverData().gridData; }
-    const auto& gridData() const { return *solverData().gridData; }
+    auto&       particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
+    const auto& particleData() const { assert(solverData().particleData != nullptr); return *solverData().particleData; }
+    auto&       gridData() { assert(solverData().gridData != nullptr); return *solverData().gridData; }
+    const auto& gridData() const { assert(solverData().gridData != nullptr); return *solverData().gridData; }
     auto&       grid() { return solverData().grid; }
     const auto& grid() const { return solverData().grid; }
 

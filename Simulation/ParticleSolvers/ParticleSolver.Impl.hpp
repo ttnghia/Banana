@@ -244,6 +244,7 @@ void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
             } else {
                 obj = std::make_shared<SimulationObjects::BoundaryObject<N, RealType>>(jObj);
             }
+            __BNN_REQUIRE(obj != nullptr);
             m_BoundaryObjects.push_back(obj);
         }
 

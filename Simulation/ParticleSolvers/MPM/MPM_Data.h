@@ -119,8 +119,8 @@ struct MPM_Data : public SimulationData<N, RealType>
     Optimization::LBFGSSolver<RealType> lbfgsSolver;
 
     virtual void                                       initialize();
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return *particleData; }
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return *particleData; }
+    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { assert(particleData != nullptr); return *particleData; }
+    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { assert(particleData != nullptr); return *particleData; }
     virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
@@ -155,10 +155,10 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { return m_SimParams; }
     const auto& solverParams() const { return m_SimParams; }
-    auto&       particleData() { return *m_SimData.particleData; }
-    const auto& particleData() const { return *m_SimData.particleData; }
-    auto&       gridData() { return *m_SimData.gridData; }
-    const auto& gridData() const { return *m_SimData.gridData; }
+    auto&       particleData() { assert(m_SimData.particleData != nullptr); return *m_SimData.particleData; }
+    const auto& particleData() const { assert(m_SimData.particleData != nullptr); return *m_SimData.particleData; }
+    auto&       gridData() { assert(m_SimData.gridData != nullptr); return *m_SimData.gridData; }
+    const auto& gridData() const { assert(m_SimData.gridData != nullptr); return *m_SimData.gridData; }
     auto&       grid() { return m_SimData.grid; }
     const auto& grid() const { return m_SimData.grid; }
 
