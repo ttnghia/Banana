@@ -38,13 +38,13 @@ struct HairMPM_Parameters : public MPM_Parameters<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     // hair stretch processing
     HairStretchProcessingMethod stretchProcessingMethod = HairStretchProcessingMethod::Projection;
-    Real                        KSpring                 = RealType(1e8);
+    RealType                    KSpring                 = RealType(1e8);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // Anisotropic MPM parameters
-    Real normalFriction     = RealType(1e-2);
-    Real tangentialFriction = RealType(1e-2);
+    RealType normalFriction     = RealType(1e-2);
+    RealType tangentialFriction = RealType(1e-2);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -100,8 +100,6 @@ struct HairMPM_Data : MPM_Data<N, RealType>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/MPM/HairMPM_Data.Impl.hpp>
-
-////////////////////////////////////////////////////////////////////////////////
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

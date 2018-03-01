@@ -35,8 +35,8 @@ public:
     HairMPM_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                                 solverName() { return String("HairMPM_") + std::to_string(N) + String("DSolver"); }
-    static SharedPtr<ParticleSolver<N, RealType>> createSolver() { return std::make_shared<HairMPM_Solver<N, RealType>>(); }
+    static auto solverName() { return String("HairMPM_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<HairMPM_Solver<N, RealType>>()); }
 
     virtual String getSolverName() { return HairMPM_Solver::solverName(); }
     virtual String getSolverDescription() override { return String("Simulation using HairMPM-") + std::to_string(N) + String("D Solver"); }

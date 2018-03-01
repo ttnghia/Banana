@@ -211,7 +211,7 @@ void HairMPM_Data<N, RealType >::computeLocalDirections()
                                                 ppos += positions[q];
                                             }
 
-                                            positions[p] = ppos / static_cast<Real>(nNeighbors);
+                                            positions[p] = ppos / static_cast<RealType>(nNeighbors);
                                         }
 
                                         MatNxN directions;

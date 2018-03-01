@@ -36,8 +36,8 @@ class WCSPH_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolv
 {
 public:
     WCSPH_Solver() = default;
-    static String                                 solverName() { return String("WCSPH_") + std::to_string(N) + String("DSolver"); }
-    static SharedPtr<ParticleSolver<N, RealType>> createSolver() { return std::make_shared<WCSPH_Solver<N, RealType>>(); }
+    static auto solverName() { return String("WCSPH_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<WCSPH_Solver<N, RealType>>()); }
 
     virtual String getSolverName() override { return WCSPH_Solver<N, RealType>::solverName(); }
     virtual String getSolverDescription() override { return String("Fluid Simulation using WCSPH-") + std::to_string(N) + String("D Solver"); }
