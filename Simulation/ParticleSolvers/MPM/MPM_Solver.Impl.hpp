@@ -791,46 +791,26 @@ void MPM_Solver<N, RealType >::implicitIntegration(RealType timestep)
     VecN* vPtr = reinterpret_cast<VecN*>(v.data());
     __BNN_REQUIRE(vPtr != nullptr);
 
-    if constexpr(N == 2) {
-        Scheduler::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j)
-                                {
-                                    if(gridData().active(i, j)) {
-                                        vPtr[gridData().activeNodeIdx(i, j)] = gridData().velocity(i, j);
-                                    }
-                                });
-    } else {
-        Scheduler::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
-                                {
-                                    if(gridData().active(i, j, k)) {
-                                        vPtr[gridData().activeNodeIdx(i, j, k)] = gridData().velocity(i, j, k);
-                                    }
-                                });
-    }
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](auto... idx)
+                            {
+                                if(gridData().active(idx...)) {
+                                    vPtr[gridData().activeNodeIdx(idx...)] = gridData().velocity(idx...);
+                                }
+                            });
 
     ////////////////////////////////////////////////////////////////////////////////
     MPM_Objective<N, RealType> obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
 
     ////////////////////////////////////////////////////////////////////////////////
-    if constexpr(N == 2) {
-        Scheduler::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j)
-                                {
-                                    if(gridData().active(i, j)) {
-                                        gridData().velocity_new(i, j) = vPtr[gridData().activeNodeIdx(i, j)] + timestep * solverParams().gravity();
-                                    }
-                                });
-    } else {
-        Scheduler::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
-                                {
-                                    if(gridData().active(i, j, k)) {
-                                        gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * solverParams().gravity();
-                                    }
-                                });
-    }
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](auto... idx)
+                            {
+                                if(gridData().active(idx...)) {
+                                    gridData().velocity_new(idx...) = vPtr[gridData().activeNodeIdx(idx...)] + timestep * solverParams().gravity();
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1076,27 +1056,19 @@ void MPM_Solver<N, RealType >::gridCollision(RealType timestep)
                                       }
                                   });
 #else
-    if constexpr(N == 2) {
-        Scheduler::parallel_for<UInt>(grid().getNNodes(),
-                                      [&](UInt i, UInt j)
-                                      {
-                                          if(i < 3 ||
-                                             j < 3 ||
-                                             i > grid().getNNodes().x - 4 ||
-                                             j > grid().getNNodes().y - 4) {
-                                              gridData().velocity_new(i, j) = VecN(0);
+    Scheduler::parallel_for<UInt>(grid().getNNodes(),
+                                  [&](auto... idx)
+                                  {
+                                      auto node = VecX<N, UInt>(idx...);
+                                      for(UInt i = 0; i < solverDimension(); ++i) {
+                                          if(node[i] < 3 ||
+                                             node[i] > grid().getNNodes()[i] - 4) {
+                                              gridData().velocity_new(idx...) = VecN(0);
+                                              return;
                                           }
-                                      });
-    } else {
-        Scheduler::parallel_for<UInt>(grid().getNNodes(),
-                                      [&](UInt i, UInt j, UInt k)
-                                      {
-                                          if(i < 3 || j < 3 || k < 3 ||
-                                             i > grid().getNNodes().x - 4 || j > grid().getNNodes().y - 4 || k > grid().getNNodes().z - 4) {
-                                              gridData().velocity_new(i, j, k) = Vec3r(0);
-                                          }
-                                      });
-    }
+                                      }
+                                  });
+
 #endif
 }
 

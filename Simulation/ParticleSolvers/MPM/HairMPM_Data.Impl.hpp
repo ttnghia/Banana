@@ -49,12 +49,19 @@ void HairMPM_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logg
     logger->printLog(String("HairMPM parameters:"));
 
     ////////////////////////////////////////////////////////////////////////////////
+    // hair stretch processing
     if(stretchProcessingMethod == HairStretchProcessingMethod::Projection) {
         logger->printLogIndent(String("Hair stretch processing method: projection"));
     } else {
         logger->printLogIndent(String("Hair stretch processing method: spring forces"));
         logger->printLogIndent(String("Spring constant: ") + NumberHelpers::formatToScientific(KSpring), 2);
     }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // anisotropic parameters
+    logger->printLogIndent(String("Normal friction: ") + NumberHelpers::formatToScientific(normalFriction));
+    logger->printLogIndent(String("Tangential friction: ") + NumberHelpers::formatToScientific(tangentialFriction));
     ////////////////////////////////////////////////////////////////////////////////
 
     logger->newLine();
@@ -91,8 +98,8 @@ UInt HairMPM_Data<N, RealType>::HairMPM_ParticleData::removeParticles(const Vec_
     ////////////////////////////////////////////////////////////////////////////////
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
-    predictPositions.resize(localDirections.size(), VecN(0));
-    predictPositionGradients.resize(localDirections.size(), MatNxN(0));
+    predictPositions.resize(getNParticles(), VecN(0));
+    predictPositionGradients.resize(getNParticles(), MatNxN(0));
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
 
@@ -101,6 +108,7 @@ template<Int N, class RealType>
 void HairMPM_Data<N, RealType>::HairMPM_GridData::resize(const VecX<N, UInt>&gridSize)
 {
     MPM_Data<N, RealType>::MPM_GridData::resize(gridSize);
+    ////////////////////////////////////////////////////////////////////////////////
     auto nNodes = gridSize + VecX<N, UInt>(1u);
     predictNodePositions.resize(nNodes);
 }
@@ -110,6 +118,7 @@ template<Int N, class RealType>
 void HairMPM_Data<N, RealType>::HairMPM_GridData::resetGrid()
 {
     MPM_Data<N, RealType>::MPM_GridData::resetGrid();
+    ////////////////////////////////////////////////////////////////////////////////
     predictNodePositions.assign(VecN(0));
 }
 
@@ -117,6 +126,7 @@ void HairMPM_Data<N, RealType>::HairMPM_GridData::resetGrid()
 template<Int N, class RealType>
 void HairMPM_Data<N, RealType >::classifyParticles(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
+    assert(HairMPM_particleData != nullptr);
     auto& positions    = HairMPM_particleData->positions;
     auto& particleType = HairMPM_particleData->particleType;
     auto& objIdx       = HairMPM_particleData->objectIndex;
@@ -148,6 +158,7 @@ void HairMPM_Data<N, RealType >::classifyParticles(const SharedPtr<SimulationPar
 template<Int N, class RealType>
 void HairMPM_Data<N, RealType >::find_d0(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
+    assert(HairMPM_particleData != nullptr);
     auto& positions    = HairMPM_particleData->positions;
     auto& d0           = HairMPM_particleData->neighbor_d0;
     auto& neighborIdx  = HairMPM_particleData->neighborIdx;
@@ -162,7 +173,7 @@ void HairMPM_Data<N, RealType >::find_d0(const SharedPtr<SimulationParameters<N,
                                 for(size_t i = 0; i < positions.size(); ++i) {
                                     if(p == i ||
                                        glm::length2(positions[p] - positions[i]) > RealType(25.0) * simParams->particleRadiusSqr ||
-                                       abs(positions[p].y - positions[i].y) > simParams->particleRadius * 0.5_f) {
+                                       abs(positions[p].y - positions[i].y) > simParams->particleRadius * RealType(0.5)) {
                                         continue;
                                     }
 
@@ -220,7 +231,7 @@ void HairMPM_Data<N, RealType >::computeLocalDirections()
                                         } else {
                                             directions[0] = positions[neighborIdx[p][1]] - positions[neighborIdx[p][0]];
                                         }
-
+                                        __BNN_TODO_MSG("Do we need to normalize dir[0]?")
                                         directions[1]      = glm::normalize(VecN(directions[0].y, -directions[0].x));
                                         localDirections[p] = directions;
                                     }
