@@ -174,9 +174,6 @@
     <ClInclude Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\HairMPM_2DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
