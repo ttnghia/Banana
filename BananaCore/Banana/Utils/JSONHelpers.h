@@ -29,8 +29,6 @@
 namespace Banana::JSONHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 bool readValue(const JParams& j, T& v, const String& valueName)
 {
@@ -45,6 +43,22 @@ bool readValue(const JParams& j, T& v, const String& valueName)
 
     v = jval.get<T>();
     return true;
+}
+
+template<class T>
+auto readValue(const JParams& j, const String& valueName)
+{
+    if(j.find(valueName) == j.end()) {
+        return std::make_pair(T(), false);
+    }
+    const JParams jval = j[valueName];
+
+    if(jval.is_null()) {
+        return std::make_pair(T(), false);
+    }
+
+    T v = jval.get<T>();
+    return std::make_pair(v, true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -67,6 +81,28 @@ inline bool readBool(const JParams& j, bool& v, const String& valueName)
     }
 
     return true;
+}
+
+inline auto readBool(const JParams& j, const String& valueName)
+{
+    if(j.find(valueName) == j.end()) {
+        return std::make_pair(false, false);
+    }
+    const JParams jval = j[valueName];
+
+    if(jval.is_null()) {
+        return std::make_pair(false, false);
+    }
+
+    bool v = false;
+    if(jval.is_number_integer()) {
+        int val = jval.get<int>();
+        v = (val != 0);
+    } else {
+        v = jval.get<bool>();
+    }
+
+    return std::make_pair(v, false);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -100,6 +136,32 @@ bool readVector(const JParams& j, VecX<N, T>& vec, const String& valueName)
     return true;
 }
 
+template<Int N, class T>
+auto readVector(const JParams& j, const String& valueName)
+{
+    if(j.find(valueName) == j.end()) {
+        return std::make_pair(VecX<N, T>(), false);
+    }
+    const JParams jval = j[valueName];
+
+    if(jval.is_null()) {
+        return std::make_pair(VecX<N, T>(), false);
+    }
+
+    Vector<T> values  = jval.get<Vector<T>>();
+    Int       minSize = static_cast<Int>(values.size());
+    Int       maxSize = N;
+    if(minSize > maxSize) {
+        std::swap(minSize, maxSize);
+    }
+
+    VecX<N, T> vec(0);
+    for(Int i = 0; i < minSize; ++i) {
+        vec[i] = values[i];
+    }
+    return std::make_pair(vec, true);
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 bool readVector(const JParams& j, Vector<T>& vec, const String& valueName)
@@ -115,6 +177,22 @@ bool readVector(const JParams& j, Vector<T>& vec, const String& valueName)
 
     vec = jval.get<Vector<T>>();
     return true;
+}
+
+template<class T>
+auto readVector(const JParams& j, const String& valueName)
+{
+    if(j.find(valueName) == j.end()) {
+        return std::make_pair(Vector<T>(), false);
+    }
+    const JParams jval = j[valueName];
+
+    if(jval.is_null()) {
+        return std::make_pair(Vector<T>(), false);
+    }
+
+    Vector<T> vec = jval.get<Vector<T>>();
+    return std::make_pair(vec, true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
