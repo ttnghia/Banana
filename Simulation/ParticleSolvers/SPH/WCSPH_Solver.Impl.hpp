@@ -311,10 +311,10 @@ Int WCSPH_Solver<N, RealType >::saveFrameData()
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
     if(globalParams().savingData("AniKernel")) {
-        //AnisotropicKernelGenerator<N, RealType> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
-        //aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
-        //m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
-        //m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
+        AnisotropicKernelGenerator<N, RealType> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
+        aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
+        m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
+        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
     } else {
         m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
     }

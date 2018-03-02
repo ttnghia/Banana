@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <ParticleSolvers/MPM/MPM_Solver.h>
 #include <ParticleSolvers/MPM/HairMPM_Data.h>
+#include <ParticleSolvers/MPM/MPM_Solver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers

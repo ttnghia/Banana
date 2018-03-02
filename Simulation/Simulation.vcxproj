@@ -202,6 +202,7 @@
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="SimulationObjects\ParticleGenerator.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
+    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.Impl.hpp" />
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>

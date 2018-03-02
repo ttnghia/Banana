@@ -21,55 +21,71 @@
 
 #pragma once
 
+#include <Banana/LinearAlgebra/ImplicitQRSVD.h>
+#include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/Utils/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(const Vec_Vec3r& particles, Real particleRadius, Real defaultSpraySize = 0.75_f, Real kernelRatio = 8.0_f) :
-        AnisotropicKernelGenerator((static_cast<UInt>(particles.size())), particles.data(), particleRadius, defaultSpraySize, kernelRatio) {}
+    using VecN       = VecX<N, RealType>;
+    using MatNxN     = MatXxX<N, RealType>;
+    using Vec_VecN   = Vec_VecX<N, RealType>;
+    using Vec_MatNxN = Vec_MatXxX<N, RealType>;
+    ////////////////////////////////////////////////////////////////////////////////
+    AnisotropicKernelGenerator(const Vec_VecN& particles,
+                               RealType        particleRadius,
+                               RealType        defaultSpraySize = RealType(0.75),
+                               RealType        kernelRatio      = RealType(4.0)) :
+        AnisotropicKernelGenerator((static_cast<UInt>(particles.size())),
+                                   particles.data(),
+                                   particleRadius,
+                                   defaultSpraySize,
+                                   kernelRatio) {}
 
-    AnisotropicKernelGenerator(UInt nParticles, const Vec3r* particles, Real particleRadius, Real defaultSpraySize = 0.75_f, Real kernelRatio = 8.0_f) :
-        m_nParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
-    {
-        m_KernelRadius    = kernelRatio * particleRadius;
-        m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
-        m_KernelRadiusInv = 1.0_f / m_KernelRadius;
-
-        m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<3, Real>>(m_KernelRadius, true);
-        m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_nParticles, true, true);
-        m_bUseInternalData = true;
-    }
-
-    void        computeAniKernels(Vec_Vec3r& kernelCenters, Vec_Mat3x3r& kernelMatrices);
+    AnisotropicKernelGenerator(UInt        nParticles,
+                               const VecN* particles,
+                               RealType    particleRadius,
+                               RealType    defaultSpraySize = RealType(0.75),
+                               RealType    kernelRatio      = RealType(4.0));
+    ////////////////////////////////////////////////////////////////////////////////
+    void        setParameters(RealType positionBlending = RealType(0.5), RealType axisRatio = RealType(4.0), UInt neighborThredhold = 25u);
+    void        computeAniKernels(Vec_VecN& kernelCenters, Vec_MatNxN& kernelMatrices);
     void        computeAniKernels() { computeAniKernels(m_KernelCenters, m_KernelMatrices); }
     const auto& kernelCenters() const { return m_KernelCenters; }
     const auto& kernelMatrices() const { return m_KernelMatrices; }
 
 private:
-    Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? 1.0_f - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : 0_f; }
-    Real W(const Vec3r& r) { return W(glm::length2(r)); }
-    Real W(const Vec3r& xi, const Vec3r& xj) { return W(glm::length2(xi - xj)); }
+    RealType W2(RealType d2) { return (d2 < m_KernelRadiusSqr) ? RealType(1.0) - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : RealType(0); }
+    RealType W(const VecN& r) { return W2(glm::length2(r)); }
+    RealType W(const VecN& xi, const VecN& xj) { return W2(glm::length2(xi - xj)); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real m_KernelRadius;
-    Real m_KernelRadiusSqr;
-    Real m_KernelRadiusInv;
-    Real m_DefaultSpraySize;
+    RealType m_PositionBlending  = RealType(0.5);
+    RealType m_AxisRatio         = RealType(4.0);
+    UInt     m_NeighborThredhold = 25u;
+    ////////////////////////////////////////////////////////////////////////////////
+    RealType m_KernelRadius;
+    RealType m_KernelRadiusSqr;
+    RealType m_KernelRadiusInv;
+    RealType m_DefaultSpraySize;
 
-    UniquePtr<NeighborSearch::NeighborSearch<3, Real>> m_NSearch = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch<N, RealType>> m_NSearch = nullptr;
 
-    UInt         m_nParticles;
-    const Vec3r* m_Particles;
-    Vec_Vec3r    m_KernelCenters;
-    Vec_Mat3x3r  m_KernelMatrices;
-    bool         m_bUseInternalData = true;
+    UInt        m_nParticles;
+    const VecN* m_Particles;
+    Vec_VecN    m_KernelCenters;
+    Vec_MatNxN  m_KernelMatrices;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <SurfaceReconstruction/AniKernelGenerator.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
