@@ -1,10 +1,10 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "HairMPM_2DSolver",
+        "Solver" : "MPM_2DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 100,
+        "FinalFrame" : 900,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -13,8 +13,8 @@
         "MemoryStateDataFolder" : "MPMState",
         "OptionalSavingData" : [ "object_index" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : true,
-        "EnableSortParticle" : true,
+        "PrintLogToFile" : false,
+        "EnableSortParticle" : false,
         "SortFrequency" : 10
     },
     "SimulationParameters":
@@ -27,17 +27,19 @@
         "NExpandCells" : 2,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.9,
-        "ImplicitRatio" : 0,
+        "ImplicitRatio" : 1,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.05,
-        "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.02,
-        "lambda" : 100,
-        "mu": 100,
-        "MaterialDensity" : 1,
+        "CellSize" : 0.01,
+        "RatioCellSizePRadius" : 3,
+        "CFLFactor" : 0.04,
+        "lambdaXXX" : 100,
+        "muXXX": 100,
+        "YoungsModulus" : 100000000,
+        "PoissonsRatio" : 0.2499,
+        "MaterialDensity" : 0.01,
         "GravityType" : "Directional",
-        "GravityDirection" : [-1, -1]
+        "GravityDirection" : [0, -1]
     },
     "ParticleGeneratorsXXX":
     [

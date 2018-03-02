@@ -73,6 +73,7 @@ struct MPM_Data : public SimulationData<N, RealType>
 {
     struct MPM_ParticleData : public ParticleSimulationData<N, RealType>
     {
+        Vec_UInt     lastIdx;
         Vec_RealType volumes;
         Vec_MatNxN   velocityGrad;
 

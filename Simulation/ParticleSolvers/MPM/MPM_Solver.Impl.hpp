@@ -113,14 +113,93 @@ void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
     ParticleSolver<N, RealType>::generateParticles(jParams);
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(4));
     if(loadMemoryState() < 0) {
-        for(auto& generator : m_ParticleGenerators) {
-            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
-            ////////////////////////////////////////////////////////////////////////////////
-            UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
-            if(nGen > 0) {
-                particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+        //for(auto& generator : m_ParticleGenerators) {
+        //generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
+        ////////////////////////////////////////////////////////////////////////////////
+        //UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
+        //if(nGen > 0) {
+        //particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
+        //
+        //
+        //
+        //
+        //
+        //
+        if constexpr(N == 2)
+        {
+            Vec_VecN  particles, velocity;
+            VecN      center(0.0f, 0.0f);
+            float     radius  = 0.15f;
+            VecN      bMin    = center - VecN(radius);
+            float     spacing = 2.0f * solverParams().particleRadius;
+            Vec3<int> grid    = Vec3<int>(1) * static_cast<int>(2.1f * radius / spacing) + Vec3<int>(2);
+
+            particles.resize(0);
+            for(int i = 0; i < grid[0]; ++i) {
+                for(int j = 0; j < grid[1]; ++j) {
+                    VecN ppos = bMin + spacing * VecN(i, j);
+                    if(glm::length(ppos - center) > radius + 0.5f * spacing) {
+                        continue;
+                    }
+                    particles.push_back(ppos);
+                }
             }
+
+            Vec_UInt lastIdx;
+            Vec_VecN particles2, velocity2;
+            particles2.resize(0);
+            Int numP     = Int(0.75 / spacing);
+            Int segments = 61;
+            for(Int i = 0; i < segments; ++i) {
+                auto px       = center + radius * VecN(1, 0);
+                auto theta    = float(i + 1) * M_PI * 2.0f / float(segments);
+                auto startPos = VecN(center.x + (px.x - center.x) * cos(theta) + (center.y - px.y) * sin(theta),
+                                     center.y + (px.y - center.y) * cos(theta) + (px.x - center.x) * sin(theta));
+                auto dir = glm::normalize(startPos - center);
+                for(Int j = 0; j < numP; ++j) {
+                    if(j == 0) {
+                        particles.push_back(startPos + dir * float(j + 1) * spacing);
+                    } else {
+                        particles2.push_back(startPos + dir * float(j + 1) * spacing);
+                        if(j == 1) {
+                            lastIdx.push_back(UInt(particles.size() - 1));
+                        } else {
+                            particleData().lastIdx.push_back(0);
+                            lastIdx.push_back(0u);
+                        }
+                    }
+                }
+            }
+            for(UInt p = 0; p < UInt(lastIdx.size()); ++p) {
+                if(lastIdx[p] == 0u) {
+                    lastIdx[p] = UInt(particles.size()) + p - 1u;
+                }
+            }
+
+            velocity.resize(particles.size(), VecN(0));
+            velocity2.resize(particles2.size(), VecN(0));
+            particleData().addParticles(particles, velocity);
+            particleData().addParticles(particles2, velocity2);
+            //
+            particleData().lastIdx.resize(particleData().getNParticles(), 0u);
+            for(UInt p = 0; p < particleData().getNParticles(); ++p) {
+                if(particleData().objectIndex[p] == 1) {
+                    particleData().lastIdx[p] = lastIdx[p - UInt(particles.size())];
+                }
+            }
+            //}
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+
+            //logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+            //}
         }
 
         __BNN_REQUIRE(particleData().getNParticles() > 0);
@@ -364,6 +443,30 @@ void MPM_Solver<N, RealType >::moveParticles(RealType timestep)
                                     particleData().velocities[p] = pvel;
                                 }
                             });
+    //for(UInt p = 0; p < particleData().getNParticles(); ++p) {
+    for(UInt p = particleData().getNParticles() - 1; p >= 1; --p) {
+        if(particleData().objectIndex[p] == 1 && particleData().lastIdx[p] > 0) {
+            __BNN_REQUIRE(p > 0);
+            /*
+               auto l = glm::length(particleData().positions[p] - particleData().positions[particleData().lastIdx[p]]);
+               if(l > 2.1f * solverParams().particleRadius) {
+               auto dir = (particleData().positions[p] - particleData().positions[particleData().lastIdx[p]]) / l;
+               particleData().positions[p] = 2.1f * solverParams().particleRadius * dir + particleData().positions[particleData().lastIdx[p]];
+               } else if(l < 1.9f * solverParams().particleRadius) {
+               auto dir = (particleData().positions[p] - particleData().positions[particleData().lastIdx[p]]) / l;
+               particleData().positions[p] = 1.9f * solverParams().particleRadius * dir + particleData().positions[particleData().lastIdx[p]];
+               }*/
+            auto l = glm::length(particleData().positions[p] - particleData().positions[particleData().lastIdx[p]]);
+            //auto diff = 2.0f * solverParams().particleRadius - l;
+            auto dir = (particleData().positions[p] - particleData().positions[particleData().lastIdx[p]]) / l;
+            if(l > 2.0f * solverParams().particleRadius) {
+                particleData().positions[p] = MathHelpers::max(l * 0.9f, 2.0f * solverParams().particleRadius) * dir + particleData().positions[particleData().lastIdx[p]];
+            } else if(l < 2.0f * solverParams().particleRadius) {
+                particleData().positions[p] = MathHelpers::min(l * 1.1f, 2.0f * solverParams().particleRadius) * dir + particleData().positions[particleData().lastIdx[p]];
+            }
+            //particleData().velocities[p] -= diff * dir / timestep;
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -621,6 +724,10 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                                 gridData().active(x, y) = 1;
                                                 gridData().nodeLocks(x, y).lock();
                                                 gridData().velocity(x, y) += apicVel;
+
+                                                if(particleData().objectIndex[p] == 0) {
+                                                    gridData().active(x, y) = 2;
+                                                }
                                                 gridData().nodeLocks(x, y).unlock();
                                             }
                                         }
@@ -687,6 +794,9 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
 
                                     // Compute Piola stress tensor:
                                     RealType J = glm::determinant(Ftemp);
+                                    if(J == 0) {
+                                        return;
+                                    }
                                     __BNN_REQUIRE(J > 0.0);
                                     assert(NumberHelpers::isValidNumber(J));
                                     MatNxN Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
@@ -807,8 +917,16 @@ void MPM_Solver<N, RealType >::implicitIntegration(RealType timestep)
     Scheduler::parallel_for(grid().getNNodes(),
                             [&](auto... idx)
                             {
-                                if(gridData().active(idx...)) {
+                                if(gridData().active(idx...) == 1) {        // ignore for == 2
                                     gridData().velocity_new(idx...) = vPtr[gridData().activeNodeIdx(idx...)] + timestep * solverParams().gravity();
+                                } else if(gridData().active(idx...) == 2) { // && globalParams().finishedFrame > 250) {
+                                    VecN tmp(0);
+                                    if(globalParams().finishedFrame < 300) {
+                                        tmp[0] = 0.72f * MathHelpers::min(float(globalParams().finishedFrame - 0) / 50.0f, 1.0f);
+                                    } else {
+                                        tmp[0] = -0.72f * MathHelpers::min(float(globalParams().finishedFrame - 300) / 50.0f, 1.0f);
+                                    }
+                                    gridData().velocity_new(idx...) = tmp;
                                 }
                             });
 }
@@ -829,6 +947,11 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
+                                    RealType scale = 1.0_f;
+                                    if(particleData().objectIndex[p] == 0) {
+                                        //printf("found\n\n\n");
+                                        //scale *= 1.0_f;
+                                    }
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // compute gradient velocity
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
@@ -864,11 +987,15 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // Compute Piola stress tensor:
                                     RealType J = glm::determinant(Ftemp);
+                                    if(!(J > 0)) {
+                                        particleData().energy[p] = 0;
+                                        return;
+                                    }
                                     __BNN_REQUIRE(J > 0);
                                     assert(NumberHelpers::isValidNumber(J));
                                     RealType logJ = log(J);
                                     MatNxN Fit    = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    MatNxN P      = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
+                                    MatNxN P      = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * scale * (logJ * Fit);
                                     assert(LinaHelpers::hasValidElements(P));
                                     particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
 
@@ -876,7 +1003,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                     // compute energy density function
                                     RealType t1 = 0.5_f * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - RealType(2.0));
                                     RealType t2 = -solverParams().mu * logJ;
-                                    RealType t3 = 0.5_f * solverParams().lambda * (logJ * logJ);
+                                    RealType t3 = 0.5_f * solverParams().lambda * scale * (logJ * logJ);
                                     assert(NumberHelpers::isValidNumber(t1));
                                     assert(NumberHelpers::isValidNumber(t2));
                                     assert(NumberHelpers::isValidNumber(t3));
@@ -1165,6 +1292,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                     auto apicVel       = VecN(0);
                                     auto apicVelGrad   = MatNxN(0);
                                     auto pB            = MatNxN(0);
+
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -1182,6 +1310,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                             }
                                         }
                                     }
+
                                     particleData().velocities[p]   = apicVel;
                                     particleData().velocityGrad[p] = apicVelGrad;
                                     particleData().B[p]            = pB;
