@@ -153,7 +153,10 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    makeReady();
+    logger().newLine();
+    logger().printLog("Scene successfully loaded!");
+    logger().printMemoryUsage();
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

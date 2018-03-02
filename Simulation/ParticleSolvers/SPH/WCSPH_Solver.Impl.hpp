@@ -19,15 +19,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType >::makeReady()
-{
-    logger().printMemoryUsage();
-    logger().printLog("Solver ready!");
-    logger().newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::advanceFrame()
 {
     const auto& frameDuration = globalParams().frameDuration;
@@ -95,6 +86,17 @@ void WCSPH_Solver<N, RealType >::sortParticles()
                               d.sort_field(&particleData().objectIndex[0]);
                           });
     logger().newLine();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void WCSPH_Solver<N, RealType >::allocateSolverMemory()
+{
+    m_WCSPHParams  = std::make_shared<WCSPH_Parameters<N, RealType>>();
+    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_WCSPHParams);
+
+    m_WCSPHData  = std::make_shared<WCSPH_Data<N, RealType>>();
+    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_WCSPHData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -197,17 +199,6 @@ bool WCSPH_Solver<N, RealType >::advanceScene()
 
     ////////////////////////////////////////////////////////////////////////////////
     return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void WCSPH_Solver<N, RealType >::allocateSolverMemory()
-{
-    m_WCSPHParams  = std::make_shared<WCSPH_Parameters<N, RealType>>();
-    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_WCSPHParams);
-
-    m_WCSPHData  = std::make_shared<WCSPH_Data<N, RealType>>();
-    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_WCSPHData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -320,7 +311,7 @@ Int WCSPH_Solver<N, RealType >::saveFrameData()
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
     if(globalParams().savingData("AniKernel")) {
-        //AnisotropicKernelGenerator aniKernelGenerator(particleData().positions, solverParams().particleRadius);
+        //AnisotropicKernelGenerator<N, RealType> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
         //aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
         //m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
         //m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);

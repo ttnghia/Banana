@@ -42,7 +42,6 @@ public:
     virtual String getSolverName() override { return WCSPH_Solver<N, RealType>::solverName(); }
     virtual String getSolverDescription() override { return String("Fluid Simulation using WCSPH-") + std::to_string(N) + String("D Solver"); }
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
 
@@ -59,9 +58,9 @@ public:
     const auto& kernels() const { return solverData().kernels; }
 
 protected:
+    virtual void allocateSolverMemory() override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
-    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;

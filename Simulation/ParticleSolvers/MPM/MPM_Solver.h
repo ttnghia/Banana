@@ -44,7 +44,6 @@ public:
     virtual String getSolverName() { return MPM_Solver::solverName(); }
     virtual String getSolverDescription() override { return String("Simulation using MPM-") + std::to_string(N) + String("D Solver"); }
 
-    virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
 
@@ -63,9 +62,9 @@ public:
     const auto& grid() const { return solverData().grid; }
 
 protected:
+    virtual void allocateSolverMemory() override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
-    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;

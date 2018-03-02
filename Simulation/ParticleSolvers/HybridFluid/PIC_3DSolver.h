@@ -122,7 +122,6 @@ public:
     virtual String getSolverDescription() override { return String("Fluid Simulation using PIC-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
 

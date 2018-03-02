@@ -19,15 +19,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::makeReady()
-{
-    logger().printMemoryUsage();
-    logger().printLog("Solver ready!");
-    logger().newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
 void MPM_Solver<N, RealType >::advanceFrame()
 {
     const auto& frameDuration = globalParams().frameDuration;
@@ -108,6 +99,18 @@ void MPM_Solver<N, RealType >::sortParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void MPM_Solver<N, RealType >::allocateSolverMemory()
+{
+    m_MPMParams    = std::make_shared<MPM_Parameters<N, RealType>>();
+    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_MPMParams);
+
+    m_MPMData    = std::make_shared<MPM_Data<N, RealType>>();
+    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_MPMData);
+    m_MPMData->initialize();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
 {
     ParticleSolver<N, RealType>::generateParticles(jParams);
@@ -169,18 +172,6 @@ bool MPM_Solver<N, RealType >::advanceScene()
 
     ////////////////////////////////////////////////////////////////////////////////
     return bSceneChanged;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void MPM_Solver<N, RealType >::allocateSolverMemory()
-{
-    m_MPMParams    = std::make_shared<MPM_Parameters<N, RealType>>();
-    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_MPMParams);
-
-    m_MPMData    = std::make_shared<MPM_Data<N, RealType>>();
-    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_MPMData);
-    m_MPMData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

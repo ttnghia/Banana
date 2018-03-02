@@ -19,9 +19,16 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::makeReady()
+void HairMPM_Solver<N, RealType >::allocateSolverMemory()
 {
-    MPM_Solver<N, RealType>::makeReady();
+    m_HairMPMParams = std::make_shared<HairMPM_Parameters<N, RealType>>();
+    m_MPMParams     = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_HairMPMParams);
+    m_SolverParams  = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_HairMPMParams);
+
+    m_HairMPMData = std::make_shared<HairMPM_Data<N, RealType>>();
+    m_MPMData     = std::static_pointer_cast<MPM_Data<N, RealType>>(m_HairMPMData);
+    m_SolverData  = std::static_pointer_cast<SimulationData<N, RealType>>(m_HairMPMData);
+    m_HairMPMData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -33,20 +40,6 @@ void HairMPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
     solverData().classifyParticles(m_SolverParams);
     solverData().find_d0(m_SolverParams);
     solverData().computeLocalDirections();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::allocateSolverMemory()
-{
-    m_HairMPMParams = std::make_shared<HairMPM_Parameters<N, RealType>>();
-    m_MPMParams     = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_HairMPMParams);
-    m_SolverParams  = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_HairMPMParams);
-
-    m_HairMPMData = std::make_shared<HairMPM_Data<N, RealType>>();
-    m_MPMData     = std::static_pointer_cast<MPM_Data<N, RealType>>(m_HairMPMData);
-    m_SolverData  = std::static_pointer_cast<SimulationData<N, RealType>>(m_HairMPMData);
-    m_HairMPMData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -77,15 +77,14 @@ public:
     virtual String getSolverName()        = 0;
     virtual String getSolverDescription() = 0;
 
-    virtual void makeReady()    = 0;
     virtual void advanceFrame() = 0;
     virtual void sortParticles() {}
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters<N, RealType>&         generalSolverParams() { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
-    const SimulationParameters<N, RealType>&   generalSolverParams() const { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
-    ParticleSimulationData<N, RealType>&       generalParticleData() { __BNN_REQUIRE(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
-    const ParticleSimulationData<N, RealType>& generalParticleData() const { __BNN_REQUIRE(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
+    SimulationParameters<N, RealType>&         generalSolverParams() { assert(m_SolverParams != nullptr); return *m_SolverParams; }
+    const SimulationParameters<N, RealType>&   generalSolverParams() const { assert(m_SolverParams != nullptr); return *m_SolverParams; }
+    ParticleSimulationData<N, RealType>&       generalParticleData() { assert(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
+    const ParticleSimulationData<N, RealType>& generalParticleData() const { assert(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
 
     auto&       globalParams() noexcept { return m_GlobalParams; }
     const auto& globalParams() const noexcept { return m_GlobalParams; }

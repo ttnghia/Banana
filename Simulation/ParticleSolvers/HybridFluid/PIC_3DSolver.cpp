@@ -141,13 +141,13 @@ void PIC_3DData::makeReady(const PIC_3DParameters& params)
 // PIC_3DSolver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::makeReady()
-{
-    logger().printRunTime("Computed SDF boundary: ", [&]() { computeBoundarySDF(); });
-    logger().printMemoryUsage();
-    logger().printLog("Solver ready!");
-    logger().newLine();
-}
+//void PIC_3DSolver::makeReady()
+//{
+//    logger().printRunTime("Computed SDF boundary: ", [&]() { computeBoundarySDF(); });
+//    logger().printMemoryUsage();
+//    logger().printLog("Solver ready!");
+//    logger().newLine();
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_3DSolver::advanceFrame()

@@ -41,7 +41,6 @@ public:
     virtual String getSolverName() { return HairMPM_Solver::solverName(); }
     virtual String getSolverDescription() override { return String("Simulation using HairMPM-") + std::to_string(N) + String("D Solver"); }
 
-    virtual void makeReady() override;
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
     const auto& solverParams() const { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
@@ -57,8 +56,8 @@ public:
     const auto& grid() const { return solverData().grid; }
 
 protected:
-    virtual void generateParticles(const JParams& jParams) override;
     virtual void allocateSolverMemory() override;
+    virtual void generateParticles(const JParams& jParams) override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
