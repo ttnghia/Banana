@@ -50,7 +50,7 @@ struct HairMPM_Parameters : public MPM_Parameters<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams) override;
     virtual void makeReady() override;
-    void         printParams(const SharedPtr<Logger>& logger);
+    virtual void printParams(const SharedPtr<Logger>& logger) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -88,12 +88,12 @@ struct HairMPM_Data : MPM_Data<N, RealType>
 
     Vector<SharedPtr<GeometryObjects::GeometryObject<N, RealType>>> hairObjs;
 
+    virtual void initialize() override;
+    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+
     void classifyParticles(const SharedPtr<SimulationParameters<N, RealType>>& simParams);
     void find_d0(const SharedPtr<SimulationParameters<N, RealType>>& simParams);
     void computeLocalDirections();
-
-    virtual void initialize() override;
-    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
