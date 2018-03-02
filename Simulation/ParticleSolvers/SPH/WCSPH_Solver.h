@@ -42,10 +42,6 @@ public:
     virtual String getSolverName() override { return WCSPH_Solver<N, RealType>::solverName(); }
     virtual String getSolverDescription() override { return String("Fluid Simulation using WCSPH-") + std::to_string(N) + String("D Solver"); }
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void advanceFrame() override;
-    virtual void sortParticles() override;
-
-    ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
     const auto& solverParams() const { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
     auto&       solverData() { assert(m_WCSPHData != nullptr); return *m_WCSPHData; }
@@ -65,8 +61,12 @@ protected:
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void advanceFrame() override;
+    virtual void sortParticles() override;
     virtual void advanceVelocity(RealType timestep);
 
+    ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     moveParticles(RealType timestep);
     void     computeNeighborRelativePositions();

@@ -33,7 +33,7 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_3DParameters::makeReady()
 {
-    SimulationParameters3D::makeReady();
+    SimulationParameters<3, Real>::makeReady();
     sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
 }
 
@@ -41,7 +41,7 @@ void PIC_3DParameters::makeReady()
 void PIC_3DParameters::printParams(const SharedPtr<Logger>& logger)
 {
     logger->printLog(String("PIC-3D parameters:"));
-    SimulationParameters3D::printParams(logger);
+    SimulationParameters<3, Real>::printParams(logger);
     logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
     logger->newLine();
 }

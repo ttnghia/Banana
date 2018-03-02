@@ -18,77 +18,7 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void WCSPH_Solver<N, RealType >::advanceFrame()
-{
-    const auto& frameDuration = globalParams().frameDuration;
-    auto&       frameTime     = globalParams().frameLocalTime;
-    auto&       substep       = globalParams().frameSubstep;
-    auto&       substepCount  = globalParams().frameSubstepCount;
-    auto&       finishedFrame = globalParams().finishedFrame;
 
-    frameTime    = 0;
-    substepCount = 0u;
-    ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < frameDuration) {
-        logger().printRunTime("Sub-step time: ",
-                              [&]()
-                              {
-                                  if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
-                                  }
-                                  ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
-                                  auto remainingTime = frameDuration - frameTime;
-                                  if(frameTime + substep >= frameDuration) {
-                                      substep = remainingTime;
-                                  } else if(frameTime + RealType(1.5) * substep >= frameDuration) {
-                                      substep = remainingTime * RealType(0.5);
-                                  }
-                                  ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Find neighbors: ", [&]() { m_NSearch->find_neighbors(); });
-                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
-                                  ////////////////////////////////////////////////////////////////////////////////
-                                  frameTime += substep;
-                                  ++substepCount;
-                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
-                                                    " of size " + NumberHelpers::formatToScientific(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / frameDuration * 100.0) +
-                                                    "% of the frame, to " + NumberHelpers::formatWithCommas(100.0 * frameTime / frameDuration) +
-                                                    "% of the frame)");
-                              });
-        logger().newLine();
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    ++finishedFrame;
-    saveFrameData();
-    saveMemoryState();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void WCSPH_Solver<N, RealType >::sortParticles()
-{
-    assert(m_NSearch != nullptr);
-    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
-        return;
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions: ",
-                          [&]()
-                          {
-                              m_NSearch->z_sort();
-                              auto const& d = m_NSearch->point_set(0);
-                              d.sort_field(&particleData().positions[0]);
-                              d.sort_field(&particleData().velocities[0]);
-                              d.sort_field(&particleData().objectIndex[0]);
-                          });
-    logger().newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::allocateSolverMemory()
 {
@@ -333,6 +263,91 @@ Int WCSPH_Solver<N, RealType >::saveFrameData()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void WCSPH_Solver<N, RealType >::advanceFrame()
+{
+    const auto& frameDuration = globalParams().frameDuration;
+    auto&       frameTime     = globalParams().frameLocalTime;
+    auto&       substep       = globalParams().frameSubstep;
+    auto&       substepCount  = globalParams().frameSubstepCount;
+    auto&       finishedFrame = globalParams().finishedFrame;
+
+    frameTime    = 0;
+    substepCount = 0u;
+    ////////////////////////////////////////////////////////////////////////////////
+    while(frameTime < frameDuration) {
+        logger().printRunTime("Sub-step time: ",
+                              [&]()
+                              {
+                                  if(globalParams().finishedFrame > 0) {
+                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
+                                  }
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
+                                  auto remainingTime = frameDuration - frameTime;
+                                  if(frameTime + substep >= frameDuration) {
+                                      substep = remainingTime;
+                                  } else if(frameTime + RealType(1.5) * substep >= frameDuration) {
+                                      substep = remainingTime * RealType(0.5);
+                                  }
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Find neighbors: ", [&]() { m_NSearch->find_neighbors(); });
+                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  frameTime += substep;
+                                  ++substepCount;
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
+                                                    " of size " + NumberHelpers::formatToScientific(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / frameDuration * 100.0) +
+                                                    "% of the frame, to " + NumberHelpers::formatWithCommas(100.0 * frameTime / frameDuration) +
+                                                    "% of the frame)");
+                              });
+        logger().newLine();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ++finishedFrame;
+    saveFrameData();
+    saveMemoryState();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void WCSPH_Solver<N, RealType >::sortParticles()
+{
+    assert(m_NSearch != nullptr);
+    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
+        return;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    logger().printRunTime("Sort data by particle positions: ",
+                          [&]()
+                          {
+                              m_NSearch->z_sort();
+                              auto const& d = m_NSearch->point_set(0);
+                              d.sort_field(&particleData().positions[0]);
+                              d.sort_field(&particleData().velocities[0]);
+                              d.sort_field(&particleData().objectIndex[0]);
+                          });
+    logger().newLine();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void WCSPH_Solver<N, RealType >::advanceVelocity(RealType timestep)
+{
+    logger().printRunTime("{   Compute neighbor relative positions: ", [&]() { computeNeighborRelativePositions(); });
+    logger().printRunTimeIndent("Compute density: ", [&]() { computeDensity(); });
+    logger().printRunTimeIndentIf("Normalize density: ", [&]() { return normalizeDensity(); });
+    logger().printRunTimeIndent("Collect neighbor densities: ", [&]() { collectNeighborDensities(); });
+    logger().printRunTimeIndent("Compute forces: ", [&]() { computeAccelerations(); });
+    logger().printRunTimeIndent("Update velocity: ", [&]() { updateVelocity(timestep); });
+    logger().printRunTimeIndent("Compute viscosity: ", [&]() { computeViscosity(); });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+template<Int N, class RealType>
 RealType WCSPH_Solver<N, RealType >::timestepCFL()
 {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
@@ -364,19 +379,6 @@ void WCSPH_Solver<N, RealType >::moveParticles(RealType timestep)
                                     particleData().velocities[p] = pvel;
                                 }
                             });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void WCSPH_Solver<N, RealType >::advanceVelocity(RealType timestep)
-{
-    logger().printRunTime("{   Compute neighbor relative positions: ", [&]() { computeNeighborRelativePositions(); });
-    logger().printRunTimeIndent("Compute density: ", [&]() { computeDensity(); });
-    logger().printRunTimeIndentIf("Normalize density: ", [&]() { return normalizeDensity(); });
-    logger().printRunTimeIndent("Collect neighbor densities: ", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces: ", [&]() { computeAccelerations(); });
-    logger().printRunTimeIndent("Update velocity: ", [&]() { updateVelocity(timestep); });
-    logger().printRunTimeIndent("Compute viscosity: ", [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

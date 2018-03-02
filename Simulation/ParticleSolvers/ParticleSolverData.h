@@ -310,19 +310,6 @@ struct SimulationData
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-using SimulationParameters2D = SimulationParameters<2, Real>;
-using SimulationParameters3D = SimulationParameters<3, Real>;
-
-using ParticleSimulationData2D = ParticleSimulationData<2, Real>;
-using ParticleSimulationData3D = ParticleSimulationData<3, Real>;
-
-using GridSimulationData2D = GridSimulationData<2, Real>;
-using GridSimulationData3D = GridSimulationData<3, Real>;
-
-using SimulationData2D = SimulationData<2, Real>;
-using SimulationData3D = SimulationData<3, Real>;
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/ParticleSolverData.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

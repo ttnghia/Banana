@@ -77,9 +77,6 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
     virtual void printParams(const SharedPtr<Logger>& logger) override;
 };
 
-using WCSPH_2DParameters = WCSPH_Parameters<2, Real>;
-using WCSPH_3DParameters = WCSPH_Parameters<3, Real>;
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // WCSPH_Data
@@ -117,9 +114,6 @@ struct WCSPH_Data : public SimulationData<N, RealType>
     virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
     virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
-
-using WCSPH_2DData = WCSPH_Data<2, Real>;
-using WCSPH_3DData = WCSPH_Data<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/SPH/SPH_Data.Impl.hpp>

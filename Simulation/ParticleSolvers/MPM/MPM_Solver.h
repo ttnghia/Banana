@@ -44,9 +44,6 @@ public:
     virtual String getSolverName() { return MPM_Solver::solverName(); }
     virtual String getSolverDescription() override { return String("Simulation using MPM-") + std::to_string(N) + String("D Solver"); }
 
-    virtual void advanceFrame() override;
-    virtual void sortParticles() override;
-
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { assert(m_MPMParams != nullptr); return *m_MPMParams; }
     const auto& solverParams() const { assert(m_MPMParams != nullptr); return *m_MPMParams; }
@@ -69,7 +66,10 @@ protected:
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void advanceFrame() override;
+    virtual void sortParticles() override;
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void     advanceVelocity(RealType timestep);
     virtual RealType timestepCFL();
     virtual void     moveParticles(RealType timestep);

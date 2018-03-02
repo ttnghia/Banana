@@ -77,9 +77,6 @@ public:
     virtual String getSolverName()        = 0;
     virtual String getSolverDescription() = 0;
 
-    virtual void advanceFrame() = 0;
-    virtual void sortParticles() {}
-
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters<N, RealType>&         generalSolverParams() { assert(m_SolverParams != nullptr); return *m_SolverParams; }
     const SimulationParameters<N, RealType>&   generalSolverParams() const { assert(m_SolverParams != nullptr); return *m_SolverParams; }
@@ -106,6 +103,10 @@ protected:
     virtual Int  saveMemoryState()      = 0;
     virtual Int  saveFrameData();
     virtual void logSubstepData();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void advanceFrame() = 0;
+    virtual void sortParticles() {}
 
     ////////////////////////////////////////////////////////////////////////////////
     JParams                                      m_SceneJParams;

@@ -38,7 +38,7 @@ namespace Banana::ParticleSolvers
 // PIC_3DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC_3DParameters : public SimulationParameters3D
+struct PIC_3DParameters : public SimulationParameters<3, Real>
 {
     Real sdfRadius; // this radius is used for computing fluid signed distance field
     ////////////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,9 @@ struct PIC_3DParameters : public SimulationParameters3D
 // PIC_3DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC_3DData : public SimulationData3D
+struct PIC_3DData : public SimulationData<3, Real>
 {
-    struct ParticleData : public ParticleSimulationData3D
+    struct ParticleData : public ParticleSimulationData<3, Real>
     {
         Vec_Vec3f   aniKernelCenters;
         Vec_Mat3x3f aniKernelMatrices;
@@ -63,7 +63,7 @@ struct PIC_3DData : public SimulationData3D
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData3D
+    struct GridData : public GridSimulationData<3, Real>
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
@@ -98,10 +98,10 @@ struct PIC_3DData : public SimulationData3D
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
-    virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
-    void                                    makeReady(const PIC_3DParameters& params);
-    virtual void                            makeReady(const SharedPtr<SimulationParameters3D>& simParams) override {}
+    virtual const ParticleSimulationData<3, Real>& generalParticleData() const override { return particleData; }
+    virtual ParticleSimulationData<3, Real>&       generalParticleData() override { return particleData; }
+    void                                           makeReady(const PIC_3DParameters& params);
+    virtual void                                   makeReady(const SharedPtr<SimulationParameters<3, Real>>& simParams) override {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
