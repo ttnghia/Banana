@@ -82,7 +82,7 @@ Vec3<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec3<RealT
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::GeometryObjects::GeometryObject<N, RealType >::setTranslation(const VecX<N, RealType>& translation)
+void Banana::GeometryObjects::GeometryObject<N, RealType>::setTranslation(const VecX<N, RealType>&translation)
 {
     m_Animation.keyFrames()[0].translation = translation;
     updateTransformation();
@@ -90,7 +90,7 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setTranslation(const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::GeometryObjects::GeometryObject<N, RealType >::setRotation(const VecX<N + 1, RealType>& rotation)
+void Banana::GeometryObjects::GeometryObject<N, RealType>::setRotation(const VecX<N + 1, RealType>&rotation)
 {
     m_Animation.keyFrames()[0].rotation = rotation;
     updateTransformation();
@@ -98,7 +98,7 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setRotation(const Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::GeometryObjects::GeometryObject<N, RealType >::setUniformScale(const RealType scaleVal)
+void Banana::GeometryObjects::GeometryObject<N, RealType>::setUniformScale(const RealType scaleVal)
 {
     m_Animation.keyFrames()[0].uniformScale = scaleVal;
     updateTransformation();
@@ -106,7 +106,7 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setUniformScale(cons
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::GeometryObjects::GeometryObject<N, RealType >::resetTransformation()
+void Banana::GeometryObjects::GeometryObject<N, RealType>::resetTransformation()
 {
     m_bTransformed = false;
     m_UniformScale = RealType(1.0);
@@ -207,7 +207,7 @@ RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0,
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-void Banana::GeometryObjects::BoxObject<N, RealType >::addKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
+void Banana::GeometryObjects::BoxObject<N, RealType>::addKeyFrame(UInt frame, const VecX<N, RealType>&bMin, const VecX<N, RealType>&bMax)
 {
     if(m_KeyFrames.size() == 0) {
         m_KeyFrames.emplace_back(BoxKeyFrame(0, m_BoxMin, m_BoxMax));
@@ -217,7 +217,7 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::addKeyFrame(UInt frame, c
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-void Banana::GeometryObjects::BoxObject<N, RealType >::makeReadyAnimation()
+void Banana::GeometryObjects::BoxObject<N, RealType>::makeReadyAnimation()
 {
     size_t nKeyFrames = m_KeyFrames.size();
     if(nKeyFrames <= 1) {
@@ -245,7 +245,6 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::makeReadyAnimation()
         frames.push_back(static_cast<RealType>(keyFrame.frame));
     }
 
-
     for(Int i = 0; i < N; ++i) {
         m_BoxMinSpline[i].setPoints(frames, bMins[i]);
         m_BoxMaxSpline[i].setPoints(frames, bMaxs[i]);
@@ -257,8 +256,8 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::makeReadyAnimation()
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-bool Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/,
-                                                                            RealType frameDuration /*= RealType(1.0_f / 30.0_f)*/)
+bool Banana::GeometryObjects::BoxObject<N, RealType>::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/,
+                                                                           RealType frameDuration /*= RealType(1.0_f / 30.0_f)*/)
 {
     GeometryObject<N, RealType>::updateTransformation(frame, fraction, frameDuration);
 
@@ -489,13 +488,14 @@ RealType EllipsoidObject<N, RealType >::signedDistance(const VecX<N, RealType>& 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from segment x1-x2
-inline float point_segment_distance(const Vec3f& x0, const Vec3f& x1, const Vec3f& x2)
+template<class RealType>
+RealType point_segment_distance(const Vec3<RealType>& x0, const Vec3<RealType>& x1, const Vec3<RealType>& x2)
 {
-    Vec3f dx(x2 - x1);
+    Vec3<RealType> dx(x2 - x1);
 
-    float m2 = glm::length2(dx);
+    RealType m2 = glm::length2(dx);
     // find parameter value of closest point on segment
-    float s12 = glm::dot(dx, x2 - x0) / m2;
+    RealType s12 = glm::dot(dx, x2 - x0) / m2;
 
     if(s12 < 0) {
         s12 = 0;
@@ -508,19 +508,20 @@ inline float point_segment_distance(const Vec3f& x0, const Vec3f& x1, const Vec3
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from triangle x1-x2-x3
-inline float point_triangle_distance(const Vec3f& x0, const Vec3f& x1, const Vec3f& x2, const Vec3f& x3)
+template<class RealType>
+RealType point_triangle_distance(const Vec3<RealType>& x0, const Vec3<RealType>& x1, const Vec3<RealType>& x2, const Vec3<RealType>& x3)
 {
     // first find barycentric coordinates of closest point on infinite plane
-    Vec3f x13(x1 - x3), x23(x2 - x3), x03(x0 - x3);
-    float m13 = glm::length2(x13), m23 = glm::length2(x23), d = glm::dot(x13, x23);
+    Vec3<RealType> x13(x1 - x3), x23(x2 - x3), x03(x0 - x3);
+    RealType       m13 = glm::length2(x13), m23 = glm::length2(x23), d = glm::dot(x13, x23);
 
-    float invdet = 1.f / fmax(m13 * m23 - d * d, 1e-30f);
-    float a = glm::dot(x13, x03), b = glm::dot(x23, x03);
+    RealType invdet = 1.f / fmax(m13 * m23 - d * d, 1e-30f);
+    RealType a = glm::dot(x13, x03), b = glm::dot(x23, x03);
 
     // the barycentric coordinates themselves
-    float w23 = invdet * (m23 * a - d * b);
-    float w31 = invdet * (m13 * b - d * a);
-    float w12 = 1 - w23 - w31;
+    RealType w23 = invdet * (m23 * a - d * b);
+    RealType w31 = invdet * (m13 * b - d * a);
+    RealType w12 = 1 - w23 - w31;
 
     if(w23 >= 0 && w31 >= 0 && w12 >= 0) { // if we're inside the triangle
         return glm::length(x0 - w23 * x1 + w31 * x2 + w12 * x3);
@@ -538,9 +539,9 @@ inline float point_triangle_distance(const Vec3f& x0, const Vec3f& x1, const Vec
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void check_neighbour(const Vector<Vec3ui>& tri,
-                     const Vec_Vec3f& x,
+                     const Vec_Vec3<RealType>& x,
                      Array<3, RealType>& phi, Array3ui& closest_tri,
-                     const Vec3f& gx,
+                     const Vec3<RealType>& gx,
                      Int i0, Int j0, Int k0,
                      Int i1, Int j1, Int k1)
 {
@@ -549,7 +550,7 @@ void check_neighbour(const Vector<Vec3ui>& tri,
         UInt q = tri[closest_tri(i1, j1, k1)][1];
         UInt r = tri[closest_tri(i1, j1, k1)][2];
 
-        float d = point_triangle_distance(gx, x[p], x[q], x[r]);
+        RealType d = point_triangle_distance(gx, x[p], x[q], x[r]);
 
         if(d < phi(i0, j0, k0)) {
             phi(i0, j0, k0)         = RealType(d);
@@ -561,8 +562,8 @@ void check_neighbour(const Vector<Vec3ui>& tri,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void sweep(const Vector<Vec3ui>& tri,
-           const Vec_Vec3f& x,
-           Array<3, RealType>& phi, Array3ui& closest_tri, const Vec3f& origin, RealType dx,
+           const Vec_Vec3<RealType>& x,
+           Array<3, RealType>& phi, Array3ui& closest_tri, const Vec3<RealType>& origin, RealType dx,
            Int di, Int dj, Int dk)
 {
     Int i0, i1;
@@ -576,7 +577,6 @@ void sweep(const Vector<Vec3ui>& tri,
         i0 = static_cast<Int>(phi.size()[0]) - 2;
         i1 = -1;
     }
-
 
     if(dj > 0) {
         j0 = 1;
@@ -600,7 +600,7 @@ void sweep(const Vector<Vec3ui>& tri,
     for(Int k = k0; k != k1; k += dk) {
         for(Int j = j0; j != j1; j += dj) {
             for(Int i = i0; i != i1; i += di) {
-                Vec3f gx = Vec3f(i, j, k) * dx + origin;
+                Vec3<RealType> gx = Vec3<RealType>(i, j, k) * dx + origin;
 
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j,      k);
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j - dj, k);
@@ -617,7 +617,8 @@ void sweep(const Vector<Vec3ui>& tri,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // calculate twice signed area of triangle (0,0)-(x1,y1)-(x2,y2)
 // return an SOS-determined sign (-1, +1, or 0 only if it's a truly degenerate triangle)
-inline Int orientation(float x1, float y1, float x2, float y2, float& twice_signed_area)
+template<class RealType>
+Int orientation(RealType x1, RealType y1, RealType x2, RealType y2, RealType& twice_signed_area)
 {
     twice_signed_area = y1 * x2 - x1 * y2;
 
@@ -641,9 +642,10 @@ inline Int orientation(float x1, float y1, float x2, float y2, float& twice_sign
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // robust test of (x0,y0) in the triangle (x1,y1)-(x2,y2)-(x3,y3)
 // if true is returned, the barycentric coordinates are set in a,b,c.
-inline bool point_in_triangle_2d(float x0, float y0,
-                                 float x1, float y1, float x2, float y2, float x3, float y3,
-                                 float& a, float& b, float& c)
+template<class RealType>
+bool point_in_triangle_2d(RealType x0, RealType y0,
+                          RealType x1, RealType y1, RealType x2, RealType y2, RealType x3, RealType y3,
+                          RealType& a, RealType& b, RealType& c)
 {
     x1 -= x0;
     x2 -= x0;
@@ -669,7 +671,7 @@ inline bool point_in_triangle_2d(float x0, float y0,
         return false;
     }
 
-    float sum = a + b + c;
+    RealType sum = a + b + c;
     __BNN_REQUIRE(sum != 0);                             // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
     a /= sum;
     b /= sum;
@@ -680,7 +682,7 @@ inline bool point_in_triangle_2d(float x0, float y0,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sign distance field for triangle mesh
 template<class RealType>
-void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, const Vec3f& origin, RealType cellSize,
+void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3<RealType>& vertices, const Vec3<RealType>& origin, RealType cellSize,
                     UInt ni, UInt nj, UInt nk, Array<3, RealType>& SDF, Int exactBand = 1)
 {
     __BNN_REQUIRE(ni > 0 && nj > 0 && nk > 0);
@@ -699,9 +701,9 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
         UInt r = faces[face][2];
 
         // coordinates in grid to high precision
-        Vec3f fp = (vertices[p] - origin) / cellSize;
-        Vec3f fq = (vertices[q] - origin) / cellSize;
-        Vec3f fr = (vertices[r] - origin) / cellSize;
+        Vec3<RealType> fp = (vertices[p] - origin) / cellSize;
+        Vec3<RealType> fq = (vertices[q] - origin) / cellSize;
+        Vec3<RealType> fr = (vertices[r] - origin) / cellSize;
 
         // do distances nearby
         Int i0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[0], fq[0], fr[0])) - exactBand, 0, static_cast<Int>(ni - 1));
@@ -714,8 +716,8 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
         Scheduler::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
                                      [&](Int i, Int j, Int k)
                                      {
-                                         Vec3f gx   = Vec3f(i, j, k) * cellSize + origin;
-                                         RealType d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+                                         Vec3<RealType> gx = Vec3<RealType>(i, j, k) * cellSize + origin;
+                                         RealType d        = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
 
                                          if(d < SDF(i, j, k)) {
                                              SDF(i, j, k)         = d;
@@ -731,7 +733,7 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
 
         for(Int k = k0; k <= k1; ++k) {
             for(Int j = j0; j <= j1; ++j) {
-                float a, b, c;
+                RealType a, b, c;
 
                 if(point_in_triangle_2d(static_cast<RealType>(j), static_cast<RealType>(k), fp[1], fp[2], fq[1], fq[2], fr[1], fr[2], a, b, c)) {
                     // intersection i coordinate
@@ -749,7 +751,6 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
             }
         }
     }         // end loop face
-
 
     // and now we fill in the rest of the distances with fast sweeping
     for(UInt pass = 0; pass < 2; ++pass) {
@@ -802,34 +803,34 @@ void TriMeshObject<3, RealType >::computeSDF()
     MeshLoader meshLoader;
     __BNN_REQUIRE(meshLoader.loadMesh(m_TriMeshFile));
 
-    Vec3f bbmin   = meshLoader.getAABBMin();
-    Vec3f bbmax   = meshLoader.getAABBMax();
-    Vec3f diff    = bbmax - bbmin;
-    float maxSize = fmaxf(fmaxf(fabs(diff[0]), fabs(diff[1])), fabs(diff[2]));
-    float scale   = float(1.0) / maxSize;
+    Vec3<RealType> bbmin   = meshLoader.getAABBMin();
+    Vec3<RealType> bbmax   = meshLoader.getAABBMax();
+    Vec3<RealType> diff    = bbmax - bbmin;
+    RealType       maxSize = fmaxf(fmaxf(fabs(diff[0]), fabs(diff[1])), fabs(diff[2]));
+    RealType       scale   = RealType(1.0) / maxSize;
 
     // multiply all vertices by scale to make the mesh having max(w, h, d) = 1
     bbmin *= scale;
     bbmax *= scale;
 
     // expand the bounding box
-    Vec3f meshCenter = (bbmax + bbmin) * 0.5_f;
-    auto  cmin       = bbmin - meshCenter;
-    auto  cmax       = bbmax - meshCenter;
+    Vec3<RealType> meshCenter = (bbmax + bbmin) * RealType(0.5);
+    auto           cmin       = bbmin - meshCenter;
+    auto           cmax       = bbmax - meshCenter;
 
     //bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin);
     //bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax);
-    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * 1.1_f;
-    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * 1.1_f;
+    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * RealType(1.1);
+    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * RealType(1.1);
 
     // to move the mesh center to origin
     bbmin -= meshCenter;
     bbmax -= meshCenter;
 
-    Vec_Vec3f      vertexList(meshLoader.getNVertices());
-    Vector<Vec3ui> faceList(meshLoader.getNFaces());
+    Vec_Vec3<RealType> vertexList(meshLoader.getNVertices());
+    Vector<Vec3ui>     faceList(meshLoader.getNFaces());
 
-    std::memcpy(vertexList.data(), meshLoader.getVertices().data(), meshLoader.getVertices().size() * sizeof(Real));
+    std::memcpy(vertexList.data(), meshLoader.getVertices().data(), meshLoader.getVertices().size() * sizeof(RealType));
     std::memcpy(faceList.data(),   meshLoader.getFaces().data(),    meshLoader.getFaces().size() * sizeof(UInt));
 
     for(auto& vertex : vertexList) {

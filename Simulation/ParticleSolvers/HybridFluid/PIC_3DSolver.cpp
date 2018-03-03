@@ -433,10 +433,10 @@ Int PIC_3DSolver::saveFrameData()
     }
     if(globalParams().savingData("AniKernel")) {
         __BNN_TODO
-        AnisotropicKernelGenerator<3, Real> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
-        aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
-        m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
-        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
+        //AnisotropicKernelGenerator<3, Real> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
+        //aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
+        //m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
+        //m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
     } else {
         m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
     }
