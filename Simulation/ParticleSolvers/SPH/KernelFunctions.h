@@ -23,7 +23,6 @@
 
 #include <Banana/Setup.h>
 #include <cmath>
-#include <algorithm>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -38,10 +37,7 @@ protected:
     RealType m_l;
     RealType m_W_zero;
 public:
-    RealType getRadius()
-    {
-        return m_radius;
-    }
+    RealType getRadius() const { return m_radius; }
 
     void setRadius(RealType radius)
     {
@@ -60,7 +56,7 @@ public:
     }
 
 public:
-    RealType W(RealType r)
+    RealType W(RealType r) const
     {
         auto       res = RealType(0);
         const auto q   = r / m_radius;
@@ -76,12 +72,9 @@ public:
         return res;
     }
 
-    RealType W(const VecX<N, RealType>& r)
-    {
-        return W(glm::length(r));
-    }
+    RealType W(const VecX<N, RealType>& r) const { return W(glm::length(r)); }
 
-    VecX<N, RealType> gradW(const VecX<N, RealType>& r)
+    VecX<N, RealType> gradW(const VecX<N, RealType>& r) const
     {
         auto       res = VecX<N, RealType>(0);
         const auto r2  = glm::length2(r);
@@ -100,10 +93,7 @@ public:
         return res;
     }
 
-    RealType W_zero()
-    {
-        return m_W_zero;
-    }
+    RealType W_zero() const { return m_W_zero; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -118,10 +108,7 @@ protected:
     RealType m_m;
     RealType m_W_zero;
 public:
-    RealType getRadius()
-    {
-        return m_radius;
-    }
+    RealType getRadius() const { return m_radius; }
 
     void setRadius(RealType radius)
     {
@@ -145,13 +132,13 @@ public:
      * W(r,h) = (315/(64 pi h^9))(h^2-|r|^2)^3
      *        = (315/(64 pi h^9))(h^2-r*r)^3
      */
-    RealType W(RealType r)
+    RealType W(RealType r) const
     {
         const auto r2 = r * r;
         return (r2 <= m_radius2) ? pow(m_radius2 - r2, 3) * m_k : RealType(0);
     }
 
-    RealType W(const VecX<N, RealType>& r)
+    RealType W(const VecX<N, RealType>& r) const
     {
         const auto r2 = glm::length2(r);
         return (r2 <= m_radius2) ? pow(m_radius2 - r2, 3) * m_k : RealType(0);
@@ -161,7 +148,7 @@ public:
      * grad(W(r,h)) = r(-945/(32 pi h^9))(h^2-|r|^2)^2
      *              = r(-945/(32 pi h^9))(h^2-r*r)^2
      */
-    VecX<N, RealType> gradW(const VecX<N, RealType>& r)
+    VecX<N, RealType> gradW(const VecX<N, RealType>& r) const
     {
         auto       res = VecX<N, RealType>(0);
         const auto r2  = glm::length2(r);
@@ -177,7 +164,7 @@ public:
      * laplacian(W(r,h)) = (-945/(32 pi h^9))(h^2-|r|^2)(-7|r|^2+3h^2)
      *                   = (-945/(32 pi h^9))(h^2-r*r)(3 h^2-7 r*r)
      */
-    RealType laplacianW(const VecX<N, RealType>& r)
+    RealType laplacianW(const VecX<N, RealType>& r) const
     {
         auto       res = RealType(0);
         const auto r2  = glm::length2(r);
@@ -190,10 +177,7 @@ public:
         return res;
     }
 
-    RealType W_zero()
-    {
-        return m_W_zero;
-    }
+    RealType W_zero() const { return m_W_zero; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -207,10 +191,7 @@ protected:
     RealType m_l;
     RealType m_W_zero;
 public:
-    RealType getRadius()
-    {
-        return m_radius;
-    }
+    RealType getRadius() const { return m_radius; }
 
     void setRadius(RealType radius)
     {
@@ -234,12 +215,9 @@ public:
     /**
      * W(r,h) = 15/(pi*h^6) * (h-r)^3
      */
-    RealType W(RealType r)
-    {
-        return (r <= m_radius) ? pow(m_radius - r, 3) * m_k : RealType(0);
-    }
+    RealType W(RealType r) const { return (r <= m_radius) ? pow(m_radius - r, 3) * m_k : RealType(0); }
 
-    RealType W(const VecX<N, RealType>& r)
+    RealType W(const VecX<N, RealType>& r) const
     {
         const auto r2 = glm::length2(r);
         return (r2 <= m_radius2) ? pow(m_radius - sqrt(r2), 3) * m_k : RealType(0);
@@ -248,7 +226,7 @@ public:
     /**
      * grad(W(r,h)) = -r(45/(pi*h^6) * (h-r)^2)
      */
-    VecX<N, RealType> gradW(const VecX<N, RealType>& r)
+    VecX<N, RealType> gradW(const VecX<N, RealType>& r) const
     {
         auto       res = VecX<N, RealType>(0);
         const auto r2  = glm::length2(r);
@@ -262,10 +240,7 @@ public:
         return res;
     }
 
-    RealType W_zero()
-    {
-        return m_W_zero;
-    }
+    RealType W_zero() const { return m_W_zero; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -279,10 +254,7 @@ protected:
     RealType m_c;
     RealType m_W_zero;
 public:
-    RealType getRadius()
-    {
-        return m_radius;
-    }
+    RealType getRadius() const { return m_radius; }
 
     void setRadius(RealType radius)
     {
@@ -304,7 +276,7 @@ public:
      * W(r,h) = (32/(pi h^9))(h-r)^3*r^3					if h/2 < r <= h
      *          (32/(pi h^9))(2*(h-r)^3*r^3 - h^6/64		if 0 < r <= h/2
      */
-    RealType W(RealType r)
+    RealType W(RealType r) const
     {
         auto       res = RealType(0);
         const auto r2  = r * r;
@@ -320,7 +292,7 @@ public:
         return res;
     }
 
-    RealType W(const VecX<N, RealType>& r)
+    RealType W(const VecX<N, RealType>& r) const
     {
         auto       res = RealType(0);
         const auto r2  = glm::length2(r);
@@ -336,10 +308,7 @@ public:
         return res;
     }
 
-    RealType W_zero()
-    {
-        return m_W_zero;
-    }
+    RealType W_zero() const { return m_W_zero; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -352,10 +321,7 @@ protected:
     RealType m_k;
     RealType m_W_zero;
 public:
-    RealType getRadius()
-    {
-        return m_radius;
-    }
+    RealType getRadius() const { return m_radius; }
 
     void setRadius(RealType radius)
     {
@@ -374,7 +340,7 @@ public:
     /**
      * W(r,h) = (0.007/h^3.25)(-4r^2/h + 6r -2h)^0.25					if h/2 < r <= h
      */
-    RealType W(RealType r)
+    RealType W(RealType r) const
     {
         auto       res = RealType(0);
         const auto r2  = r * r;
@@ -387,7 +353,7 @@ public:
         return res;
     }
 
-    RealType W(const VecX<N, RealType>& r)
+    RealType W(const VecX<N, RealType>& r) const
     {
         auto       res = RealType(0);
         const auto r2  = glm::length2(r);
@@ -400,10 +366,7 @@ public:
         return res;
     }
 
-    RealType W_zero()
-    {
-        return m_W_zero;
-    }
+    RealType W_zero() { return m_W_zero; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -420,10 +383,7 @@ protected:
     RealType m_invStepSize;
     RealType m_W_zero;
 public:
-    RealType getRadius()
-    {
-        return m_radius;
-    }
+    RealType getRadius() const { return m_radius; }
 
     void setRadius(RealType radius)
     {
@@ -450,7 +410,7 @@ public:
     }
 
 public:
-    RealType W(const VecX<N, RealType>& r)
+    RealType W(const VecX<N, RealType>& r) const
     {
         auto       res = RealType(0);
         const auto r2  = glm::length2(r);
@@ -461,7 +421,7 @@ public:
         return res;
     }
 
-    RealType W(RealType r)
+    RealType W(RealType r) const
     {
         auto res = RealType(0);
         if(r <= m_radius) {
@@ -471,7 +431,7 @@ public:
         return res;
     }
 
-    VecX<N, RealType> gradW(const VecX<N, RealType>& r)
+    VecX<N, RealType> gradW(const VecX<N, RealType>& r) const
     {
         auto       res = VecX<N, RealType>(0);
         const auto r2  = glm::length2(r);
@@ -484,10 +444,7 @@ public:
         return res;
     }
 
-    RealType W_zero()
-    {
-        return m_W_zero;
-    }
+    RealType W_zero() const { return m_W_zero; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
