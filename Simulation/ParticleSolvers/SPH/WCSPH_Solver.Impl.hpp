@@ -421,7 +421,7 @@ void WCSPH_Solver<N, RealType >::computeDensity()
                           {
                               for(const auto& qInfo : neighborInfo) {
                                   const auto r = VecN(qInfo);
-                                  density += kernels().kernelPoly6.W(r);
+                                  density += kernels().W(r);
                               }
                           };
     ////////////////////////////////////////////////////////////////////////////////
@@ -467,7 +467,7 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
                                     const auto r        = VecN(qInfo);
                                     const auto q        = fluidNeighborList[i];
                                     const auto qdensity = particleData().densities[q];
-                                    tmp += kernels().kernelPoly6.W(r) / qdensity;
+                                    tmp += kernels().W(r) / qdensity;
                                 }
                                 if(solverParams().bDensityByBDParticle) {
                                     const auto& PDNeighborList = fluidPointSet.neighbors(1, p);
@@ -475,7 +475,7 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo = pNeighborInfo[i];
                                         const auto r      = VecN(qInfo);
-                                        tmp += kernels().kernelPoly6.W(r) / solverParams().restDensity;
+                                        tmp += kernels().W(r) / solverParams().restDensity;
                                     }
                                 }
                                 pdensity = pdensity / (tmp * solverParams().particleMass);
@@ -554,7 +554,7 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
                                     const auto r         = VecN(qInfo);
                                     const auto qdensity  = qInfo[N];
                                     const auto qpressure = particlePressure(qdensity);
-                                    const auto fpressure = (ppressure + qpressure) * kernels().kernelSpiky.gradW(r);
+                                    const auto fpressure = (ppressure + qpressure) * kernels().gradW(r);
                                     pAcc += fpressure;
                                     ////////////////////////////////////////////////////////////////////////////////
                                     if(solverParams().bAddShortRangeRepulsiveForce) {
@@ -621,7 +621,7 @@ void WCSPH_Solver<N, RealType >::computeViscosity()
                                     const auto& qInfo   = pNeighborInfo[i];
                                     const auto r        = VecN(qInfo);
                                     const auto qdensity = qInfo[N];
-                                    diffVelFluid += (RealType(1.0) / qdensity) * kernels().kernelPoly6.W(r) * (qvel - pvel);
+                                    diffVelFluid += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
                                 }
                                 diffVelFluid *= solverParams().viscosityFluid;
                                 ////////////////////////////////////////////////////////////////////////////////
@@ -631,7 +631,7 @@ void WCSPH_Solver<N, RealType >::computeViscosity()
                                         const auto& qInfo   = pNeighborInfo[i];
                                         const auto r        = VecN(qInfo);
                                         const auto qdensity = qInfo[N];
-                                        diffVelBoundary -= (RealType(1.0) / qdensity) * kernels().kernelPoly6.W(r) * pvel;
+                                        diffVelBoundary -= (RealType(1.0) / qdensity) * kernels().W(r) * pvel;
                                     }
                                     diffVelBoundary *= solverParams().viscosityBoundary;
                                 }
