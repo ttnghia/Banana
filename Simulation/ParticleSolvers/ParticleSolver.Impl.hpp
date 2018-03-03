@@ -42,7 +42,6 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////
     // setup logger following global parameters
     {
-        Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
         setupLogger();
         logger().printLog("Loaded scene file: " + sceneFile);
         globalParams().printParams(logger());
@@ -163,6 +162,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::setupLogger()
 {
+    Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
     m_Logger = Logger::createLogger(getSolverName());
     logger().setLoglevel(globalParams().logLevel);
 

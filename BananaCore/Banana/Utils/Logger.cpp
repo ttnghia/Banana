@@ -37,9 +37,8 @@ String                    Logger::s_TimeLogFile = String("time.txt");
 Logger::Clock::time_point Logger::s_StartupTime;
 Logger::Clock::time_point Logger::s_ShutdownTime;
 
-
-Vector<String>                                                   Logger::s_DataLogFiles;
-std::map<String, SharedPtr<spdlog::sinks::simple_file_sink_mt> > Logger::s_DataLogSinks;
+Vector<String>                                                  Logger::s_DataLogFiles;
+std::map<String, SharedPtr<spdlog::sinks::simple_file_sink_mt>> Logger::s_DataLogSinks;
 
 #ifdef __BANANA_WINDOWS__
 SharedPtr<spdlog::sinks::wincolor_stdout_sink_mt> Logger::s_ConsoleSink = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
@@ -48,6 +47,46 @@ SharedPtr<spdlog::sinks::ansicolor_stdout_sink_mt> Logger::s_ConsoleSink = std::
 #endif
 SharedPtr<spdlog::sinks::simple_file_sink_mt> Logger::s_SystemLogFileSink = nullptr;
 SharedPtr<Logger>                             Logger::s_MainLogger        = nullptr;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Logger::Logger(const String& loggerName, bool bDefaultLogPolicy, bool bPrint2Console, bool bWriteLog2File, bool bDataLogger)
+{
+    __BNN_REQUIRE(s_bInitialized);
+
+    if(bDefaultLogPolicy) {
+        m_bPrint2Console = s_bPrint2Console;
+        m_bWriteLog2File = s_bWriteLog2File;
+    } else {
+        m_bPrint2Console = bPrint2Console;
+        m_bWriteLog2File = bWriteLog2File;
+    }
+
+    if(m_bPrint2Console) {
+        m_ConsoleLogger = std::make_shared<spdlog::logger>(loggerName, s_ConsoleSink);
+    }
+
+    if(m_bWriteLog2File) {
+        if(!bDataLogger) {
+            __BNN_REQUIRE(s_SystemLogFileSink != nullptr);
+            m_FileLogger = std::make_shared<spdlog::async_logger>(loggerName, s_SystemLogFileSink, 1024);
+        } else {
+            __BNN_REQUIRE(s_DataLogSinks.find(loggerName) != s_DataLogSinks.end() && s_DataLogSinks[loggerName] != nullptr);
+            m_FileLogger = std::make_shared<spdlog::async_logger>(loggerName, s_DataLogSinks[loggerName], 1024);
+        }
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::setLoglevel(spdlog::level::level_enum level)
+{
+    if(m_ConsoleLogger != nullptr) {
+        m_ConsoleLogger->set_level(level);
+    }
+
+    if(m_FileLogger != nullptr) {
+        m_FileLogger->set_level(level);
+    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printSeparator()
@@ -348,7 +387,7 @@ void getDuration(std::chrono::duration<Rep, Period> t, UInt& n_days, UInt& n_hou
     assert(0 <= t.count());
 
     // approximate because a day doesn't have a fixed length
-    typedef std::chrono::duration<int, std::ratio<60 * 60 * 24> > days_t;
+    typedef std::chrono::duration<int, std::ratio<60* 60* 24>> days_t;
 
     auto days  = std::chrono::duration_cast<days_t>(t);
     auto hours = std::chrono::duration_cast<std::chrono::hours>(t - days);

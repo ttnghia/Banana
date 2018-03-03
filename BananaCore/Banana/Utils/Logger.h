@@ -48,35 +48,9 @@ class Logger
 {
     using Clock = std::chrono::system_clock;
 public:
-    Logger(const String& loggerName, bool bDefaultLogPolicy = true, bool bPrint2Console = true, bool bWriteLog2File = false, bool bDataLogger = false)
-    {
-        __BNN_REQUIRE(s_bInitialized);
-
-        if(bDefaultLogPolicy) {
-            m_bPrint2Console = s_bPrint2Console;
-            m_bWriteLog2File = s_bWriteLog2File;
-        } else {
-            m_bPrint2Console = bPrint2Console;
-            m_bWriteLog2File = bWriteLog2File;
-        }
-
-        if(m_bPrint2Console) {
-            m_ConsoleLogger = std::make_shared<spdlog::logger>(loggerName, s_ConsoleSink);
-        }
-
-        if(m_bWriteLog2File) {
-            if(!bDataLogger) {
-                __BNN_REQUIRE(s_SystemLogFileSink != nullptr);
-                m_FileLogger = std::make_shared<spdlog::async_logger>(loggerName, s_SystemLogFileSink, 1024);
-            } else {
-                __BNN_REQUIRE(s_DataLogSinks.find(loggerName) != s_DataLogSinks.end() && s_DataLogSinks[loggerName] != nullptr);
-                m_FileLogger = std::make_shared<spdlog::async_logger>(loggerName, s_DataLogSinks[loggerName], 1024);
-            }
-        }
-    }
-
+    Logger(const String& loggerName, bool bDefaultLogPolicy = true, bool bPrint2Console = true, bool bWriteLog2File = false, bool bDataLogger = false);
+    void setLoglevel(spdlog::level::level_enum level);
     ////////////////////////////////////////////////////////////////////////////////
-    void setLoglevel(spdlog::level::level_enum level) { m_ConsoleLogger->set_level(level); if(m_FileLogger != nullptr) { m_FileLogger->set_level(level); } }
 
     void newLine() { printLog(""); }
     void newLineIf(bool bCondition) { if(bCondition) { printLog(""); } }
@@ -170,8 +144,8 @@ private:
     static SharedPtr<spdlog::sinks::ansicolor_stdout_sink_mt> s_ConsoleSink;
 #endif
 
-    static Vector<String>                                                   s_DataLogFiles;
-    static std::map<String, SharedPtr<spdlog::sinks::simple_file_sink_mt> > s_DataLogSinks;
+    static Vector<String>                                                  s_DataLogFiles;
+    static std::map<String, SharedPtr<spdlog::sinks::simple_file_sink_mt>> s_DataLogSinks;
 
     static SharedPtr<spdlog::sinks::simple_file_sink_mt> s_SystemLogFileSink;
     static SharedPtr<Logger>                             s_MainLogger;

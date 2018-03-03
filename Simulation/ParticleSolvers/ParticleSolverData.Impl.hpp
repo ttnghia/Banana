@@ -57,7 +57,8 @@ void GlobalParameters<RealType >::parseParameters(const JParams& jParams)
     } else {
         logLevel = spdlog::level::trace;
     }
-    JSONHelpers::readBool(jParams, bPrintLog2File, "PrintLogToFile");
+    JSONHelpers::readBool(jParams, bPrintLog2Console, "PrintLogToConsole");
+    JSONHelpers::readBool(jParams, bPrintLog2File,    "PrintLogToFile");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +105,7 @@ void GlobalParameters<RealType >::printParams(Logger& logger)
     ////////////////////////////////////////////////////////////////////////////////
     // logging parameters
     logger.printLogIndent(String("Log to file: ") + (bPrintLog2File ? String("Yes") : String("No")));
+    logger.printLogIndent(String("Log to console: ") + (bPrintLog2Console ? String("Yes") : String("No")));
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
