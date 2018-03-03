@@ -13,9 +13,9 @@
         "MemoryStateDataFolder" : "SPHState",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug",
-        "PrintLogToConsole" : false,
+        "PrintLogToConsole" : true,
         "PrintLogToFile" : false,
-        "EnableSortParticle" : false,
+        "EnableSortParticle" : true,
         "SortFrequency" : 10
     },
     "SimulationParameters":
@@ -26,12 +26,12 @@
             "BoxMax" : [ 1, 1, 1]
         },
         "NormalizeDensity" : true,
-        "DensityByBDParticle" : false,
+        "DensityByBDParticle" : true,
         "AddShortRangeRepulsiveForce" : false,
         "PressureStiffness" : 50000,
         "ShortRangeRepulsiveForceStiffness" : 5000,
         "RatioNearKernelPRadius" : 1.5,
-        "ParticleRadius" : 0.01,
+        "ParticleRadius" : 0.005,
         "ParticleMassScale" : 0.9,
         "CFLFactor" : 0.1,
         "ViscosityFluid" : 0.01,
