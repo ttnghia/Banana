@@ -153,14 +153,10 @@ public:
      */
     virtual RealType valueGradient(const Vec_RealType& v, Vec_RealType& grad);
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       particleData() { assert(m_SimData.particleData != nullptr); return *m_SimData.particleData; }
-    const auto& particleData() const { assert(m_SimData.particleData != nullptr); return *m_SimData.particleData; }
-    auto&       gridData() { assert(m_SimData.gridData != nullptr); return *m_SimData.gridData; }
-    const auto& gridData() const { assert(m_SimData.gridData != nullptr); return *m_SimData.gridData; }
-    auto&       grid() { return m_SimData.grid; }
-    const auto& grid() const { return m_SimData.grid; }
+    auto& solverParams() { return m_SimParams; }
+    auto& particleData() { assert(m_SimData.particleData != nullptr); return *m_SimData.particleData; }
+    auto& gridData() { assert(m_SimData.gridData != nullptr); return *m_SimData.gridData; }
+    auto& grid() { return m_SimData.grid; }
 
 private:
     const MPM_Parameters<N, RealType>& m_SimParams;

@@ -42,18 +42,13 @@ public:
     virtual String getSolverDescription() override { return String("Simulation using HairMPM-") + std::to_string(N) + String("D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
-    const auto& solverParams() const { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
-    auto&       solverData() { assert(m_HairMPMData != nullptr); return *m_HairMPMData; }
-    const auto& solverData() const { assert(m_HairMPMData != nullptr); return *m_HairMPMData; }
+    auto& solverParams() { assert(m_HairMPMParams != nullptr); return *m_HairMPMParams; }
+    auto& solverData() { assert(m_HairMPMData != nullptr); return *m_HairMPMData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { assert(solverData().HairMPM_particleData != nullptr); return *solverData().HairMPM_particleData; }
-    const auto& particleData() const { assert(solverData().HairMPM_particleData != nullptr); return *solverData().HairMPM_particleData; }
-    auto&       gridData() { assert(solverData().HairMPM_gridData != nullptr); return *solverData().HairMPM_gridData; }
-    const auto& gridData() const { assert(solverData().HairMPM_gridData != nullptr); return *solverData().HairMPM_gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
+    auto& particleData() { assert(solverData().HairMPM_particleData != nullptr); return *solverData().HairMPM_particleData; }
+    auto& gridData() { assert(solverData().HairMPM_gridData != nullptr); return *solverData().HairMPM_gridData; }
+    auto& grid() { return solverData().grid; }
 
 protected:
     virtual void allocateSolverMemory() override;

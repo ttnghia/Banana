@@ -42,16 +42,12 @@ public:
     virtual String getSolverName() override { return WCSPH_Solver<N, RealType>::solverName(); }
     virtual String getSolverDescription() override { return String("Fluid Simulation using WCSPH-") + std::to_string(N) + String("D Solver"); }
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
-    const auto& solverParams() const { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
-    auto&       solverData() { assert(m_WCSPHData != nullptr); return *m_WCSPHData; }
-    const auto& solverData() const { assert(m_WCSPHData != nullptr); return *m_WCSPHData; }
+    auto& solverParams() { assert(m_WCSPHParams != nullptr); return *m_WCSPHParams; }
+    auto& solverData() { assert(m_WCSPHData != nullptr); return *m_WCSPHData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       kernels() { return solverData().kernels; }
-    const auto& kernels() const { return solverData().kernels; }
+    auto& particleData() { return solverData().particleData; }
+    auto& kernels() { return solverData().kernels; }
 
 protected:
     virtual void allocateSolverMemory() override;

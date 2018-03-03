@@ -45,18 +45,13 @@ public:
     virtual String getSolverDescription() override { return String("Simulation using MPM-") + std::to_string(N) + String("D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { assert(m_MPMParams != nullptr); return *m_MPMParams; }
-    const auto& solverParams() const { assert(m_MPMParams != nullptr); return *m_MPMParams; }
-    auto&       solverData() { assert(m_MPMData != nullptr); return *m_MPMData; }
-    const auto& solverData() const { assert(m_MPMData != nullptr); return *m_MPMData; }
+    auto& solverParams() { assert(m_MPMParams != nullptr); return *m_MPMParams; }
+    auto& solverData() { assert(m_MPMData != nullptr); return *m_MPMData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
-    const auto& particleData() const { assert(solverData().particleData != nullptr); return *solverData().particleData; }
-    auto&       gridData() { assert(solverData().gridData != nullptr); return *solverData().gridData; }
-    const auto& gridData() const { assert(solverData().gridData != nullptr); return *solverData().gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
+    auto& particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
+    auto& gridData() { assert(solverData().gridData != nullptr); return *solverData().gridData; }
+    auto& grid() { return solverData().grid; }
 
 protected:
     virtual void allocateSolverMemory() override;

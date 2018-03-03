@@ -78,19 +78,13 @@ public:
     virtual String getSolverDescription() = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters<N, RealType>&         generalSolverParams() { assert(m_SolverParams != nullptr); return *m_SolverParams; }
-    const SimulationParameters<N, RealType>&   generalSolverParams() const { assert(m_SolverParams != nullptr); return *m_SolverParams; }
-    ParticleSimulationData<N, RealType>&       generalParticleData() { assert(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
-    const ParticleSimulationData<N, RealType>& generalParticleData() const { assert(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
-
-    auto&       globalParams() noexcept { return m_GlobalParams; }
-    const auto& globalParams() const noexcept { return m_GlobalParams; }
+    auto& globalParams() noexcept { return m_GlobalParams; }
+    auto& generalSolverParams() { assert(m_SolverParams != nullptr); return *m_SolverParams; }
+    auto& generalParticleData() { assert(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
 
 protected:
-    auto&       logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
-    const auto& logger() const noexcept { assert(m_Logger != nullptr); return *m_Logger; }
-    auto&       dataLogger(const String& dataName) { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
-    const auto& dataLogger(const String& dataName) const { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
+    auto& logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
+    auto& dataLogger(const String& dataName) { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
 
     virtual void generateBoundaries(const JParams& jParams);
     virtual void generateParticles(const JParams& jParams);
