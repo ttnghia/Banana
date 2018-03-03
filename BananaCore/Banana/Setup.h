@@ -47,6 +47,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // define the floating point precision for all projects
+//#define DOUBLE_PRECISION
 
 #if defined(DOUBLE_PRECISION) || defined(HIGH_PRECISION)
 #  define BANANA_DOUBLE_PRECISION
@@ -112,20 +113,20 @@ template<class Type> using Mat4x4 = glm::mat<4, 4, Type>;
 template<int N, class Type> using VecX   = glm::vec<N, Type>;
 template<int N, class Type> using MatXxX = glm::mat<N, N, Type>;
 
-template<int N, class Type> using Vec_VecX   = Vector<VecX<N, Type> >;
-template<int N, class Type> using Vec_MatXxX = Vector<MatXxX<N, Type> >;
+template<int N, class Type> using Vec_VecX   = Vector<VecX<N, Type>>;
+template<int N, class Type> using Vec_MatXxX = Vector<MatXxX<N, Type>>;
 
-template<int N, class Type> using Vec_VecVecX   = Vector<Vector<VecX<N, Type> > >;
-template<int N, class Type> using Vec_VecMatXxX = Vector<Vector<MatXxX<N, Type> > >;
+template<int N, class Type> using Vec_VecVecX   = Vector<Vector<VecX<N, Type>>>;
+template<int N, class Type> using Vec_VecMatXxX = Vector<Vector<MatXxX<N, Type>>>;
 
 ////////////////////////////////////////////////////////////////////////////////
-template<class Type> using Vec_Vec    = Vector<Vector<Type> >;
-template<class Type> using Vec_Vec2   = Vector<Vec2<Type> >;
-template<class Type> using Vec_Vec3   = Vector<Vec3<Type> >;
-template<class Type> using Vec_Vec4   = Vector<Vec4<Type> >;
-template<class Type> using Vec_Mat2x2 = Vector<Mat2x2<Type> >;
-template<class Type> using Vec_Mat3x3 = Vector<Mat3x3<Type> >;
-template<class Type> using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
+template<class Type> using Vec_Vec    = Vector<Vector<Type>>;
+template<class Type> using Vec_Vec2   = Vector<Vec2<Type>>;
+template<class Type> using Vec_Vec3   = Vector<Vec3<Type>>;
+template<class Type> using Vec_Vec4   = Vector<Vec4<Type>>;
+template<class Type> using Vec_Mat2x2 = Vector<Mat2x2<Type>>;
+template<class Type> using Vec_Mat3x3 = Vector<Mat3x3<Type>>;
+template<class Type> using Vec_Mat4x4 = Vector<Mat4x4<Type>>;
 
 template<class Type> using SharedPtr = std::shared_ptr<Type>;
 template<class Type> using UniquePtr = std::unique_ptr<Type>;
@@ -220,119 +221,119 @@ using Vec_Mat3x3r = Vector<Mat3x3r>;
 using Vec_Mat4x4r = Vector<Mat4x4r>;
 
 ////////////////////////////////////////////////////////////////////////////////
-using Vec_VecInt8  = Vector<Vector<Int8> >;
-using Vec_VecInt16 = Vector<Vector<Int16> >;
-using Vec_VecInt   = Vector<Vector<Int> >;
-using Vec_VecInt32 = Vector<Vector<Int> >;
-using Vec_VecInt64 = Vector<Vector<Int64> >;
+using Vec_VecInt8  = Vector<Vector<Int8>>;
+using Vec_VecInt16 = Vector<Vector<Int16>>;
+using Vec_VecInt   = Vector<Vector<Int>>;
+using Vec_VecInt32 = Vector<Vector<Int>>;
+using Vec_VecInt64 = Vector<Vector<Int64>>;
 
-using Vec_VecUInt8  = Vector<Vector<UInt8> >;
-using Vec_VecUInt16 = Vector<Vector<UInt16> >;
-using Vec_VecUInt   = Vector<Vector<UInt> >;
-using Vec_VecUInt32 = Vector<Vector<UInt> >;
-using Vec_VecUInt64 = Vector<Vector<UInt64> >;
+using Vec_VecUInt8  = Vector<Vector<UInt8>>;
+using Vec_VecUInt16 = Vector<Vector<UInt16>>;
+using Vec_VecUInt   = Vector<Vector<UInt>>;
+using Vec_VecUInt32 = Vector<Vector<UInt>>;
+using Vec_VecUInt64 = Vector<Vector<UInt64>>;
 
-using Vec_VecChar   = Vector<Vector<char> >;
-using Vec_VecUChar  = Vector<Vector<unsigned char> >;
-using Vec_VecFloat  = Vector<Vector<float> >;
-using Vec_VecDouble = Vector<Vector<double> >;
-using Vec_VecReal   = Vector<Vector<Real> >;
+using Vec_VecChar   = Vector<Vector<char>>;
+using Vec_VecUChar  = Vector<Vector<unsigned char>>;
+using Vec_VecFloat  = Vector<Vector<float>>;
+using Vec_VecDouble = Vector<Vector<double>>;
+using Vec_VecReal   = Vector<Vector<Real>>;
 
-using Vec_VecVec2i = Vector<Vector<Vec2i> >;
-using Vec_VecVec3i = Vector<Vector<Vec3i> >;
-using Vec_VecVec4i = Vector<Vector<Vec4i> >;
+using Vec_VecVec2i = Vector<Vector<Vec2i>>;
+using Vec_VecVec3i = Vector<Vector<Vec3i>>;
+using Vec_VecVec4i = Vector<Vector<Vec4i>>;
 
-using Vec_VecVec2ui = Vector<Vector<Vec2ui> >;
-using Vec_VecVec3ui = Vector<Vector<Vec3ui> >;
-using Vec_VecVec4ui = Vector<Vector<Vec4ui> >;
+using Vec_VecVec2ui = Vector<Vector<Vec2ui>>;
+using Vec_VecVec3ui = Vector<Vector<Vec3ui>>;
+using Vec_VecVec4ui = Vector<Vector<Vec4ui>>;
 
-using Vec_VecVec2f = Vector<Vector<Vec2f> >;
-using Vec_VecVec3f = Vector<Vector<Vec3f> >;
-using Vec_VecVec4f = Vector<Vector<Vec4f> >;
+using Vec_VecVec2f = Vector<Vector<Vec2f>>;
+using Vec_VecVec3f = Vector<Vector<Vec3f>>;
+using Vec_VecVec4f = Vector<Vector<Vec4f>>;
 
-using Vec_VecVec2d = Vector<Vector<Vec2d> >;
-using Vec_VecVec3d = Vector<Vector<Vec3d> >;
-using Vec_VecVec4d = Vector<Vector<Vec4d> >;
+using Vec_VecVec2d = Vector<Vector<Vec2d>>;
+using Vec_VecVec3d = Vector<Vector<Vec3d>>;
+using Vec_VecVec4d = Vector<Vector<Vec4d>>;
 
-using Vec_VecVec2r = Vector<Vector<Vec2r> >;
-using Vec_VecVec3r = Vector<Vector<Vec3r> >;
-using Vec_VecVec4r = Vector<Vector<Vec4r> >;
+using Vec_VecVec2r = Vector<Vector<Vec2r>>;
+using Vec_VecVec3r = Vector<Vector<Vec3r>>;
+using Vec_VecVec4r = Vector<Vector<Vec4r>>;
 
-using Vec_VecMat2x2f = Vector<Vector<Mat2x2f> >;
-using Vec_VecMat3x3f = Vector<Vector<Mat3x3f> >;
-using Vec_VecMat4x4f = Vector<Vector<Mat4x4f> >;
+using Vec_VecMat2x2f = Vector<Vector<Mat2x2f>>;
+using Vec_VecMat3x3f = Vector<Vector<Mat3x3f>>;
+using Vec_VecMat4x4f = Vector<Vector<Mat4x4f>>;
 
-using Vec_VecMat2x2d = Vector<Vector<Mat2x2d> >;
-using Vec_VecMat3x3d = Vector<Vector<Mat3x3d> >;
-using Vec_VecMat4x4d = Vector<Vector<Mat4x4d> >;
+using Vec_VecMat2x2d = Vector<Vector<Mat2x2d>>;
+using Vec_VecMat3x3d = Vector<Vector<Mat3x3d>>;
+using Vec_VecMat4x4d = Vector<Vector<Mat4x4d>>;
 
-using Vec_VecMat2x2r = Vector<Vector<Mat2x2r> >;
-using Vec_VecMat3x3r = Vector<Vector<Mat3x3r> >;
-using Vec_VecMat4x4r = Vector<Vector<Mat4x4r> >;
+using Vec_VecMat2x2r = Vector<Vector<Mat2x2r>>;
+using Vec_VecMat3x3r = Vector<Vector<Mat3x3r>>;
+using Vec_VecMat4x4r = Vector<Vector<Mat4x4r>>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Conversion operators
-Real constexpr operator "" _f(long double x)
+Real constexpr operator"" _f(long double x)
 {
     return static_cast<Real>(x);
 }
 
-Real constexpr operator "" _f(unsigned long long int x)
+Real constexpr operator"" _f(unsigned long long int x)
 {
     return static_cast<Real>(x);
 }
 
-float constexpr operator "" _f32(long double x)
+float constexpr operator"" _f32(long double x)
 {
     return static_cast<float>(x);
 }
 
-float constexpr operator "" _f32(unsigned long long int x)
+float constexpr operator"" _f32(unsigned long long int x)
 {
     return static_cast<float>(x);
 }
 
-float constexpr operator "" _fl(long double x)
+float constexpr operator"" _fl(long double x)
 {
     return static_cast<float>(x);
 }
 
-float constexpr operator "" _fl(unsigned long long int x)
+float constexpr operator"" _fl(unsigned long long int x)
 {
     return static_cast<float>(x);
 }
 
-double constexpr operator "" _f64(long double x)
+double constexpr operator"" _f64(long double x)
 {
     return static_cast<double>(x);
 }
 
-double constexpr operator "" _f64(unsigned long long int x)
+double constexpr operator"" _f64(unsigned long long int x)
 {
     return static_cast<double>(x);
 }
 
-double constexpr operator "" _d(long double x)
+double constexpr operator"" _d(long double x)
 {
     return static_cast<double>(x);
 }
 
-double constexpr operator "" _d(unsigned long long int x)
+double constexpr operator"" _d(unsigned long long int x)
 {
     return static_cast<double>(x);
 }
 
-Int32 constexpr operator "" _int(unsigned long long int x)
+Int32 constexpr operator"" _int(unsigned long long int x)
 {
     return static_cast<Int32>(x);
 }
 
-UInt32 constexpr operator "" _uint(unsigned long long int x)
+UInt32 constexpr operator"" _uint(unsigned long long int x)
 {
     return static_cast<UInt32>(x);
 }
 
-UInt64 constexpr operator "" _uint64(unsigned long long int x)
+UInt64 constexpr operator"" _uint64(unsigned long long int x)
 {
     return static_cast<UInt64>(x);
 }
