@@ -77,7 +77,7 @@ void RenderWidget::updateVizData()
         if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
             m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles * sizeof(Int16));
             m_RDataParticle.vColorMin = 0;
-            m_RDataParticle.vColorMax = static_cast<float>(m_VizData->nObjects - 1);
+            m_RDataParticle.vColorMax = m_VizData->nObjects > 1u ? static_cast<float>(m_VizData->nObjects - 1) : 1.0f;
         } else {
             static Vec_Float velMag2;
             velMag2.resize(m_VizData->nParticles);
@@ -197,23 +197,23 @@ void RenderWidget::renderParticles()
     m_Lights->bindUniformBuffer();
     m_RDataParticle.material->bindUniformBuffer();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData, m_UBufferCamData->getBindingPoint());
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light, m_Lights->getBufferBindingPoint());
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData,  m_UBufferCamData->getBindingPoint());
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light,    m_Lights->getBufferBindingPoint());
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles, m_RDataParticle.nParticles);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,  m_RDataParticle.pointScale);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,  m_VizData->systemDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles,   m_RDataParticle.nParticles);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius,  m_RDataParticle.pointRadius);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,   m_RDataParticle.pointScale);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,    m_VizData->systemDimension);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode, m_RDataParticle.pColorMode);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode,    m_RDataParticle.pColorMode);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,    m_ClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
        m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin, m_RDataParticle.vColorMin);
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax, m_RDataParticle.vColorMax);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin,   m_RDataParticle.vColorMin);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax,   m_RDataParticle.vColorMax);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
     }
