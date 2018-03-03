@@ -4,7 +4,7 @@
         "Solver" : "WCSPH_3DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 30000,
+        "FinalFrame" : 1000,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -13,7 +13,8 @@
         "MemoryStateDataFolder" : "SPHState",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : true,
+        "PrintLogToConsole" : false,
+        "PrintLogToFile" : false,
         "EnableSortParticle" : false,
         "SortFrequency" : 10
     },
@@ -25,17 +26,17 @@
             "BoxMax" : [ 1, 1, 1]
         },
         "NormalizeDensity" : true,
-        "DensityByBDParticle" : true,
+        "DensityByBDParticle" : false,
         "AddShortRangeRepulsiveForce" : false,
         "PressureStiffness" : 50000,
         "ShortRangeRepulsiveForceStiffness" : 5000,
         "RatioNearKernelPRadius" : 1.5,
         "ParticleRadius" : 0.01,
         "ParticleMassScale" : 0.9,
-        "CFLFactor" : 0.4,
-        "ViscosityFluid" : 5e-2,
+        "CFLFactor" : 0.1,
+        "ViscosityFluid" : 0.01,
         "ReflectVelocityAtBoundary" : true,
-        "BoundaryReflectionMultiplier" : 0.9
+        "BoundaryReflectionMultiplier" : 0.1
     },
     "AdditionalBoundaryObjectsXXX":
     [
