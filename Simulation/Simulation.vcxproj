@@ -227,9 +227,7 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Cloth_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\HairMPM_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp" />
+    <ClCompile Include="ParticleSolvers\ParticleSolvers.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />

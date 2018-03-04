@@ -305,15 +305,6 @@
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleSolvers\MPM\HairMPM_Solver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -321,6 +312,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\ParticleSolvers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
