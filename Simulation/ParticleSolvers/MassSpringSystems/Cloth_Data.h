@@ -8,7 +8,7 @@
 //     ___________________________.""`-------`"".____________________________
 //    /                                                                      \
 //    \    This file is part of Banana - a graphics programming framework    /
-//    /                    Created: 2017 by Nghia Truong                     \
+//    /                    Created: 2018 by Nghia Truong                     \
 //    \                      <nghiatruong.vn@gmail.com>                      /
 //    /                      https://ttnghia.github.io                       \
 //    \                        All rights reserved.                          /
@@ -132,8 +132,8 @@ struct SimulationData_Cloth3D
         Array3r u, v, w;
         Array3r du, dv, dw;
         Array3r u_old, v_old, w_old;
-        Array3r u_weights, v_weights, w_weights;         // mark the domain area that can be occupied by fluid
-        Array3c u_valid, v_valid, w_valid;               // mark the current faces that are influenced by particles during velocity mapping
+        Array3r u_weights, v_weights, w_weights;                 // mark the domain area that can be occupied by fluid
+        Array3c u_valid, v_valid, w_valid;                       // mark the current faces that are influenced by particles during velocity mapping
 
         // temp array
         Array3r u_temp, v_temp, w_temp;
@@ -204,78 +204,5 @@ struct SimulationData_Cloth3D
         gridData.v_old.copyDataFrom(gridData.v);
         gridData.w_old.copyDataFrom(gridData.w);
     }
-};
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ClothSolver : public ParticleSolver3D, public RegisteredInSolverFactory<ClothSolver>
-{
-public:
-    ClothSolver() = default;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("ClothSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<ClothSolver>(); }
-
-    virtual String getSolverName() { return ClothSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Cloth Simulation using Mass-Spring System"); }
-
-    virtual void makeReady() override;
-    virtual void advanceFrame() override;
-    virtual void sortParticles() override;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
-
-protected:
-    virtual void setupDataIO() override;
-    virtual Int  loadMemoryState() override;
-    virtual Int  saveMemoryState() override;
-    virtual Int  saveFrameData() override;
-
-    Real timestepCFL();
-    void advanceVelocity(Real timestep);
-    void moveParticles(Real timeStep);
-
-    void computeFluidWeights();
-    void addRepulsiveVelocity2Particles(Real timestep);
-    void velocityToGrid();
-    void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
-    void constrainGridVelocity();
-    void addGravity(Real timestep);
-    void pressureProjection(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    // pressure projection functions =>
-    void computeFluidSDF();
-    void computeMatrix(Real timestep);
-    void computeRhs();
-    void solveSystem();
-    void updateVelocity(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    void computeChangesGridVelocity();
-    void velocityToParticles();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // helper functions
-    Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters_Cloth3D                      m_SimParams;
-    SimulationData_Cloth3D                            m_SimData;
-    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
-
-    Grid3r          m_Grid;
-    PCGSolver<Real> m_PCGSolver;
-};
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+}; //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}  // end namespace Banana::ParticleSolvers

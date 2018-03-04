@@ -20,3 +20,91 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
+
+#include <Banana/Grid/Grid.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+#include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/ClothSolver/ClothSolverData.h>
+#include <Banana/Array/Array.h>
+#include <Banana/ParallelHelpers/ParallelObjects.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class ClothSolver : public ParticleSolver3D, public RegisteredInSolverFactory<ClothSolver>
+{
+public:
+    ClothSolver() = default;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    static String                      solverName() { return String("ClothSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<ClothSolver>(); }
+
+    virtual String getSolverName() { return ClothSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Cloth Simulation using Mass-Spring System"); }
+
+    virtual void makeReady() override;
+    virtual void advanceFrame() override;
+    virtual void sortParticles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
+
+protected:
+    virtual void setupDataIO() override;
+    virtual Int  loadMemoryState() override;
+    virtual Int  saveMemoryState() override;
+    virtual Int  saveFrameData() override;
+
+    Real timestepCFL();
+    void advanceVelocity(Real timestep);
+    void moveParticles(Real timeStep);
+
+    void computeFluidWeights();
+    void addRepulsiveVelocity2Particles(Real timestep);
+    void velocityToGrid();
+    void extrapolateVelocity();
+    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
+    void constrainGridVelocity();
+    void addGravity(Real timestep);
+    void pressureProjection(Real timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    // pressure projection functions =>
+    void computeFluidSDF();
+    void computeMatrix(Real timestep);
+    void computeRhs();
+    void solveSystem();
+    void updateVelocity(Real timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    void computeChangesGridVelocity();
+    void velocityToParticles();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // helper functions
+    Vec3r getVelocityFromGrid(const Vec3r& ppos);
+    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    SimulationParameters_Cloth3D                      m_SimParams;
+    SimulationData_Cloth3D                            m_SimData;
+    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
+    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
+
+    Grid3r          m_Grid;
+    PCGSolver<Real> m_PCGSolver;
+};
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers

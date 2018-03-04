@@ -22,7 +22,6 @@
 #include <random>
 #include <Noodle/Core/Solvers/PCISPHSolver.h>
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
@@ -260,7 +259,6 @@ void PCISPHSolver::update_density_pressure()
                                       }
                                   }
 
-
                                   // => ly/uy
                                   if(ppos_predicted[1] < valid_ly || ppos_predicted[1] > valid_uy) {
                                       const Vec3 ppos_scaled = ppos_predicted - m_CellSize * Vec3(floor(ppos_predicted[0] / m_CellSize),
@@ -275,13 +273,11 @@ void PCISPHSolver::update_density_pressure()
                                       }
                                   }
 
-
                                   // => lz/uz
                                   if(ppos_predicted[2] < valid_lz || ppos_predicted[2] > valid_uz) {
                                       const Vec3 ppos_scaled = ppos_predicted - m_CellSize * Vec3(floor(ppos_predicted[0] / m_CellSize),
                                                                                                   floor(ppos_predicted[1] / m_CellSize),
                                                                                                   0);
-
 
                                       const Vec_Vec3& bparticles = (ppos_predicted[2] < valid_lz) ? boundary_particles_lz : boundary_particles_uz;
 
@@ -384,7 +380,6 @@ void PCISPHSolver::computePressureAcceleration()
                                       }
                                   }
 
-
                                   // => ly/uy
                                   if(ppos[1] < valid_ly || ppos[1] > valid_uy) {
                                       const Vec3 ppos_scaled = ppos - m_CellSize * Vec3(floor(ppos[0] / m_CellSize),
@@ -400,13 +395,11 @@ void PCISPHSolver::computePressureAcceleration()
                                       }
                                   }
 
-
                                   // => lz/uz
                                   if(ppos[2] < valid_lz || ppos[2] > valid_uz) {
                                       const Vec3 ppos_scaled = ppos - m_CellSize * Vec3(floor(ppos[0] / m_CellSize),
                                                                                         floor(ppos[1] / m_CellSize),
                                                                                         0);
-
 
                                       const Vec_Vec3& bparticles = (ppos[2] < valid_lz) ? boundary_particles_lz : boundary_particles_uz;
 
@@ -477,7 +470,6 @@ void PCISPHSolver::computeViscosity()
                               diffused_velocity[p] = diffuse_vel * m_SPHParticleMass / m_RestDensity;
                           }
                       }); // end parallel_for
-
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity.size()), [&](tbb::blocked_range<size_t> r)
                       {
