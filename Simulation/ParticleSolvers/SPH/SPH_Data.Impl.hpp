@@ -172,7 +172,7 @@ UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& remo
 template<Int N, class RealType>
 void WCSPH_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
-    auto sphParams = static_pointer_cast<WCSPH_Parameters<N, RealType>>(simParams);
+    auto sphParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(simParams);
     __BNN_REQUIRE(sphParams != nullptr);
     kernels.kernelPoly6.setRadius(sphParams->kernelRadius);
     kernels.kernelSpiky.setRadius(sphParams->kernelRadius);

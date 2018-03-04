@@ -119,6 +119,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+
     ////////////////////////////////////////////////////////////////////////////////
     for(const auto& obj : m_BoundaryObjects) {
         if(obj->isDynamic()) {
@@ -143,14 +144,13 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object
-            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
+            auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
             if(box != nullptr) {
                 m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, N);
                 m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, N);
             }
         }
     }
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().newLine();
     logger().printLog("Scene successfully loaded!");
@@ -165,10 +165,7 @@ void ParticleSolver<N, RealType >::setupLogger()
     Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
     m_Logger = Logger::createLogger(getSolverName());
     logger().setLoglevel(globalParams().logLevel);
-
-    std::stringstream ss;
-    ss << "Build: " << __DATE__ << " - " << __TIME__;
-    logger().printTextBox({ getSolverDescription(), ss.str() });
+    logger().printTextBox({ getSolverDescription(), String("Build: ") + String(__DATE__) + String(" - ") + String(__TIME__) });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -343,7 +340,7 @@ Int Banana::ParticleSolvers::ParticleSolver<N, RealType>::saveFrameData()
 
         ////////////////////////////////////////////////////////////////////////////////
         // specialized for box object
-        auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
+        auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
         if(box != nullptr) {
             m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_min"), box->originalBoxMin());
             m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_max"), box->originalBoxMax());

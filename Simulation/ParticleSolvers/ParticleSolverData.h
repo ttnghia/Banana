@@ -131,12 +131,7 @@ struct SimulationParameters
 {
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
-    using VecN            = VecX<N, RealType>;
-    using MatNxN          = MatXxX<N, RealType>;
-    using Vec_VecN        = Vec_VecX<N, RealType>;
-    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
-    using Vec_RealType    = Vector<RealType>;
-    using Vec_VecRealType = Vector<Vector<RealType>>;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -215,19 +210,8 @@ struct ParticleSimulationData
 {
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
-    using VecN            = VecX<N, RealType>;
-    using MatNxN          = MatXxX<N, RealType>;
-    using Vec_VecN        = Vec_VecX<N, RealType>;
-    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
-    using Vec_RealType    = Vector<RealType>;
-    using Vec_VecRealType = Vector<Vector<RealType>>;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
-
-    virtual void reserve(UInt nParticles) = 0;
-    virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
-    virtual UInt removeParticles(const Vec_Int8& removeMarker) = 0;
-
-    UInt getNParticles() const { return static_cast<UInt>(positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // main variables
@@ -256,18 +240,12 @@ struct ParticleSimulationData
     // temporary variables
     Vec_VecN tmp_positions, tmp_velocities;
     ////////////////////////////////////////////////////////////////////////////////
-};
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-struct HairSimulationData : public ParticleSimulationData<N, RealType>
-{
-    //virtual void reserve(UInt nParticles) = 0;
-    //virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
-    //virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
+    virtual void reserve(UInt nParticles) = 0;
+    virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
+    virtual UInt removeParticles(const Vec_Int8& removeMarker) = 0;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    Vec_Int8 hairParticleType;     // store the type of hair particles
+    UInt getNParticles() const { return static_cast<UInt>(positions.size()); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -276,14 +254,8 @@ struct GridSimulationData
 {
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
-    using VecN            = VecX<N, RealType>;
-    using MatNxN          = MatXxX<N, RealType>;
-    using Vec_VecN        = Vec_VecX<N, RealType>;
-    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
-    using Vec_RealType    = Vector<RealType>;
-    using Vec_VecRealType = Vector<Vector<RealType>>;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
-
     virtual void resize(const VecX<N, UInt>& nCells) = 0;
     virtual void resetGrid() {}
     virtual void makeReady() {}
@@ -295,12 +267,7 @@ struct SimulationData
 {
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
-    using VecN            = VecX<N, RealType>;
-    using MatNxN          = MatXxX<N, RealType>;
-    using Vec_VecN        = Vec_VecX<N, RealType>;
-    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
-    using Vec_RealType    = Vector<RealType>;
-    using Vec_VecRealType = Vector<Vector<RealType>>;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

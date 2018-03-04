@@ -96,7 +96,7 @@ void SimulationObject<N, RealType >::parseParameters(const JParams& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // specialized for box object
-    auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(geometry());
+    auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(geometry());
     if(box != nullptr) {
         VecX<N, Real> bMin, bMax;
         if(JSONHelpers::readVector(jParams, bMin, "BoxMin") && JSONHelpers::readVector(jParams, bMax, "BoxMax")) {
@@ -128,7 +128,7 @@ void SimulationObject<N, RealType >::parseParameters(const JParams& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // specialized for trimesh object
-    auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType>>(geometry());
+    auto meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType>>(geometry());
     if(meshObj != nullptr) {
         __BNN_REQUIRE(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");

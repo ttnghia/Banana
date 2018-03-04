@@ -135,12 +135,7 @@ class MPM_Objective : public Optimization::Problem<RealType>
 public:
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
-    using VecN            = VecX<N, RealType>;
-    using MatNxN          = MatXxX<N, RealType>;
-    using Vec_VecN        = Vec_VecX<N, RealType>;
-    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
-    using Vec_RealType    = Vector<RealType>;
-    using Vec_VecRealType = Vector<Vector<RealType>>;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 
     MPM_Objective(const MPM_Parameters<N, RealType>& simParams, MPM_Data<N, RealType>& simData, RealType timestep) :

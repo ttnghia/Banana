@@ -25,7 +25,6 @@
 #include <cstdio>
 #include <iostream>
 #include <sstream>
-#include <string>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #if defined(_WIN32) || defined(_WIN64)
@@ -70,7 +69,6 @@ inline void throwIfFailed(HRESULT hr)
 #else
 #   define __BNN_SPRINT sprintf
 #endif
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_WINDOWS__
@@ -192,66 +190,66 @@ inline void throwIfFailed(HRESULT hr)
 //exit(EXIT_FAILURE);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
-#  define __BNN_REQUIRE(condition)                                                           \
-    {                                                                                        \
-        if(!(condition))                                                                     \
-        {                                                                                    \
-            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
-            printf("%s\n", erMsg.c_str());                                                   \
-            __BNN_PRINT_LOCATION                                                             \
-            DebugBreak();                                                                    \
-        }                                                                                    \
+#  define __BNN_REQUIRE(condition)                                            \
+    {                                                                         \
+        if(!(condition))                                                      \
+        {                                                                     \
+            String erMsg = String("Assertion failed: ") + String(#condition); \
+            printf("%s\n", erMsg.c_str());                                    \
+            __BNN_PRINT_LOCATION                                              \
+            DebugBreak();                                                     \
+        }                                                                     \
     }
 #else
-#  define __BNN_REQUIRE(condition)                                                           \
-    {                                                                                        \
-        if(!(condition))                                                                     \
-        {                                                                                    \
-            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
-            printf("%s\n", erMsg.c_str());                                                   \
-            __BNN_PRINT_LOCATION                                                             \
-            exit(EXIT_FAILURE);                                                              \
-        }                                                                                    \
+#  define __BNN_REQUIRE(condition)                                            \
+    {                                                                         \
+        if(!(condition))                                                      \
+        {                                                                     \
+            String erMsg = String("Assertion failed: ") + String(#condition); \
+            printf("%s\n", erMsg.c_str());                                    \
+            __BNN_PRINT_LOCATION                                              \
+            exit(EXIT_FAILURE);                                               \
+        }                                                                     \
     }
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
-#  define __BNN_REQUIRE_MSG(condition, msg)                                                  \
-    {                                                                                        \
-        if(!(condition))                                                                     \
-        {                                                                                    \
-            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
-            std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
-            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
-            __BNN_PRINT_LOCATION                                                             \
-            DebugBreak();                                                                    \
-        }                                                                                    \
+#  define __BNN_REQUIRE_MSG(condition, msg)                                   \
+    {                                                                         \
+        if(!(condition))                                                      \
+        {                                                                     \
+            String erMsg = String("Assertion failed: ") + String(#condition); \
+            String rsMsg = String("Reason: ") + String(msg);                  \
+            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                 \
+            __BNN_PRINT_LOCATION                                              \
+            DebugBreak();                                                     \
+        }                                                                     \
     }
 #else
-#  define __BNN_REQUIRE_MSG(condition, msg)                                                  \
-    {                                                                                        \
-        if(!(condition))                                                                     \
-        {                                                                                    \
-            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
-            std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
-            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
-            __BNN_PRINT_LOCATION                                                             \
-            exit(EXIT_FAILURE);                                                              \
-        }                                                                                    \
+#  define __BNN_REQUIRE_MSG(condition, msg)                                   \
+    {                                                                         \
+        if(!(condition))                                                      \
+        {                                                                     \
+            String erMsg = String("Assertion failed: ") + String(#condition); \
+            String rsMsg = String("Reason: ") + String(msg);                  \
+            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                 \
+            __BNN_PRINT_LOCATION                                              \
+            exit(EXIT_FAILURE);                                               \
+        }                                                                     \
     }
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_CHECK_ERROR(condition, msg)                                                    \
-    {                                                                                        \
-        if(!(condition))                                                                     \
-        {                                                                                    \
-            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
-            std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
-            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
-            __BNN_PRINT_LOCATION                                                             \
-        }                                                                                    \
+#define __BNN_CHECK_ERROR(condition, msg)                                     \
+    {                                                                         \
+        if(!(condition))                                                      \
+        {                                                                     \
+            String erMsg = String("Assertion failed: ") + String(#condition); \
+            String rsMsg = String("Reason: ") + String(msg);                  \
+            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                 \
+            __BNN_PRINT_LOCATION                                              \
+        }                                                                     \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -267,7 +265,6 @@ inline void throwIfFailed(HRESULT hr)
     Banana::Timer testTimer;        \
     testTimer.tick();
 
-
 #define __BNN_PERORMANCE_TEST_END(funcName) \
     testTimer.tock();                       \
     printf("Test %s finished. Time: %s\n", funcName, testTimer.getRunTime().c_str());
@@ -277,3 +274,13 @@ inline void throwIfFailed(HRESULT hr)
 #define __BNN_REQUIRE_EQUAL(a, b)                     __BNN_REQUIRE_MSG(a == b, "Numbers are not equal.");
 #define __BNN_REQUIRE_APPROX_NUMBERS(a, b, threshold) __BNN_REQUIRE_MSG(threshold > fabs(a - b), "Numbers are not equal.");
 #define __BNN_TO_CSTRING(x)                           NumberHelpers::toString(x).c_str()
+
+#define __BNN_TYPE_ALIASING                             \
+    using VecN            = VecX<N, RealType>;          \
+    using MatNxN          = MatXxX<N, RealType>;        \
+    using Vec_VecN        = Vec_VecX<N, RealType>;      \
+    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;    \
+    using Vec_VecVecN     = Vec_VecVecX<N, RealType>;   \
+    using Vec_VecMatNxN   = Vec_VecMatXxX<N, RealType>; \
+    using Vec_RealType    = Vector<RealType>;           \
+    using Vec_VecRealType = Vector<Vector<RealType>>;
