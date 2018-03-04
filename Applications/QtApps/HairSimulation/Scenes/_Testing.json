@@ -4,7 +4,7 @@
         "Solver" : "HairMPM_2DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 100,
+        "FinalFrame" : 5,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -13,7 +13,8 @@
         "MemoryStateDataFolder" : "MPMState",
         "OptionalSavingData" : [ "object_index" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : true,
+        "PrintLogToConsole" : true,
+        "PrintLogToFile" : false,
         "EnableSortParticle" : true,
         "SortFrequency" : 10
     },
