@@ -147,7 +147,7 @@ void OpenGLWidget::initializeGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::resizeGL(Int w, Int h)
+void OpenGLWidget::resizeGL(int w, int h)
 {
     glCall(glViewport(0, 0, w, h));
     m_Camera->resizeWindow((float)w, (float)h);
@@ -260,8 +260,8 @@ void OpenGLWidget::checkGLVersion()
     emit emitDebugString(QString("GPU: ") + deviceStr);
     emit emitDebugString(QString("OpenGL driver: ") + verStr);
 
-    Int major = verStr.left(verStr.indexOf(".")).toInt();
-    Int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
+    int major = verStr.left(verStr.indexOf(".")).toInt();
+    int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
 
     if(!(major >= 4 && minor >= 1)) {
         QMessageBox msgBox(QMessageBox::Critical, "Error", QString("Your OpenGL version is %1.%2 (Required: OpenGL >= 4.1).").arg(major).arg(minor));
@@ -311,7 +311,7 @@ void OpenGLWidget::setClearColor(const Vec3f& color)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLWidget::exportScreenToImage(Int frame)
+bool OpenGLWidget::exportScreenToImage(int frame)
 {
     if(m_CapturePath.isEmpty()) {
         return false;
@@ -358,8 +358,8 @@ void OpenGLWidget::initRDataLight()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setLights(const Vector<PointLights::PointLightData>& lightData)
 {
-    m_Lights->setNumLights(static_cast<Int>(lightData.size()));
-    for(Int i = 0, iend = static_cast<Int>(lightData.size()); i < iend; ++i) {
+    m_Lights->setNumLights(static_cast<int>(lightData.size()));
+    for(int i = 0, iend = static_cast<int>(lightData.size()); i < iend; ++i) {
         m_Lights->setLight(lightData[i], i);
     }
     updateLights();

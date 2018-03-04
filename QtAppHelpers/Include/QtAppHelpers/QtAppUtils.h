@@ -85,4 +85,26 @@ inline QString getDefaultCapturePath()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline Int getDefaultSceneID()
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam("SceneID")) {
+        return config.getIntValue("SceneID");
+    } else {
+        return 0;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline QSize getDefaultWindowSize()
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam("DefaultWindowSizeW") && config.hasParam("DefaultWindowSizeH")) {
+        return QSize(config.getIntValue("DefaultWindowSizeW"), config.getIntValue("DefaultWindowSizeH"));
+    } else {
+        return QSize(1920, 1080);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

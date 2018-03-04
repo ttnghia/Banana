@@ -98,7 +98,7 @@ protected:
 #else
     bool m_bPrintDebug = false;
 #endif
-    QSize       m_DefaultSize        = QSize(1920, 1080);
+    QSize       m_DefaultSize        = QtAppUtils::getDefaultWindowSize();
     Vec3f       m_ClearColor         = Vec3f(0.38f, 0.52f, 0.10f);
     SpecialKey  m_SpecialKeyPressed  = SpecialKey::NoKey;
     MouseButton m_MouseButtonPressed = MouseButton::NoButton;

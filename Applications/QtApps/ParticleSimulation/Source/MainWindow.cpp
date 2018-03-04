@@ -57,6 +57,8 @@ void MainWindow::showEvent(QShowEvent* ev)
 
         if(m_Controller->m_cbSimulationScene->count() == 2) {
             m_Controller->m_cbSimulationScene->setCurrentIndex(1);
+        } else {
+            m_Controller->m_cbSimulationScene->setCurrentIndex(QtAppUtils::getDefaultSceneID());
         }
     }
 }
