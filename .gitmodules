@@ -43,3 +43,6 @@
 [submodule "Externals/enum-flags"]
 	path = Externals/enum-flags
 	url = https://github.com/grisumbras/enum-flags
+[submodule "Externals/fmt"]
+	path = Externals/fmt
+	url = https://github.com/fmtlib/fmt
