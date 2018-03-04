@@ -117,7 +117,7 @@ protected:
 
 template<class Solver>
 bool RegisteredInSolverFactory<Solver>::s_bRegistered =
-    ParticleSolverFactory<Solver::solverDimension(), Solver::SolverRealType>::registerSolver(Solver::solverName(), Solver::createSolver);
+    ParticleSolverFactory<Solver::dimension(), Solver::SolverRealType>::registerSolver(Solver::solverName(), Solver::createSolver);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }; // end namespace Banana::ParticleSolvers

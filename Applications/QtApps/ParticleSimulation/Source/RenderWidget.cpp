@@ -50,7 +50,7 @@ void RenderWidget::renderOpenGL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateSolverDimension()
 {
-    if(m_VizData->systemDimension == 3u) {
+    if(m_VizData->systemDimension == 3) {
         m_Camera->setProjection(Camera::PerspectiveProjection);
     } else {
         m_Camera->setProjection(Camera::OrthographicProjection);

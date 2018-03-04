@@ -34,10 +34,10 @@ public:
     void doFrameSimulation(UInt frame);
     void finalizeSimulation();
     ////////////////////////////////////////////////////////////////////////////////
-    UInt         getSolverDimension()  const;
-    auto&        getGlobalParams();
-    const float* getBMin() const;
-    const float* getBMax() const;
+    Int    getSolverDimension()  const;
+    auto&  getGlobalParams();
+    float* getBMin();
+    float* getBMax();
     ////////////////////////////////////////////////////////////////////////////////
     char* getParticlePositions();
     char* getParticleVelocities();
@@ -93,11 +93,11 @@ inline void ParticleSolverInterface::finalizeSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline UInt ParticleSolverInterface::getSolverDimension() const
+inline Int ParticleSolverInterface::getSolverDimension() const
 {
     return m_Solver2D != nullptr ?
-           m_Solver2D->solverDimension() :
-           m_Solver3D->solverDimension();
+           m_Solver2D->dimension() :
+           m_Solver3D->dimension();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,7 +109,7 @@ inline auto& ParticleSolverInterface::getGlobalParams()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline const float* ParticleSolverInterface::getBMin() const
+inline float* ParticleSolverInterface::getBMin()
 {
     return m_Solver2D != nullptr ?
            reinterpret_cast<float*>(&m_Solver2D->generalSolverParams().movingBMin) :
@@ -117,7 +117,7 @@ inline const float* ParticleSolverInterface::getBMin() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline const float* ParticleSolverInterface::getBMax() const
+inline float* ParticleSolverInterface::getBMax()
 {
     return m_Solver2D != nullptr ?
            reinterpret_cast<float*>(&m_Solver2D->generalSolverParams().movingBMax) :

@@ -53,7 +53,7 @@ template<Int N, class RealType>
 class ParticleSolver
 {
 public:
-    static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
+    static constexpr Int dimension() noexcept { return N; }
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
     using SolverRealType  = typename RealType;
