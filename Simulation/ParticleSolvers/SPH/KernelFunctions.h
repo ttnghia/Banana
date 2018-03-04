@@ -421,6 +421,16 @@ public:
         return res;
     }
 
+    RealType W2(RealType r2) const
+    {
+        auto res = RealType(0);
+        if(r2 <= m_radius2) {
+            const UInt pos = std::min<UInt>(static_cast<UInt>(sqrt(r2) * m_invStepSize), resolution);
+            res = m_W[pos];
+        }
+        return res;
+    }
+
     RealType W(RealType r) const
     {
         auto res = RealType(0);
