@@ -1,10 +1,10 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "AniMPM_2DSolver",
+        "Solver" : "HairMPM_2DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 50,
+        "FinalFrame" : 5,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -13,7 +13,8 @@
         "MemoryStateDataFolder" : "MPMState",
         "OptionalSavingData" : [ "object_index" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : true,
+        "PrintLogToConsole" : true,
+        "PrintLogToFile" : false,
         "EnableSortParticle" : true,
         "SortFrequency" : 10
     },
@@ -27,32 +28,45 @@
         "NExpandCells" : 2,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.9,
-        "ImplicitRatio" : 1,
+        "ImplicitRatio" : 0,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.03,
+        "CellSize" : 0.05,
         "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.2,
-        "lambda" : 10,
+        "CFLFactor" : 0.02,
+        "lambda" : 100,
         "mu": 100,
-        "MaterialDensity" : 1
+        "MaterialDensity" : 1,
+        "GravityType" : "Directional",
+        "GravityDirection" : [-1, -1]
     },
+    "ParticleGeneratorsXXX":
+    [
+        {
+            "GeometryType" : "Box",
+            "UniqueName" : "Box",
+            "Translation" : [0.5, -0.5],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.0,
+            "InitialVelocity" : [0, 0]
+        }
+    ],
     "ParticleGenerators":
     [
         {
-            "GeometryType" : "Sphere",
+            "GeometryType" : "Box",
             "UniqueName" : "SphereRight",
-            "Translation" : [-1, 0],
+            "Translation" : [-1, 0.1],
             "Scale" : 0.3,
-            "JitterRatio" : 0.1,
+            "JitterRatio" : 0.0,
             "InitialVelocity" : [10, 0]
         },
         {
-            "GeometryType" : "Sphere",
+            "GeometryType" : "Box",
             "UniqueName" : "SphereLeft",
-            "Translation" : [1, 0],
+            "Translation" : [1, -0.1],
             "Scale" : 0.3,
-            "JitterRatio" : 0.1,
+            "JitterRatio" : 0.0,
             "InitialVelocity" : [-10, 0]
         }
     ],
