@@ -46,3 +46,6 @@
 [submodule "Externals/fmt"]
 	path = Externals/fmt
 	url = https://github.com/fmtlib/fmt
+[submodule "Externals/Discregrid"]
+	path = Externals/Discregrid
+	url = https://github.com/InteractiveComputerGraphics/Discregrid
