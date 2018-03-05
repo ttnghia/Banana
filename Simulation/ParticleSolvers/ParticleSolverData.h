@@ -226,7 +226,7 @@ struct ParticleSimulationData
     Vec_Int8          activity;          // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
     Vec_Int8          removeMarker;      // mark the candidate particles for removal ( 1 = remove, 0 = intact)
     Vec_VecN          position_t0;       // positions at time t = 0, if needed
-    Vec_VecUInt       neighborIdx;       // list of neighbors particles, if needed
+    Vec_VecUInt       neighborIdx_t0;    // list of neighbors particles, if needed
     Vec_Vec<RealType> neighbor_d0;       // list of distances to neighbors particles, at time t = 0, if needed
     Vec_VecN          boundaryParticles; // store particles generated inside boundary, if applicable
     ////////////////////////////////////////////////////////////////////////////////
@@ -241,11 +241,23 @@ struct ParticleSimulationData
     Vec_VecN tmp_positions, tmp_velocities;
     ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // neighbor search
+    UniquePtr<NeighborSearch::NeighborSearch<N, RealType>> neighborSearch = nullptr;
+    ////////////////////////////////////////////////////////////////////////////////
+
     virtual void reserve(UInt nParticles) = 0;
     virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
     virtual UInt removeParticles(const Vec_Int8& removeMarker) = 0;
+    virtual void findNeighbors();
 
-    UInt getNParticles() const { return static_cast<UInt>(positions.size()); }
+    UInt  getNParticles() const { return static_cast<UInt>(positions.size()); }
+    void  setupNeighborSearch(RealType searchDistance);
+    void  findNeighbors_t0();
+    void  findNeighborsAndDistances_t0();
+    auto& NSearch() { assert(neighborSearch != nullptr); return *neighborSearch; }
+    auto& neighborList(UInt p) { return NSearch().point_set(0).neighbors(0, p); }
+    auto& neighborList(UInt p, UInt pointSetID) { return NSearch().point_set(0).neighbors(pointSetID, p); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

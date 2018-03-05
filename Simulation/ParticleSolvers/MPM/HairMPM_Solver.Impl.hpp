@@ -121,7 +121,7 @@ void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                size_t nNeighbors = particleData().neighborIdx[p].size();
+                                size_t nNeighbors = particleData().neighborIdx_t0[p].size();
                                 if(particleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex) ||
                                    nNeighbors == 1) {
                                     auto ppos = particleData().positions[p];
@@ -145,7 +145,7 @@ void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
                                     VecN ppos(0);
                                     __BNN_REQUIRE(nNeighbors > 0);
                                     for(size_t j = 0; j < nNeighbors; ++j) {
-                                        UInt q = particleData().neighborIdx[p][j];
+                                        UInt q = particleData().neighborIdx_t0[p][j];
                                         ppos += particleData().positions[q];
                                     }
 
@@ -245,8 +245,8 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
                                         return;
                                     }
                                     VecN f(0);
-                                    for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
-                                        UInt q     = particleData().neighborIdx[p][j];
+                                    for(size_t j = 0; j < particleData().neighborIdx_t0[p].size(); ++j) {
+                                        UInt q     = particleData().neighborIdx_t0[p][j];
                                         auto xpq   = particleData().positions[q] - particleData().positions[p];
                                         RealType d = glm::length(xpq);
                                         f += /*solverParams().KSpring*/ RealType(1e0) * (d / particleData().neighbor_d0[p][j] - RealType(1.0)) * xpq / d;
@@ -333,10 +333,10 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
                                 }
 
                                 VecN pvel(0);
-                                size_t nNeighbors = particleData().neighborIdx[p].size();
+                                size_t nNeighbors = particleData().neighborIdx_t0[p].size();
                                 __BNN_REQUIRE(nNeighbors > 0);
                                 for(size_t j = 0; j < nNeighbors; ++j) {
-                                    UInt q = particleData().neighborIdx[p][j];
+                                    UInt q = particleData().neighborIdx_t0[p][j];
                                     pvel += particleData().velocities[q];
                                 }
 
@@ -401,17 +401,17 @@ void HairMPM_Solver<N, RealType >::updateParticleStates(RealType timestep)
     predictGridNodePositions(timestep);
     predictParticlePositions();
     ////////////////////////////////////////////////////////////////////////////////
-    auto& neighborIdx      = particleData().neighborIdx;
+    auto& neighborIdx_t0   = particleData().neighborIdx_t0;
     auto& predictPositions = particleData().predictPositions;
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
                                 if(particleData().particleType[p] == static_cast<Int8>(HairParticleType::Quadrature)) {
-                                    size_t nNeighbors = neighborIdx[p].size();
+                                    size_t nNeighbors = neighborIdx_t0[p].size();
                                     MatNxN deformGrad = particleData().deformGrad[p];
                                     deformGrad[0] = nNeighbors == 1 ?
-                                                    (predictPositions[p] - predictPositions[neighborIdx[p][0]]) :
-                                                    (predictPositions[neighborIdx[p][1]] - predictPositions[neighborIdx[p][0]]);
+                                                    (predictPositions[p] - predictPositions[neighborIdx_t0[p][0]]) :
+                                                    (predictPositions[neighborIdx_t0[p][1]] - predictPositions[neighborIdx_t0[p][0]]);
 
                                     //if(p < 30) {
                                     //    printf("deformgrad1: %s, update: %s\n",
@@ -439,8 +439,8 @@ void HairMPM_Solver<N, RealType >::computeDamping()
                                 const auto& pvel  = particleData().velocities[p];
                                 VecN diffVelFluid = VecN(0);
                                 ////////////////////////////////////////////////////////////////////////////////
-                                for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
-                                    UInt q           = particleData().neighborIdx[p][j];
+                                for(size_t j = 0; j < particleData().neighborIdx_t0[p].size(); ++j) {
+                                    UInt q           = particleData().neighborIdx_t0[p][j];
                                     const auto& qvel = particleData().velocities[q];
 
                                     diffVelFluid += qvel - pvel;
@@ -458,8 +458,8 @@ void HairMPM_Solver<N, RealType >::computeDamping()
                                 const auto& pvel  = particleData().velocities[p];
                                 VecN diffVelFluid = VecN(0);
                                 ////////////////////////////////////////////////////////////////////////////////
-                                for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
-                                    UInt q           = particleData().neighborIdx[p][j];
+                                for(size_t j = 0; j < particleData().neighborIdx_t0[p].size(); ++j) {
+                                    UInt q           = particleData().neighborIdx_t0[p][j];
                                     const auto& qvel = particleData().velocities[q];
 
                                     diffVelFluid += qvel - pvel;

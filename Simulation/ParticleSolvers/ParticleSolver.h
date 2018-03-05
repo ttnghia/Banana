@@ -116,7 +116,6 @@ protected:
     UniquePtr<ParticleSerialization> m_DynamicObjectDataIO = nullptr;
     UniquePtr<ParticleSerialization> m_MemoryStateIO       = nullptr;
 
-    UniquePtr<NeighborSearch::NeighborSearch<N, RealType>>               m_NSearch = nullptr;
     Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>    m_BoundaryObjects;      // individual objects, as one can be dynamic while the others are not
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, RealType>>> m_ParticleGenerators;   // individual objects, as they can have different behaviors
     Vector<SharedPtr<SimulationObjects::ParticleRemover<N, RealType>>>   m_ParticleRemovers;     // individual objects, as they can have different behaviors

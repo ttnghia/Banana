@@ -34,7 +34,6 @@ template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
 {
     ParticleSolver<N, RealType>::generateParticles(jParams);
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().kernelRadius);
     if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
@@ -46,7 +45,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
             }
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
-        m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        particleData().NSearch().add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
 
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
@@ -57,7 +56,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
         // sort particles after saving
         sortParticles();
     } else {
-        m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        particleData().NSearch().add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
     }
 
     if(solverParams().bDensityByBDParticle) {
@@ -68,12 +67,12 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
         }
 
         __BNN_REQUIRE(particleData().boundaryParticles.size() > 0);
-        m_NSearch->add_point_set(glm::value_ptr(particleData().boundaryParticles.front()), static_cast<UInt>(particleData().boundaryParticles.size()), false, true);
+        particleData().NSearch().add_point_set(glm::value_ptr(particleData().boundaryParticles.front()), static_cast<UInt>(particleData().boundaryParticles.size()), false, true);
         logger().printRunTime("Sort boundary particles: ",
                               [&]()
                               {
-                                  m_NSearch->z_sort();
-                                  auto const& d = m_NSearch->point_set(1);
+                                  particleData().NSearch().z_sort();
+                                  auto const& d = particleData().NSearch().point_set(1);
                                   d.sort_field(particleData().boundaryParticles.data());
                               });
     }
@@ -291,7 +290,7 @@ void WCSPH_Solver<N, RealType >::advanceFrame()
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Find neighbors: ", [&]() { m_NSearch->find_neighbors(); });
+                                  logger().printRunTime("Find neighbors: ", [&]() { particleData().NSearch().find_neighbors(); });
                                   logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
@@ -315,7 +314,6 @@ void WCSPH_Solver<N, RealType >::advanceFrame()
 template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::sortParticles()
 {
-    assert(m_NSearch != nullptr);
     if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
     }
@@ -323,8 +321,8 @@ void WCSPH_Solver<N, RealType >::sortParticles()
     logger().printRunTime("Sort data by particle positions: ",
                           [&]()
                           {
-                              m_NSearch->z_sort();
-                              auto const& d = m_NSearch->point_set(0);
+                              particleData().NSearch().z_sort();
+                              auto const& d = particleData().NSearch().point_set(0);
                               d.sort_field(&particleData().positions[0]);
                               d.sort_field(&particleData().velocities[0]);
                               d.sort_field(&particleData().objectIndex[0]);
@@ -394,7 +392,6 @@ void WCSPH_Solver<N, RealType >::computeNeighborRelativePositions()
                                         }
                                     };
     ////////////////////////////////////////////////////////////////////////////////
-    const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -403,12 +400,10 @@ void WCSPH_Solver<N, RealType >::computeNeighborRelativePositions()
                                 pNeighborInfo.resize(0);
                                 pNeighborInfo.reserve(64);
                                 ////////////////////////////////////////////////////////////////////////////////
-                                const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                computeRelativePositions(ppos, fluidNeighborList, particleData().positions, pNeighborInfo);
+                                computeRelativePositions(ppos, particleData().neighborList(p), particleData().positions, pNeighborInfo);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 if(solverParams().bDensityByBDParticle) {
-                                    const auto& PDNeighborList = fluidPointSet.neighbors(1, p);
-                                    computeRelativePositions(ppos, PDNeighborList, particleData().boundaryParticles, pNeighborInfo);
+                                    computeRelativePositions(ppos, particleData().neighborList(p, 1), particleData().boundaryParticles, pNeighborInfo);
                                 }
                             });
 }
@@ -425,7 +420,6 @@ void WCSPH_Solver<N, RealType >::computeDensity()
                               }
                           };
     ////////////////////////////////////////////////////////////////////////////////
-    const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -449,7 +443,6 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -458,7 +451,7 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
                                     return;
                                 }
 
-                                const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
+                                const auto& fluidNeighborList = particleData().neighborList(p);
                                 auto pdensity                 = particleData().densities[p];
                                 auto tmp                      = kernels().kernelPoly6.W_zero() / pdensity;
 
@@ -470,7 +463,7 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
                                     tmp += kernels().W(r) / qdensity;
                                 }
                                 if(solverParams().bDensityByBDParticle) {
-                                    const auto& PDNeighborList = fluidPointSet.neighbors(1, p);
+                                    const auto& PDNeighborList = particleData().neighborList(p, 1);
                                     assert(fluidNeighborList.size() + PDNeighborList.size() == pNeighborInfo.size());
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo = pNeighborInfo[i];
@@ -491,7 +484,6 @@ bool WCSPH_Solver<N, RealType >::normalizeDensity()
 template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::collectNeighborDensities()
 {
-    const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -500,7 +492,7 @@ void WCSPH_Solver<N, RealType >::collectNeighborDensities()
                                     return;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                const auto& neighborIdx = fluidPointSet.neighbors(0, p);
+                                const auto& neighborIdx = particleData().neighborList(p);
                                 for(size_t i = 0; i < neighborIdx.size(); ++i) {
                                     auto q = neighborIdx[i];
                                     pNeighborInfo[i][N] = particleData().densities[q];
@@ -537,7 +529,6 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
                                                }
                                            };
     ////////////////////////////////////////////////////////////////////////////////
-    const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -601,7 +592,6 @@ template<Int N, class RealType>
 void WCSPH_Solver<N, RealType >::computeViscosity()
 {
     assert(particleData().getNParticles() == particleData().diffuseVelocities.size());
-    const auto& fluidPointSet = m_NSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -613,7 +603,7 @@ void WCSPH_Solver<N, RealType >::computeViscosity()
 
                                 const auto& pvel = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
-                                const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
+                                const auto& fluidNeighborList = particleData().neighborList(p);
                                 VecN diffVelFluid(0);
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto q        = fluidNeighborList[i];

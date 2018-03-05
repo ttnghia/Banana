@@ -231,4 +231,5 @@ void MPM_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, R
     }
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
     gridData->resize(grid.getNCells());
+    particleData->setupNeighborSearch(simParams->particleRadius * RealType(4));
 }

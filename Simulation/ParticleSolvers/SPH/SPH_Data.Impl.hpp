@@ -176,4 +176,5 @@ void WCSPH_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N,
     __BNN_REQUIRE(sphParams != nullptr);
     kernels.kernelPoly6.setRadius(sphParams->kernelRadius);
     kernels.kernelSpiky.setRadius(sphParams->kernelRadius);
+    particleData.setupNeighborSearch(sphParams->kernelRadius);
 }

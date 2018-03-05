@@ -35,7 +35,6 @@ template<Int N, class RealType>
 void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
 {
     ParticleSolver<N, RealType>::generateParticles(jParams);
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(4));
     if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
@@ -48,7 +47,7 @@ void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
         }
 
         __BNN_REQUIRE(particleData().getNParticles() > 0);
-        m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        particleData().NSearch().add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
 
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
@@ -59,7 +58,7 @@ void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
         // sort particles after saving
         sortParticles();
     } else {
-        m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        particleData().NSearch().add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
     }
 }
 
@@ -277,7 +276,6 @@ void MPM_Solver<N, RealType >::advanceFrame()
 template<Int N, class RealType>
 void MPM_Solver<N, RealType >::sortParticles()
 {
-    assert(m_NSearch != nullptr);
     if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
     }
@@ -285,8 +283,8 @@ void MPM_Solver<N, RealType >::sortParticles()
     logger().printRunTime("Sort data by particle positions: ",
                           [&]()
                           {
-                              m_NSearch->z_sort();
-                              auto const& d = m_NSearch->point_set(0);
+                              particleData().NSearch().z_sort();
+                              auto const& d = particleData().NSearch().point_set(0);
                               d.sort_field(&particleData().positions[0]);
                               d.sort_field(&particleData().velocities[0]);
                               d.sort_field(&particleData().objectIndex[0]);

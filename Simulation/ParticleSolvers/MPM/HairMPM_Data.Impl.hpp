@@ -161,7 +161,7 @@ void HairMPM_Data<N, RealType >::find_d0(const SharedPtr<SimulationParameters<N,
     assert(HairMPM_particleData != nullptr);
     auto& positions    = HairMPM_particleData->positions;
     auto& d0           = HairMPM_particleData->neighbor_d0;
-    auto& neighborIdx  = HairMPM_particleData->neighborIdx;
+    auto& neighborIdx  = HairMPM_particleData->neighborIdx_t0;
     auto& particleType = HairMPM_particleData->particleType;
 
     d0.resize(positions.size());
@@ -205,7 +205,7 @@ template<Int N, class RealType>
 void HairMPM_Data<N, RealType >::computeLocalDirections()
 {
     auto& positions       = HairMPM_particleData->positions;
-    auto& neighborIdx     = HairMPM_particleData->neighborIdx;
+    auto& neighborIdx     = HairMPM_particleData->neighborIdx_t0;
     auto& particleType    = HairMPM_particleData->particleType;
     auto& localDirections = HairMPM_particleData->localDirections;
 
