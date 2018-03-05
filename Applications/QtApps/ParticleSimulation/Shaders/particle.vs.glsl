@@ -47,7 +47,7 @@ layout(std140) uniform CameraData
     vec4 camPosition;
 };
 
-uniform uint  u_Dimension;
+uniform int   u_Dimension;
 uniform uint  u_nParticles;
 uniform int   u_ColorMode;
 uniform float u_vColorMin;
