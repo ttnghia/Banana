@@ -160,7 +160,7 @@ void HairMPM_Data<N, RealType >::find_d0(const SharedPtr<SimulationParameters<N,
 {
     assert(HairMPM_particleData != nullptr);
     auto& positions    = HairMPM_particleData->positions;
-    auto& d0           = HairMPM_particleData->neighbor_d0;
+    auto& d0           = HairMPM_particleData->neighborDistances_t0;
     auto& neighborIdx  = HairMPM_particleData->neighborIdx_t0;
     auto& particleType = HairMPM_particleData->particleType;
 

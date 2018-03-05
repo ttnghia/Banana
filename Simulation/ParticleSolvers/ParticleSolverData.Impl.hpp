@@ -361,16 +361,16 @@ void ParticleSimulationData<N, RealType >::findNeighborsAndDistances_t0()
     findNeighbors();
     ////////////////////////////////////////////////////////////////////////////////
     neighborIdx_t0.resize(getNParticles());
-    neighbor_d0.resize(getNParticles());
+    neighborDistances_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
     for(auto p : points) {
         neighborIdx_t0[p] = points.neighbors(0, p);
         ////////////////////////////////////////////////////////////////////////////////
-        neighbor_d0[p].reserve(points.n_neighbors(0, p));
+        neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
         auto& ppos = positions[p];
         for(auto q:  points.neighbors(0, p)) {
             auto& qpos = positions[q];
-            neighbor_d0[p].push_back(glm::length(ppos - qpos));
+            neighborDistances_t0[p].push_back(glm::length(ppos - qpos));
         }
     }
 }

@@ -249,11 +249,11 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
                                         UInt q     = particleData().neighborIdx_t0[p][j];
                                         auto xpq   = particleData().positions[q] - particleData().positions[p];
                                         RealType d = glm::length(xpq);
-                                        f += /*solverParams().KSpring*/ RealType(1e0) * (d / particleData().neighbor_d0[p][j] - RealType(1.0)) * xpq / d;
+                                        f += /*solverParams().KSpring*/ RealType(1e0) * (d / particleData().neighborDistances_t0[p][j] - RealType(1.0)) * xpq / d;
 
                                         //if(p < 30) {
-                                        //    printf("%u-%u,  %f,  d = %15.10f, d0=%15.10f,   f=%s\n", p, q, d / particleData().neighbor_d0[p][j] - 1.0_f,
-                                        //           d, particleData().neighbor_d0[p][j],
+                                        //    printf("%u-%u,  %f,  d = %15.10f, d0=%15.10f,   f=%s\n", p, q, d / particleData().neighborDistances_t0[p][j] - 1.0_f,
+                                        //           d, particleData().neighborDistances_t0[p][j],
                                         //           NumberHelpers::toString(f, 10).c_str());
                                         //    fflush(stdout);
                                         //}
