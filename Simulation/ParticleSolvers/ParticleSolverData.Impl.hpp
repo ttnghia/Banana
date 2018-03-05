@@ -343,6 +343,13 @@ void ParticleSimulationData<N, RealType >::findNeighbors()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void ParticleSimulationData<N, RealType >::addSearchParticles(Vec_VecN& positions, bool bDynamic /*= true*/, bool bSearchNeighbor /*= true*/)
+{
+    NSearch().add_point_set(glm::value_ptr(positions.front()), static_cast<UInt>(positions.size()), bDynamic, bSearchNeighbor);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void ParticleSimulationData<N, RealType >::findNeighbors_t0()
 {
     findNeighbors();

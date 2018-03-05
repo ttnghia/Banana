@@ -223,12 +223,12 @@ struct ParticleSimulationData
 
     ////////////////////////////////////////////////////////////////////////////////
     // optional variables
-    Vec_Int8          activity;          // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
-    Vec_Int8          removeMarker;      // mark the candidate particles for removal ( 1 = remove, 0 = intact)
-    Vec_VecN          positions_t0;       // positions at time t = 0, if needed
-    Vec_VecUInt       neighborIdx_t0;    // list of neighbors particles, if needed
-    Vec_Vec<RealType> neighborDistances_t0;       // list of distances to neighbors particles, at time t = 0, if needed
-    Vec_VecN          boundaryParticles; // store particles generated inside boundary, if applicable
+    Vec_Int8          activity;             // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
+    Vec_Int8          removeMarker;         // mark the candidate particles for removal ( 1 = remove, 0 = intact)
+    Vec_VecN          positions_t0;         // positions at time t = 0, if needed
+    Vec_VecUInt       neighborIdx_t0;       // list of neighbors particles, if needed
+    Vec_Vec<RealType> neighborDistances_t0; // list of distances to neighbors particles, at time t = 0, if needed
+    Vec_VecN          boundaryParticles;    // store particles generated inside boundary, if applicable
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +253,7 @@ struct ParticleSimulationData
 
     UInt  getNParticles() const { return static_cast<UInt>(positions.size()); }
     void  setupNeighborSearch(RealType searchDistance);
+    void  addSearchParticles(Vec_VecN& positions, bool bDynamic = true, bool bSearchNeighbor = true);
     void  findNeighbors_t0();
     void  findNeighborsAndDistances_t0();
     auto& NSearch() { assert(neighborSearch != nullptr); return *neighborSearch; }

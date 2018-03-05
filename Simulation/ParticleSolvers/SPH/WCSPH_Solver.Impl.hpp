@@ -45,7 +45,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
             }
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
-        particleData().NSearch().add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        particleData().addSearchParticles(particleData().positions);
 
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
@@ -56,7 +56,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
         // sort particles after saving
         sortParticles();
     } else {
-        particleData().NSearch().add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        particleData().addSearchParticles(particleData().positions);
     }
 
     if(solverParams().bDensityByBDParticle) {
@@ -67,7 +67,7 @@ void WCSPH_Solver<N, RealType >::generateParticles(const JParams& jParams)
         }
 
         __BNN_REQUIRE(particleData().boundaryParticles.size() > 0);
-        particleData().NSearch().add_point_set(glm::value_ptr(particleData().boundaryParticles.front()), static_cast<UInt>(particleData().boundaryParticles.size()), false, true);
+        particleData().addSearchParticles(particleData().boundaryParticles, false, false);
         logger().printRunTime("Sort boundary particles: ",
                               [&]()
                               {
