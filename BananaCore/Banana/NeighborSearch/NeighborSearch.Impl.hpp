@@ -383,7 +383,7 @@ void NeighborSearch<N, RealType >::query2D()
                                 std::pair<const HashKey<N>, UInt> const* kvp_ = kvps[it];
                                 auto const& kvp                               = *kvp_;
                                 HashEntry const& entry                        = m_entries[kvp.second];
-                                const HashKey<N>& key                         = kvp.first;
+                                //const HashKey<N>& key                         = kvp.first;
 
                                 if(entry.n_searching_points == 0u) {
                                     return;
@@ -543,7 +543,7 @@ void NeighborSearch<N, RealType >::query3D()
                                 std::pair<const HashKey<N>, UInt> const* kvp_ = kvps[it];
                                 auto const& kvp                               = *kvp_;
                                 HashEntry const& entry                        = m_entries[kvp.second];
-                                const HashKey<N>& key                         = kvp.first;
+                                //const HashKey<N>& key                         = kvp.first;
 
                                 if(entry.n_searching_points == 0u) {
                                     return;
