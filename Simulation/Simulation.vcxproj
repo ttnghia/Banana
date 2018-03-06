@@ -224,7 +224,6 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Cloth_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\ParticleSolvers.cpp" />
