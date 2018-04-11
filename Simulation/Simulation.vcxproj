@@ -196,6 +196,7 @@
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h" />
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
@@ -221,7 +222,6 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Cloth_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\ParticleSolvers.cpp" />

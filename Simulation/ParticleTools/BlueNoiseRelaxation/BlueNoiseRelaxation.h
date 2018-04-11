@@ -21,8 +21,7 @@
 
 #pragma once
 
-#include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/Scheduler.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -39,6 +38,7 @@ template<Int N, class RealType>
 class BlueNoiseRelaxation
 {
 public:
+    __BNN_TYPE_ALIASING
     BlueNoiseRelaxation(const GlobalParameters& globalParams,
                         const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
                         const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
@@ -53,23 +53,23 @@ public:
     /**
        @param positions: positions of the particles
        @param threshold: stop if getMinDistance() < particleRadius * threshold
+       @param maxIters: max number of iterations
        @return bool value indicating whether the relaxation has converged or not
      */
-    bool     relaxPositions(Vec_VecX<N, RealType>& positions, RealType threshold = RealType(1.8), UInt maxIters = 1000u);
+    bool     relaxPositions(Vec_VecN& positions, RealType threshold = RealType(1.8), UInt maxIters = 1000u);
     RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
 
 protected:
-    virtual void iterate(Vec_VecX<N, RealType>& positions, UInt iter) = 0;
-    virtual void allocateMemory(Vec_VecX<N, RealType>& positions) = 0;
+    virtual void iterate(Vec_VecN& positions, UInt iter) = 0;
+    virtual void allocateMemory(Vec_VecN& positions) = 0;
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
-    const auto& logger() const noexcept { assert(m_Logger != nullptr); return *m_Logger; }
+    auto& logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
     ////////////////////////////////////////////////////////////////////////////////
-    void setupGrid(Vec_VecX<N, RealType>& positions);
-    void findNeighbors(Vec_VecX<N, RealType>& positions) { m_Grid.collectIndexToCells(positions); }
+    void setupGrid(Vec_VecN& positions);
+    void findNeighbors(Vec_VecN& positions) { m_Grid.collectIndexToCells(positions); }
     void computeMinNeighborDistanceSqr(const Vec_Vec2<RealType>& positions);
     void computeMinNeighborDistanceSqr(const Vec_Vec3<RealType>& positions);
-    void computeMinDistanceRatio(Vec_VecX<N, RealType>& positions);
+    void computeMinDistanceRatio(Vec_VecN& positions);
     ////////////////////////////////////////////////////////////////////////////////
     const GlobalParameters&                                                  m_GlobalParams;
     const SharedPtr<SimulationParameters<N, RealType>>&                      m_SolverParams;
@@ -88,7 +88,7 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BlueNoiseRelaxation<N, RealType >::relaxPositions(Vec_VecX<N, RealType>& positions, RealType threshold, UInt maxIters)
+bool BlueNoiseRelaxation<N, RealType >::relaxPositions(Vec_VecN& positions, RealType threshold, UInt maxIters)
 {
     setupGrid(positions);
     allocateMemory(positions);
@@ -106,7 +106,7 @@ bool BlueNoiseRelaxation<N, RealType >::relaxPositions(Vec_VecX<N, RealType>& po
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlueNoiseRelaxation<N, RealType >::setupGrid(Vec_VecX<N, RealType>& positions)
+void BlueNoiseRelaxation<N, RealType >::setupGrid(Vec_VecN& positions)
 {
     auto[bMin, bMax] = ParticleHelpers::getAABB(positions);
     auto center = (bMax + bMin) * RealType(0.5);
@@ -192,7 +192,7 @@ void BlueNoiseRelaxation<N, RealType >::computeMinNeighborDistanceSqr(const Vec_
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlueNoiseRelaxation<N, RealType >::computeMinDistanceRatio(Vec_VecX<N, RealType>& positions)
+void BlueNoiseRelaxation<N, RealType >::computeMinDistanceRatio(Vec_VecN& positions)
 {
     m_MinNeighborDistanceSqr.resize(positions.size());
     computeMinNeighborDistanceSqr(positions);
