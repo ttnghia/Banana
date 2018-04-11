@@ -194,7 +194,6 @@
     <ClInclude Include="ParticleSolvers\SPH\SPH_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h" />
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.Impl.hpp" />
-    <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
@@ -207,8 +206,6 @@
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SimulationObjects\SimulationObject.Impl.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
-    <ClInclude Include="ParticleSolvers\SPH\PCISPH_Solver.h" />
-    <ClInclude Include="ParticleSolvers\SPH\PCISPH_Solver.Impl.hpp" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
