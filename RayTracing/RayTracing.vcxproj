@@ -80,7 +80,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2017;D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;.\..\Externals\glm;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2017;D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;UNICODE;WIN32;WIN64;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -97,7 +97,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <AdditionalIncludeDirectories>.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR_STATIC)\include;$(QTDIR_STATIC)\include\QtWidgets;$(QTDIR_STATIC)\include\QtGui;$(QTDIR_STATIC)\include\QtANGLE;$(QTDIR_STATIC)\include\QtCore;.\release;$(QTDIR_STATIC)\mkspecs\win32-msvc2017;D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\Include;.\..\Externals\glm;.\..\OpenGLHelpers\Include;$(QTDIR_STATIC)\include;$(QTDIR_STATIC)\include\QtWidgets;$(QTDIR_STATIC)\include\QtGui;$(QTDIR_STATIC)\include\QtANGLE;$(QTDIR_STATIC)\include\QtCore;.\release;$(QTDIR_STATIC)\mkspecs\win32-msvc2017;D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest /Zo -Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <AdditionalIncludeDirectories>.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc2017;D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\Include;.\..\Externals\glm;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc2017;D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/std:c++latest /Zo -Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

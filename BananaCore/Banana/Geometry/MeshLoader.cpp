@@ -315,7 +315,7 @@ bool MeshLoader::loadPly(const String& meshFile)
 
         ////////////////////////////////////////////////////////////////////////////////
         // => convert data
-        for(size_t f = 0; f < getNFaces(); f++) {
+        for(size_t f = 0; f < faces->count; f++) {
             ++m_NumTriangles;
 
             UInt v0 = m_Faces[3 * f + 0];

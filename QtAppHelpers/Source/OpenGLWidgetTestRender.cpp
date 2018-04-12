@@ -230,7 +230,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights);
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
+    m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toUtf8().constData());
     m_MeshObj    = std::make_shared<MeshObject>();
 
     m_MeshObj->setVertices(m_MeshLoader->getFaceVertices());

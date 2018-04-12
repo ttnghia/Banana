@@ -37,7 +37,7 @@ class MeshLoader
 {
 public:
     MeshLoader() : m_isMeshReady(false) { clearData(); }
-    MeshLoader(const String& meshFile) : m_isMeshReady(false) { loadMesh(meshFile); }
+    MeshLoader(String meshFile) : m_isMeshReady(false) { loadMesh(meshFile); }
 
     bool        loadMesh(const String& meshFile);
     Vec3f       getMeshCenter() const { assert(m_isMeshReady); return float(0.5) * (m_AABBMin + m_AABBMax); }
