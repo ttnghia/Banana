@@ -26,6 +26,7 @@
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 
 #include <string>
 #include <cmath>
@@ -52,7 +53,6 @@ template<class RealType> void compress(const Vector<RealType>& dvec, DataBuffer&
 template<class RealType> void compress(const Vector<Vector<RealType>>& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData);
 template<class RealType> void compress(const Vector<Vector<RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
 
-
 template<Int N, class RealType> void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData);
 template<Int N, class RealType> void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
@@ -75,7 +75,6 @@ UInt spawnComponent(UInt p, Int depth, UInt8 currentIdx, const Vec_VecUInt& conn
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleTools/ParticleHelpers.Impl.hpp>
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleHelpers

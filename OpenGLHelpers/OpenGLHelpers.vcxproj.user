@@ -7,20 +7,12 @@
     <QTDIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QTDIR>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
-    <QTDIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QTDIR>
-    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QTDIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QTDIR>
-    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <QTDIR_STATIC>C:\Qt\5.10.0-static</QTDIR_STATIC>
-    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(QTDIR_STATIC)\bin%3b$(PATH)</LocalDebuggerEnvironment>
     <QTDIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QTDIR>
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(QTDIR_STATIC)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QTDIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QTDIR>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>

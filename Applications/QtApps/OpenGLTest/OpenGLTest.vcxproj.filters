@@ -62,35 +62,35 @@
     <ClCompile Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\hoverpoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\DebugQt\moc_arthurwidgets.cpp">
-      <Filter>Generated Files\DebugQt</Filter>
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Debug\moc_arthurwidgets.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\DebugQt\moc_hoverpoints.cpp">
-      <Filter>Generated Files\DebugQt</Filter>
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Debug\moc_hoverpoints.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\DebugQt\moc_MainWindow.cpp">
-      <Filter>Generated Files\DebugQt</Filter>
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Debug\moc_MainWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\GeneratedFiles\qrc_shared.cpp">
-      <Filter>Generated Files\DebugQt</Filter>
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseQt\moc_arthurwidgets.cpp">
-      <Filter>Generated Files\ReleaseQt</Filter>
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Release\moc_arthurwidgets.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseQt\moc_hoverpoints.cpp">
-      <Filter>Generated Files\ReleaseQt</Filter>
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Release\moc_hoverpoints.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseQt\moc_MainWindow.cpp">
-      <Filter>Generated Files\ReleaseQt</Filter>
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Release\moc_MainWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseStaticBuild\moc_arthurwidgets.cpp">
-      <Filter>Generated Files\ReleaseStaticBuild</Filter>
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseStaticBuild\moc_hoverpoints.cpp">
-      <Filter>Generated Files\ReleaseStaticBuild</Filter>
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseStaticBuild\moc_MainWindow.cpp">
-      <Filter>Generated Files\ReleaseStaticBuild</Filter>
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,10 +108,10 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="DebugQt\moc_predefs.h.cbt">
+    <CustomBuild Include="Debug\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="ReleaseQt\moc_predefs.h.cbt">
+    <CustomBuild Include="Release\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
   </ItemGroup>

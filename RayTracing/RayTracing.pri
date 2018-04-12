@@ -34,14 +34,14 @@ win32 {
     LIBS += -loptix.1
 
     CONFIG(debug, debug|release) {
-        LIBS += $$PWD/../Build/DebugQt/RayTracing.lib
+        LIBS += $$PWD/../Build/Debug/RayTracing.lib
     }else {
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/RayTracing.lib
             PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/RayTracing.lib
         } else {
-            LIBS += $$PWD/../Build/ReleaseQt/RayTracing.lib
-            PRE_TARGETDEPS += $$PWD/../Build/ReleaseQt/RayTracing.lib
+            LIBS += $$PWD/../Build/Release/RayTracing.lib
+            PRE_TARGETDEPS += $$PWD/../Build/Release/RayTracing.lib
         }
     }
 }

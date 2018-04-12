@@ -51,11 +51,11 @@ void convert2BNN(const char* inputFile, const char* outputFile)
 #endif
 
         if(fattr.type == Partio::INT) {
-            particleWriter.addFixedAtribute(fattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, fattr.count);
+            particleWriter.addFixedAttribute(fattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, fattr.count);
             const int* idata = partioData->fixedData<int>(fattr);
             particleWriter.setFixedAttribute(fattr.name, idata);
         } else if(fattr.type == Partio::FLOAT) {
-            particleWriter.addFixedAtribute(fattr.name, Banana::ParticleSerialization::TypeReal, Banana::ParticleSerialization::Size32b, fattr.count);
+            particleWriter.addFixedAttribute(fattr.name, Banana::ParticleSerialization::TypeReal, Banana::ParticleSerialization::Size32b, fattr.count);
             const float* fdata = partioData->fixedData<float>(fattr);
             particleWriter.setFixedAttribute(fattr.name, fdata);
         }
@@ -69,8 +69,8 @@ void convert2BNN(const char* inputFile, const char* outputFile)
 #endif
 
         if(pattr.type == Partio::INT) {
-            particleWriter.addParticleAtribute(pattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, pattr.count);
-            Vector<int> idata(nParticles* pattr.count);
+            particleWriter.addParticleAttribute(pattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, pattr.count);
+            Vector<int> idata(nParticles * pattr.count);
             size_t      elementSize = sizeof(int) * pattr.count;
 
             for(int j = 0; j < nParticles; ++j) {
@@ -79,7 +79,7 @@ void convert2BNN(const char* inputFile, const char* outputFile)
             }
             particleWriter.setParticleAttribute(pattr.name, idata);
         } else if(pattr.type == Partio::FLOAT || pattr.type == Partio::VECTOR) {
-            particleWriter.addParticleAtribute(pattr.name, Banana::ParticleSerialization::TypeCompressedReal, Banana::ParticleSerialization::Size32b, pattr.count);
+            particleWriter.addParticleAttribute(pattr.name, Banana::ParticleSerialization::TypeCompressedReal, Banana::ParticleSerialization::Size32b, pattr.count);
             if(pattr.count == 1) {
                 Vector<float> fdata(nParticles);
                 for(int j = 0; j < nParticles; ++j) {
@@ -104,7 +104,6 @@ void convert2BNN(const char* inputFile, const char* outputFile)
             }
         }
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // write Banana compressed data
@@ -148,7 +147,7 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                 particleReader.getFixedAttribute(kv.first, uidata);
 
                 int* idata = partioData->fixedDataWrite<int>(fattr);
-                for(Int i = 0; i < kv.second->count; ++i) {
+                for(UInt i = 0; i < kv.second->count; ++i) {
                     idata[i] = static_cast<int>(uidata[i]);
                 }
             }
@@ -163,7 +162,7 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                 } else {
                     double* ddata = new double[kv.second->count];
                     particleReader.getFixedAttribute(kv.first, ddata);
-                    for(Int i = 0; i < kv.second->count; ++i) {
+                    for(UInt i = 0; i < kv.second->count; ++i) {
                         fdata[i] = static_cast<float>(ddata[i]);
                     }
                 }
@@ -214,7 +213,7 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                     particleReader.getParticleAttribute(kv.first, fdata.data());
                     for(UInt i = 0; i < particleReader.getNParticles(); ++i) {
                         float* pdata = partioData->dataWrite<float>(pattr, i);
-                        for(Int j = 0; j < kv.second->count; ++j) {
+                        for(UInt j = 0; j < kv.second->count; ++j) {
                             pdata[j] = fdata[i * kv.second->count + j];
                         }
                     }
@@ -223,7 +222,7 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                     particleReader.getParticleAttribute(kv.first, ddata.data());
                     for(UInt i = 0; i < particleReader.getNParticles(); ++i) {
                         float* pdata = partioData->dataWrite<float>(pattr, i);
-                        for(Int j = 0; j < kv.second->count; ++j) {
+                        for(UInt j = 0; j < kv.second->count; ++j) {
                             pdata[j] = static_cast<float>(ddata[i * kv.second->count + j]);
                         }
                     }

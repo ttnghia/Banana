@@ -2,12 +2,8 @@
 **/*.db
 **/*.opendb
 **/Debug/*
-**/DebugQt/*
 **/Release/*
-**/ReleaseQt/*
 **/ReleaseStaticBuild/*
 Build/**
 *.pro.user
-**/tinyply.h
-**/tinyply.cpp
 Externals/Vc-Build/**

@@ -2,9 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <CUDA_DIR>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0</CUDA_DIR>
+    <CUDA_DIR>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1</CUDA_DIR>
     <CUDA_SDK>D:\Programming\CudaSamples\v9.0</CUDA_SDK>
-    <OPTIX_DIR>C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1</OPTIX_DIR>
+    <OPTIX_DIR>C:\ProgramData\NVIDIA Corporation\OptiX SDK 5.0.0</OPTIX_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <IncludePath>$(OPTIX_DIR)\SDK\sutil;$(OPTIX_DIR)\SDK;$(OPTIX_DIR)\include;$(CUDA_SDK)\common\inc;$(CUDA_DIR)\include;$(IncludePath)</IncludePath>

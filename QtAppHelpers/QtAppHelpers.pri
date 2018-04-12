@@ -19,16 +19,16 @@ CONFIG += c++14
 win32 {
     CONFIG(debug, debug|release) {
         message("QtAppHelpers -- Debug")
-        LIBS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
-        PRE_TARGETDEPS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
+        LIBS += $$PWD/../Build/Debug/QtAppHelpers.lib
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/QtAppHelpers.lib
     } else {
         message("QtAppHelpers -- Release")
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib
             PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib
         } else {
-            LIBS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
-            PRE_TARGETDEPS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
+            LIBS += $$PWD/../Build/Release/QtAppHelpers.lib
+            PRE_TARGETDEPS += $$PWD/../Build/Release/QtAppHelpers.lib
         }
     }
 }

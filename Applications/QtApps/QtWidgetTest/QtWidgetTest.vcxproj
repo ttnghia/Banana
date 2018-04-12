@@ -110,7 +110,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\ReleaseQt\QtAppHelpers.lib;D:\Programming\Banana\Build\ReleaseQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\Release\QtAppHelpers.lib;D:\Programming\Banana\Build\Release\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\my_sql\my_sql\lib;C:\utils\postgresql\pgsql\lib;$(QTDIR)\lib;D:\Programming\Banana\Externals\AntTweakBar\lib;D:\Programming\Banana\Externals\glew-2.0.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -162,7 +162,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\ReleaseQt\QtAppHelpers.lib;D:\Programming\Banana\Build\ReleaseQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\Release\QtAppHelpers.lib;D:\Programming\Banana\Build\Release\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\my_sql\my_sql\lib;C:\utils\postgresql\pgsql\lib;$(QTDIR)\lib;D:\Programming\Banana\Externals\AntTweakBar\lib;D:\Programming\Banana\Externals\glew-2.0.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -208,7 +208,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QTDIR)\lib\qtmaind.lib;shell32.lib;D:\Programming\Banana\Build\DebugQt\QtAppHelpers.lib;D:\Programming\Banana\Build\DebugQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Cored.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QTDIR)\lib\qtmaind.lib;shell32.lib;D:\Programming\Banana\Build\Debug\QtAppHelpers.lib;D:\Programming\Banana\Build\Debug\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Cored.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\my_sql\my_sql\lib;C:\utils\postgresql\pgsql\lib;$(QTDIR)\lib;D:\Programming\Banana\Externals\AntTweakBar\lib;D:\Programming\Banana\Externals\glew-2.0.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -334,154 +334,64 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_normal_cap_left.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_normal_cap_right.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_normal_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_pressed_cap_left.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_pressed_cap_right.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_pressed_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_bottom.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_bottomleft.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_bottomright.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_left.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_right.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_top.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_topleft.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_topright.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_bottom_left.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_bottom_right.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_bottom_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_left_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_right_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_top_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_topleft.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_topright.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dash_dot.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dash_dot_dot.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dashed.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dotted.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_solid.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\radiobutton-on.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\radiobutton_off.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\radiobutton_on.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <CustomBuild Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\shared.qrc">
       <FileType>Document</FileType>
@@ -499,29 +409,14 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Scratch\ProjectBuilds\Banana\TestBed\QtWidgetTest\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\slider_bar.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\slider_thumb_on.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\title_cap_left.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\title_cap_right.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\title_stretch.png">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="QtWidgetTest.licenseheader" />
   </ItemGroup>
