@@ -49,3 +49,6 @@
 [submodule "Externals/Discregrid"]
 	path = Externals/Discregrid
 	url = https://github.com/InteractiveComputerGraphics/Discregrid
+[submodule "Externals/tinyply"]
+	path = Externals/tinyply
+	url = https://github.com/ddiakopoulos/tinyply

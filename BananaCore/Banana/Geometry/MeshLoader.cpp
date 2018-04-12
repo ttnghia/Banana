@@ -107,7 +107,6 @@ void MeshLoader::clearData()
     m_FaceVertexColors.resize(0);
     m_FaceVertexTexCoord2D.resize(0);
 
-
     ////////////////////////////////////////////////////////////////////////////////
     m_LoadingErrorStr.clear();
 }
@@ -118,7 +117,6 @@ bool MeshLoader::loadObj(const String& meshFile)
     std::vector<tinyobj::shape_t>    obj_shapes;
     std::vector<tinyobj::material_t> obj_materials;
     tinyobj::attrib_t                attrib;
-
 
     bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &m_LoadingErrorStr, meshFile.c_str(), NULL, true);
     m_Vertices   = attrib.vertices;
@@ -133,7 +131,6 @@ bool MeshLoader::loadObj(const String& meshFile)
         std::cerr << "Failed to load " << meshFile << std::endl;
         return false;
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // => convert data
@@ -155,7 +152,6 @@ bool MeshLoader::loadObj(const String& meshFile)
             m_Faces.push_back(static_cast<UInt>(v0));
             m_Faces.push_back(static_cast<UInt>(v1));
             m_Faces.push_back(static_cast<UInt>(v2));
-
 
             Vec_Vec3f v(3, Vec3f(0));
             for(int k = 0; k < 3; ++k) {
@@ -200,7 +196,6 @@ bool MeshLoader::loadObj(const String& meshFile)
                 }
             }
 
-
             if(attrib.texcoords.size() > 0) {
                 Vec_Vec2f tex(3, Vec2f(0));
                 int       t0 = idx0.texcoord_index;
@@ -232,41 +227,91 @@ bool MeshLoader::loadObj(const String& meshFile)
 bool MeshLoader::loadPly(const String& meshFile)
 {
     // Tinyply can and will throw exceptions at you!
-    try
-    {
+    try {
         // Read the file and create a std::istringstream suitable
         // for the lib -- tinyply does not perform any file i/o.
         std::ifstream ss(meshFile, std::ios::binary);
+        if(ss.fail()) { return false; }
 
         // Parse the ASCII header fields
-        tinyply::PlyFile file(ss);
+        tinyply::PlyFile file;
+        file.parse_header(ss);
+
+        Int hasNormals   = 0;
+        Int hasTexCoords = 0;
+        for(auto e : file.get_elements()) {
+            //std::cout << "element - " << e.name << " (" << e.size << ")" << std::endl;
+            for(auto p : e.properties) {
+                //std::cout << "\tproperty - " << p.name << " (" << tinyply::PropertyTable[p.propertyType].str << ")" << std::endl;
+                if(p.name == "nx" || p.name == "ny" || p.name == "nz") { ++hasNormals; }
+                if(p.name == "texcoord") { ++hasTexCoords; }
+            }
+        }
+        __BNN_REQUIRE(hasNormals == 0 || hasNormals == 3);
 
         // Define containers to hold the extracted data. The type must match
         // the property type given in the header. Tinyply will interally allocate the
         // the appropriate amount of memory.
 
-        size_t vertexCount       = 0;
-        size_t normalCount       = 0;
-        size_t faceCount         = 0;
-        size_t faceTexcoordCount = 0;
+        std::shared_ptr<tinyply::PlyData> vertices, normals, faces, texcoords;
 
-        // The count returns the number of instances of the property group. The vectors
-        // above will be resized into a multiple of the property group size as
-        // they are "flattened"... i.e. verts = {x, y, z, x, y, z, ...}
-        vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, m_Vertices);
-        normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, m_Normals);
+        try {
+            vertices = file.request_properties_from_element("vertex", { "x", "y", "z" });
+        } catch(const std::exception& e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-        //printf("vertexCount: %lu\n", vertexCount);
+        try {
+            faces = file.request_properties_from_element("face", { "vertex_indices" });
+        } catch(const std::exception& e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-        // For properties that are list types, it is possibly to specify the expected count (ideal if a
-        // consumer of this library knows the layout of their format a-priori). Otherwise, tinyply
-        // defers allocation of memory until the first instance of the property has been found
-        // as implemented in file.read(ss)
-        faceCount         = file.request_properties_from_element("face", { "vertex_indices" }, m_Faces, 3);
-        faceTexcoordCount = file.request_properties_from_element("face", { "texcoord" }, m_TexCoord2D, 6);
+        ////////////////////////////////////////////////////////////////////////////////
+        // optional
+        if(hasNormals) {
+            try {
+                normals = file.request_properties_from_element("vertex", { "nx", "ny", "nz" });
+            } catch(const std::exception& e) {
+                std::cerr << "tinyply exception: " << e.what() << std::endl;
+            }
+        }
+        if(hasTexCoords) {
+            try {
+                texcoords = file.request_properties_from_element("face", { "texcoord" });
+            } catch(const std::exception& e) {
+                std::cerr << "tinyply exception: " << e.what() << std::endl;
+            }
+        }
 
         // Now populate the vectors...
         file.read(ss);
+        __BNN_REQUIRE(vertices->t == tinyply::Type::FLOAT32);
+        if(normals != nullptr) {
+            __BNN_REQUIRE(normals->count == 0 || normals->count == vertices->count);
+            m_Normals.resize(normals->count * 3);
+            std::memcpy(m_Normals.data(), normals->buffer.get(), normals->buffer.size_bytes());
+        }
+        if(texcoords != nullptr) {
+            m_TexCoord2D.resize(texcoords->count * 6);
+            std::memcpy(m_TexCoord2D.data(), texcoords->buffer.get(), texcoords->buffer.size_bytes());
+        }
+
+        m_Vertices.resize(vertices->count * 3);
+        m_Faces.resize(faces->count * 3);
+        std::memcpy(m_Vertices.data(), vertices->buffer.get(), vertices->buffer.size_bytes());
+
+        __BNN_REQUIRE(faces->buffer.size_bytes() / sizeof(UInt) == m_Faces.size());
+        if(faces->t == tinyply::Type::UINT32) {
+            std::memcpy(m_Faces.data(), faces->buffer.get(), faces->buffer.size_bytes());
+        } else if(faces->t == tinyply::Type::INT32) {
+            Int* ptr = reinterpret_cast<Int*>(faces->buffer.get());
+            for(size_t i = 0; i < faces->count * 3; ++i) {
+                m_Faces[i] = static_cast<UInt>(ptr[i]);
+            }
+        } else {
+            __BNN_CALLED_TO_WRONG_PLACE
+        }
 
         ////////////////////////////////////////////////////////////////////////////////
         // => convert data
@@ -327,9 +372,7 @@ bool MeshLoader::loadPly(const String& meshFile)
                 }
             }
         }         // end process current shape
-    }
-    catch(const std::exception& e)
-    {
+    } catch(const std::exception& e) {
         std::cerr << "Caught exception: " << e.what() << std::endl;
     }
 

@@ -49,10 +49,8 @@ void OpenGLWidgetTestRender::initTestRenderTriangle()
     m_VertexBuffer = std::make_unique<OpenGLBuffer>();
     m_VertexBuffer->createBuffer(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
 
-
     // shaders and VAO
     m_Shader = ShaderProgram::getSimpleVertexColorShader();
-
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
@@ -238,7 +236,6 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_MeshObj->setVertices(m_MeshLoader->getFaceVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getFaceVertexNormals());
 
-
     m_Material = std::make_shared<Material>();
     m_Material->setMaterial(Material::MT_Emerald);
     m_Material->uploadDataToGPU();
@@ -289,7 +286,8 @@ void OpenGLWidgetTestRender::initOpenGL()
 #ifdef _WIN32
             //initTestRenderMeshWithShadow(QString("E:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
             //initTestRenderMeshWithShadow(QString("E:/GoogleDrive/Classes/CS6620/prj8/teapot.obj"),
-            initTestRenderMeshWithShadow(QString("D:/Programming/MerLit/bunny_watertight.obj"),
+            //initTestRenderMeshWithShadow(QString("D:/Programming/MerLit/bunny_watertight.obj"),
+            initTestRenderMeshWithShadow(QString("D:/Programming/Banana/Assets/PLY/sofa.ply"),
                                          QString("D:/Programming/Banana/Applications/QtApps/OpenGLTest/blue_marble.png"));
 #else
             initTestRenderMeshWithShadow(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
