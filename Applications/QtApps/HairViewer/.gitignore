@@ -1,0 +1,9 @@
+**/.vs
+**/*.db
+**/*.opendb
+Capture/*.*
+HairViewer.pro.user
+Prebuild/*
+Prebuild.zip
+Log/*
+SimData

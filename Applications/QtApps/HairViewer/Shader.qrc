@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Shaders/hair.fs.glsl</file>
+        <file>Shaders/hair.vs.glsl</file>
+        <file>Shaders/hair.gs.glsl</file>
+    </qresource>
+</RCC>
