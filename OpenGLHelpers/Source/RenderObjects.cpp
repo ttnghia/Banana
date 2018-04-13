@@ -54,7 +54,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
     Vector<int> loadSuccess;
     loadSuccess.assign(allTexFolders.count(), 0);
 
-    Vector<std::future<void> > futureObjs;
+    Vector<std::future<void>> futureObjs;
 
     for(int i = 0; i < allTexFolders.count(); ++i) {
         QString texFolderPath = textureTopFolder + "/" + allTexFolders[i];
@@ -189,7 +189,6 @@ void SkyBoxRender::render()
     m_Shader->bind();
     m_CurrentTexture->bind();
 
-
     m_UBufferModelMatrix->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
@@ -197,7 +196,6 @@ void SkyBoxRender::render()
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
 
     m_Shader->setUniformValue(m_UTexSampler, 0);
-
 
     glCall(glBindVertexArray(m_VAO));
     m_CubeObj->draw();
@@ -344,7 +342,6 @@ void PointLightRender::initRenderData()
     m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
     m_UBLight   = m_Shader->getUniformBlockIndex("Lights");
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
     if(m_UBufferCamData == nullptr) {
@@ -408,7 +405,6 @@ void WireFrameBoxRender::initRenderData()
     m_UColor        = m_Shader->getUniformLocation("f_Color");
     m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
     m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
-
 
     m_WireFrameBoxObj = std::make_unique<WireFrameBoxObject> ();
     m_WireFrameBoxObj->uploadDataToGPU();
@@ -862,7 +858,7 @@ void MeshRender::setRenderTextureIndex(int texIndex)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::setExternalShadowMaps(const Vector<SharedPtr<OpenGLTexture> >& shadowMaps)
+void MeshRender::setExternalShadowMaps(const Vector<SharedPtr<OpenGLTexture>>& shadowMaps)
 {
     assert(shadowMaps.size() == static_cast<size_t>(m_Lights->getNumLights()));
     m_ExternalShadowMaps = shadowMaps;
@@ -1126,9 +1122,9 @@ SharedPtr<OpenGLTexture>& MeshRender::getLightShadowMap(int lightID /*= 0*/)
     return m_LightDepthBufferRenders[lightID]->getDepthBuffer();
 }
 
-Vector<SharedPtr<OpenGLTexture> > MeshRender::getAllLightShadowMaps()
+Vector<SharedPtr<OpenGLTexture>> MeshRender::getAllLightShadowMaps()
 {
-    Vector<SharedPtr<OpenGLTexture> > depthBuffers;
+    Vector<SharedPtr<OpenGLTexture>> depthBuffers;
     for(int i = 0; i < static_cast<int>(m_LightDepthBufferRenders.size()); ++i) {
         depthBuffers.push_back(m_LightDepthBufferRenders[i]->getDepthBuffer());
     }
@@ -1158,7 +1154,7 @@ void MeshRender::initRenderData()
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
     for(int i = 0; i < MAX_NUM_LIGHTS; ++i) {
         char buff[128];
-        sprintf(buff, "u_ShadowMap[%d]", i);
+        __BNN_SPRINT(buff, "u_ShadowMap[%d]", i);
         m_UShadowMap[i] = m_Shader->getUniformLocation(buff);
     }
     m_UExposure = m_Shader->getUniformLocation("u_Exposure");

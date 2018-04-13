@@ -44,13 +44,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelHelpers;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(SCRATCH_BUILD_DIR)\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelHelpers;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(SCRATCH_BUILD_DIR)\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

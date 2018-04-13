@@ -53,15 +53,6 @@
     <ClCompile Include="MainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\arthurstyle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\arthurwidgets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\hoverpoints.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\Debug\moc_arthurwidgets.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -92,19 +83,28 @@
     <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\Applications\QtApps\OpenGLTest\ReleaseStaticBuild\moc_MainWindow.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\arthurstyle.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\arthurwidgets.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\hoverpoints.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MainWindow.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <ClInclude Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\arthurstyle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <CustomBuild Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\arthurwidgets.h">
-      <Filter>Header Files</Filter>
+    <CustomBuild Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\arthurwidgets.h">
+      <Filter>Generated Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\hoverpoints.h">
-      <Filter>Header Files</Filter>
+    <CustomBuild Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\hoverpoints.h">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\shared.qrc">
+      <Filter>Resource Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -116,114 +116,46 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_normal_cap_left.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_normal_cap_right.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_normal_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_pressed_cap_left.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_pressed_cap_right.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\button_pressed_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_bottom.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_bottomleft.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_bottomright.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_left.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_right.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_top.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_topleft.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\frame_topright.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_bottom_left.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_bottom_right.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_bottom_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_left_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_right_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_top_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_topleft.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\groupframe_topright.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dash_dot.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dash_dot_dot.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dashed.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_dotted.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\line_solid.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\radiobutton-on.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\radiobutton_off.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\radiobutton_on.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <CustomBuild Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\shared.qrc">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\slider_bar.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\slider_thumb_on.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\title_cap_left.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\title_cap_right.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="C:\Qt\Qt5.10.0\Examples\Qt-5.10.0\widgets\painting\shared\images\title_stretch.png">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="OpenGLTest.licenseheader" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\button_normal_cap_left.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\button_normal_cap_right.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\button_normal_stretch.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\button_pressed_cap_left.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\button_pressed_cap_right.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\button_pressed_stretch.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_bottom.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_bottomleft.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_bottomright.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_left.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_right.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_top.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_topleft.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\frame_topright.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_bottom_left.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_bottom_right.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_bottom_stretch.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_left_stretch.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_right_stretch.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_top_stretch.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_topleft.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\groupframe_topright.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\line_dash_dot.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\line_dash_dot_dot.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\line_dashed.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\line_dotted.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\line_solid.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\radiobutton-on.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\radiobutton_off.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\radiobutton_on.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\slider_bar.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\slider_thumb_on.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\title_cap_left.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\title_cap_right.png" />
+    <None Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\images\title_stretch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(QT_EXAMPLES_DIR)\widgets\painting\shared\arthurstyle.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

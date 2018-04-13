@@ -28,7 +28,7 @@
 #   include <QtAppHelpers/QtAppMacros.h>
 #else // no Qt
 #   define GLEW_STATIC
-#   include <GL/glew.h>
+//#   include <GL/glew.h>
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

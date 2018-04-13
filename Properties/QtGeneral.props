@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <QT_DIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QT_DIR>
+    <QT_EXAMPLES_DIR>C:\Qt\Qt5.10.0\Examples\Qt-5.10.0</QT_EXAMPLES_DIR>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(QT_EXAMPLES_DIR)\widgets\painting\shared;$(IncludePath)</IncludePath>
+    <_PropertySheetDisplayName>QtGeneral</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>QT_CORE_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(QT_DIR)\include;$(QT_DIR)\include\QtCore;$(QT_DIR)\include\QtANGLE;$(QT_DIR)\include\QtGui;$(QT_DIR)\include\QtWidgets;$(QT_DIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="QT_DIR">
+      <Value>$(QT_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="QT_EXAMPLES_DIR">
+      <Value>$(QT_EXAMPLES_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
