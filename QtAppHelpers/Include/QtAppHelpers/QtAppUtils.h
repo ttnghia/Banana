@@ -71,10 +71,23 @@ inline QString getDefaultPath(const String& folderName)
     }
 }
 
-inline QStringList getFiles(const String& folderName)
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline QString getVariable(const String& variableName)
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam(variableName)) {
+        return QString::fromStdString(config.getStringValue(variableName));
+    } else {
+        return QString("");
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline QStringList getFiles(const String& folderName, const QStringList fileFilter = QStringList())
 {
     QDir dataDir(getDefaultPath(folderName));
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
+    dataDir.setNameFilters(fileFilter);
     return dataDir.entryList();
 }
 
