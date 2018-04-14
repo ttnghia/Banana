@@ -27,8 +27,9 @@
 void Controller::setupGUI()
 {
     setupMaterialControllers();
+    setupHairRenderModeControllers();
     setupColorModeControllers();
-    setupSimulationControllers();
+    setupIOControllers();
     setupButtons();
 }
 
@@ -78,19 +79,54 @@ void Controller::connectWidgets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupSimulationControllers()
+void Controller::setupIOControllers()
 {
-    m_cbSimulationScene = new QComboBox;
-    m_cbSimulationScene->addItem(QString("None"));
-    m_cbSimulationScene->addItems(QtAppUtils::getFiles("Scenes"));
-    m_btnReloadScene = new QPushButton(" Reload ");
-    QHBoxLayout* layoutScene = new QHBoxLayout;
-    layoutScene->addWidget(m_cbSimulationScene, 10);
-    layoutScene->addStretch(1);
-    layoutScene->addWidget(m_btnReloadScene, 10);
-    QGroupBox* grScene = new QGroupBox;
-    grScene->setTitle("Scene");
-    grScene->setLayout(layoutScene);
+    QWidget* wgIOControllers = new QWidget;
+    m_MainTab->insertTab(0, wgIOControllers, "Data IO");
+    m_MainTab->setCurrentIndex(0);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_InputPath = new BrowsePathWidget("Browse");
+    m_InputPath->setPath(QtAppUtils::getDefaultCapturePath());
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grInput = new QGroupBox;
+    grInput->setTitle("Model Path");
+    grInput->setLayout(m_InputPath->getLayout());
+    ////////////////////////////////////////////////////////////////////////////////
+    m_chkRenderAsSequence = new QCheckBox("Render as sequence");
+    m_cbModels            = new EnhancedComboBox;
+    m_btnReloadModel      = new QPushButton("Reload");
+    QHBoxLayout* layoutModels = new QHBoxLayout;
+    layoutModels->addLayout(m_cbModels->getLayout(), 20);
+    layoutModels->addStretch(1);
+    layoutModels->addWidget(m_btnReloadModel, 5);
+    ////////////////////////////////////////////////////////////////////////////////
+    QFrame* line1 = new QFrame();
+    line1->setFrameShape(QFrame::HLine);
+    line1->setFrameShadow(QFrame::Sunken);
+    m_lblModelCount = new QLabel;
+    m_lblModelCount->setText("Model count: 0");
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutModelsCtr = new QVBoxLayout;
+    layoutModelsCtr->addWidget(m_chkRenderAsSequence);
+    layoutModelsCtr->addSpacing(1);
+    layoutModelsCtr->addLayout(layoutModels);
+    layoutModelsCtr->addSpacing(5);
+    layoutModelsCtr->addWidget(line1);
+    layoutModelsCtr->addSpacing(5);
+    layoutModelsCtr->addWidget(m_lblModelCount);
+    QGroupBox* grModels = new QGroupBox;
+    grModels->setTitle("Models");
+    grModels->setLayout(layoutModelsCtr);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_MeshPath = new BrowsePathWidget("Browse", false);
+    m_MeshPath->setPath(QtAppUtils::getDefaultCapturePath());
+    QVBoxLayout* layoutMeshPath = new QVBoxLayout;
+    layoutMeshPath->addLayout(m_MeshPath->getLayout());
+    QGroupBox* grpMeshPath = new QGroupBox;
+    grpMeshPath->setTitle("Mesh");
+    grpMeshPath->setLayout(layoutMeshPath);
+    ////////////////////////////////////////////////////////////////////////////////
+
     ////////////////////////////////////////////////////////////////////////////////
     m_OutputPath = new BrowsePathWidget("Browse");
     m_OutputPath->setPath(QtAppUtils::getDefaultCapturePath());
@@ -99,11 +135,23 @@ void Controller::setupSimulationControllers()
     layoutOutput->addWidget(m_chkEnableOutput);
     layoutOutput->addLayout(m_OutputPath->getLayout());
     QGroupBox* grpOutput = new QGroupBox;
-    grpOutput->setTitle("Output");
+    grpOutput->setTitle("Screenshot");
     grpOutput->setLayout(layoutOutput);
     ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grScene);
-    m_LayoutRenderControllers->addWidget(grpOutput);
+    QFrame* line2 = new QFrame();
+    line2->setFrameShape(QFrame::HLine);
+    line2->setFrameShadow(QFrame::Sunken);
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutIOControllers = new QVBoxLayout;
+    layoutIOControllers->addWidget(grInput);
+    layoutIOControllers->addWidget(grModels);
+    layoutIOControllers->addWidget(grpMeshPath);
+    layoutIOControllers->addSpacing(5);
+    layoutIOControllers->addWidget(line2);
+    layoutIOControllers->addSpacing(5);
+    layoutIOControllers->addWidget(grpOutput);
+    layoutIOControllers->addStretch();
+    wgIOControllers->setLayout(layoutIOControllers);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -119,6 +167,42 @@ void Controller::setupMaterialControllers()
     QGroupBox* grMaterial = new QGroupBox("Material");
     grMaterial->setLayout(layoutMaterial);
     m_LayoutRenderControllers->addWidget(grMaterial);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupHairRenderModeControllers()
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    QRadioButton* rdbLineRender             = new QRadioButton("Line Render");
+    QRadioButton* rdbVertexParticle         = new QRadioButton("Vertex Particle");
+    QRadioButton* rdbLineWithVertexParticle = new QRadioButton("Line With Vertex Particle");
+    rdbLineRender->setChecked(true);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGridLayout* layoutHairRenderMode = new QGridLayout;
+    layoutHairRenderMode->addWidget(rdbLineRender,             0, 0, 1, 1);
+    layoutHairRenderMode->addWidget(rdbVertexParticle,         0, 1, 1, 1);
+    layoutHairRenderMode->addWidget(rdbLineWithVertexParticle, 1, 0, 1, 2);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_smHairRenderMode = new QSignalMapper(this);
+    connect(rdbLineRender,             SIGNAL(clicked()), m_smHairRenderMode, SLOT(map()));
+    connect(rdbVertexParticle,         SIGNAL(clicked()), m_smHairRenderMode, SLOT(map()));
+    connect(rdbLineWithVertexParticle, SIGNAL(clicked()), m_smHairRenderMode, SLOT(map()));
+
+    m_smHairRenderMode->setMapping(rdbLineRender,             static_cast<int>(HairRenderMode::LineRender));
+    m_smHairRenderMode->setMapping(rdbVertexParticle,         static_cast<int>(HairRenderMode::VertexParticle));
+    m_smHairRenderMode->setMapping(rdbLineWithVertexParticle, static_cast<int>(HairRenderMode::LineWithVertexParticle));
+    ////////////////////////////////////////////////////////////////////////////////
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutHairRenderCtrls = new QVBoxLayout;
+    layoutHairRenderCtrls->addLayout(layoutHairRenderMode);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grHairRenderMode = new QGroupBox;
+    grHairRenderMode->setTitle("Hair Render Modes");
+    grHairRenderMode->setLayout(layoutHairRenderCtrls);
+    m_LayoutRenderControllers->addWidget(grHairRenderMode);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -178,7 +262,7 @@ void Controller::setupColorModeControllers()
     layoutColorCtrls->addLayout(layoutColorData);
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grColorMode = new QGroupBox;
-    grColorMode->setTitle("Particle Color");
+    grColorMode->setTitle("Hair Color");
     grColorMode->setLayout(layoutColorCtrls);
     m_LayoutRenderControllers->addWidget(grColorMode);
 }
@@ -187,17 +271,15 @@ void Controller::setupColorModeControllers()
 void Controller::setupButtons()
 {
     ////////////////////////////////////////////////////////////////////////////////
-    m_btnStartStopSimulation = new QPushButton("Start");
-    m_btnResetCamera         = new QPushButton("Reset Camera");
-    m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
-    m_btnClipViewPlane       = new QPushButton("Clip View");
+    m_btnResetCamera   = new QPushButton("Reset Camera");
+    m_btnEditClipPlane = new QPushButton("Edit Clip Plane");
+    m_btnClipViewPlane = new QPushButton("Clip View");
     m_btnClipViewPlane->setCheckable(true);
     ////////////////////////////////////////////////////////////////////////////////
-    QGridLayout* layoutButtons = new QGridLayout;
-    layoutButtons->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
-    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 1);
-    layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
-    layoutButtons->addWidget(m_btnEditClipPlane,       3, 0, 1, 1);
+    QVBoxLayout* layoutButtons = new QVBoxLayout;
+    layoutButtons->addWidget(m_btnResetCamera);
+    layoutButtons->addWidget(m_btnClipViewPlane);
+    layoutButtons->addWidget(m_btnEditClipPlane);
     m_MainLayout->addStretch();
     m_MainLayout->addLayout(layoutButtons);
 }

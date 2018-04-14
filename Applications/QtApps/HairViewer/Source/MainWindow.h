@@ -21,9 +21,10 @@
 
 #pragma once
 
-#include "RenderWidget.h"
-#include "Controller.h"
 #include "Common.h"
+#include "Controller.h"
+#include "RenderWidget.h"
+#include "HairModel.h"
 
 #include <QtAppHelpers/OpenGLMainWindow.h>
 #include <QtAppHelpers/BrowsePathWidget.h>
@@ -63,5 +64,6 @@ private:
     QLabel*       m_lblStatusMemoryUsage = nullptr;
     BusyBar*      m_BusyBar;
 
-    ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
+    ClipPlaneEditor*     m_ClipPlaneEditor = new ClipPlaneEditor();
+    SharedPtr<HairModel> m_HairModel       = std::make_shared<HairModel>();
 };

@@ -29,7 +29,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
 {
-    m_RenderWidget = new RenderWidget(this, m_Simulator->getVizData());
+    m_RenderWidget = new RenderWidget(this, m_HairModel);
     ////////////////////////////////////////////////////////////////////////////////
     setupOpenglWidget(m_RenderWidget);
     setupRenderWidgets();
@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setArthurStyle();
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
-    setWindowTitle("Particle Simulation");
+    setWindowTitle("Hair Model Viewer");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -51,12 +51,9 @@ void MainWindow::showEvent(QShowEvent* ev)
     if(!showed) {
         showed = true;
         updateStatusMemoryUsage();
-        updateStatusSimulationTime(0, 0);
 
-        if(m_Controller->m_cbSimulationScene->count() == 2) {
-            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
-        } else {
-            m_Controller->m_cbSimulationScene->setCurrentIndex(QtAppUtils::getDefaultSceneID());
+        if(!m_Controller->m_InputPath->getCurrentPath().isEmpty()) {
+            // load model automatically
         }
     }
 }
@@ -65,10 +62,6 @@ void MainWindow::showEvent(QShowEvent* ev)
 bool MainWindow::processKeyPressEvent(QKeyEvent* event)
 {
     switch(event->key()) {
-        case Qt::Key_Space:
-            m_Controller->m_btnStartStopSimulation->click();
-            return true;
-
         case Qt::Key_X:
             m_Controller->m_btnClipViewPlane->click();
             return true;
@@ -91,7 +84,7 @@ void MainWindow::updateStatusMemoryUsage()
 
 void MainWindow::updateStatusHairInfo()
 {
-    m_lblStatusHairInfo->setText(QString("Num. particles: %1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(numParticles))));
+    //m_lblStatusHairInfo->setText(QString("Num. particles: %1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(numParticles))));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -113,15 +106,6 @@ void MainWindow::setupStatusBar()
 {
     m_BusyBar = new BusyBar(this, BusyBar::Cycle, 10);
     statusBar()->addPermanentWidget(m_BusyBar);
-
-    m_lblStatusSimInfo = new QLabel(this);
-    m_lblStatusSimInfo->setMargin(5);
-    m_lblStatusSimInfo->setText("Ready (Press Space to Start/Stop)");
-    statusBar()->addPermanentWidget(m_lblStatusSimInfo, 1);
-
-    m_lblStatusSimTime = new QLabel(this);
-    m_lblStatusSimTime->setMargin(5);
-    statusBar()->addPermanentWidget(m_lblStatusSimTime, 1);
 
     m_lblStatusHairInfo = new QLabel(this);
     m_lblStatusHairInfo->setMargin(5);

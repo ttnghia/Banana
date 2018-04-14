@@ -24,7 +24,7 @@
 #include "RenderWidget.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData) : OpenGLWidget(parent), m_VizData(vizData)
+RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<HairModel>& hairModel) : OpenGLWidget(parent), m_HairModel(hairModel)
 {
     updateCamera();
 }
@@ -48,14 +48,14 @@ void RenderWidget::renderOpenGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::updateSolverDimension()
+void RenderWidget::updateModelDimension()
 {
-    if(m_VizData->systemDimension == 3) {
-        m_Camera->setProjection(Camera::PerspectiveProjection);
-    } else {
-        m_Camera->setProjection(Camera::OrthographicProjection);
-        m_Camera->setOrthoBox(m_VizData->boxMin.x * 1.01f, m_VizData->boxMax.x * 1.01f, m_VizData->boxMin.y * 1.01f, m_VizData->boxMax.y * 1.01f);
-    }
+    //    if(m_HairModel->systemDimension == 3) {
+    //        m_Camera->setProjection(Camera::PerspectiveProjection);
+    //    } else {
+    //        m_Camera->setProjection(Camera::OrthographicProjection);
+    //        m_Camera->setOrthoBox(m_HairModel->boxMin.x * 1.01f, m_HairModel->boxMax.x * 1.01f, m_HairModel->boxMin.y * 1.01f, m_HairModel->boxMax.y * 1.01f);
+    //    }
 
     makeCurrent();
     initParticleVAO();
@@ -65,39 +65,39 @@ void RenderWidget::updateSolverDimension()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateVizData()
 {
-    Q_ASSERT(m_RDataParticle.initialized);
-    makeCurrent();
-    ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.buffPosition->uploadDataAsync(m_VizData->positions, 0, m_VizData->nParticles * m_VizData->systemDimension * sizeof(float));
-    ////////////////////////////////////////////////////////////////////////////////
-    // color data
-    if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex ||
-       m_RDataParticle.pColorMode == HairColorMode::VelocityMagnitude) {
-        if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex) {
-            m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles * sizeof(Int16));
-            m_RDataParticle.vColorMin = 0;
-            m_RDataParticle.vColorMax = m_VizData->nObjects > 1u ? static_cast<float>(m_VizData->nObjects - 1) : 1.0f;
-        } else {
-            static Vec_Float velMag2;
-            velMag2.resize(m_VizData->nParticles);
-            if(m_VizData->systemDimension == 2) {
-                auto velPtr = reinterpret_cast<Vec2f*>(m_VizData->velocities);
-                __BNN_REQUIRE(velPtr != nullptr);
-                Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
-            } else {
-                auto velPtr = reinterpret_cast<Vec3f*>(m_VizData->velocities);
-                __BNN_REQUIRE(velPtr != nullptr);
-                Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
-            }
-            m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
-            m_RDataParticle.vColorMax = ParallelSTL::max(velMag2);
-            m_RDataParticle.buffColorData->uploadDataAsync(velMag2.data(), 0, velMag2.size() * sizeof(float));
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    doneCurrent();
-    m_RDataParticle.nParticles  = m_VizData->nParticles;
-    m_RDataParticle.pointRadius = m_VizData->particleRadius;
+    //    Q_ASSERT(m_RDataParticle.initialized);
+    //    makeCurrent();
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataParticle.buffPosition->uploadDataAsync(m_HairModel->positions, 0, m_HairModel->nParticles * m_HairModel->systemDimension * sizeof(float));
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    // color data
+    //    if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex ||
+    //       m_RDataParticle.pColorMode == HairColorMode::VelocityMagnitude) {
+    //        if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex) {
+    //            m_RDataParticle.buffColorData->uploadDataAsync(m_HairModel->objIndex, 0, m_HairModel->nParticles * sizeof(Int16));
+    //            m_RDataParticle.vColorMin = 0;
+    //            m_RDataParticle.vColorMax = m_HairModel->nObjects > 1u ? static_cast<float>(m_HairModel->nObjects - 1) : 1.0f;
+    //        } else {
+    //            static Vec_Float velMag2;
+    //            velMag2.resize(m_HairModel->nParticles);
+    //            if(m_HairModel->systemDimension == 2) {
+    //                auto velPtr = reinterpret_cast<Vec2f*>(m_HairModel->velocities);
+    //                __BNN_REQUIRE(velPtr != nullptr);
+    //                Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
+    //            } else {
+    //                auto velPtr = reinterpret_cast<Vec3f*>(m_HairModel->velocities);
+    //                __BNN_REQUIRE(velPtr != nullptr);
+    //                Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
+    //            }
+    //            m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
+    //            m_RDataParticle.vColorMax = ParallelSTL::max(velMag2);
+    //            m_RDataParticle.buffColorData->uploadDataAsync(velMag2.data(), 0, velMag2.size() * sizeof(float));
+    //        }
+    //    }
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    doneCurrent();
+    //    m_RDataParticle.nParticles  = m_HairModel->nParticles;
+    //    m_RDataParticle.pointRadius = m_HairModel->particleRadius;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -120,8 +120,8 @@ void RenderWidget::setParticleColorMode(int colorMode)
 void RenderWidget::initRDataParticle()
 {
     m_RDataParticle.shader = std::make_shared<QtAppShaderProgram>("RenderPointSphere");
-    m_RDataParticle.shader->addVertexShaderFromResource(":/Shaders/particle.vs.glsl");
-    m_RDataParticle.shader->addFragmentShaderFromResource(":/Shaders/particle.fs.glsl");
+    m_RDataParticle.shader->addVertexShaderFromResource(":/Shaders/hair.vs.glsl");
+    m_RDataParticle.shader->addFragmentShaderFromResource(":/Shaders/hair.fs.glsl");
     m_RDataParticle.shader->link();
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.v_Position = m_RDataParticle.shader->getAtributeLocation("v_Position");
@@ -162,66 +162,66 @@ void RenderWidget::initRDataParticle()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initParticleVAO()
 {
-    Q_ASSERT(m_RDataParticle.initialized);
-    glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
-    glCall(glBindVertexArray(m_RDataParticle.VAO));
-    glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
-    ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.buffPosition->bind();
-    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, m_VizData->systemDimension, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
-    ////////////////////////////////////////////////////////////////////////////////
-    if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex ||
-       m_RDataParticle.pColorMode == HairColorMode::VelocityMagnitude) {
-        m_RDataParticle.buffColorData->bind();
-        if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex) {
-            glCall(glEnableVertexAttribArray(m_RDataParticle.v_iColor));
-            glCall(glVertexAttribIPointer(m_RDataParticle.v_iColor, 1, GL_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
-        } else {
-            glCall(glEnableVertexAttribArray(m_RDataParticle.v_fColor));
-            glCall(glVertexAttribPointer(m_RDataParticle.v_fColor, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    glCall(glBindVertexArray(0));
+    //    Q_ASSERT(m_RDataParticle.initialized);
+    //    glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
+    //    glCall(glBindVertexArray(m_RDataParticle.VAO));
+    //    glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataParticle.buffPosition->bind();
+    //    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, m_HairModel->systemDimension, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex ||
+    //       m_RDataParticle.pColorMode == HairColorMode::VelocityMagnitude) {
+    //        m_RDataParticle.buffColorData->bind();
+    //        if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex) {
+    //            glCall(glEnableVertexAttribArray(m_RDataParticle.v_iColor));
+    //            glCall(glVertexAttribIPointer(m_RDataParticle.v_iColor, 1, GL_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+    //        } else {
+    //            glCall(glEnableVertexAttribArray(m_RDataParticle.v_fColor));
+    //            glCall(glVertexAttribPointer(m_RDataParticle.v_fColor, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+    //        }
+    //    }
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    glCall(glBindVertexArray(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::renderParticles()
 {
-    Q_ASSERT(m_RDataParticle.initialized);
+    //    Q_ASSERT(m_RDataParticle.initialized);
 
-    m_RDataParticle.shader->bind();
-    ////////////////////////////////////////////////////////////////////////////////
-    m_UBufferCamData->bindBufferBase();
-    m_Lights->bindUniformBuffer();
-    m_RDataParticle.material->bindUniformBuffer();
-    ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData,  m_UBufferCamData->getBindingPoint());
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light,    m_Lights->getBufferBindingPoint());
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
-    ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles,   m_RDataParticle.nParticles);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius,  m_RDataParticle.pointRadius);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,   m_RDataParticle.pointScale);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,    m_VizData->systemDimension);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode,    m_RDataParticle.pColorMode);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,    m_ClipPlane);
-    ////////////////////////////////////////////////////////////////////////////////
-    if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex ||
-       m_RDataParticle.pColorMode == HairColorMode::VelocityMagnitude) {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin,   m_RDataParticle.vColorMin);
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax,   m_RDataParticle.vColorMax);
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    glCall(glBindVertexArray(m_RDataParticle.VAO));
-    glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
-    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));
-    glCall(glBindVertexArray(0));
-    m_RDataParticle.shader->release();
+    //    m_RDataParticle.shader->bind();
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    m_UBufferCamData->bindBufferBase();
+    //    m_Lights->bindUniformBuffer();
+    //    m_RDataParticle.material->bindUniformBuffer();
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData, m_UBufferCamData->getBindingPoint());
+    //    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light,           m_Lights->getBufferBindingPoint());
+    //    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles,  m_RDataParticle.nParticles);
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,  m_RDataParticle.pointScale);
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,       m_HairModel->systemDimension);
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight,         height());
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_DomainHeight,              (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode,   m_RDataParticle.pColorMode);
+    //    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,       m_ClipPlane);
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    if(m_RDataParticle.pColorMode == HairColorMode::ObjectIndex ||
+    //       m_RDataParticle.pColorMode == HairColorMode::VelocityMagnitude) {
+    //        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin,   m_RDataParticle.vColorMin);
+    //        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax,   m_RDataParticle.vColorMax);
+    //        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
+    //        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
+    //    }
+    //    ////////////////////////////////////////////////////////////////////////////////
+    //    glCall(glBindVertexArray(m_RDataParticle.VAO));
+    //    glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
+    //    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));
+    //    glCall(glBindVertexArray(0));
+    //    m_RDataParticle.shader->release();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -99,7 +99,7 @@ void Controller::setupSimulationControllers()
     layoutOutput->addWidget(m_chkEnableOutput);
     layoutOutput->addLayout(m_OutputPath->getLayout());
     QGroupBox* grpOutput = new QGroupBox;
-    grpOutput->setTitle("Output");
+    grpOutput->setTitle("Screenshot");
     grpOutput->setLayout(layoutOutput);
     ////////////////////////////////////////////////////////////////////////////////
     m_LayoutRenderControllers->addWidget(grScene);

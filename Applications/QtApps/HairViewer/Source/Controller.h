@@ -27,6 +27,7 @@
 #include <QtAppHelpers/BrowsePathWidget.h>
 #include <QtAppHelpers/MaterialSelector.h>
 #include <QtAppHelpers/OpenGLController.h>
+#include <QtAppHelpers/EnhancedComboBox.h>
 
 #include "Common.h"
 #include "RenderWidget.h"
@@ -60,6 +61,12 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // hair view mode
+    void setupHairRenderModeControllers();
+    QSignalMapper* m_smHairRenderMode;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
     // color mode
     void setupColorModeControllers();
     QSignalMapper* m_smParticleColorMode;
@@ -70,9 +77,15 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation controllers
-    void setupSimulationControllers();
-    QComboBox*        m_cbSimulationScene;
-    QPushButton*      m_btnReloadScene;
+    void setupIOControllers();
+    BrowsePathWidget* m_InputPath;
+    QCheckBox*        m_chkRenderAsSequence;
+    EnhancedComboBox* m_cbModels;
+    QPushButton*      m_btnReloadModel;
+    QLabel*           m_lblModelCount;
+
+    BrowsePathWidget* m_MeshPath;
+
     QCheckBox*        m_chkEnableOutput;
     BrowsePathWidget* m_OutputPath;
     ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +93,6 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
     void setupButtons();
-    QPushButton* m_btnStartStopSimulation;
     QPushButton* m_btnResetCamera;
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;

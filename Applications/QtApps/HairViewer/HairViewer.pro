@@ -26,7 +26,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 include(../../../BananaCore/BananaCore.pri)
 include(../../../QtAppHelpers/QtAppHelpers.pri)
 include(../../../OpenGLHelpers/OpenGLHelpers.pri)
-include(../../../Simulation/Simulation.pri)
 
 TARGET = HairViewer
 TEMPLATE = app
@@ -45,17 +44,16 @@ HEADERS += \
     Source/Common.h \
     Source/RenderWidget.h \
     Source/Controller.h \
-    Source/HairIO.h \
     Source/cyHairFile.h \
-    Source/Hair.h
+    Source/Hair.h \
+    Source/HairModel.h
 
 SOURCES += \
     Source/Main.cpp \
     Source/MainWindow.cpp \
     Source/RenderWidget.cpp \
     Source/Controller.cpp \
-    Source/HairIO.cpp \
-    Source/Hair.cc
+    Source/HairModel.cpp
 
 RESOURCES += \
     Shader.qrc

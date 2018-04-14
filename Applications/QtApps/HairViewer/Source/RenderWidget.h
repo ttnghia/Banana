@@ -22,6 +22,7 @@
 #pragma once
 
 #include "Common.h"
+#include "HairModel.h"
 
 #include <OpenGLHelpers/OpenGLBuffer.h>
 #include <OpenGLHelpers/OpenGLTexture.h>
@@ -40,15 +41,16 @@ class RenderWidget : public OpenGLWidget
 {
     Q_OBJECT
 public:
-    RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData);
+    RenderWidget(QWidget* parent, const SharedPtr<HairModel>& hairModel);
 private:
     virtual void initOpenGL();
     virtual void resizeOpenGLWindow(int, int);
     virtual void renderOpenGL();
-    SharedPtr<VisualizationData> m_VizData;
+
+    SharedPtr<HairModel> m_HairModel;
 public slots:
-    void updateCamera() { m_Camera->setCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
-    void updateSolverDimension();
+    void updateCamera() {} // { m_Camera->setCamera(m_HairModel->cameraPosition, m_HairModel->cameraFocus, Vec3f(0, 1, 0)); }
+    void updateModelDimension();
     void updateVizData();
 
     ////////////////////////////////////////////////////////////////////////////////
