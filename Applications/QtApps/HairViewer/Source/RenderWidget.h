@@ -49,7 +49,6 @@ private:
 
     SharedPtr<HairModel> m_HairModel;
 public slots:
-    void updateCamera() {} // { m_Camera->setCamera(m_HairModel->cameraPosition, m_HairModel->cameraFocus, Vec3f(0, 1, 0)); }
     void updateModelDimension();
     void updateVizData();
 

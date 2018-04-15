@@ -26,7 +26,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<HairModel>& hairModel) : OpenGLWidget(parent), m_HairModel(hairModel)
 {
-    updateCamera();
+    m_Camera->setCamera(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_FOCUS, Vec3f(0, 1, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
