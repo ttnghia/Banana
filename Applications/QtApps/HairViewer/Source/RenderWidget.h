@@ -54,14 +54,14 @@ public slots:
     void updateVizData();
 
     ////////////////////////////////////////////////////////////////////////////////
-    // particles
+    // hair
 public slots:
-    void setParticleColorMode(int colorMode);
-    void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorMinVal = colorMin; }
-    void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorMaxVal = colorMax; }
-    void setParticleMaterial(const Material::MaterialData& material);
+    void setColorMode(int colorMode);
+    void setColorDataMin(const Vec3f& colorMin) { m_RDataHair.colorMinVal = colorMin; }
+    void setColorDataMax(const Vec3f& colorMax) { m_RDataHair.colorMaxVal = colorMax; }
+    void setHairMaterial(const Material::MaterialData& material);
 private:
-    struct RDataParticle
+    struct RDataHair
     {
         SharedPtr<QtAppShaderProgram> shader        = nullptr;
         UniquePtr<OpenGLBuffer>       buffPosition  = nullptr;
@@ -75,7 +75,7 @@ private:
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
-        GLuint u_nParticles;
+        GLuint u_nVertices;
         GLuint u_PointRadius;
         GLuint u_PointScale;
         GLuint u_Dimension;
@@ -88,21 +88,22 @@ private:
         GLuint u_ColorMinVal;
         GLuint u_ColorMaxVal;
 
-        GLuint  nParticles = 0;
+        GLuint  nVertices = 0;
+        GLuint  nStrands  = 0;
         GLfloat pointRadius;
         GLfloat pointScale;
 
-        GLint pColorMode  = HairColorMode::Ramp;
+        GLint pColorMode  = HairColorMode::UniformMaterial;
         float vColorMin   = 0;
         float vColorMax   = 1.0f;
         Vec3f colorMinVal = DEFAULT_COLOR_DATA_MIN;
         Vec3f colorMaxVal = DEFAULT_COLOR_DATA_MAX;
 
         bool initialized = false;
-    } m_RDataParticle;
+    } m_RDataHair;
 
-    void initRDataParticle();
-    void initParticleVAO();
-    void renderParticles();
+    void initRDataHair();
+    void initHairVAO();
+    void renderHair();
     ////////////////////////////////////////////////////////////////////////////////
 };

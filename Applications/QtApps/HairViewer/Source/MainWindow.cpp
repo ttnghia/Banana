@@ -52,8 +52,8 @@ void MainWindow::showEvent(QShowEvent* ev)
         showed = true;
         updateStatusMemoryUsage();
 
-        if(!m_Controller->m_InputPath->getCurrentPath().isEmpty()) {
-            // load model automatically
+        if(m_Controller->m_InputPath->getCurrentPath().isEmpty()) {
+            m_Controller->m_InputPath->setPath(QtAppUtils::getDefaultPath("Input"));
         }
     }
 }
@@ -123,15 +123,23 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_ClipPlaneEditor,                &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
-    connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked,              [&] { m_ClipPlaneEditor->show(); });
-    //    connect(m_Controller->m_chkEnableOutput,  &QCheckBox::toggled,                [&](bool checked)
-    //            {
-    //                m_bExportImg = checked;
-    //                m_Simulator->enableExportImg(checked);
-    //            });
-    //    connect(m_Simulator, &Simulator::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
-    //    connect(m_Simulator, &Simulator::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
+    connect(m_ClipPlaneEditor,                       &ClipPlaneEditor::clipPlaneChanged,                             m_RenderWidget, &RenderWidget::setClipPlane);
+
+    connect(m_Controller->m_cbModels->getComboBox(), QOverload<const QString&>::of(&QComboBox::currentIndexChanged), [&](const QString& hairFileName)
+            {
+                // load model and render
+                QString hairFile = m_Controller->m_InputPath->getCurrentPath() + QString("\\") + hairFileName;
+                if(m_HairModel->loadHairModel(hairFile.toStdString())) {
+                    m_RenderWidget->updateVizData();
+                }
+            });
+
+    connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked, [&] { m_ClipPlaneEditor->show(); });
+    connect(m_Controller->m_chkEnableOutput,  &QCheckBox::toggled,   [&](bool checked)
+            {
+                //                m_bExportImg = checked;
+                //                m_Simulator->enableExportImg(checked);
+            });
 
     ////////////////////////////////////////////////////////////////////////////////
     //    connect(m_Simulator, &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);

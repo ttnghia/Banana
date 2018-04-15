@@ -43,12 +43,12 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
-    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setParticleColorMode);
+    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setColorMode);
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
             {
                 m_msParticleMaterial->getComboBox()->setEnabled(colorMode == HairColorMode::UniformMaterial);
             });
-    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
+    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setHairMaterial);
     connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
     connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
     connect(m_btnRndColor,        &QPushButton::clicked,              [&]()
@@ -68,6 +68,12 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // scene
+    connect(m_InputPath, &BrowsePathWidget::pathChanged, [&]
+            {
+                auto models = QtAppUtils::getFiles("Input", QStringList({ "*.hair", "*.data", "*.bnn" }));
+                m_cbModels->getComboBox()->addItems(models);
+                m_lblModelCount->setText(QString("Model count: %1").arg(models.count()));
+            });
     connect(m_OutputPath, &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -86,8 +92,6 @@ void Controller::setupIOControllers()
     m_MainTab->setCurrentIndex(0);
     ////////////////////////////////////////////////////////////////////////////////
     m_InputPath = new BrowsePathWidget("Browse");
-    m_InputPath->setPath(QtAppUtils::getDefaultCapturePath());
-    ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grInput = new QGroupBox;
     grInput->setTitle("Model Path");
     grInput->setLayout(m_InputPath->getLayout());
@@ -104,7 +108,6 @@ void Controller::setupIOControllers()
     line1->setFrameShape(QFrame::HLine);
     line1->setFrameShadow(QFrame::Sunken);
     m_lblModelCount = new QLabel;
-    m_lblModelCount->setText("Model count: 0");
     ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutModelsCtr = new QVBoxLayout;
     layoutModelsCtr->addWidget(m_chkRenderAsSequence);
@@ -119,7 +122,7 @@ void Controller::setupIOControllers()
     grModels->setLayout(layoutModelsCtr);
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshPath = new BrowsePathWidget("Browse", false);
-    m_MeshPath->setPath(QtAppUtils::getDefaultCapturePath());
+    m_MeshPath->setPath(QtAppUtils::getVariable("MeshFile"));
     QVBoxLayout* layoutMeshPath = new QVBoxLayout;
     layoutMeshPath->addLayout(m_MeshPath->getLayout());
     QGroupBox* grpMeshPath = new QGroupBox;
