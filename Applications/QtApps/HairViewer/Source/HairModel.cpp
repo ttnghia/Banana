@@ -19,7 +19,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Data/DataBuffer.h>
 #include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/FileHelpers.h>
 
 #include "cyHairFile.h"
 #include "HairModel.h"
@@ -99,7 +101,58 @@ bool HairModel::loadCYHairModel(const String& hairFile)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool HairModel::loadUSCHairModel(const String& hairFile)
-{ return true; }
+{
+    static DataBuffer buffer;
+    if(!FileHelpers::readFile(buffer.buffer(), hairFile)) {
+        return false;
+    }
+    __BNN_REQUIRE(buffer.size() > 4);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int nstrands = -1;
+    buffer.getData(nstrands);
+    __BNN_REQUIRE(nstrands > 0);
+
+    m_nStrands = static_cast<UInt>(nstrands);
+    m_nStrandVertices.resize(m_nStrands, 0);
+    m_nTotalVertices = 0;
+    size_t offset = 4;
+    for(UInt i = 0; i < m_nStrands; ++i) {
+        int nverts = -1;
+        buffer.getData(nverts, offset);
+        __BNN_REQUIRE(nverts > 0);
+
+        m_nStrandVertices[i] = static_cast<UInt>(nverts);
+        m_nTotalVertices    += m_nStrandVertices[i];
+        offset              += static_cast<size_t>(4 + nverts * 12);
+    }
+    __BNN_REQUIRE(offset == buffer.size());
+    m_Vertices.resize(m_nTotalVertices);
+    m_Tangents.resize(m_nTotalVertices);
+    ////////////////////////////////////////////////////////////////////////////////
+    // populate data
+    UInt vcount = 0;
+    offset = 8;
+    for(UInt i = 0; i < m_nStrands; ++i) {
+        UInt nverts = m_nStrandVertices[i];
+        std::memcpy((void*)&m_Vertices[vcount], (void*)buffer.data(offset), nverts * 12);
+        offset += static_cast<size_t>(4 + nverts * 12);
+        vcount += nverts;
+    }
+
+    cyHairFile cyHair;
+    cyHair.header.hair_count  = m_nStrands;
+    cyHair.header.point_count = m_nTotalVertices;
+    cyHair.points             = reinterpret_cast<float*>(m_Vertices.data());
+    cyHair.segments           = new unsigned short[m_nStrands];
+    for(UInt i = 0; i < m_nStrands; ++i) {
+        cyHair.segments[i] = m_nStrandVertices[i] - 1;
+    }
+    cyHair.FillDirectionArray(reinterpret_cast<float*>(m_Tangents.data()));
+    cyHair.points = nullptr;
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void HairModel::computeBoundingBox()

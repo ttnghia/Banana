@@ -127,9 +127,12 @@ void MainWindow::connectWidgets()
 
     connect(m_Controller->m_cbModels->getComboBox(), QOverload<const QString&>::of(&QComboBox::currentIndexChanged), [&](const QString& hairFileName)
             {
+                qDebug() << "hair loading... " << hairFileName;
                 // load model and render
                 QString hairFile = m_Controller->m_InputPath->getCurrentPath() + QString("\\") + hairFileName;
+                qDebug() << "haijr fiike: " << hairFile;
                 if(m_HairModel->loadHairModel(hairFile.toStdString())) {
+                    qDebug() << "hair loaded: " << hairFile;
                     m_RenderWidget->updateVizData();
                 }
             });
