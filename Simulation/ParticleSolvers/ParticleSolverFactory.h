@@ -69,6 +69,10 @@ template<Int N, class RealType>
 SharedPtr<ParticleSolver<N, RealType>> ParticleSolverFactory<N, RealType >::createSolver(const String& solverName)
 {
     if(auto it = getCreateMethods().find(solverName); it != getCreateMethods().end()) {
+#ifdef __BANANA_DEBUG__
+        printf("Create particle solver: %s\n", solverName.c_str());
+        fflush(stdout);
+#endif
         return it->second();     // call the createFunc
     }
     return nullptr;
