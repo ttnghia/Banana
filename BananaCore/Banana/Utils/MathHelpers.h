@@ -584,6 +584,16 @@ inline T frand(T a, T b)
     return (static_cast<T>(rand()) / static_cast<T>(RAND_MAX)) * (b - a) + a;
 }
 
+template<class Vector>
+inline Vector vrand()
+{
+    Vector tmp;
+    for(Int i = 0; i < tmp.length(); ++i) {
+        tmp[i] = frand<Vector::value_type>();
+    }
+    return tmp;
+}
+
 template<class T>
 inline T frand11()
 {
