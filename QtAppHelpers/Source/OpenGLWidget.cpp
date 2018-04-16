@@ -388,6 +388,7 @@ void OpenGLWidget::initRDataFloor()
     Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
     m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, QtAppUtils::getTexturePath() + "/Floor/", m_UBufferCamData);
     m_FloorRender->setAllowNonTextureRender(false);
+    m_FloorRender->setExposure(0.5f);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -74,9 +74,9 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     connect(m_ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setMaterial(int)));
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_CustomMaterial.ambient   = glm::vec4(0.2 * 0.2);
-    m_CustomMaterial.diffuse   = glm::vec4(0.40, 0.65, 0.96, 1.00);
-    m_CustomMaterial.specular  = glm::vec4(1);
+    m_CustomMaterial.ambient   = Vec4f(0.2f * 0.2f);
+    m_CustomMaterial.diffuse   = Vec4f(0.40f, 0.65f, 0.96f, 1.00f);
+    m_CustomMaterial.specular  = Vec4f(1.0f);
     m_CustomMaterial.shininess = 200;
 
     m_ComboBox->addItem(QString("Custom Material"));
