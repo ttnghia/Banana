@@ -21,6 +21,7 @@
 
 #include <Banana/Geometry/MeshLoader.h>
 #include <Banana/Utils/MathHelpers.h>
+//#include <Banana/ParallelHelpers/Scheduler.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -71,6 +72,35 @@ float MeshLoader::getCameraDistance(float fov)
     float halfLength = (m_AABBMax.y - m_AABBMin.y) * float(0.5);
 
     return (halfLength / std::tan(fov * float(0.5 * M_PI / 180.0)));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshLoader::swapXY()
+{
+    swapCoordinates(0, 1);
+}
+
+void MeshLoader::swapYZ()
+{
+    swapCoordinates(1, 2);
+}
+
+void MeshLoader::swapXZ()
+{
+    swapCoordinates(0, 2);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshLoader::swapCoordinates(int k1, int k2)
+{
+    __BNN_REQUIRE(k1 >= 0 && k1 <= 2 && k2 >= 0 && k2 <= 2 && k1 != k2);
+    for(size_t i = 0, iend = m_Vertices.size() / 3; i < iend; ++i) {
+        std::swap(m_Vertices[i * 3 + k1], m_Vertices[i * 3 + k2]);
+    }
+
+    for(size_t i = 0, iend = m_FaceVertices.size() / 3; i < iend; ++i) {
+        std::swap(m_FaceVertices[i * 3 + k1], m_FaceVertices[i * 3 + k2]);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

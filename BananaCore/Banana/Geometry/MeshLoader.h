@@ -60,7 +60,11 @@ public:
     size_t getNVertices() const noexcept { assert(m_isMeshReady); return (m_Vertices.size() / 3); }
     size_t getNFaceVertices() const noexcept { assert(m_isMeshReady); return (m_FaceVertices.size() / 3); }
 
+    void swapXY();
+    void swapYZ();
+    void swapXZ();
 private:
+    void swapCoordinates(int k1, int k2);
     void checkFileType(const String& meshFile);
     void clearData();
 
