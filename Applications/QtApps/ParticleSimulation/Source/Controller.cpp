@@ -82,7 +82,7 @@ void Controller::setupSimulationControllers()
 {
     m_cbSimulationScene = new QComboBox;
     m_cbSimulationScene->addItem(QString("None"));
-    m_cbSimulationScene->addItems(QtAppUtils::getFiles("Scenes"));
+    m_cbSimulationScene->addItems(QtAppUtils::getFiles(QtAppUtils::getVariable("Scenes")));
     m_btnReloadScene = new QPushButton(" Reload ");
     QHBoxLayout* layoutScene = new QHBoxLayout;
     layoutScene->addWidget(m_cbSimulationScene, 10);

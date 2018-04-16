@@ -83,9 +83,9 @@ inline QString getVariable(const String& variableName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline QStringList getFiles(const String& folderName, const QStringList fileFilter = QStringList())
+inline QStringList getFiles(const QString& folderName, const QStringList fileFilter = QStringList())
 {
-    QDir dataDir(getDefaultPath(folderName));
+    QDir dataDir(folderName);
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
     dataDir.setNameFilters(fileFilter);
     return dataDir.entryList();
