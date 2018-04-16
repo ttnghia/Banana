@@ -80,8 +80,7 @@ void BrowsePathWidget::browse()
 {
     QString selectedPath = m_bFolderOnly ?
                            QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) :
-                           QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::DontResolveSymlinks);
-
+                           QFileDialog::getOpenFileName(nullptr, QString("Select file"), m_CurrentPath);
     if(selectedPath.trimmed() != "") {
         m_CurrentPath = selectedPath;
         m_txtPath->setText(m_CurrentPath);
