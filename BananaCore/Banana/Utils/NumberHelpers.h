@@ -29,6 +29,7 @@
 #include <random>
 
 #include <Banana/Setup.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -308,6 +309,115 @@ void clamp(VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N,
     for(UInt i = 0; i < N; ++i) {
         ppos[i] = MathHelpers::clamp(ppos[i], bMin[i] + margin, bMax[i] - margin);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void translate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& translation)
+{
+    Scheduler::parallel_for(points.size(), [&](size_t i)
+                            {
+                                points[i] = points[i] + translation;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void scale(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& scale)
+{
+    Scheduler::parallel_for(points.size(), [&](size_t i)
+                            {
+                                points[i] = points[i] * scale;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void rotate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& rotation)
+{
+    RealType azimuth = rotation[0];
+    RealType elevation = rotation[1];
+    RealType roll = rotation[2];
+    RealType sinA, cosA, sinE, cosE, sinR, cosR;
+
+    Vec3<RealType> R[3];
+
+    sinA = static_cast<RealType>(sin(azimuth));
+    cosA = static_cast<RealType>(cos(azimuth));
+    sinE = static_cast<RealType>(sin(elevation));
+    cosE = static_cast<RealType>(cos(elevation));
+    sinR = static_cast<RealType>(sin(roll));
+    cosR = static_cast<RealType>(cos(roll));
+
+    R[0][0] = cosR * cosA - sinR * sinA * sinE;
+    R[0][1] = sinR * cosA + cosR * sinA * sinE;
+    R[0][2] = -sinA * cosE;
+
+    R[1][0] = -sinR * cosE;
+    R[1][1] = cosR * cosE;
+    R[1][2] = sinE;
+
+    R[2][0] = cosR * sinA + sinR * cosA * sinE;
+    R[2][1] = sinR * sinA - cosR * cosA * sinE;
+    R[2][2] = cosA * cosE;
+
+    Scheduler::parallel_for(points.size(), [&](size_t i)
+                            {
+                                const auto& pi = points[i];
+                                points[i] = Vec3<RealType>(glm::dot(R[0], pi),
+                                                           glm::dot(R[1], pi),
+                                                           glm::dot(R[2], pi));
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void transform(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& translation, const VecX<N, RealType>& scale)
+{
+    Scheduler::parallel_for(points.size(), [&](size_t i)
+                            {
+                                points[i] = points[i] * scale + translation;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void transform(Vec_Vec3<RealType>& points, const Vec3<RealType>& translation, const Vec3<RealType>& scale, const Vec3<RealType>& rotation)
+{
+    RealType azimuth = rotation[0];
+    RealType elevation = rotation[1];
+    RealType roll = rotation[2];
+    RealType sinA, cosA, sinE, cosE, sinR, cosR;
+
+    Vec3<RealType> R[3];
+
+    sinA = static_cast<RealType>(sin(azimuth));
+    cosA = static_cast<RealType>(cos(azimuth));
+    sinE = static_cast<RealType>(sin(elevation));
+    cosE = static_cast<RealType>(cos(elevation));
+    sinR = static_cast<RealType>(sin(roll));
+    cosR = static_cast<RealType>(cos(roll));
+
+    R[0][0] = cosR * cosA - sinR * sinA * sinE;
+    R[0][1] = sinR * cosA + cosR * sinA * sinE;
+    R[0][2] = -sinA * cosE;
+
+    R[1][0] = -sinR * cosE;
+    R[1][1] = cosR * cosE;
+    R[1][2] = sinE;
+
+    R[2][0] = cosR * sinA + sinR * cosA * sinE;
+    R[2][1] = sinR * sinA - cosR * cosA * sinE;
+    R[2][2] = cosA * cosE;
+
+    Scheduler::parallel_for(points.size(), [&](size_t i)
+                            {
+                                const auto& pi = points[i];
+                                Vec3<RealType> tmp(glm::dot(R[0], pi),
+                                                   glm::dot(R[1], pi),
+                                                   glm::dot(R[2], pi));
+                                points[i] = tmp * scale + translation;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
