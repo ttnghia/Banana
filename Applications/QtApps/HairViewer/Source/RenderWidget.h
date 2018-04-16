@@ -34,7 +34,6 @@
 #include <QtAppHelpers/QtAppShaderProgram.h>
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>
-#include <QtAppHelpers/EnhancedMessageBox.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class RenderWidget : public OpenGLWidget
@@ -55,6 +54,7 @@ public slots:
     ////////////////////////////////////////////////////////////////////////////////
     // hair
 public slots:
+    void loadHairModel(const String& hairFile);
     void setColorMode(int colorMode);
     void setColorDataMin(const Vec3f& colorMin) { m_RDataHair.colorMinVal = colorMin; }
     void setColorDataMax(const Vec3f& colorMax) { m_RDataHair.colorMaxVal = colorMax; }
@@ -104,5 +104,19 @@ private:
     void initRDataHair();
     void initHairVAO();
     void renderHair();
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // mesh
+public slots:
+    void loadMesh(const QString& meshFile);
+    void setMeshMaterial(const Material::MaterialData& material);
+    void transformMeshWithHair();
+private:
+    void initRDataMesh();
+    void renderMesh();
+
+    SharedPtr<MeshObject> m_MeshObject;
+    UniquePtr<MeshRender> m_MeshRender;
     ////////////////////////////////////////////////////////////////////////////////
 };

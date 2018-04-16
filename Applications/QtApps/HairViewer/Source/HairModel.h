@@ -32,6 +32,15 @@ class HairModel
 public:
     HairModel() = default;
 
+    enum class ModelType
+    {
+        BananaType,
+        CYType,
+        USCHairType
+    };
+
+    ModelType getModelType() const { return m_ModelType; }
+
     /***
      * \brief Get the dimension of the model. Must be either 2 or 3
      */
@@ -56,6 +65,8 @@ public:
     auto getTangents() const { return m_Tangents; }
     auto getBMin() const { return m_BBoxMin; }
     auto getBMax() const { return m_BBoxMax; }
+    auto getTranslation() const { return m_Translation; }
+    auto getScale() const { return m_Scale; }
 
     /***
      * \brief Load a hair model, which must be either Cem Yuksel's hair format, USC-HairSalon hair format, or Banana's binary hair format
@@ -99,6 +110,7 @@ private:
     void scaleModel(float scale);
 
     ////////////////////////////////////////////////////////////////////////////////
+    ModelType  m_ModelType      = ModelType::BananaType;
     UInt       m_Dimension      = 3;
     UInt       m_nStrands       = 0;
     UInt       m_nTotalVertices = 0;
@@ -106,8 +118,10 @@ private:
 
     Vec_Vec3f m_Vertices;
     Vec_Vec3f m_Tangents;
-    Vec3f     m_BBoxMin = Vec3f(-1);
-    Vec3f     m_BBoxMax = Vec3f(1);
+    Vec3f     m_BBoxMin     = Vec3f(-1);
+    Vec3f     m_BBoxMax     = Vec3f(1);
+    Vec3f     m_Translation = Vec3f(0);
+    Vec3f     m_Scale       = Vec3f(1);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

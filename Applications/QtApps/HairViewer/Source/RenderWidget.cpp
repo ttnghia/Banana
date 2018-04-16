@@ -19,8 +19,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/ParallelHelpers/Scheduler.h>
-#include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/Geometry/MeshLoader.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include "RenderWidget.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -32,6 +32,7 @@ RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<HairModel>& hairMode
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initOpenGL()
 {
+    initRDataMesh();
     initRDataHair();
 }
 
@@ -44,6 +45,7 @@ void RenderWidget::resizeOpenGLWindow(int, int height)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::renderOpenGL()
 {
+    renderMesh();
     renderHair();
 }
 
@@ -104,6 +106,15 @@ void RenderWidget::updateVizData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::loadHairModel(const String& hairFile)
+{
+    if(m_HairModel->loadHairModel(hairFile)) {
+        updateVizData();
+        transformMeshWithHair();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::setColorMode(int colorMode)
 {
     Q_ASSERT(colorMode < HairColorMode::NumColorMode);
@@ -117,6 +128,15 @@ void RenderWidget::setColorMode(int colorMode)
         initHairVAO();
         doneCurrent();
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setHairMaterial(const Material::MaterialData& material)
+{
+    makeCurrent();
+    m_RDataHair.material->setMaterial(material);
+    m_RDataHair.material->uploadDataToGPU();
+    doneCurrent();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -155,7 +175,7 @@ void RenderWidget::initRDataHair()
     m_RDataHair.buffColorData->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataHair.material = std::make_unique<Material>();
-    m_RDataHair.material->setMaterial(CUSTOM_PARTICLE_MATERIAL);
+    m_RDataHair.material->setMaterial(CUSTOM_HAIR_MATERIAL);
     m_RDataHair.material->uploadDataToGPU();
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataHair.initialized = true;
@@ -234,10 +254,66 @@ void RenderWidget::renderHair()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setHairMaterial(const Material::MaterialData& material)
+void RenderWidget::loadMesh(const QString& meshFile)
 {
+    MeshLoader meshLoader(meshFile.toStdString());
+    if(m_HairModel->getModelType() == HairModel::ModelType::CYType) {
+        meshLoader.swapYZ();
+        meshLoader.swapXZ();
+    }
+    bool isEmpty = m_MeshObject->isEmpty();
+    m_MeshObject->clearData();
+    m_MeshObject->setVertices(meshLoader.getFaceVertices());
+    m_MeshObject->setVertexNormal(meshLoader.getFaceVertexNormals());
+
+    // backup vertices before transformation
+    m_MeshObject->backupVertices();
+    m_MeshObject->transform(m_HairModel->getTranslation(), m_HairModel->getScale());
+
     makeCurrent();
-    m_RDataHair.material->setMaterial(material);
-    m_RDataHair.material->uploadDataToGPU();
+    m_MeshObject->uploadDataToGPU();
+    if(isEmpty) {
+        m_MeshRender->setupVAO();
+    }
+    doneCurrent();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::transformMeshWithHair()
+{
+    // perform transformation on original vertices
+    m_MeshObject->restoreVertices();
+    m_MeshObject->transform(m_HairModel->getTranslation(), m_HairModel->getScale());
+    makeCurrent();
+    m_MeshObject->uploadDataToGPU();
+    doneCurrent();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::initRDataMesh()
+{
+    Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
+
+    m_MeshObject = std::make_shared<MeshObject>();
+    m_MeshRender = std::make_unique<MeshRender>(m_MeshObject, m_Camera, m_Lights, nullptr, m_UBufferCamData);
+
+    m_MeshRender->getMaterial()->setMaterial(CUSTOM_MESH_MATERIAL);
+    m_MeshRender->getMaterial()->uploadDataToGPU();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::renderMesh()
+{
+    Q_ASSERT(m_MeshRender != nullptr);
+    m_MeshRender->render();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setMeshMaterial(const Material::MaterialData& material)
+{
+    Q_ASSERT(m_MeshRender != nullptr);
+    makeCurrent();
+    m_MeshRender->getMaterial()->setMaterial(material);
+    m_MeshRender->getMaterial()->uploadDataToGPU();
     doneCurrent();
 }

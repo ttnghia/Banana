@@ -22,6 +22,7 @@
 #include <Banana/Data/DataBuffer.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/FileHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 
 #include "cyHairFile.h"
 #include "HairModel.h"
@@ -46,8 +47,8 @@ bool HairModel::loadHairModel(const String& hairFile, bool bScale /*= true*/, fl
         computeBoundingBox();
         if(bScale) {
             scaleModel(scale);
-            m_BBoxMin = Vec3f(-1);
-            m_BBoxMax = Vec3f(1);
+            m_BBoxMin = Vec3f(-scale);
+            m_BBoxMax = Vec3f(scale);
         }
     }
 
@@ -61,6 +62,7 @@ void HairModel::saveBNNHairModel(const String& hairFile) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool HairModel::loadBNNHairModel(const String& hairFile)
 {
+    m_ModelType = ModelType::BananaType;
     return true;
 }
 
@@ -96,6 +98,7 @@ bool HairModel::loadCYHairModel(const String& hairFile)
 
     cyHair.FillDirectionArray(reinterpret_cast<float*>(m_Tangents.data()));
     ////////////////////////////////////////////////////////////////////////////////
+    m_ModelType = ModelType::CYType;
     return true;
 }
 
@@ -151,6 +154,7 @@ bool HairModel::loadUSCHairModel(const String& hairFile)
     cyHair.FillDirectionArray(reinterpret_cast<float*>(m_Tangents.data()));
     cyHair.points = nullptr;
     ////////////////////////////////////////////////////////////////////////////////
+    m_ModelType = ModelType::USCHairType;
     return true;
 }
 
@@ -169,13 +173,11 @@ void HairModel::computeBoundingBox()
 void HairModel::scaleModel(float scale)
 {
     Vec3f diff = m_BBoxMax - m_BBoxMin;
-    scale /= MathHelpers::max(diff[0], diff[1], diff[2]);;
-    auto center = (m_BBoxMax + m_BBoxMin) * scale * 0.5f;
+    m_Scale       = Vec3f(2.0f * scale / MathHelpers::max(diff[0], diff[1], diff[2]));
+    m_Translation = (m_BBoxMax + m_BBoxMin) * 0.5f;
 
-    for(auto& vertex : m_Vertices) {
-        vertex *= scale;
-        vertex -= center;
-    }
+    m_Translation = -m_Translation * m_Scale;
+    NumberHelpers::transform(m_Vertices, m_Translation, m_Scale);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

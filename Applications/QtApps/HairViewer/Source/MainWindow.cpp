@@ -52,9 +52,9 @@ void MainWindow::showEvent(QShowEvent* ev)
         showed = true;
         updateStatusMemoryUsage();
 
-        if(m_Controller->m_InputPath->getCurrentPath().isEmpty()) {
-            m_Controller->m_InputPath->setPath(QtAppUtils::getDefaultPath("Input"));
-        }
+        m_Controller->m_InputPath->setPath(QtAppUtils::getDefaultPath("Input"));
+        while(m_HairModel->getNStrands() == 0) {; }
+        m_Controller->m_MeshFile->setPath(QtAppUtils::getVariable("MeshFile"));
     }
 }
 
@@ -127,14 +127,8 @@ void MainWindow::connectWidgets()
 
     connect(m_Controller->m_cbModels->getComboBox(), QOverload<const QString&>::of(&QComboBox::currentIndexChanged), [&](const QString& hairFileName)
             {
-                qDebug() << "hair loading... " << hairFileName;
-                // load model and render
                 QString hairFile = m_Controller->m_InputPath->getCurrentPath() + QString("\\") + hairFileName;
-                qDebug() << "haijr fiike: " << hairFile;
-                if(m_HairModel->loadHairModel(hairFile.toStdString())) {
-                    qDebug() << "hair loaded: " << hairFile;
-                    m_RenderWidget->updateVizData();
-                }
+                m_RenderWidget->loadHairModel(hairFile.toStdString());
             });
 
     connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked, [&] { m_ClipPlaneEditor->show(); });

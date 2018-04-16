@@ -26,9 +26,10 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupGUI()
 {
-    setupMaterialControllers();
     setupHairRenderModeControllers();
-    setupColorModeControllers();
+    setupHairColorModeControllers();
+    setupHairMaterialControllers();
+    setupMeshMaterialControllers();
     setupIOControllers();
     setupButtons();
 }
@@ -46,12 +47,13 @@ void Controller::connectWidgets()
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setColorMode);
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
             {
-                m_msParticleMaterial->getComboBox()->setEnabled(colorMode == HairColorMode::UniformMaterial);
+                m_msHairMaterial->getComboBox()->setEnabled(colorMode == HairColorMode::UniformMaterial);
             });
-    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setHairMaterial);
-    connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
-    connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_btnRndColor,        &QPushButton::clicked,              [&]()
+    connect(m_msHairMaterial,  &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setHairMaterial);
+    connect(m_msMeshMaterial,  &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setMeshMaterial);
+    connect(m_pkrColorDataMin, &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax, &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
+    connect(m_btnRndColor,     &QPushButton::clicked,              [&]()
             {
                 auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
                                       NumberHelpers::generateRandomReal(0.0f, 1.0f),
@@ -68,12 +70,14 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // scene
-    connect(m_InputPath, &BrowsePathWidget::pathChanged, [&]
+    connect(m_InputPath, &BrowsePathWidget::pathChanged, [&](const QString& inputFolder)
             {
-                auto models = QtAppUtils::getFiles("Input", QStringList({ "*.hair", "*.data", "*.bnn" }));
+                auto models = QtAppUtils::getFiles(inputFolder, QStringList({ "*.hair", "*.data", "*.bnn" }));
+                m_cbModels->getComboBox()->clear();
                 m_cbModels->getComboBox()->addItems(models);
                 m_lblModelCount->setText(QString("Model count: %1").arg(models.count()));
             });
+    connect(m_MeshFile,   &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::loadMesh);
     connect(m_OutputPath, &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -121,10 +125,9 @@ void Controller::setupIOControllers()
     grModels->setTitle("Models");
     grModels->setLayout(layoutModelsCtr);
     ////////////////////////////////////////////////////////////////////////////////
-    m_MeshPath = new BrowsePathWidget("Browse", false);
-    m_MeshPath->setPath(QtAppUtils::getVariable("MeshFile"));
+    m_MeshFile = new BrowsePathWidget("Browse", false);
     QVBoxLayout* layoutMeshPath = new QVBoxLayout;
-    layoutMeshPath->addLayout(m_MeshPath->getLayout());
+    layoutMeshPath->addLayout(m_MeshFile->getLayout());
     QGroupBox* grpMeshPath = new QGroupBox;
     grpMeshPath->setTitle("Mesh");
     grpMeshPath->setLayout(layoutMeshPath);
@@ -158,16 +161,30 @@ void Controller::setupIOControllers()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupMaterialControllers()
+void Controller::setupHairMaterialControllers()
 {
-    m_msParticleMaterial = new MaterialSelector;
-    m_msParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL);
-    m_msParticleMaterial->setDefaultCustomMaterial(true);
-    m_msParticleMaterial->getComboBox()->setEnabled(false);
+    m_msHairMaterial = new MaterialSelector;
+    m_msHairMaterial->setCustomMaterial(CUSTOM_HAIR_MATERIAL);
+    m_msHairMaterial->setDefaultCustomMaterial(true);
+    m_msHairMaterial->getComboBox()->setEnabled(false);
     QGridLayout* layoutMaterial = new QGridLayout;
-    layoutMaterial->addLayout(m_msParticleMaterial->getLayout(), 0, 0, 1, 2);
+    layoutMaterial->addLayout(m_msHairMaterial->getLayout(), 0, 0, 1, 2);
     ////////////////////////////////////////////////////////////////////////////////
-    QGroupBox* grMaterial = new QGroupBox("Material");
+    QGroupBox* grMaterial = new QGroupBox("Hair Material");
+    grMaterial->setLayout(layoutMaterial);
+    m_LayoutRenderControllers->addWidget(grMaterial);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupMeshMaterialControllers()
+{
+    m_msMeshMaterial = new MaterialSelector;
+    m_msMeshMaterial->setCustomMaterial(CUSTOM_MESH_MATERIAL);
+    m_msMeshMaterial->setDefaultCustomMaterial(true);
+    QGridLayout* layoutMaterial = new QGridLayout;
+    layoutMaterial->addLayout(m_msMeshMaterial->getLayout(), 0, 0, 1, 2);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grMaterial = new QGroupBox("Mesh Material");
     grMaterial->setLayout(layoutMaterial);
     m_LayoutRenderControllers->addWidget(grMaterial);
 }
@@ -209,7 +226,7 @@ void Controller::setupHairRenderModeControllers()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupColorModeControllers()
+void Controller::setupHairColorModeControllers()
 {
     ////////////////////////////////////////////////////////////////////////////////
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
