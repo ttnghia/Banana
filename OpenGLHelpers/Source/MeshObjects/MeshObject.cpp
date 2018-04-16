@@ -19,6 +19,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <OpenGLHelpers/MeshObjects/MeshObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -32,85 +35,115 @@ MeshObject::~MeshObject()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::transformObject(GLfloat scaleX, GLfloat scaleY, GLfloat scaleZ,
-                                 GLfloat translateX, GLfloat translateY,
-                                 GLfloat translateZ)
+void MeshObject::transform(const Vec3f& translation, const Vec3f& scale)
 {
-    m_ScaleX = scaleX;
-    m_ScaleY = scaleY;
-    m_ScaleZ = scaleZ;
-
-    m_TranslateX = translateX;
-    m_TranslateY = translateY;
-    m_TranslateZ = translateZ;
-
-    m_isNoTransformation = false;
-
+    m_Translation  = translation;
+    m_Scale        = scale;
+    m_bTranslation = true;
+    m_bScale       = true;
     ////////////////////////////////////////////////////////////////////////////////
-    // rescale
     if(m_isDataReady) {
-        for(size_t i = 0; i < m_NumVertices; ++i) {
-            m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
-            m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
-            m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
-        }
+        NumberHelpers::transform(m_Vertices, translation, scale);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::transform(const Vec3f& translation, const Vec3f& scale, const Vec3f& rotation)
+{
+    m_Translation  = translation;
+    m_Scale        = scale;
+    m_Rotation     = rotation;
+    m_bTranslation = true;
+    m_bScale       = true;
+    m_bRotate      = true;
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_isDataReady) {
+        NumberHelpers::transform(m_Vertices, translation, scale, rotation);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::translate(const Vec3f& translation)
+{
+    m_Translation  = translation;
+    m_bTranslation = true;
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_isDataReady) {
+        NumberHelpers::translate(m_Vertices, translation);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::scale(const Vec3f& scale)
+{
+    m_Scale  = scale;
+    m_bScale = true;
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_isDataReady) {
+        NumberHelpers::scale(m_Vertices, scale);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::rotate(const Vec3f& rotation)
+{
+    m_Rotation = rotation;
+    m_bRotate  = true;
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_isDataReady) {
+        NumberHelpers::rotate(m_Vertices, rotation);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::setVertices(const Vector<Vec3f>& vertices)
+{
+    setVertices((void*)vertices.data(), vertices.size() * sizeof(Vec3f));
+}
+
 void MeshObject::setVertices(const Vector<GLfloat>& vertices)
 {
-    m_NumVertices = vertices.size() / 3;
-    m_Vertices.resize(vertices.size());
-    std::copy(vertices.begin(), vertices.end(), m_Vertices.begin());
-
-    if(!m_isNoTransformation) {
-        for(size_t i = 0; i < m_NumVertices; ++i) {
-            m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
-            m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
-            m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
-        }
-    }
-
-    m_isDataReady = true;
+    setVertices((void*)vertices.data(), vertices.size() * sizeof(GLfloat));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::setVertices(void* vertexData, size_t dataSize)
 {
-    m_NumVertices = dataSize / 3 / sizeof(GLfloat);
-    m_Vertices.resize(m_NumVertices * 3);
-    memcpy(m_Vertices.data(), vertexData, dataSize);
+    m_NVertices = dataSize / 3 / sizeof(GLfloat);
+    __BNN_REQUIRE(m_NVertices * 3 * sizeof(GLfloat) == dataSize);
+    m_Vertices.resize(m_NVertices);
+    std::memcpy((void*)m_Vertices.data(), vertexData, dataSize);
 
-    if(!m_isNoTransformation) {
-        for(size_t i = 0; i < m_NumVertices; ++i) {
-            m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
-            m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
-            m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
-        }
+    if(m_bTranslation && m_bScale && m_bRotate) {
+        NumberHelpers::transform(m_Vertices, m_Translation, m_Scale, m_Rotation);
+    } else if(m_bTranslation && m_bScale) {
+        NumberHelpers::transform(m_Vertices, m_Translation, m_Scale);
+    } else if(m_bTranslation) {
+        NumberHelpers::translate(m_Vertices, m_Translation);
     }
 
     m_isDataReady = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::setVertexNormal(const Vector<Vec3f>& normals)
+{
+    setVertexNormal((void*)normals.data(), normals.size() * sizeof(Vec3f));
+}
+
 void MeshObject::setVertexNormal(const Vector<GLfloat>& normals)
 {
-    assert(normals.size() == m_NumVertices * 3);
-    m_hasVertexNormal = true;
-
-    m_VertexNormals.resize(m_NumVertices * 3);
-    std::copy(normals.begin(), normals.end(), m_VertexNormals.begin());
+    setVertexNormal((void*)normals.data(), normals.size() * sizeof(GLfloat));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::setVertexNormal(void* normalData, size_t dataSize)
 {
-    assert(dataSize == m_NumVertices * 3 * sizeof(GLfloat));
+    assert(dataSize == m_NVertices * 3 * sizeof(GLfloat));
     m_hasVertexNormal = true;
 
-    m_VertexNormals.resize(m_NumVertices * 3);
-    memcpy(m_VertexNormals.data(), normalData, dataSize);
+    m_VertexNormals.resize(m_NVertices);
+    std::memcpy((void*)m_VertexNormals.data(), normalData, dataSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -119,10 +152,7 @@ void MeshObject::inverseVertexNormal()
     if(!m_hasVertexNormal) {
         return;
     }
-
-    for(size_t i = 0; i < m_VertexNormals.size(); ++i) {
-        m_VertexNormals[i] *= -1.0;
-    }
+    Scheduler::parallel_for(m_NVertices, [&](size_t i) { m_VertexNormals[i] *= -1.0f; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -133,23 +163,24 @@ void MeshObject::clearVertexNormal()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertexTexCoord(const Vector<float>& texcoords)
+void MeshObject::setVertexTexCoord(const Vector<Vec2f>& texcoords)
 {
-    assert(texcoords.size() == m_NumVertices * 2);
-    m_hasVertexTexCoord = true;
+    setVertexTexCoord((void*)texcoords.data(), texcoords.size() * sizeof(Vec2f));
+}
 
-    m_VertexTexCoords.resize(m_NumVertices * 2);
-    std::copy(texcoords.begin(), texcoords.end(), m_VertexTexCoords.begin());
+void MeshObject::setVertexTexCoord(const Vector<GLfloat>& texcoords)
+{
+    setVertexTexCoord((void*)texcoords.data(), texcoords.size() * sizeof(GLfloat));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::setVertexTexCoord(void* texData, size_t dataSize)
 {
-    assert(dataSize == m_NumVertices * 2 * sizeof(GLfloat));
+    assert(dataSize == m_NVertices * 2 * sizeof(GLfloat));
     m_hasVertexTexCoord = true;
 
-    m_VertexTexCoords.resize(m_NumVertices * 2);
-    memcpy(m_VertexTexCoords.data(), texData, dataSize);
+    m_VertexTexCoords.resize(m_NVertices);
+    std::memcpy((void*)m_VertexTexCoords.data(), texData, dataSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -158,11 +189,7 @@ void MeshObject::scaleVertexTexCoord(GLfloat scaleX, GLfloat scaleY)
     if(!m_hasVertexTexCoord) {
         return;
     }
-
-    for(size_t i = 0; i < m_NumVertices; ++i) {
-        m_VertexTexCoords[i * 2]     *= scaleX;
-        m_VertexTexCoords[i * 2 + 1] *= scaleY;
-    }
+    Scheduler::parallel_for(m_NVertices, [&](size_t i) { m_VertexTexCoords[i] *= Vec2f(scaleX, scaleY); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -173,23 +200,24 @@ void MeshObject::clearVertexTexCoord()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertexColor(const Vector<float>& vcolors)
+void MeshObject::setVertexColor(const Vector<Vec3f>& vcolors)
 {
-    assert(vcolors.size() == m_NumVertices * 3);
-    m_hasVertexColor = true;
+    setVertexColor((void*)vcolors.data(), vcolors.size() * sizeof(Vec3f));
+}
 
-    m_VertexColors.resize(m_NumVertices * 3);
-    std::copy(vcolors.begin(), vcolors.end(), m_VertexColors.begin());
+void MeshObject::setVertexColor(const Vector<GLfloat>& vcolors)
+{
+    setVertexColor((void*)vcolors.data(), vcolors.size() * sizeof(GLfloat));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::setVertexColor(void* colorData, size_t dataSize)
 {
-    assert(dataSize == m_NumVertices * 3 * sizeof(GLfloat));
+    assert(dataSize == m_NVertices * 3 * sizeof(GLfloat));
     m_hasVertexColor = true;
 
-    m_VertexColors.resize(m_NumVertices * 3);
-    memcpy(m_VertexColors.data(), colorData, dataSize);
+    m_VertexColors.resize(m_NVertices);
+    std::memcpy((void*)m_VertexColors.data(), colorData, dataSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -200,10 +228,11 @@ void MeshObject::generateRandomVertexColor()
     }
 
     m_hasVertexColor = true;
-    m_VertexColors.resize(m_Vertices.size());
+    m_VertexColors.resize(m_NVertices);
 
+    // cannot run in parallel: rand() is not thread safe
     for(size_t i = 0; i < m_VertexColors.size(); ++i) {
-        m_VertexColors[i] = (GLfloat)rand() / (GLfloat)RAND_MAX;
+        m_VertexColors[i] = MathHelpers::vrand<Vec3f>();
     }
 }
 
@@ -239,12 +268,6 @@ void MeshObject::clearElementIndexLong()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setCullFaceMode(GLenum cullFaceMode)
-{
-    m_CullFaceMode = cullFaceMode;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::draw()
 {
     if(!m_isDataReady) {
@@ -270,7 +293,7 @@ void MeshObject::draw()
             glCall(glDrawElements(m_DataTopology, static_cast<GLsizei>(m_IndexList.size()), GL_UNSIGNED_SHORT, 0));
         }
     } else {
-        glCall(glDrawArrays(m_DataTopology, 0, static_cast<GLsizei>(m_NumVertices)));
+        glCall(glDrawArrays(m_DataTopology, 0, static_cast<GLsizei>(m_NVertices)));
     }
 }
 
@@ -286,37 +309,32 @@ void MeshObject::uploadDataToGPU()
     }
 
     //size_t offset = 0;
-    size_t dataSize = sizeof(GLfloat) * m_Vertices.size();
+    size_t dataSize = sizeof(Vec3f) * m_NVertices;
+    assert(m_Vertices.size() == m_NVertices);
     m_VertexBuffer->uploadDataAsync((GLvoid*)m_Vertices.data(), 0, dataSize);
 
     if(m_hasVertexNormal) {
-        assert(m_VertexNormals.size() == m_NumVertices * 3);
-        dataSize = sizeof(GLfloat) * m_VertexNormals.size();
+        assert(m_VertexNormals.size() == m_NVertices);
         m_NormalBuffer->uploadDataAsync((GLvoid*)m_VertexNormals.data(), 0, dataSize);
     }
 
-    if(m_hasVertexTexCoord) {
-        assert(m_VertexTexCoords.size() == m_NumVertices * 2);
-        dataSize = sizeof(GLfloat) * m_VertexTexCoords.size();
-        m_TexCoordBuffer->uploadDataAsync((GLvoid*)m_VertexTexCoords.data(), 0, dataSize);
-    }
-
     if(m_hasVertexColor) {
-        assert(m_VertexColors.size() == m_NumVertices * 3);
-        dataSize = sizeof(GLfloat) * m_VertexColors.size();
+        assert(m_VertexColors.size() == m_NVertices);
         m_VertexColorBuffer->uploadDataAsync((GLvoid*)m_VertexColors.data(), 0, dataSize);
     }
 
+    if(m_hasVertexTexCoord) {
+        assert(m_VertexTexCoords.size() == m_NVertices);
+        dataSize = sizeof(Vec2f) * m_VertexTexCoords.size();
+        m_TexCoordBuffer->uploadDataAsync((GLvoid*)m_VertexTexCoords.data(), 0, dataSize);
+    }
     ////////////////////////////////////////////////////////////////////////////////
     if(m_hasIndexBuffer) {
         assert(m_IndexBuffer != nullptr);
 
-        dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
-                   sizeof(GLushort) * m_IndexList.size();
-        m_IndexBuffer->uploadDataAsync(m_isMeshVeryLarge ? (GLvoid*)m_IndexListLong.data() :
-                                       (GLvoid*)m_IndexList.data(), 0, dataSize);
+        dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() : sizeof(GLushort) * m_IndexList.size();
+        m_IndexBuffer->uploadDataAsync(m_isMeshVeryLarge ? (GLvoid*)m_IndexListLong.data() : (GLvoid*)m_IndexList.data(), 0, dataSize);
     }
-
     ////////////////////////////////////////////////////////////////////////////////
     m_isGLDataReady = true;
 }
@@ -331,144 +349,45 @@ void MeshObject::clearData()
     clearElementIndex();
     clearElementIndexLong();
 
-    m_NumVertices  = 0;
+    m_NVertices    = 0;
     m_DataTopology = GL_TRIANGLES;
 
-    m_isMeshVeryLarge    = false;
-    m_isNoTransformation = true;
-    m_isDataReady        = false;
-
-    m_ScaleX = 1.0;
-    m_ScaleY = 1.0;
-    m_ScaleZ = 1.0;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MeshObject::isEmpty() const
-{
-    return !m_isDataReady;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-size_t MeshObject::getNumVertices() const
-{
-    return m_NumVertices;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const Vector<GLushort>& MeshObject::getIndexList() const
-{
-    return m_IndexList;
-}
-
-const Vector<GLuint>& MeshObject::getIndexListLong() const
-{
-    return m_IndexListLong;
-}
-
-const Vector<GLfloat>& MeshObject::getVertices() const
-{
-    return m_Vertices;
-}
-
-const Vector<GLfloat>& MeshObject::getVertexNormals() const
-{
-    return m_VertexNormals;
-}
-
-const Vector<GLfloat>& MeshObject::getVertexTexCoords() const
-{
-    return m_VertexTexCoords;
-}
-
-const Vector<GLfloat>& MeshObject::getVertexColors() const
-{
-    return m_VertexColors;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const SharedPtr<OpenGLBuffer>& MeshObject::getIndexBuffer() const
-{
-    return m_IndexBuffer;
-}
-
-const SharedPtr<OpenGLBuffer>& MeshObject::getVertexBuffer() const
-{
-    return m_VertexBuffer;
-}
-
-const SharedPtr<OpenGLBuffer>& MeshObject::getNormalBuffer() const
-{
-    return m_NormalBuffer;
-}
-
-const SharedPtr<OpenGLBuffer>& MeshObject::getTexCoordBuffer() const
-{
-    return m_TexCoordBuffer;
-}
-
-const SharedPtr<OpenGLBuffer>& MeshObject::getVertexColorBuffer() const
-{
-    return m_VertexColorBuffer;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MeshObject::hasVertexNormal() const
-{
-    return m_hasVertexNormal;
-}
-
-bool MeshObject::hasVertexTexCoord() const
-{
-    return m_hasVertexTexCoord;
-}
-
-bool MeshObject::hasVertexColor() const
-{
-    return m_hasVertexColor;
-}
-
-bool MeshObject::hasIndexBuffer() const
-{
-    return m_hasIndexBuffer;
+    m_isMeshVeryLarge = false;
+    m_isDataReady     = false;
+    m_bTranslation    = false;
+    m_bScale          = false;
+    m_bRotate         = false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::createBuffers()
 {
-    // create vertex array buffer
     if(!m_isDataReady) {
         return;
     }
 
-    size_t vBufferSize = sizeof(GLfloat) * m_Vertices.size();
+    size_t vBufferSize = sizeof(Vec3f) * m_NVertices;
     m_VertexBuffer = std::make_shared<OpenGLBuffer>();
     m_VertexBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
 
-
     if(m_hasVertexNormal) {
-        vBufferSize    = sizeof(GLfloat) * m_VertexNormals.size();
         m_NormalBuffer = std::make_shared<OpenGLBuffer>();
         m_NormalBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
     }
-
-    if(m_hasVertexTexCoord) {
-        vBufferSize      = sizeof(GLfloat) * m_VertexTexCoords.size();
-        m_TexCoordBuffer = std::make_shared<OpenGLBuffer>();
-        m_TexCoordBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
-    }
-
     if(m_hasVertexColor) {
-        vBufferSize         = sizeof(GLfloat) * m_VertexColors.size();
         m_VertexColorBuffer = std::make_shared<OpenGLBuffer>();
         m_VertexColorBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
     }
 
+    if(m_hasVertexTexCoord) {
+        vBufferSize      = sizeof(Vec2f) * m_VertexTexCoords.size();
+        m_TexCoordBuffer = std::make_shared<OpenGLBuffer>();
+        m_TexCoordBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
+    }
+
     // create element array buffer
     if(m_hasIndexBuffer) {
-        size_t iBufferSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
-                             sizeof(GLushort) * m_IndexList.size();
-
+        size_t iBufferSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() : sizeof(GLushort) * m_IndexList.size();
         m_IndexBuffer = std::make_shared<OpenGLBuffer>();
         m_IndexBuffer->createBuffer(GL_ELEMENT_ARRAY_BUFFER, iBufferSize);
     }
@@ -483,8 +402,11 @@ void MeshObject::createBuffers()
 void MeshObject::clearBuffer()
 {
     m_VertexBuffer->deleteBuffer();
-    m_IndexBuffer->deleteBuffer();
-
+    if(m_NormalBuffer != nullptr) { m_NormalBuffer->deleteBuffer(); }
+    if(m_VertexColorBuffer != nullptr) { m_VertexColorBuffer->deleteBuffer(); }
+    if(m_TexCoordBuffer != nullptr) { m_TexCoordBuffer->deleteBuffer(); }
+    if(m_IndexBuffer != nullptr) { m_IndexBuffer->deleteBuffer(); }
+    ////////////////////////////////////////////////////////////////////////////////
     m_isGLDataReady = false;
 }
 

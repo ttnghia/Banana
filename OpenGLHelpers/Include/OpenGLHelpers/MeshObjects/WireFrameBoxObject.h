@@ -32,10 +32,7 @@ namespace Banana
 class WireFrameBoxObject : public MeshObject
 {
 public:
-    WireFrameBoxObject()
-    {
-        generateBox();
-    }
+    WireFrameBoxObject() { generateBox(); }
 
     void generateBox()
     {
@@ -43,15 +40,15 @@ public:
 
         m_Vertices = {
             // top
-            -1.0,  1.0,  1.0,
-            1.0,   1.0,  1.0,
-            1.0,   1.0, -1.0,
-            -1.0,  1.0, -1.0,
+            Vec3f(  -1.0, 1.0,    1.0),
+            Vec3f(1.0,    1.0,    1.0),
+            Vec3f(1.0,    1.0,      -1.0),
+            Vec3f(  -1.0, 1.0,      -1.0),
             // bottom
-            -1.0, -1.0,  1.0,
-            1.0,  -1.0,  1.0,
-            1.0,  -1.0, -1.0,
-            -1.0, -1.0, -1.0,
+            Vec3f(  -1.0,   -1.0, 1.0),
+            Vec3f(1.0,      -1.0, 1.0),
+            Vec3f(1.0,      -1.0,   -1.0),
+            Vec3f(  -1.0,   -1.0,   -1.0)
         };
 
         m_IndexList = {
@@ -72,9 +69,8 @@ public:
             3, 7
         };
 
-
         ////////////////////////////////////////////////////////////////////////////////
-        m_NumVertices    = 8;
+        m_NVertices      = 8;
         m_isDataReady    = true;
         m_hasIndexBuffer = true;
         m_DataTopology   = GL_LINES;
@@ -84,15 +80,15 @@ public:
     {
         m_Vertices = {
             // top
-            boxMin[0], boxMax[1], boxMax[2],
-            boxMax[0], boxMax[1], boxMax[2],
-            boxMax[0], boxMax[1], boxMin[2],
-            boxMin[0], boxMax[1], boxMin[2],
+            Vec3f(boxMin[0], boxMax[1], boxMax[2]),
+            Vec3f(boxMax[0], boxMax[1], boxMax[2]),
+            Vec3f(boxMax[0], boxMax[1], boxMin[2]),
+            Vec3f(boxMin[0], boxMax[1], boxMin[2]),
             // bottom
-            boxMin[0], boxMin[1], boxMax[2],
-            boxMax[0], boxMin[1], boxMax[2],
-            boxMax[0], boxMin[1], boxMin[2],
-            boxMin[0], boxMin[1], boxMin[2]
+            Vec3f(boxMin[0], boxMin[1], boxMax[2]),
+            Vec3f(boxMax[0], boxMin[1], boxMax[2]),
+            Vec3f(boxMax[0], boxMin[1], boxMin[2]),
+            Vec3f(boxMin[0], boxMin[1], boxMin[2])
         };
     }
 };

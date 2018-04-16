@@ -30,48 +30,40 @@ namespace Banana
 class SphereObject : public MeshObject
 {
 public:
-    SphereObject()
-    {
-        generateSphere(25, 50);
-    }
+    SphereObject() { generateSphere(25, 50); }
 
     void generateSphere(int numStacks, int numSlices)
     {
         clearData();
-        GLfloat vertex[3];
-        GLfloat tex[2];
-        m_NumVertices = 0;
+        Vec3f vertex;
+        Vec2f tex;
+        m_NVertices = 0;
 
         for(int j = 0; j <= numStacks; ++j) {
             GLfloat theta    = (GLfloat)j * M_PI / (GLfloat)numStacks;
-            GLfloat sinTheta = sin(theta);
-            GLfloat cosTheta = cos(theta);
+            GLfloat sinTheta = static_cast<GLfloat>(sin(theta));
+            GLfloat cosTheta = static_cast<GLfloat>(cos(theta));
 
             for(int i = 0; i <= numSlices; ++i) {
-                GLfloat phi    = (GLfloat)i * 2.0 * M_PI / (GLfloat)numSlices;
-                GLfloat sinPhi = (GLfloat)sin(phi);
-                GLfloat cosPhi = (GLfloat)cos(phi);
+                GLfloat phi    = static_cast<GLfloat>(i * 2.0f * M_PI / static_cast<GLfloat>(numSlices));
+                GLfloat sinPhi = static_cast<GLfloat>(sin(phi));
+                GLfloat cosPhi = static_cast<GLfloat>(cos(phi));
 
                 vertex[0] = cosPhi * sinTheta;
                 vertex[1] = cosTheta;
                 vertex[2] = sinPhi * sinTheta;
 
-                m_Vertices.push_back(vertex[0]);
-                m_Vertices.push_back(vertex[1]);
-                m_Vertices.push_back(vertex[2]);
+                m_Vertices.push_back(vertex);
 
                 // normal at this point is the same value with coordinate
-                m_VertexNormals.push_back(vertex[0]);
-                m_VertexNormals.push_back(vertex[1]);
-                m_VertexNormals.push_back(vertex[2]);
+                m_VertexNormals.push_back(vertex);
 
                 // texture coordinate
                 tex[0] = 2.0 * (1.0 - (GLfloat)i / (GLfloat)numSlices);
                 tex[1] = 1.0 - (GLfloat)j / (GLfloat)numStacks;
-                m_VertexTexCoords.push_back(tex[0]);
-                m_VertexTexCoords.push_back(tex[1]);
-
-                ++m_NumVertices;
+                m_VertexTexCoords.push_back(tex);
+                ////////////////////////////////////////////////////////////////////////////////
+                ++m_NVertices;
             }
         }
 

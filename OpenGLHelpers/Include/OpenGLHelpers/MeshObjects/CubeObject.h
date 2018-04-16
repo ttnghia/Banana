@@ -40,103 +40,102 @@ public:
 
         m_Vertices = {
             // right
-            -1.0f, -1.0f,  1.0f,
-            1.0f,  -1.0f,  1.0f,
-            1.0f,   1.0f,  1.0f,
-            -1.0f,  1.0f,  1.0f,
+            Vec3f(   -1.0f,    -1.0f, 1.0f),
+            Vec3f(1.0f,        -1.0f, 1.0f),
+            Vec3f(1.0f,     1.0f,     1.0f),
+            Vec3f(   -1.0f, 1.0f,     1.0f),
             // top
-            -1.0f,  1.0f,  1.0f,
-            1.0f,   1.0f,  1.0f,
-            1.0f,   1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
+            Vec3f(   -1.0f, 1.0f,     1.0f),
+            Vec3f(1.0f,     1.0f,     1.0f),
+            Vec3f(1.0f,     1.0f,        -1.0f),
+            Vec3f(   -1.0f, 1.0f,        -1.0f),
             // left
-            1.0f,  -1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
-            1.0f,   1.0f, -1.0f,
+            Vec3f(1.0f,        -1.0f,    -1.0f),
+            Vec3f(   -1.0f,    -1.0f,    -1.0f),
+            Vec3f(   -1.0f, 1.0f,        -1.0f),
+            Vec3f(1.0f,     1.0f,        -1.0f),
             // bottom
-            -1.0f, -1.0f, -1.0f,
-            1.0f,  -1.0f, -1.0f,
-            1.0f,  -1.0f,  1.0f,
-            -1.0f, -1.0f,  1.0f,
+            Vec3f(   -1.0f,    -1.0f,    -1.0f),
+            Vec3f(1.0f,        -1.0f,    -1.0f),
+            Vec3f(1.0f,        -1.0f, 1.0f),
+            Vec3f(   -1.0f,    -1.0f, 1.0f),
             // back
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f,  1.0f,
-            -1.0f,  1.0f,  1.0f,
-            -1.0f,  1.0f, -1.0f,
+            Vec3f(   -1.0f,    -1.0f,    -1.0f),
+            Vec3f(   -1.0f,    -1.0f, 1.0f),
+            Vec3f(   -1.0f, 1.0f,     1.0f),
+            Vec3f(   -1.0f, 1.0f,        -1.0f),
             // front
-            1.0f,  -1.0f,  1.0f,
-            1.0f,  -1.0f, -1.0f,
-            1.0f,   1.0f, -1.0f,
-            1.0f,   1.0f, 1.0f
+            Vec3f(1.0f,        -1.0f, 1.0f),
+            Vec3f(1.0f,        -1.0f,    -1.0f),
+            Vec3f(1.0f,     1.0f,        -1.0f),
+            Vec3f(1.0f,     1.0f,     1.0f)
         };
 
         m_VertexNormals = {
             // right
-            0.0f,   0.0f,  1.0f,
-            0.0f,   0.0f,  1.0f,
-            0.0f,   0.0f,  1.0f,
-            0.0f,   0.0f,  1.0f,
+            Vec3f(0.0f,     0.0f,     1.0f),
+            Vec3f(0.0f,     0.0f,     1.0f),
+            Vec3f(0.0f,     0.0f,     1.0f),
+            Vec3f(0.0f,     0.0f,     1.0f),
             // top
-            0.0f,   1.0f,  0.0f,
-            0.0f,   1.0f,  0.0f,
-            0.0f,   1.0f,  0.0f,
-            0.0f,   1.0f,  0.0f,
+            Vec3f(0.0f,     1.0f,     0.0f),
+            Vec3f(0.0f,     1.0f,     0.0f),
+            Vec3f(0.0f,     1.0f,     0.0f),
+            Vec3f(0.0f,     1.0f,     0.0f),
             // left
-            0.0f,   0.0f, -1.0f,
-            0.0f,   0.0f, -1.0f,
-            0.0f,   0.0f, -1.0f,
-            0.0f,   0.0f, -1.0f,
+            Vec3f(0.0f,     0.0f,        -1.0f),
+            Vec3f(0.0f,     0.0f,        -1.0f),
+            Vec3f(0.0f,     0.0f,        -1.0f),
+            Vec3f(0.0f,     0.0f,        -1.0f),
             // bottom
-            0.0f,  -1.0f,  0.0f,
-            0.0f,  -1.0f,  0.0f,
-            0.0f,  -1.0f,  0.0f,
-            0.0f,  -1.0f,  0.0f,
+            Vec3f(0.0f,        -1.0f, 0.0f),
+            Vec3f(0.0f,        -1.0f, 0.0f),
+            Vec3f(0.0f,        -1.0f, 0.0f),
+            Vec3f(0.0f,        -1.0f, 0.0f),
             // back
-            -1.0f,  0.0f,  0.0f,
-            -1.0f,  0.0f,  0.0f,
-            -1.0f,  0.0f,  0.0f,
-            -1.0f,  0.0f,  0.0f,
+            Vec3f(   -1.0f, 0.0f,     0.0f),
+            Vec3f(   -1.0f, 0.0f,     0.0f),
+            Vec3f(   -1.0f, 0.0f,     0.0f),
+            Vec3f(   -1.0f, 0.0f,     0.0f),
             //front
-            1.0f,   0.0f,  0.0f,
-            1.0f,   0.0f,  0.0f,
-            1.0f,   0.0f,  0.0f,
-            1.0f,   0.0f, 0.0f
+            Vec3f(1.0f,     0.0f,     0.0f),
+            Vec3f(1.0f,     0.0f,     0.0f),
+            Vec3f(1.0f,     0.0f,     0.0f),
+            Vec3f(1.0f,     0.0f,     0.0f)
         };
 
         m_VertexTexCoords = {
             // 0
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
+            Vec2f(0.0f, 0.0f),
+            Vec2f(1.0f, 0.0f),
+            Vec2f(1.0f, 1.0f),
+            Vec2f(0.0f, 1.0f),
             // 1
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
+            Vec2f(0.0f, 0.0f),
+            Vec2f(1.0f, 0.0f),
+            Vec2f(1.0f, 1.0f),
+            Vec2f(0.0f, 1.0f),
             // 2
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
+            Vec2f(0.0f, 0.0f),
+            Vec2f(1.0f, 0.0f),
+            Vec2f(1.0f, 1.0f),
+            Vec2f(0.0f, 1.0f),
             // 3
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
+            Vec2f(0.0f, 0.0f),
+            Vec2f(1.0f, 0.0f),
+            Vec2f(1.0f, 1.0f),
+            Vec2f(0.0f, 1.0f),
             // 4
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
+            Vec2f(0.0f, 0.0f),
+            Vec2f(1.0f, 0.0f),
+            Vec2f(1.0f, 1.0f),
+            Vec2f(0.0f, 1.0f),
             // 5
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f
+            Vec2f(0.0f, 0.0f),
+            Vec2f(1.0f, 0.0f),
+            Vec2f(1.0f, 1.0f),
+            Vec2f(0.0f, 1.0f)
         };
-
 
         m_IndexList = {
             // right
@@ -159,16 +158,15 @@ public:
             22, 23, 20,
         };
 
-
         // generate color based on coordinate
         m_VertexColors.resize(0);
 
         for(size_t i = 0; i < m_Vertices.size(); ++i) {
-            m_VertexColors.push_back(0.5f * (m_Vertices[i] + 1.0f));
+            m_VertexColors.push_back(0.5f * (m_Vertices[i] + Vec3f(1.0f)));
         }
 
         ////////////////////////////////////////////////////////////////////////////////
-        m_NumVertices       = 24;
+        m_NVertices         = 24;
         m_isDataReady       = true;
         m_hasVertexNormal   = true;
         m_hasVertexTexCoord = true;

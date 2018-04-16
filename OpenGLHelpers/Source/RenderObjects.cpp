@@ -158,7 +158,7 @@ void SkyBoxRender::setRenderTextureIndex(int texIndex)
 void SkyBoxRender::scale(float scaleX, float scaleY, float scaleZ)
 {
     assert(m_CubeObj != nullptr);
-    m_CubeObj->transformObject(scaleX, scaleY, scaleZ);
+    m_CubeObj->scale(Vec3f(scaleX, scaleY, scaleZ));
     m_CubeObj->uploadDataToGPU();
 }
 

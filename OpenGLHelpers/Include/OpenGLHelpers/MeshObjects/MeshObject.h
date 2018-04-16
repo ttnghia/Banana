@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
 #include <OpenGLHelpers/OpenGLMacros.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
@@ -31,49 +32,37 @@ namespace Banana
 class MeshObject : public OpenGLCallable
 {
 public:
-    MeshObject(GLenum dataTopology    = GL_TRIANGLES,
-               bool   isMeshVeryLarge = false) :
-        m_DataTopology(dataTopology),
-        m_CullFaceMode(GL_NONE),
-        m_isMeshVeryLarge(isMeshVeryLarge),
-        m_isDataReady(false),
-        m_isBufferCreated(false),
-        m_isGLDataReady(false),
-        m_hasVertexTexCoord(false),
-        m_hasVertexNormal(false),
-        m_hasVertexColor(false),
-        m_isNoTransformation(true),
-        m_hasIndexBuffer(false),
-        m_ScaleX(1.0),
-        m_ScaleY(1.0),
-        m_ScaleZ(1.0),
-        m_TranslateX(0.0),
-        m_TranslateY(0.0),
-        m_TranslateZ(0.0),
-        m_NumVertices(0),
-        m_VertexBuffer(nullptr),
-        m_NormalBuffer(nullptr),
-        m_TexCoordBuffer(nullptr),
-        m_VertexColorBuffer(nullptr),
-        m_IndexBuffer(nullptr) {}
+    MeshObject(GLenum dataTopology = GL_TRIANGLES, bool isMeshVeryLarge = false) : m_DataTopology(dataTopology), m_isMeshVeryLarge(isMeshVeryLarge) {}
+    virtual ~MeshObject();
 
-    ~MeshObject();
+    // for multiple transformation, one may need to have original position of vertices
+    void backupVertices() { m_VerticesBackup = m_Vertices; }
+    void restoreVertices() { m_Vertices = m_VerticesBackup; }
 
-    void transformObject(GLfloat scaleX = 1.0, GLfloat scaleY = 1.0, GLfloat scaleZ = 1.0, GLfloat translateX = 0.0, GLfloat translateY = 0.0, GLfloat translateZ = 0.0);
+    void transform(const Vec3f& translation, const Vec3f& scale);
+    void transform(const Vec3f& translation, const Vec3f& scale, const Vec3f& rotation);
+    void translate(const Vec3f& translation);
+    void scale(const Vec3f& scale);
+    void rotate(const Vec3f& rotation);
+
+    void setVertices(const Vector<Vec3f>& vertices);
     void setVertices(const Vector<GLfloat>& vertices);
     void setVertices(void* vertexData, size_t dataSize);
 
+    void setVertexNormal(const Vector<Vec3f>& normals);
     void setVertexNormal(const Vector<GLfloat>& normals);
     void setVertexNormal(void* normalData, size_t dataSize);
     void inverseVertexNormal();
     void clearVertexNormal();
 
-    void setVertexTexCoord(const Vector<float>& texcoords);
+    void setVertexTexCoord(const Vector<Vec2f>& texcoords);
+    void setVertexTexCoord(const Vector<GLfloat>& texcoords);
     void setVertexTexCoord(void* texData, size_t dataSize);
     void scaleVertexTexCoord(GLfloat scaleX, GLfloat scaleY);
     void clearVertexTexCoord();
 
-    void setVertexColor(const Vector<float>& vcolors);
+    void setVertexColor(const Vector<Vec3f>& vcolors);
+    void setVertexColor(const Vector<GLfloat>& vcolors);
     void setVertexColor(void* colorData, size_t dataSize);
     void generateRandomVertexColor();
     void clearVertexColor();
@@ -84,71 +73,71 @@ public:
     void clearElementIndexLong();
 
     ////////////////////////////////////////////////////////////////////////////////
-    void setCullFaceMode(GLenum cullFaceMode);
+    void setCullFaceMode(GLenum cullFaceMode) { m_CullFaceMode = cullFaceMode; }
     void draw();
     void uploadDataToGPU();
 
     void   clearData();
-    bool   isEmpty() const;
-    size_t getNumVertices() const;
+    bool   isEmpty() const { return !m_isDataReady; }
+    size_t getNVertices() const { return m_NVertices; }
 
-    const Vector<GLushort>& getIndexList() const;
-    const Vector<GLuint>&   getIndexListLong() const;
-    const Vector<GLfloat>&  getVertices() const;
-    const Vector<GLfloat>&  getVertexNormals() const;
-    const Vector<GLfloat>&  getVertexTexCoords() const;
-    const Vector<GLfloat>&  getVertexColors() const;
+    const auto& getIndexList() const { return m_IndexList; }
+    const auto& getIndexListLong() const { return m_IndexListLong; }
+    const auto& getVertices() const { return m_Vertices; }
+    const auto& getVertexNormals() const { return m_VertexNormals; }
+    const auto& getVertexTexCoords() const { return m_VertexTexCoords; }
+    const auto& getVertexColors() const { return m_VertexColors; }
 
-    const SharedPtr<OpenGLBuffer>& getIndexBuffer() const;
-    const SharedPtr<OpenGLBuffer>& getVertexBuffer() const;
-    const SharedPtr<OpenGLBuffer>& getNormalBuffer() const;
-    const SharedPtr<OpenGLBuffer>& getTexCoordBuffer() const;
-    const SharedPtr<OpenGLBuffer>& getVertexColorBuffer() const;
+    const SharedPtr<OpenGLBuffer>& getIndexBuffer() const { return m_IndexBuffer; }
+    const SharedPtr<OpenGLBuffer>& getVertexBuffer() const { return m_VertexBuffer; }
+    const SharedPtr<OpenGLBuffer>& getNormalBuffer() const { return m_NormalBuffer; }
+    const SharedPtr<OpenGLBuffer>& getTexCoordBuffer() const { return m_TexCoordBuffer; }
+    const SharedPtr<OpenGLBuffer>& getVertexColorBuffer() const { return m_VertexColorBuffer; }
 
-    bool hasVertexNormal() const;
-    bool hasVertexTexCoord() const;
-    bool hasVertexColor() const;
-    bool hasIndexBuffer() const;
+    bool hasVertexNormal() const { return m_hasVertexNormal; }
+    bool hasVertexTexCoord() const { return m_hasVertexTexCoord; }
+    bool hasVertexColor() const { return m_hasVertexColor; }
+    bool hasIndexBuffer() const { return m_hasIndexBuffer; }
 
 protected:
     void createBuffers();
     void clearBuffer();
 
     ////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<OpenGLBuffer> m_VertexBuffer;
-    SharedPtr<OpenGLBuffer> m_NormalBuffer;
-    SharedPtr<OpenGLBuffer> m_TexCoordBuffer;
-    SharedPtr<OpenGLBuffer> m_VertexColorBuffer;
-    SharedPtr<OpenGLBuffer> m_IndexBuffer;
+    SharedPtr<OpenGLBuffer> m_VertexBuffer      = nullptr;
+    SharedPtr<OpenGLBuffer> m_NormalBuffer      = nullptr;
+    SharedPtr<OpenGLBuffer> m_TexCoordBuffer    = nullptr;
+    SharedPtr<OpenGLBuffer> m_VertexColorBuffer = nullptr;
+    SharedPtr<OpenGLBuffer> m_IndexBuffer       = nullptr;
 
     Vector<GLushort> m_IndexList;
     Vector<GLuint>   m_IndexListLong;
-    Vector<GLfloat>  m_Vertices;
-    Vector<GLfloat>  m_VertexNormals;
-    Vector<GLfloat>  m_VertexTexCoords;
-    Vector<GLfloat>  m_VertexColors;
+    Vector<Vec3f>    m_Vertices;
+    Vector<Vec3f>    m_VerticesBackup;
+    Vector<Vec3f>    m_VertexNormals;
+    Vector<Vec2f>    m_VertexTexCoords;
+    Vector<Vec3f>    m_VertexColors;
 
-    size_t m_NumVertices;
-    GLenum m_DataTopology;
-    GLenum m_CullFaceMode;
+    size_t m_NVertices    = 0;
+    GLenum m_DataTopology = GL_TRIANGLES;
+    GLenum m_CullFaceMode = GL_NONE;
 
-    bool m_isMeshVeryLarge;
-    bool m_isNoTransformation;
-    bool m_isDataReady;
-    bool m_isBufferCreated;
-    bool m_isGLDataReady;
+    bool m_isMeshVeryLarge = false;
+    bool m_isDataReady     = false;
+    bool m_isBufferCreated = false;
+    bool m_isGLDataReady   = false;
+    bool m_bTranslation    = false;
+    bool m_bScale          = false;
+    bool m_bRotate         = false;
 
-    bool m_hasVertexNormal;
-    bool m_hasVertexTexCoord;
-    bool m_hasVertexColor;
-    bool m_hasIndexBuffer;
+    bool m_hasVertexNormal   = false;
+    bool m_hasVertexTexCoord = false;
+    bool m_hasVertexColor    = false;
+    bool m_hasIndexBuffer    = false;
 
-    GLfloat m_ScaleX;
-    GLfloat m_ScaleY;
-    GLfloat m_ScaleZ;
-    GLfloat m_TranslateX;
-    GLfloat m_TranslateY;
-    GLfloat m_TranslateZ;
+    Vec3f m_Translation = Vec3f(0);
+    Vec3f m_Scale       = Vec3f(1);
+    Vec3f m_Rotation    = Vec3f(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
