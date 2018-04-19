@@ -155,6 +155,7 @@ void RenderWidget::initRDataHair()
     //    m_RDataHair.ub_Light    = m_RDataHair.shader->getUniformBlockIndex("Lights");
     //    m_RDataHair.ub_Material = m_RDataHair.shader->getUniformBlockIndex("Material");
     ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataHair.u_nStrands   = m_RDataHair.shader->getUniformLocation("u_nStrands");
     m_RDataHair.u_SegmentIdx = m_RDataHair.shader->getUniformLocation("u_SegmentIdx");
     //    m_RDataHair.u_nParticles   = m_RDataHair.shader->getUniformLocation("u_nParticles");
     //    m_RDataHair.u_PointRadius  = m_RDataHair.shader->getUniformLocation("u_PointRadius");
@@ -221,6 +222,9 @@ void RenderWidget::renderHair()
     m_RDataHair.material->bindUniformBuffer();
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_CamData, m_UBufferCamData->getBindingPoint());
+
+    m_RDataHair.shader->setUniformValue(m_RDataHair.u_nStrands, m_RDataHair.nStrands);
+
     //    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Light,    m_Lights->getBufferBindingPoint());
     //    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Material, m_RDataHair.material->getBufferBindingPoint());
     ////////////////////////////////////////////////////////////////////////////////

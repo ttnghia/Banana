@@ -230,28 +230,24 @@ void Controller::setupHairColorModeControllers()
 {
     ////////////////////////////////////////////////////////////////////////////////
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
-    QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
     QRadioButton* rdbColorUniform = new QRadioButton("Uniform Material");
     QRadioButton* rdbColorObjIdx  = new QRadioButton("Object Index");
     QRadioButton* rdbColorVelMag  = new QRadioButton("Velocity Magnitude");
-    rdbColorRamp->setChecked(true);
+    rdbColorRandom->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutColorMode = new QGridLayout;
     layoutColorMode->addWidget(rdbColorRandom,  0, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorRamp,    0, 1, 1, 1);
-    layoutColorMode->addWidget(rdbColorUniform, 1, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorObjIdx,  1, 1, 1, 1);
-    layoutColorMode->addWidget(rdbColorVelMag,  2, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorUniform, 0, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorObjIdx,  1, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorVelMag,  1, 1, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_smParticleColorMode = new QSignalMapper(this);
     connect(rdbColorRandom,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorRamp,    SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorObjIdx,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorVelMag,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
 
     m_smParticleColorMode->setMapping(rdbColorRandom,  static_cast<int>(HairColorMode::Random));
-    m_smParticleColorMode->setMapping(rdbColorRamp,    static_cast<int>(HairColorMode::Ramp));
     m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(HairColorMode::UniformMaterial));
     m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(HairColorMode::ObjectIndex));
     m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(HairColorMode::VelocityMagnitude));

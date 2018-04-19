@@ -75,6 +75,7 @@ private:
         GLuint ub_Light;
         GLuint ub_Material;
         GLuint u_nVertices;
+        GLuint u_nStrands;
         GLuint u_SegmentIdx;
         GLuint u_PointRadius;
         GLuint u_PointScale;

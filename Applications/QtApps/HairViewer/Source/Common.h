@@ -66,7 +66,6 @@ struct HairColorMode
     {
         UniformMaterial = 0,
         Random,
-        Ramp,
         ObjectIndex,
         VelocityMagnitude,
         NumColorMode

@@ -21,6 +21,7 @@
 // fragment shader, hair render
 #version 410 core
 
+uniform uint u_nStrands;
 uniform uint u_SegmentIdx;
 out vec4     outColor;
 
@@ -35,12 +36,17 @@ float rand(vec2 co)
     return fract(sin(sn) * c);
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void main()
+vec3 randColor()
 {
     float r = rand(vec2(u_SegmentIdx, u_SegmentIdx));
     float g = rand(vec2(u_SegmentIdx + 1, u_SegmentIdx));
     float b = rand(vec2(u_SegmentIdx, u_SegmentIdx + 1));
+    return vec3(r, g, b);
+}
 
-    outColor = vec4(r, g, b, 1.0);
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void main()
+{
+    vec3 color = randColor();
+    outColor = vec4(color, 1.0);
 }
