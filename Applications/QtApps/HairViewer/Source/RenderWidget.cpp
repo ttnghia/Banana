@@ -155,6 +155,7 @@ void RenderWidget::initRDataHair()
     //    m_RDataHair.ub_Light    = m_RDataHair.shader->getUniformBlockIndex("Lights");
     //    m_RDataHair.ub_Material = m_RDataHair.shader->getUniformBlockIndex("Material");
     ////////////////////////////////////////////////////////////////////////////////
+    m_RDataHair.u_SegmentIdx = m_RDataHair.shader->getUniformLocation("u_SegmentIdx");
     //    m_RDataHair.u_nParticles   = m_RDataHair.shader->getUniformLocation("u_nParticles");
     //    m_RDataHair.u_PointRadius  = m_RDataHair.shader->getUniformLocation("u_PointRadius");
     //    m_RDataHair.u_PointScale   = m_RDataHair.shader->getUniformLocation("u_PointScale");
@@ -245,6 +246,8 @@ void RenderWidget::renderHair()
     UInt vertexIdx = 0;
     for(UInt strand = 0; strand < m_RDataHair.nStrands; ++strand) {
         UInt nVertices = m_HairModel->getNStrandVertices()[strand];
+        m_RDataHair.shader->setUniformValue(m_RDataHair.u_SegmentIdx, strand);
+        ////////////////////////////////////////////////////////////////////////////////
         glDrawArrays(GL_LINE_STRIP, vertexIdx, nVertices);
         vertexIdx += nVertices;
     }
