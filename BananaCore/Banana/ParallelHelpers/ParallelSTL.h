@@ -25,7 +25,6 @@
 #include <vector>
 #include <cmath>
 
-
 #include <tbb/tbb.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
 
@@ -46,7 +45,7 @@ inline T min(const Vector<T>& x)
 }
 
 template<Int N, class T>
-inline T min(const Vector<VecX<N, T> >& x)
+inline T min(const Vector<VecX<N, T>>& x)
 {
     ParallelObjects::MinElement<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
@@ -63,7 +62,7 @@ inline T max(const Vector<T>& x)
 }
 
 template<Int N, class T>
-inline T max(const Vector<VecX<N, T> >& x)
+inline T max(const Vector<VecX<N, T>>& x)
 {
     ParallelObjects::MaxElement<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
@@ -80,7 +79,7 @@ inline T maxAbs(const Vector<T>& x)
 }
 
 template<Int N, class T>
-inline T maxAbs(const Vector<VecX<N, T> >& x)
+inline T maxAbs(const Vector<VecX<N, T>>& x)
 {
     ParallelObjects::MaxAbs<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
@@ -89,7 +88,7 @@ inline T maxAbs(const Vector<VecX<N, T> >& x)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-inline T maxNorm2(const Vector<VecX<N, T> >& x)
+inline T maxNorm2(const Vector<VecX<N, T>>& x)
 {
     ParallelObjects::MaxNorm2<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
@@ -108,7 +107,7 @@ inline void min_max(const Vector<T>& x, T& minElement, T& maxElement)
 }
 
 template<Int N, class T>
-inline void min_max(const Vector<VecX<N, T> >& x, VecX<N, T>& minElement, VecX<N, T>& maxElement)
+inline void min_max(const Vector<VecX<N, T>>& x, VecX<N, T>& minElement, VecX<N, T>& maxElement)
 {
     ParallelObjects::MinMaxElements<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
@@ -118,7 +117,7 @@ inline void min_max(const Vector<VecX<N, T> >& x, VecX<N, T>& minElement, VecX<N
 }
 
 template<Int N, class T>
-inline void min_max(const Vector<MatXxX<N, T> >& x, T& minElement, T& maxElement)
+inline void min_max(const Vector<MatXxX<N, T>>& x, T& minElement, T& maxElement)
 {
     ParallelObjects::MinMaxElements<0, T> pObj(reinterpret_cast<const T*>(x.data()));
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size() * static_cast<size_t>(N * N)), pObj);
@@ -128,7 +127,7 @@ inline void min_max(const Vector<MatXxX<N, T> >& x, T& minElement, T& maxElement
 }
 
 template<Int N, class T>
-inline void min_max_norm2(const Vector<VecX<N, T> >& x, T& minVal, T& maxVal)
+inline void min_max_norm2(const Vector<VecX<N, T>>& x, T& minVal, T& maxVal)
 {
     ParallelObjects::MinMaxNorm2<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
@@ -163,7 +162,7 @@ inline T sum_sqr(const Vector<T>& x)
 }
 
 template<Int N, class T>
-inline T sum_sqr(const Vector<VecX<N, T> >& x)
+inline T sum_sqr(const Vector<VecX<N, T>>& x)
 {
     ParallelObjects::VectorSumSqr<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);

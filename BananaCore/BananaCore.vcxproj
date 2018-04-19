@@ -136,6 +136,7 @@
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.Impl.hpp" />
     <ClInclude Include="Banana\NeighborSearch\PointSet.h" />
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp" />
+    <ClInclude Include="Banana\ParallelHelpers\AtomicOperations.h" />
     <ClInclude Include="Banana\Utils\CommandLineParser.h" />
     <ClInclude Include="Banana\Utils\JSONHelpers.h" />
     <ClInclude Include="Banana\Utils\AppConfigReader.h" />

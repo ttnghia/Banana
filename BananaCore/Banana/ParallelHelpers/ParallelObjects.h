@@ -42,7 +42,7 @@ class SpinLock
 public:
     SpinLock() = default;
     SpinLock(const SpinLock&) {}
-    SpinLock& operator =(const SpinLock&) { return *this; }
+    SpinLock& operator=(const SpinLock&) { return *this; }
 
     void lock()
     {
@@ -86,10 +86,10 @@ template<Int N, class RealType>
 class DotProduct
 {
 public:
-    DotProduct(const Vector<VecX<N, RealType> >& vec1, const Vector<VecX<N, RealType> >& vec2) : m_Vec1(vec1), m_Vec2(vec2) {}
+    DotProduct(const Vector<VecX<N, RealType>>& vec1, const Vector<VecX<N, RealType>>& vec2) : m_Vec1(vec1), m_Vec2(vec2) {}
     DotProduct(DotProduct<N, RealType>& pObj, tbb::split) : m_Vec1(pObj.m_Vec1), m_Vec2(pObj.m_Vec1) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += glm::dot(m_Vec1[i], m_Vec2[i]);
@@ -100,9 +100,9 @@ public:
     RealType getResult() const noexcept { return m_Result; }
 
 private:
-    RealType                          m_Result = 0;
-    const Vector<VecX<N, RealType> >& m_Vec1;
-    const Vector<VecX<N, RealType> >& m_Vec2;
+    RealType                         m_Result = 0;
+    const Vector<VecX<N, RealType>>& m_Vec1;
+    const Vector<VecX<N, RealType>>& m_Vec2;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ public:
     DotProduct(const Vector<RealType>& vec1, const Vector<RealType>& vec2) : m_Vec1(vec1), m_Vec2(vec2) {}
     DotProduct(DotProduct<1, RealType>& pObj, tbb::split) : m_Vec1(pObj.m_Vec1), m_Vec2(pObj.m_Vec2) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += m_Vec1[i] * m_Vec2[i];
@@ -134,10 +134,10 @@ template<Int N, class RealType>
 class MinElement
 {
 public:
-    MinElement(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
+    MinElement(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
     MinElement(MinElement<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             RealType vmin = glm::compMin(m_Vector[i]);
@@ -149,8 +149,8 @@ public:
     RealType getResult() const noexcept { return m_Result; }
 
 private:
-    RealType                          m_Result = std::numeric_limits<RealType>::max();
-    const Vector<VecX<N, RealType> >& m_Vector;
+    RealType                         m_Result = std::numeric_limits<RealType>::max();
+    const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ public:
     MinElement(const Vector<RealType>& vec) : m_Vector(vec) {}
     MinElement(MinElement<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result = m_Result < m_Vector[i] ? m_Result : m_Vector[i];
@@ -181,10 +181,10 @@ template<Int N, class RealType>
 class MaxElement
 {
 public:
-    MaxElement(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
+    MaxElement(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
     MaxElement(MaxElement<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             RealType vmax = glm::compMax(m_Vector[i]);
@@ -196,8 +196,8 @@ public:
     RealType getResult() const noexcept { return m_Result; }
 
 private:
-    RealType                          m_Result = -std::numeric_limits<RealType>::max();
-    const Vector<VecX<N, RealType> >& m_Vector;
+    RealType                         m_Result = -std::numeric_limits<RealType>::max();
+    const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ public:
     MaxElement(const Vector<RealType>& vec) : m_Vector(vec) {}
     MaxElement(MaxElement<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result = m_Result > m_Vector[i] ? m_Result : m_Vector[i];
@@ -228,10 +228,10 @@ template<Int N, class RealType>
 class MaxAbs
 {
 public:
-    MaxAbs(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
+    MaxAbs(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
     MaxAbs(MaxAbs<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             RealType tmp = glm::compMax(glm::abs(m_Vector[i]));
@@ -243,8 +243,8 @@ public:
     RealType getResult() const noexcept { return m_Result; }
 
 private:
-    RealType                          m_Result = 0;
-    const Vector<VecX<N, RealType> >& m_Vector;
+    RealType                         m_Result = 0;
+    const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +255,7 @@ public:
     MaxAbs(const Vector<RealType>& vec) : m_Vector(vec) {}
     MaxAbs(MaxAbs<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             RealType tmp = fabs(m_Vector[i]);
@@ -271,16 +271,15 @@ private:
     const Vector<RealType>& m_Vector;
 };
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class MaxNorm2
 {
 public:
-    MaxNorm2(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
+    MaxNorm2(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
     MaxNorm2(MaxNorm2<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             RealType mag2 = glm::length2(m_Vector[i]);
@@ -292,8 +291,8 @@ public:
     RealType getResult() const noexcept { return sqrt(m_Result); }
 
 private:
-    RealType                          m_Result = 0;
-    const Vector<VecX<N, RealType> >& m_Vector;
+    RealType                         m_Result = 0;
+    const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -301,10 +300,10 @@ template<Int N, class RealType>
 class MinMaxElements
 {
 public:
-    MinMaxElements(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
+    MinMaxElements(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
     MinMaxElements(MinMaxElements<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             const auto& vec = m_Vector[i];
@@ -327,9 +326,9 @@ public:
     const VecX<N, RealType>& getMax() const noexcept { return m_ResultMax; }
 
 private:
-    VecX<N, RealType>                 m_ResultMin = VecX<N, RealType>(std::numeric_limits<RealType>::max());
-    VecX<N, RealType>                 m_ResultMax = VecX<N, RealType>(-std::numeric_limits<RealType>::max());
-    const Vector<VecX<N, RealType> >& m_Vector;
+    VecX<N, RealType>                m_ResultMin = VecX<N, RealType>(std::numeric_limits<RealType>::max());
+    VecX<N, RealType>                m_ResultMax = VecX<N, RealType>(-std::numeric_limits<RealType>::max());
+    const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +340,7 @@ public:
     MinMaxElements(const RealType* vec) : m_Vector(vec) {}
     MinMaxElements(MinMaxElements<0, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_ResultMin = m_ResultMin < m_Vector[i] ? m_ResultMin : m_Vector[i];
@@ -373,7 +372,7 @@ public:
     MinMaxElements(const Vector<RealType>& vec) : m_Vector(vec) {}
     MinMaxElements(MinMaxElements<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_ResultMin = m_ResultMin < m_Vector[i] ? m_ResultMin : m_Vector[i];
@@ -397,17 +396,15 @@ private:
     const Vector<RealType>& m_Vector;
 };
 
-
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class MinMaxNorm2
 {
 public:
-    MinMaxNorm2(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
+    MinMaxNorm2(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
     MinMaxNorm2(MinMaxNorm2<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             RealType mag2 = glm::length2(m_Vector[i]);
@@ -429,7 +426,7 @@ private:
     RealType m_ResultMin = std::numeric_limits<RealType>::max();
     RealType m_ResultMax = 0;
 
-    const Vector<VecX<N, RealType> >& m_Vector;
+    const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -437,10 +434,10 @@ template<Int N, class T>
 class VectorSum
 {
 public:
-    VectorSum(const Vector<VecX<N, T> >& vec) : m_Vector(vec) {}
+    VectorSum(const Vector<VecX<N, T>>& vec) : m_Vector(vec) {}
     VectorSum(VectorSum<N, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += m_Vector[i];
@@ -450,8 +447,8 @@ public:
     void              join(VectorSum<N, T>& pObj) { m_Result += pObj.m_Result; }
     const VecX<N, T>& getResult() const noexcept { return m_Result; }
 private:
-    VecX<N, T>                 m_Result = VecX<N, T>(0);
-    const Vector<VecX<N, T> >& m_Vector;
+    VecX<N, T>                m_Result = VecX<N, T>(0);
+    const Vector<VecX<N, T>>& m_Vector;
 };
 
 template<class T>
@@ -461,7 +458,7 @@ public:
     VectorSum(const Vector<T>& vec) : m_Vector(vec) {}
     VectorSum(VectorSum<1, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += m_Vector[i];
@@ -481,10 +478,10 @@ template<Int N, class T>
 class VectorSumSqr
 {
 public:
-    VectorSumSqr(const Vector<VecX<N, T> >& vec) : m_Vector(vec) {}
+    VectorSumSqr(const Vector<VecX<N, T>>& vec) : m_Vector(vec) {}
     VectorSumSqr(VectorSumSqr<N, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += glm::length2(m_Vector[i]);
@@ -494,8 +491,8 @@ public:
     void join(VectorSumSqr<N, T>& pObj) { m_Result += pObj.m_Result; }
     T    getResult() const noexcept { return m_Result; }
 private:
-    T                          m_Result = T(0);
-    const Vector<VecX<N, T> >& m_Vector;
+    T                         m_Result = T(0);
+    const Vector<VecX<N, T>>& m_Vector;
 };
 
 template<class T>
@@ -505,7 +502,7 @@ public:
     VectorSumSqr(const Vector<T>& vec) : m_Vector(vec) {}
     VectorSumSqr(VectorSumSqr<1, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
+    void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += m_Vector[i] * m_Vector[i];

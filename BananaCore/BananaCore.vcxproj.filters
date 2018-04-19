@@ -213,6 +213,9 @@
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\ParallelHelpers\AtomicOperations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\KdTree.cpp">
