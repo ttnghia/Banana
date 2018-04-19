@@ -115,6 +115,15 @@ void RenderWidget::loadHairModel(const String& hairFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setRenderMode(int renderMode)
+{
+    Q_ASSERT(renderMode & static_cast<int>(HairRenderMode::LineRender) || renderMode & static_cast<int>(HairRenderMode::VertexParticle) ||
+             renderMode & static_cast<int>(HairRenderMode::LineWithVertexParticle));
+    Q_ASSERT(m_RDataHair.initialized);
+    m_RDataHair.renderMode = renderMode;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::setColorMode(int colorMode)
 {
     Q_ASSERT(colorMode < HairColorMode::NumColorMode);
@@ -142,45 +151,79 @@ void RenderWidget::setHairMaterial(const Material::MaterialData& material)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initRDataHair()
 {
-    m_RDataHair.shader = std::make_shared<QtAppShaderProgram>("RenderHair");
-    m_RDataHair.shader->addVertexShaderFromResource(":/Shaders/hair.vs.glsl");
-    m_RDataHair.shader->addFragmentShaderFromResource(":/Shaders/hair.fs.glsl");
-    m_RDataHair.shader->link();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.v_Position = m_RDataHair.shader->getAtributeLocation("v_Position");
-    //    m_RDataHair.v_iColor   = m_RDataHair.shader->getAtributeLocation("v_iColor");
-    //    m_RDataHair.v_fColor   = m_RDataHair.shader->getAtributeLocation("v_fColor");
+    // common
+    m_RDataCommon.buffPosition = std::make_unique<OpenGLBuffer>();
+    m_RDataCommon.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.ub_CamData = m_RDataHair.shader->getUniformBlockIndex("CameraData");
-    //    m_RDataHair.ub_Light    = m_RDataHair.shader->getUniformBlockIndex("Lights");
-    m_RDataHair.ub_Material = m_RDataHair.shader->getUniformBlockIndex("Material");
+    m_RDataCommon.buffColorData = std::make_unique<OpenGLBuffer>();
+    m_RDataCommon.buffColorData->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
     ////////////////////////////////////////////////////////////////////////////////
-    //    m_RDataHair.u_nStrands   = m_RDataHair.shader->getUniformLocation("u_nStrands");
-    m_RDataHair.u_SegmentIdx = m_RDataHair.shader->getUniformLocation("u_SegmentIdx");
-    //    m_RDataHair.u_nParticles   = m_RDataHair.shader->getUniformLocation("u_nParticles");
-    //    m_RDataHair.u_PointRadius  = m_RDataHair.shader->getUniformLocation("u_PointRadius");
-    //    m_RDataHair.u_PointScale   = m_RDataHair.shader->getUniformLocation("u_PointScale");
-    //    m_RDataHair.u_Dimension    = m_RDataHair.shader->getUniformLocation("u_Dimension");
-    //    m_RDataHair.u_ScreenHeight = m_RDataHair.shader->getUniformLocation("u_ScreenHeight");
-    //    m_RDataHair.u_DomainHeight = m_RDataHair.shader->getUniformLocation("u_DomainHeight");
-    m_RDataHair.u_ColorMode = m_RDataHair.shader->getUniformLocation("u_ColorMode");
-    //    m_RDataHair.u_vColorMin    = m_RDataHair.shader->getUniformLocation("u_vColorMin");
-    //    m_RDataHair.u_vColorMax    = m_RDataHair.shader->getUniformLocation("u_vColorMax");
-    //    m_RDataHair.u_ColorMinVal  = m_RDataHair.shader->getUniformLocation("u_ColorMinVal");
-    //    m_RDataHair.u_ColorMaxVal  = m_RDataHair.shader->getUniformLocation("u_ColorMaxVal");
-    //    m_RDataHair.u_ClipPlane    = m_RDataHair.shader->getUniformLocation("u_ClipPlane");
+    m_RDataCommon.material = std::make_unique<Material>();
+    m_RDataCommon.material->setMaterial(CUSTOM_HAIR_MATERIAL);
+    m_RDataCommon.material->uploadDataToGPU();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.buffPosition = std::make_unique<OpenGLBuffer>();
-    m_RDataHair.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+    m_RDataCommon.initialized = true;
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.buffColorData = std::make_unique<OpenGLBuffer>();
-    m_RDataHair.buffColorData->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.material = std::make_unique<Material>();
-    m_RDataHair.material->setMaterial(CUSTOM_HAIR_MATERIAL);
-    m_RDataHair.material->uploadDataToGPU();
+    // line render
+    m_RDataLineRender.shader = std::make_shared<QtAppShaderProgram>("RenderHair");
+    m_RDataLineRender.shader->addVertexShaderFromResource(":/Shaders/hair.vs.glsl");
+    m_RDataLineRender.shader->addFragmentShaderFromResource(":/Shaders/hair.fs.glsl");
+    m_RDataLineRender.shader->link();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.initialized = true;
+    m_RDataLineRender.v_Position = m_RDataLineRender.shader->getAtributeLocation("v_Position");
+    //    m_RDataLineRender.v_iColor   = m_RDataLineRender.shader->getAtributeLocation("v_iColor");
+    //    m_RDataLineRender.v_fColor   = m_RDataLineRender.shader->getAtributeLocation("v_fColor");
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataLineRender.ub_CamData = m_RDataLineRender.shader->getUniformBlockIndex("CameraData");
+    //    m_RDataLineRender.ub_Light    = m_RDataLineRender.shader->getUniformBlockIndex("Lights");
+    m_RDataLineRender.ub_Material = m_RDataLineRender.shader->getUniformBlockIndex("Material");
+    ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataLineRender.u_nStrands   = m_RDataLineRender.shader->getUniformLocation("u_nStrands");
+    m_RDataLineRender.u_SegmentIdx = m_RDataLineRender.shader->getUniformLocation("u_SegmentIdx");
+    //    m_RDataLineRender.u_nParticles   = m_RDataLineRender.shader->getUniformLocation("u_nParticles");
+    //    m_RDataLineRender.u_PointRadius  = m_RDataLineRender.shader->getUniformLocation("u_PointRadius");
+    //    m_RDataLineRender.u_PointScale   = m_RDataLineRender.shader->getUniformLocation("u_PointScale");
+    //    m_RDataLineRender.u_Dimension    = m_RDataLineRender.shader->getUniformLocation("u_Dimension");
+    //    m_RDataLineRender.u_ScreenHeight = m_RDataLineRender.shader->getUniformLocation("u_ScreenHeight");
+    //    m_RDataLineRender.u_DomainHeight = m_RDataLineRender.shader->getUniformLocation("u_DomainHeight");
+    m_RDataLineRender.u_ColorMode = m_RDataLineRender.shader->getUniformLocation("u_ColorMode");
+    //    m_RDataLineRender.u_vColorMin    = m_RDataLineRender.shader->getUniformLocation("u_vColorMin");
+    //    m_RDataLineRender.u_vColorMax    = m_RDataLineRender.shader->getUniformLocation("u_vColorMax");
+    //    m_RDataLineRender.u_ColorMinVal  = m_RDataLineRender.shader->getUniformLocation("u_ColorMinVal");
+    //    m_RDataLineRender.u_ColorMaxVal  = m_RDataLineRender.shader->getUniformLocation("u_ColorMaxVal");
+    //    m_RDataLineRender.u_ClipPlane    = m_RDataLineRender.shader->getUniformLocation("u_ClipPlane");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle render
+    m_RDataParticleRender.lineShader = std::make_shared<QtAppShaderProgram>("RenderHair");
+    m_RDataParticleRender.lineShader->addVertexShaderFromResource(":/Shaders/hair.vs.glsl");
+    m_RDataParticleRender.lineShader->addFragmentShaderFromResource(":/Shaders/hair.fs.glsl");
+    m_RDataParticleRender.lineShader->link();
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticleRender.v_Position = m_RDataParticleRender.shader->getAtributeLocation("v_Position");
+    //    m_RDataParticleRender.v_iColor   = m_RDataParticleRender.shader->getAtributeLocation("v_iColor");
+    //    m_RDataParticleRender.v_fColor   = m_RDataParticleRender.shader->getAtributeLocation("v_fColor");
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticleRender.ub_CamData  = m_RDataParticleRender.shader->getUniformBlockIndex("CameraData");
+    m_RDataParticleRender.ub_Light    = m_RDataParticleRender.shader->getUniformBlockIndex("Lights");
+    m_RDataParticleRender.ub_Material = m_RDataParticleRender.shader->getUniformBlockIndex("Material");
+    ////////////////////////////////////////////////////////////////////////////////
+    //    m_RDataParticleRender.u_nStrands   = m_RDataParticleRender.shader->getUniformLocation("u_nStrands");
+    m_RDataParticleRender.u_SegmentIdx = m_RDataParticleRender.shader->getUniformLocation("u_SegmentIdx");
+    //    m_RDataParticleRender.u_nParticles   = m_RDataParticleRender.shader->getUniformLocation("u_nParticles");
+    //    m_RDataParticleRender.u_PointRadius  = m_RDataParticleRender.shader->getUniformLocation("u_PointRadius");
+    //    m_RDataParticleRender.u_PointScale   = m_RDataParticleRender.shader->getUniformLocation("u_PointScale");
+    //    m_RDataParticleRender.u_Dimension    = m_RDataParticleRender.shader->getUniformLocation("u_Dimension");
+    //    m_RDataParticleRender.u_ScreenHeight = m_RDataParticleRender.shader->getUniformLocation("u_ScreenHeight");
+    //    m_RDataParticleRender.u_DomainHeight = m_RDataParticleRender.shader->getUniformLocation("u_DomainHeight");
+    m_RDataParticleRender.u_ColorMode = m_RDataParticleRender.shader->getUniformLocation("u_ColorMode");
+    //    m_RDataParticleRender.u_ClipPlane    = m_RDataParticleRender.shader->getUniformLocation("u_ClipPlane");
+    ////////////////////////////////////////////////////////////////////////////////
+
     initHairVAO();
 }
 
@@ -215,18 +258,18 @@ void RenderWidget::renderHair()
 {
     Q_ASSERT(m_RDataHair.initialized);
 
-    m_RDataHair.shader->bind();
+    m_RDataHair.lineShader->bind();
     ////////////////////////////////////////////////////////////////////////////////
     m_UBufferCamData->bindBufferBase();
     m_Lights->bindUniformBuffer();
     m_RDataHair.material->bindUniformBuffer();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_CamData, m_UBufferCamData->getBindingPoint());
+    m_RDataHair.lineShader->bindUniformBlock(m_RDataHair.ub_CamData, m_UBufferCamData->getBindingPoint());
 
-    m_RDataHair.shader->setUniformValue(m_RDataHair.u_nStrands, m_RDataHair.nStrands);
+    m_RDataHair.lineShader->setUniformValue(m_RDataHair.u_nStrands, m_RDataHair.nStrands);
 
     //    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Light,    m_Lights->getBufferBindingPoint());
-    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Material, m_RDataHair.material->getBufferBindingPoint());
+    m_RDataHair.lineShader->bindUniformBlock(m_RDataHair.ub_Material, m_RDataHair.material->getBufferBindingPoint());
     ////////////////////////////////////////////////////////////////////////////////
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_nVertices,    m_RDataHair.nVertices);
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_PointRadius,  m_RDataHair.pointRadius);
@@ -234,7 +277,7 @@ void RenderWidget::renderHair()
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_Dimension,    m_HairModel->systemDimension);
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ScreenHeight, height());
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
-    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ColorMode, m_RDataHair.colorMode);
+    m_RDataHair.lineShader->setUniformValue(m_RDataHair.u_ColorMode, m_RDataHair.colorMode);
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ClipPlane,    m_ClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
     //    if(m_RDataHair.pColorMode == HairColorMode::ObjectIndex ||
@@ -250,14 +293,20 @@ void RenderWidget::renderHair()
     UInt vertexIdx = 0;
     for(UInt strand = 0; strand < m_RDataHair.nStrands; ++strand) {
         UInt nVertices = m_HairModel->getNStrandVertices()[strand];
-        m_RDataHair.shader->setUniformValue(m_RDataHair.u_SegmentIdx, strand);
+        m_RDataHair.lineShader->setUniformValue(m_RDataHair.u_SegmentIdx, strand);
         ////////////////////////////////////////////////////////////////////////////////
-        glDrawArrays(GL_LINE_STRIP, vertexIdx, nVertices);
+        if(m_RDataHair.renderMode & static_cast<int>(HairRenderMode::LineRender)) {
+            glCall(glDrawArrays(GL_LINE_STRIP, vertexIdx, nVertices));
+        }
+        if(m_RDataHair.renderMode & static_cast<int>(HairRenderMode::VertexParticle)) {
+            glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
+            glCall(glDrawArrays(GL_POINTS, vertexIdx, nVertices));
+        }
         vertexIdx += nVertices;
     }
 
     glCall(glBindVertexArray(0));
-    m_RDataHair.shader->release();
+    m_RDataHair.lineShader->release();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

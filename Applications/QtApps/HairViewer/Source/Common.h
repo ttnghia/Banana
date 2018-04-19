@@ -54,9 +54,9 @@ struct HairRenderMode
 {
     enum
     {
-        LineRender,
-        VertexParticle,
-        LineWithVertexParticle
+        LineRender             = 0b01,
+        VertexParticle         = 0b10,
+        LineWithVertexParticle = 0b11
     };
 };
 

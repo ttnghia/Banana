@@ -44,8 +44,9 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
-    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setColorMode);
-    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
+    connect(m_smHairRenderMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setRenderMode);
+    connect(m_smHairColorMode,  static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setColorMode);
+    connect(m_smHairColorMode,  static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
             {
                 m_msHairMaterial->getComboBox()->setEnabled(colorMode == HairColorMode::UniformMaterial);
             });
@@ -241,16 +242,16 @@ void Controller::setupHairColorModeControllers()
     layoutColorMode->addWidget(rdbColorObjIdx,  1, 0, 1, 1);
     layoutColorMode->addWidget(rdbColorVelMag,  1, 1, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
-    m_smParticleColorMode = new QSignalMapper(this);
-    connect(rdbColorRandom,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorObjIdx,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorVelMag,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    m_smHairColorMode = new QSignalMapper(this);
+    connect(rdbColorRandom,  SIGNAL(clicked()), m_smHairColorMode, SLOT(map()));
+    connect(rdbColorUniform, SIGNAL(clicked()), m_smHairColorMode, SLOT(map()));
+    connect(rdbColorObjIdx,  SIGNAL(clicked()), m_smHairColorMode, SLOT(map()));
+    connect(rdbColorVelMag,  SIGNAL(clicked()), m_smHairColorMode, SLOT(map()));
 
-    m_smParticleColorMode->setMapping(rdbColorRandom,  static_cast<int>(HairColorMode::Random));
-    m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(HairColorMode::UniformMaterial));
-    m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(HairColorMode::ObjectIndex));
-    m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(HairColorMode::VelocityMagnitude));
+    m_smHairColorMode->setMapping(rdbColorRandom,  static_cast<int>(HairColorMode::Random));
+    m_smHairColorMode->setMapping(rdbColorUniform, static_cast<int>(HairColorMode::UniformMaterial));
+    m_smHairColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(HairColorMode::ObjectIndex));
+    m_smHairColorMode->setMapping(rdbColorVelMag,  static_cast<int>(HairColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);

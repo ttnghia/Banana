@@ -63,7 +63,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // color mode
     void setupHairColorModeControllers();
-    QSignalMapper* m_smParticleColorMode;
+    QSignalMapper* m_smHairColorMode;
     ColorPicker*   m_pkrColorDataMin;
     ColorPicker*   m_pkrColorDataMax;
     QPushButton*   m_btnRndColor;

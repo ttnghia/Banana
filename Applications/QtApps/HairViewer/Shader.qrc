@@ -3,5 +3,7 @@
         <file>Shaders/hair.fs.glsl</file>
         <file>Shaders/hair.vs.glsl</file>
         <file>Shaders/hair.gs.glsl</file>
+        <file>Shaders/particle.fs.glsl</file>
+        <file>Shaders/particle.vs.glsl</file>
     </qresource>
 </RCC>
