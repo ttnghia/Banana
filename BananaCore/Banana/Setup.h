@@ -341,3 +341,4 @@ UInt64 constexpr operator"" _uint64(unsigned long long int x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // include macros after typename definitions
 #include <Banana/Macros.h>
+namespace Banana {}

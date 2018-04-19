@@ -76,5 +76,4 @@ struct HairColorMode
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <Banana/Setup.h>
 #include <OpenGLHelpers/Lights.h>
-namespace Banana {}
 using namespace Banana;
