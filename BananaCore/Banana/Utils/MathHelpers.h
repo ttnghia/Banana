@@ -597,7 +597,7 @@ inline Vector vrand()
 template<class T>
 inline T frand11()
 {
-    return frand(T(-1.0), T(1.0));
+    return frand<T>(T(-1.0), T(1.0));
 }
 
 template<class Vector>
