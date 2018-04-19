@@ -119,7 +119,7 @@ void RenderWidget::setColorMode(int colorMode)
 {
     Q_ASSERT(colorMode < HairColorMode::NumColorMode);
     Q_ASSERT(m_RDataHair.initialized);
-    m_RDataHair.pColorMode = colorMode;
+    m_RDataHair.colorMode = colorMode;
     ////////////////////////////////////////////////////////////////////////////////
     if(colorMode == HairColorMode::ObjectIndex ||
        colorMode == HairColorMode::VelocityMagnitude) {
@@ -153,7 +153,7 @@ void RenderWidget::initRDataHair()
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataHair.ub_CamData = m_RDataHair.shader->getUniformBlockIndex("CameraData");
     //    m_RDataHair.ub_Light    = m_RDataHair.shader->getUniformBlockIndex("Lights");
-    //    m_RDataHair.ub_Material = m_RDataHair.shader->getUniformBlockIndex("Material");
+    m_RDataHair.ub_Material = m_RDataHair.shader->getUniformBlockIndex("Material");
     ////////////////////////////////////////////////////////////////////////////////
     //    m_RDataHair.u_nStrands   = m_RDataHair.shader->getUniformLocation("u_nStrands");
     m_RDataHair.u_SegmentIdx = m_RDataHair.shader->getUniformLocation("u_SegmentIdx");
@@ -163,7 +163,7 @@ void RenderWidget::initRDataHair()
     //    m_RDataHair.u_Dimension    = m_RDataHair.shader->getUniformLocation("u_Dimension");
     //    m_RDataHair.u_ScreenHeight = m_RDataHair.shader->getUniformLocation("u_ScreenHeight");
     //    m_RDataHair.u_DomainHeight = m_RDataHair.shader->getUniformLocation("u_DomainHeight");
-    //    m_RDataHair.u_ColorMode    = m_RDataHair.shader->getUniformLocation("u_ColorMode");
+    m_RDataHair.u_ColorMode = m_RDataHair.shader->getUniformLocation("u_ColorMode");
     //    m_RDataHair.u_vColorMin    = m_RDataHair.shader->getUniformLocation("u_vColorMin");
     //    m_RDataHair.u_vColorMax    = m_RDataHair.shader->getUniformLocation("u_vColorMax");
     //    m_RDataHair.u_ColorMinVal  = m_RDataHair.shader->getUniformLocation("u_ColorMinVal");
@@ -226,7 +226,7 @@ void RenderWidget::renderHair()
     m_RDataHair.shader->setUniformValue(m_RDataHair.u_nStrands, m_RDataHair.nStrands);
 
     //    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Light,    m_Lights->getBufferBindingPoint());
-    //    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Material, m_RDataHair.material->getBufferBindingPoint());
+    m_RDataHair.shader->bindUniformBlock(m_RDataHair.ub_Material, m_RDataHair.material->getBufferBindingPoint());
     ////////////////////////////////////////////////////////////////////////////////
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_nVertices,    m_RDataHair.nVertices);
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_PointRadius,  m_RDataHair.pointRadius);
@@ -234,7 +234,7 @@ void RenderWidget::renderHair()
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_Dimension,    m_HairModel->systemDimension);
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ScreenHeight, height());
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
-    //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ColorMode,    m_RDataHair.pColorMode);
+    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ColorMode, m_RDataHair.colorMode);
     //    m_RDataHair.shader->setUniformValue(m_RDataHair.u_ClipPlane,    m_ClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
     //    if(m_RDataHair.pColorMode == HairColorMode::ObjectIndex ||

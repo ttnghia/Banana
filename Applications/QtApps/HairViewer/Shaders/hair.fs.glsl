@@ -21,32 +21,26 @@
 // fragment shader, hair render
 #version 410 core
 
-uniform uint u_nStrands;
-uniform uint u_SegmentIdx;
-out vec4     outColor;
+#define COLOR_MODE_UNIFORM_MATERIAL 0
+#define COLOR_MODE_RANDOM           1
+#define COLOR_MODE_RAMP             2
+#define COLOR_MODE_FROM_DATA        3
 
+layout(std140) uniform Material
+{
+    vec4  ambient;
+    vec4  diffuse;
+    vec4  specular;
+    float shininess;
+} material;
+
+uniform int u_ColorMode;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-float rand(vec2 co)
-{
-    float a  = 12.9898f;
-    float b  = 78.233f;
-    float c  = 43758.5453f;
-    float dt = dot(co.xy, vec2(a, b));
-    float sn = mod(dt, 3.14);
-    return fract(sin(sn) * c);
-}
-
-vec3 randColor()
-{
-    float r = rand(vec2(u_SegmentIdx, u_SegmentIdx));
-    float g = rand(vec2(u_SegmentIdx + 1, u_SegmentIdx));
-    float b = rand(vec2(u_SegmentIdx, u_SegmentIdx + 1));
-    return vec3(r, g, b);
-}
+in vec3  f_Color;
+out vec4 outColor;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void main()
 {
-    vec3 color = randColor();
-    outColor = vec4(color, 1.0);
+    outColor = (u_ColorMode == COLOR_MODE_UNIFORM_MATERIAL) ? material.diffuse : vec4(f_Color, 1.0);
 }

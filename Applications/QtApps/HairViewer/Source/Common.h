@@ -31,13 +31,13 @@
 #define DEFAULT_COLOR_DATA_MIN  Vec3f(0.7, 0.87, 0.88)
 #define DEFAULT_COLOR_DATA_MAX  Vec3f(0.98, 0.27, 0.35)
 
-#define CUSTOM_HAIR_MATERIAL         \
-    {                                \
-        Vec4f(0.2 * 0.2),            \
-        Vec4f(1.0, 0.63, 0.3, 1.00), \
-        Vec4f(  1),                  \
-        250.0,                       \
-        String("ParticleMaterial")   \
+#define CUSTOM_HAIR_MATERIAL                          \
+    {                                                 \
+        Vec4f(    0.25f,  0.20725f,  0.20725f, 1.0f), \
+        Vec4f(     1.0f,    0.829f,    0.829f, 1.0f), \
+        Vec4f(0.296648f, 0.296648f, 0.296648f, 1.0f), \
+        250.0,                                        \
+        String("HairMaterial")                        \
     }
 
 #define CUSTOM_MESH_MATERIAL                 \
@@ -46,7 +46,7 @@
         Vec4f( 0.714, 0.4284, 0.18144, 1.0), \
         Vec4f(   1.0,    1.0,     1.0, 1.0), \
         250.0,                               \
-        std::string("MeshMaterial")          \
+        String("MeshMaterial")               \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

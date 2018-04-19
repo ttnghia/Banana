@@ -94,7 +94,7 @@ private:
         GLfloat pointRadius;
         GLfloat pointScale;
 
-        GLint pColorMode  = HairColorMode::UniformMaterial;
+        GLint colorMode   = HairColorMode::Random;
         float vColorMin   = 0;
         float vColorMax   = 1.0f;
         Vec3f colorMinVal = DEFAULT_COLOR_DATA_MIN;
