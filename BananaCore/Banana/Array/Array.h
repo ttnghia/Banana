@@ -36,10 +36,6 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Base array class
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
 class Array
 {
@@ -52,26 +48,30 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // constructors & destructor
-    Array() : m_Size(VecX<N, size_type>(0)) {}
+    Array() = default;
     Array(const Array<N, T>& other) : m_Size(other.m_Size), m_Data(other.m_Data) {}
 
     template<class IndexType>
-    Array(const VecX<N, IndexType>& size) : m_Size(size) { m_Data.resize(glm::compMul(m_Size)); }
+    Array(const VecX<N, IndexType>& size)
+    {
+        for(Int i = 0; i < N; ++i) {
+            m_Size[i] = static_cast<size_type>(size[i]);
+        }
+        m_Data.resize(glm::compMul(m_Size));
+    }
 
     ~Array(void) { m_Data.clear(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // copy operator
+    // assignment operator
     Array<N, T>& operator=(const Array<N, T>& other)
     {
         // check for self-assignment
         if(&other == this) {
             return *this;
         }
-
         m_Size = other.m_Size;
         m_Data = other.m_Data;
-
         return *this;
     }
 
@@ -135,10 +135,10 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // size access
-    bool                      empty() const { return m_Data.empty(); }
-    size_type                 capacity(void) const { return m_Data.capacity(); }
-    size_type                 dataSize(void) const { return m_Data.size(); }
-    const VecX<N, size_type>& size() const { return m_Size; }
+    auto        empty() const { return m_Data.empty(); }
+    auto        capacity(void) const { return m_Data.capacity(); }
+    auto        dataSize(void) const { return m_Data.size(); }
+    const auto& size() const { return m_Size; }
 
     ////////////////////////////////////////////////////////////////////////////////
     // index processing
@@ -150,7 +150,6 @@ public:
                 return false;
             }
         }
-
         return true;
     }
 
@@ -158,10 +157,9 @@ public:
     void checkIndex(const VecX<N, IndexType>& index) const
     {
         bool bIndexValid = isValidIndex<IndexType>(index);
-
         if(!bIndexValid) {
             std::stringstream ss;
-            ss << "Invalid Array index: ";
+            ss << "Invalid array index: ";
 
             for(Int i = 0; i < N - 1; ++i) {
                 ss << index[i] << "/" << m_Size[i] << ", ";
@@ -170,7 +168,6 @@ public:
 
             printf("%s\n", ss.str().c_str());
         }
-
         assert(bIndexValid);
     }
 
@@ -319,26 +316,26 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // iterators
-    Vector<T>&       data() { return m_Data; }
-    const Vector<T>& data() const { return m_Data; }
+    auto&       data() { return m_Data; }
+    const auto& data() const { return m_Data; }
 
-    const T& front(void) const { assert(m_Data.size() > 0); return m_Data.front(); }
-    T&       front(void) { assert(m_Data.size() > 0); return m_Data.front(); }
+    const auto& front(void) const { assert(m_Data.size() > 0); return m_Data.front(); }
+    auto&       front(void) { assert(m_Data.size() > 0); return m_Data.front(); }
 
-    const T& back(void) const { assert(m_Data.size() > 0); return m_Data.back(); }
-    T&       back(void) { assert(m_Data.size() > 0); return m_Data.back(); }
+    const auto& back(void) const { assert(m_Data.size() > 0); return m_Data.back(); }
+    auto&       back(void) { assert(m_Data.size() > 0); return m_Data.back(); }
 
-    iterator begin(void) { return m_Data.begin(); }
-    iterator end(void) { return m_Data.end(); }
+    auto begin(void) { return m_Data.begin(); }
+    auto end(void) { return m_Data.end(); }
 
-    const_iterator cbegin(void) const { return m_Data.cbegin(); }
-    const_iterator cend(void) const { return m_Data.cend(); }
+    auto cbegin(void) const { return m_Data.cbegin(); }
+    auto cend(void) const { return m_Data.cend(); }
 
-    reverse_iterator rbegin(void) { return reverse_iterator(end()); }
-    reverse_iterator rend(void) { return reverse_iterator(begin()); }
+    auto rbegin(void) { return reverse_iterator(end()); }
+    auto rend(void) { return reverse_iterator(begin()); }
 
-    const_reverse_iterator crbegin(void) const { return const_reverse_iterator(cend()); }
-    const_reverse_iterator crend(void) const { return const_reverse_iterator(cbegin()); }
+    auto crbegin(void) const { return const_reverse_iterator(cend()); }
+    auto crend(void) const { return const_reverse_iterator(cbegin()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // data manipulation
@@ -481,7 +478,7 @@ public:
     }
 
 private:
-    VecX<N, size_type> m_Size;
+    VecX<N, size_type> m_Size = VecX<N, size_type>(0);
     Vector<T>          m_Data;
 };  // end class Array
 
