@@ -421,8 +421,8 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
 
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                 if(!grid().isValidNode(x, y, z)) {
-                                                    particleData().weights[p * 64 + idx]         = 0;
-                                                    particleData().weightGradients[p * 64 + idx] = Vec3r(0);
+                                                    particleData().weights[p * MathHelpers::pow(4, N) + idx]         = 0;
+                                                    particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = Vec3r(0);
                                                     continue;
                                                 }
 
@@ -432,8 +432,8 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
 
                                                 auto weight     = wx * wy * wz;
                                                 auto weightGrad = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
-                                                particleData().weights[p * 64 + idx]         = weight;
-                                                particleData().weightGradients[p * 64 + idx] = weightGrad;
+                                                particleData().weights[p * MathHelpers::pow(4, N) + idx]         = weight;
+                                                particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = weightGrad;
                                                 AtomicOperations::atomicAdd(gridData().mass(x, y, z), weight * solverParams().particleMass);
                                                 auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
                                                 pD += weight * glm::outerProduct(xixp, xixp);
@@ -490,7 +490,7 @@ bool MPM_Solver<N, RealType >::initParticleVolumes()
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 pDensity += w * gridData().mass(x, y, z);
                                             }
                                         }
@@ -552,7 +552,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
                                                     gridData().active(x, y, z) = 1;
                                                     AtomicOperations::atomicAdd(gridData().velocity(x, y, z), pVel * w * solverParams().particleMass);
@@ -618,7 +618,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
                                                     auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
                                                     auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
@@ -722,9 +722,9 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
-                                                    AtomicOperations::atomicAdd(gridData().velocity_new(x, y, z), f * particleData().weightGradients[p * 64 + idx]);
+                                                    AtomicOperations::atomicAdd(gridData().velocity_new(x, y, z), f * particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                                 }
                                             }
                                         }
@@ -905,11 +905,11 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
                                                     auto gridIdx    = gridData().activeNodeIdx(x, y, z);
                                                     auto currentVel = vPtr[gridIdx];
-                                                    pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * 64 + idx]);
+                                                    pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                                 }
                                             }
                                         }
@@ -980,7 +980,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                                     continue;
                                                 }
 
-                                                auto dw      = particleData().weightGradients[p * 64 + idx];
+                                                auto dw      = particleData().weightGradients[p * MathHelpers::pow(4, N) + idx];
                                                 auto gridIdx = gridData().activeNodeIdx(x, y, z);
                                                 AtomicOperations::atomicAdd(gradPtr[gridIdx], particleData().tmp_deformGrad[p] * dw);
                                             }
@@ -1101,14 +1101,14 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     picVel      += nNewVel * w;
                                                     flipVel     += (nNewVel - nVel) * w;
-                                                    picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
-                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
+                                                    picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                                 }
                                             }
                                         }
@@ -1169,11 +1169,11 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     apicVel     += nNewVel * w;
-                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                     auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
                                                     pB += w * glm::outerProduct(nNewVel, xixp);
@@ -1249,15 +1249,15 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     auto diffVel        = nNewVel - nVel;
                                                     apicVel     += nNewVel * w;
                                                     flipVel     += diffVel * w;
-                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
-                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
+                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                     auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
                                                     apicB += w * glm::outerProduct(nNewVel, xixp);
