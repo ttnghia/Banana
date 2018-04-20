@@ -261,15 +261,13 @@ protected:
 #include <Banana/Grid/Grid.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-using Grid2f        = Grid<2, float>;
-using Grid2d        = Grid<2, double>;
-using Grid2r        = Grid<2, Real>;
-using Grid2SpinLock = Grid<2, ParallelObjects::SpinLock>;
+using Grid2f = Grid<2, float>;
+using Grid2d = Grid<2, double>;
+using Grid2r = Grid<2, Real>;
 
-using Grid3f        = Grid<3, float>;
-using Grid3d        = Grid<3, double>;
-using Grid3r        = Grid<3, Real>;
-using Grid3SpinLock = Grid<3, ParallelObjects::SpinLock>;
+using Grid3f = Grid<3, float>;
+using Grid3d = Grid<3, double>;
+using Grid3r = Grid<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

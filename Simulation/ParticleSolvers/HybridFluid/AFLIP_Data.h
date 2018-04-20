@@ -35,9 +35,9 @@ struct AFLIP_3DData
 
     ////////////////////////////////////////////////////////////////////////////////
     // grid variables
-    Array3r        du, dv, dw;
-    Array3r        u_old, v_old, w_old;
-    Array3SpinLock uLock, vLock, wLock;
+    Array3r du, dv, dw;
+    Array3r u_old, v_old, w_old;
+    //Array3SpinLock uLock, vLock, wLock;
     ////////////////////////////////////////////////////////////////////////////////
 
     UInt getNParticles() const { return static_cast<UInt>(C.size()); }

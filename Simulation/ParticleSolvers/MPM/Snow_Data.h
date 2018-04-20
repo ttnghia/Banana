@@ -262,7 +262,7 @@ struct SimulationData_Snow2D
 			Ep, Er;       //yeah, I really don't know how this works...
 		Array2r rDotEr;               //r.dot(Er)
 
-		Array2SpinLock nodeLocks;
+		//Array2SpinLock nodeLocks;
 		Array2r        boundarySDF;
 
 		////////////////////////////////////////////////////////////////////////////////

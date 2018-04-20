@@ -28,9 +28,9 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct FLIP_3DData : public GridSimulationData<3, Real>
 {
-    Array3r        du, dv, dw;
-    Array3r        u_old, v_old, w_old;
-    Array3SpinLock uLock, vLock, wLock;
+    Array3r du, dv, dw;
+    Array3r u_old, v_old, w_old;
+    //Array3SpinLock uLock, vLock, wLock;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void resize(const Vec3ui& nCells);

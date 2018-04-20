@@ -71,7 +71,7 @@ public:
     Int rand()
     {
         m_Lock.lock();
-        s_Seed = (214013u * s_Seed + 2531011u);
+        s_Seed = 214013u * s_Seed + 2531011u;
         m_Lock.unlock();
         return static_cast<Int>((s_Seed >> 16) & 0x7FFF);
     }

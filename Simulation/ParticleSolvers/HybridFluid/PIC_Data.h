@@ -73,9 +73,9 @@ struct PIC_3DData : public SimulationData<3, Real>
 
         Array3ui activeCellIdx;                                              // store linearized indices of cells that contribute to pressure projection
 
-        Array3SpinLock fluidSDFLock;
-        Array3r        fluidSDF;
-        Array3r        boundarySDF;
+        //Array3SpinLock fluidSDFLock;
+        Array3r fluidSDF;
+        Array3r boundarySDF;
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////

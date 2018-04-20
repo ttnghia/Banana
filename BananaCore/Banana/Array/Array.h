@@ -62,7 +62,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // copy operator
-    Array<N, T>& operator =(const Array<N, T>& other)
+    Array<N, T>& operator=(const Array<N, T>& other)
     {
         // check for self-assignment
         if(&other == this) {
@@ -225,28 +225,28 @@ public:
     }
 
     template<class IndexType>
-    const T& operator ()(IndexType i, IndexType j) const
+    const T& operator()(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
-    T& operator ()(IndexType i, IndexType j)
+    T& operator()(IndexType i, IndexType j)
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
-    const T& operator ()(const Vec2<IndexType>& index) const
+    const T& operator()(const Vec2<IndexType>& index) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1])];
     }
 
     template<class IndexType>
-    T& operator ()(const Vec2<IndexType>& index)
+    T& operator()(const Vec2<IndexType>& index)
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1])];
@@ -287,28 +287,28 @@ public:
     }
 
     template<class IndexType>
-    const T& operator ()(IndexType i, IndexType j, IndexType k) const
+    const T& operator()(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    T& operator ()(IndexType i, IndexType j, IndexType k)
+    T& operator()(IndexType i, IndexType j, IndexType k)
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    const T& operator ()(const Vec3<IndexType>& index) const
+    const T& operator()(const Vec3<IndexType>& index) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1], index[2])];
     }
 
     template<class IndexType>
-    T& operator ()(const Vec3<IndexType>& index)
+    T& operator()(const Vec3<IndexType>& index)
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1], index[2])];
@@ -486,51 +486,47 @@ private:
 };  // end class Array
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParallelObjects { class SpinLock; }
-
 template<class T> using Array2 = Array<2, T>;
 template<class T> using Array3 = Array<3, T>;
 
-using Array2c        = Array2<char>;
-using Array2uc       = Array2<unsigned char>;
-using Array2s        = Array2<short>;
-using Array2us       = Array2<unsigned short>;
-using Array2ll       = Array2<long long>;
-using Array2ull      = Array2<unsigned long long>;
-using Array2i        = Array2<int>;
-using Array2ui       = Array2<unsigned int>;
-using Array2f        = Array2<float>;
-using Array2d        = Array2<double>;
-using Array2r        = Array2<Real>;
-using Array2SpinLock = Array2<ParallelObjects::SpinLock>;
+using Array2c   = Array2<char>;
+using Array2uc  = Array2<unsigned char>;
+using Array2s   = Array2<short>;
+using Array2us  = Array2<unsigned short>;
+using Array2ll  = Array2<long long>;
+using Array2ull = Array2<unsigned long long>;
+using Array2i   = Array2<int>;
+using Array2ui  = Array2<unsigned int>;
+using Array2f   = Array2<float>;
+using Array2d   = Array2<double>;
+using Array2r   = Array2<Real>;
 
-using Array2_VecChar   = Array2<Vector<char> >;
-using Array2_VecInt    = Array2<Vector<int> >;
-using Array2_VecUInt   = Array2<Vector<unsigned int> >;
-using Array2_VecFloat  = Array2<Vector<float> >;
-using Array2_VecDouble = Array2<Vector<double> >;
-using Array2_VecReal   = Array2<Vector<Real> >;
+using Array2_VecChar   = Array2<Vector<char>>;
+using Array2_VecInt    = Array2<Vector<int>>;
+using Array2_VecUInt   = Array2<Vector<unsigned int>>;
+using Array2_VecFloat  = Array2<Vector<float>>;
+using Array2_VecDouble = Array2<Vector<double>>;
+using Array2_VecReal   = Array2<Vector<Real>>;
 
 ////////////////////////////////////////////////////////////////////////////////
-using Array3c        = Array3<char>;
-using Array3uc       = Array3<unsigned char>;
-using Array3s        = Array3<short>;
-using Array3us       = Array3<unsigned short>;
-using Array3ll       = Array3<long long>;
-using Array3ull      = Array3<unsigned long long>;
-using Array3i        = Array3<int>;
-using Array3ui       = Array3<unsigned int>;
-using Array3f        = Array3<float>;
-using Array3d        = Array3<double>;
-using Array3r        = Array3<Real>;
-using Array3SpinLock = Array3<ParallelObjects::SpinLock>;
+using Array3c   = Array3<char>;
+using Array3uc  = Array3<unsigned char>;
+using Array3s   = Array3<short>;
+using Array3us  = Array3<unsigned short>;
+using Array3ll  = Array3<long long>;
+using Array3ull = Array3<unsigned long long>;
+using Array3i   = Array3<int>;
+using Array3ui  = Array3<unsigned int>;
+using Array3f   = Array3<float>;
+using Array3d   = Array3<double>;
+using Array3r   = Array3<Real>;
 
-using Array3_VecChar   = Array3<Vector<char> >;
-using Array3_VecInt    = Array3<Vector<int> >;
-using Array3_VecUInt   = Array3<Vector<unsigned int> >;
-using Array3_VecFloat  = Array3<Vector<float> >;
-using Array3_VecDouble = Array3<Vector<double> >;
-using Array3_VecReal   = Array3<Vector<Real> >;
+using Array3_VecChar   = Array3<Vector<char>>;
+using Array3_VecInt    = Array3<Vector<int>>;
+using Array3_VecUInt   = Array3<Vector<unsigned int>>;
+using Array3_VecFloat  = Array3<Vector<float>>;
+using Array3_VecDouble = Array3<Vector<double>>;
+using Array3_VecReal   = Array3<Vector<Real>>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -139,9 +139,9 @@ struct SimulationData_Cloth3D
         Array3r u_temp, v_temp, w_temp;
         Array3c u_valid_old, v_valid_old, w_valid_old;
 
-        Array3SpinLock fluidSDFLock;
-        Array3r        fluidSDF;
-        Array3r        boundarySDF;
+        //Array3SpinLock fluidSDFLock;
+        Array3r fluidSDF;
+        Array3r boundarySDF;
     } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////
