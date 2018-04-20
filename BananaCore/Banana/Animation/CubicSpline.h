@@ -29,16 +29,16 @@
 #include <vector>
 #include <algorithm>
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 class BandMatrix
 {
 private:
-    Vector<Vector<RealType> > m_Upper;      // upper band
-    Vector<Vector<RealType> > m_Lower;      // lower band
+    Vector<Vector<RealType>> m_Upper;       // upper band
+    Vector<Vector<RealType>> m_Lower;       // lower band
 public:
     BandMatrix() = default;
     BandMatrix(Int dim, Int n_u, Int n_l) { resize(dim, n_u, n_l); }
@@ -47,8 +47,8 @@ public:
     Int  nUpper() const { return static_cast<Int>(m_Upper.size() - 1); }
     Int  nLower() const { return static_cast<Int>(m_Lower.size() - 1); }
 
-    RealType& operator ()(Int i, Int j);
-    RealType operator  ()(Int i, Int j) const;
+    RealType& operator()(Int i, Int j);
+    RealType  operator()(Int i, Int j) const;
 
     RealType&        saved_diag(Int i);
     RealType         saved_diag(Int i) const;
@@ -72,10 +72,10 @@ public:
     CubicSpline() = default;
 
     // optional, but if called it has to come be before setPoints()
-    void              setBoundary(BDType left, RealType leftValue, BDType right, RealType rightValue, bool bLinearExtrapolation = false);
-    void              setPoints(const Vector<RealType>& X, const Vector<RealType>& Y, bool bCubicSpline = true);
-    RealType operator ()(RealType x) const;
-    RealType          deriv(Int order, RealType x) const;
+    void     setBoundary(BDType left, RealType leftValue, BDType right, RealType rightValue, bool bLinearExtrapolation = false);
+    void     setPoints(const Vector<RealType>& X, const Vector<RealType>& Y, bool bCubicSpline = true);
+    RealType operator()(RealType x) const;
+    RealType deriv(Int order, RealType x) const;
 
 private:
     Vector<RealType> m_X, m_Y;               // x,y coordinates of poInts
@@ -115,7 +115,7 @@ void BandMatrix<RealType >::resize(Int dim, Int n_u, Int n_l)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType& BandMatrix<RealType>::operator ()(Int i, Int j)
+RealType& BandMatrix<RealType >::operator()(Int i, Int j)
 {
     Int k = j - i;               // what band is the entry
     assert((i >= 0) && (i < dim()) && (j >= 0) && (j < dim()));
@@ -129,7 +129,7 @@ RealType& BandMatrix<RealType>::operator ()(Int i, Int j)
 }
 
 template<class RealType>
-RealType BandMatrix<RealType>::operator ()(Int i, Int j) const
+RealType BandMatrix<RealType >::operator()(Int i, Int j) const
 {
     Int k = j - i;               // what band is the entry
     assert((i >= 0) && (i < dim()) && (j >= 0) && (j < dim()));
@@ -357,7 +357,7 @@ void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<R
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType CubicSpline<RealType>::operator ()(RealType x) const
+RealType CubicSpline<RealType >::operator()(RealType x) const
 {
     size_t n = m_X.size();
     // find the closest poInt m_X[idx] < x, idx=0 even if x<m_X[0]
