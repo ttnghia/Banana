@@ -46,7 +46,7 @@ void MPM_Parameters<N, RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::ParticleSolvers::MPM_Parameters<N, RealType>::makeReady()
+void MPM_Parameters<N, RealType >::makeReady()
 {
     SimulationParameters<N, RealType>::makeReady();
     nExpandCells = MathHelpers::max(nExpandCells, 2u);
@@ -64,7 +64,7 @@ void Banana::ParticleSolvers::MPM_Parameters<N, RealType>::makeReady()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::ParticleSolvers::MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>&logger)
+void MPM_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
 {
     logger->printLog(String("MPM parameters:"));
     SimulationParameters<N, RealType>::printParams(logger);

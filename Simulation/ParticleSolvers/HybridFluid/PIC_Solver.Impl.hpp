@@ -19,48 +19,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-void PIC_3DParameters::makeReady()
-{
-    SimulationParameters<3, Real>::makeReady();
-    sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DParameters::printParams(const SharedPtr<Logger>& logger)
-{
-    logger->printLog(String("PIC-3D parameters:"));
-    SimulationParameters<3, Real>::printParams(logger);
-    logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
-    logger->newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// PIC_3DData implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DData::ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
-    aniKernelCenters.reserve(nParticles);
-    aniKernelMatrices.reserve(nParticles);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
-{
-    __BNN_REQUIRE(newPositions.size() == newVelocities.size());
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int16>(nObjects));
-    ++nObjects;                     // increase the number of objects
-}
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 UInt PIC_3DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
@@ -121,7 +79,7 @@ void PIC_3DData::makeReady(const PIC_3DParameters& params)
 
     pcgSolver.reserve(grid.getNTotalCells());
     pcgSolver.setSolverParameters(params.CGRelativeTolerance, params.maxCGIteration);
-    pcgSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+    pcgSolver.setPreconditioners(PCGSolver<RealType>::MICCL0_SYMMETRIC);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -209,7 +167,7 @@ void PIC_3DSolver::sortParticles()
 void PIC_3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<3, Real>>(solverParams().cellSize);
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch<3, RealType>>(solverParams().cellSize);
     if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
@@ -318,15 +276,15 @@ void PIC_3DSolver::setupDataIO()
     ////////////////////////////////////////////////////////////////////////////////
     if(globalParams().bLoadMemoryState || globalParams().bSaveMemoryState) {
         m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().memoryStateDataFolder, "frame", m_Logger);
-        m_MemoryStateIO->addFixedAttribute<Real>("grid_resolution", ParticleSerialization::TypeUInt, 3);
-        m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
-        m_MemoryStateIO->addFixedAttribute<Real>("grid_v",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().v.dataSize()));
-        m_MemoryStateIO->addFixedAttribute<Real>("grid_w",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().w.dataSize()));
-        m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<Real>( "particle_position", ParticleSerialization::TypeReal,  3);
-        m_MemoryStateIO->addParticleAttribute<Real>( "particle_velocity", ParticleSerialization::TypeReal,  3);
-        m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
+        m_MemoryStateIO->addFixedAttribute<RealType>("grid_resolution", ParticleSerialization::TypeUInt, 3);
+        m_MemoryStateIO->addFixedAttribute<RealType>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
+        m_MemoryStateIO->addFixedAttribute<RealType>("grid_v",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().v.dataSize()));
+        m_MemoryStateIO->addFixedAttribute<RealType>("grid_w",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().w.dataSize()));
+        m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
+        m_MemoryStateIO->addFixedAttribute<UInt>(    "NObjects",        ParticleSerialization::TypeUInt, 1);
+        m_MemoryStateIO->addParticleAttribute<RealType>("particle_position", ParticleSerialization::TypeReal,  3);
+        m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity", ParticleSerialization::TypeReal,  3);
+        m_MemoryStateIO->addParticleAttribute<Int16>(   "object_index",      ParticleSerialization::TypeInt16, 1);
     }
 }
 
@@ -361,7 +319,7 @@ Int PIC_3DSolver::loadMemoryState()
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particle data
-    Real particleRadius;
+    RealType particleRadius;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
@@ -421,7 +379,7 @@ Int PIC_3DSolver::saveFrameData()
     }
     if(globalParams().savingData("AniKernel")) {
         __BNN_TODO
-        //AnisotropicKernelGenerator<3, Real> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
+        //AnisotropicKernelGenerator<3, RealType> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
         //aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
         //m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
         //m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
@@ -437,19 +395,19 @@ Int PIC_3DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real PIC_3DSolver::timestepCFL()
+RealType PIC_3DSolver::timestepCFL()
 {
-    Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
-                                   ParallelSTL::maxAbs(gridData().v.data()),
-                                   ParallelSTL::maxAbs(gridData().w.data()));
-    Real timestep = maxVel > Tiny ? solverParams().CFLFactor * (grid().getCellSize() / maxVel) : Huge;
+    RealType maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
+                                       ParallelSTL::maxAbs(gridData().v.data()),
+                                       ParallelSTL::maxAbs(gridData().w.data()));
+    RealType timestep = maxVel > Tiny ? solverParams().CFLFactor * (grid().getCellSize() / maxVel) : Huge;
     return MathHelpers::clamp(timestep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::moveParticles(Real timestep)
+void PIC_3DSolver::moveParticles(RealType timestep)
 {
-    const Real substep = timestep / Real(solverParams().advectionSteps);
+    const RealType substep = timestep / RealType(solverParams().advectionSteps);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -472,18 +430,18 @@ void PIC_3DSolver::moveParticles(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC_3DSolver::correctParticlePositions(Real timestep)
+bool PIC_3DSolver::correctParticlePositions(RealType timestep)
 {
     if(!solverParams().bCorrectPosition) {
         return false;
     }
     logger().printRunTime("Find neighbors: ", [&]() { grid().collectIndexToCells(particleData().positions); });
     ////////////////////////////////////////////////////////////////////////////////
-    const auto radius     = 2.0_f * solverParams().particleRadius / Real(sqrt(solverDimension()));
+    const auto radius     = 2.0_f * solverParams().particleRadius / RealType(sqrt(solverDimension()));
     const auto radius2    = radius * radius;
     const auto threshold  = 0.01_f * radius;
     const auto threshold2 = threshold * threshold;
-    const auto substep    = timestep / Real(solverParams().advectionSteps);
+    const auto substep    = timestep / RealType(solverParams().advectionSteps);
     const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
     ////////////////////////////////////////////////////////////////////////////////
     particleData().tmp_positions.resize(particleData().positions.size());
@@ -514,9 +472,9 @@ bool PIC_3DSolver::correctParticlePositions(Real timestep)
                                                 if(d2 > threshold2) {
                                                     spring += w * xpq / sqrt(d2);
                                                 } else {
-                                                    spring += threshold / timestep * Vec3r(MathHelpers::frand11<Real>(),
-                                                                                           MathHelpers::frand11<Real>(),
-                                                                                           MathHelpers::frand11<Real>());
+                                                    spring += threshold / timestep * Vec3r(MathHelpers::frand11<RealType>(),
+                                                                                           MathHelpers::frand11<RealType>(),
+                                                                                           MathHelpers::frand11<RealType>());
                                                 }
                                             }
                                         }
@@ -540,7 +498,7 @@ bool PIC_3DSolver::correctParticlePositions(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::advanceVelocity(Real timestep)
+void PIC_3DSolver::advanceVelocity(RealType timestep)
 {
     logger().printRunTime("{   Advect grid velocity: ", [&]() { advectGridVelocity(timestep); });
     logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
@@ -550,7 +508,7 @@ void PIC_3DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::advectGridVelocity(Real timestep)
+void PIC_3DSolver::advectGridVelocity(RealType timestep)
 {
     gridData().tmp_u.assign(0);
     gridData().tmp_v.assign(0);
@@ -583,7 +541,7 @@ void PIC_3DSolver::advectGridVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC_3DSolver::addGravity(Real timestep)
+bool PIC_3DSolver::addGravity(RealType timestep)
 {
     if(!globalParams().bApplyGravity) {
         return false;
@@ -598,7 +556,7 @@ bool PIC_3DSolver::addGravity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::pressureProjection(Real timestep)
+void PIC_3DSolver::pressureProjection(RealType timestep)
 {
     logger().printRunTimeIndent("{   Compute cell weights: ", [&]() { computeFluidWeights(); });
     logger().printRunTimeIndent("Compute liquid SDF: ", [&]() { computeFluidSDF(); }, 2);
@@ -621,26 +579,26 @@ void PIC_3DSolver::computeFluidWeights()
                                     bool valid_index_w = gridData().w_weights.isValidIndex(i, j, k);
 
                                     if(valid_index_u) {
-                                        const Real tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j, k),
-                                                                                              boundarySDF(i, j + 1, k),
-                                                                                              boundarySDF(i, j,     k + 1),
-                                                                                              boundarySDF(i, j + 1, k + 1));
+                                        const RealType tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j, k),
+                                                                                                  boundarySDF(i, j + 1, k),
+                                                                                                  boundarySDF(i, j,     k + 1),
+                                                                                                  boundarySDF(i, j + 1, k + 1));
                                         gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
 
                                     if(valid_index_v) {
-                                        const Real tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j, k),
-                                                                                              boundarySDF(i,     j, k + 1),
-                                                                                              boundarySDF(i + 1, j, k),
-                                                                                              boundarySDF(i + 1, j, k + 1));
+                                        const RealType tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j, k),
+                                                                                                  boundarySDF(i,     j, k + 1),
+                                                                                                  boundarySDF(i + 1, j, k),
+                                                                                                  boundarySDF(i + 1, j, k + 1));
                                         gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
 
                                     if(valid_index_w) {
-                                        const Real tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j, k),
-                                                                                              boundarySDF(i,     j + 1, k),
-                                                                                              boundarySDF(i + 1, j,     k),
-                                                                                              boundarySDF(i + 1, j + 1, k));
+                                        const RealType tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j, k),
+                                                                                                  boundarySDF(i,     j + 1, k),
+                                                                                                  boundarySDF(i + 1, j,     k),
+                                                                                                  boundarySDF(i + 1, j + 1, k));
                                         gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
                                 });
@@ -652,15 +610,15 @@ void PIC_3DSolver::computeFluidWeights()
                                           bool valid_index_v = gridData().v_weights.isValidIndex(i, j);
 
                                           if(valid_index_u) {
-                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
-                                                                                                    gridData().boundarySDF(i, j + 1));
-                                                                                                    gridData().u_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
+                                              const RealType tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
+                                                                                                        gridData().boundarySDF(i, j + 1));
+                                              gridData().u_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
                                           }
 
                                           if(valid_index_v) {
-                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
-                                                                                                    gridData().boundarySDF(i, j + 1));
-                                                                                                    gridData().v_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
+                                              const RealType tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
+                                                                                                        gridData().boundarySDF(i, j + 1));
+                                              gridData().v_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
                                           }
                                       });
     }
@@ -685,8 +643,8 @@ void PIC_3DSolver::computeFluidSDF()
                                          cellDown[1], cellUp[1],
                                          [&](int i, int j)
                                          {
-                                             const Vec2r sample = Vec2r(i + 0.5, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                             const Real phiVal  = glm::length(sample - particleData().positions[p]) - solverParams().sdfRadius;
+                                             const Vec2r sample    = Vec2r(i + 0.5, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                             const RealType phiVal = glm::length(sample - particleData().positions[p]) - solverParams().sdfRadius;
 
                                              if(phiVal < gridData().fluidSDF(i, j)) {
                                                  gridData().fluidSDF(i, j) = phiVal;
@@ -700,10 +658,10 @@ void PIC_3DSolver::computeFluidSDF()
                                       [&](int i, int j)
                                       {
                                           if(gridData().fluidSDF(i, j) < solverData().grid.getHalfCellSize()) {
-                                              const Real phiValSolid = 0.25_f * (gridData().boundarySDF(i, j) +
-                                                                                 gridData().boundarySDF(i + 1, j) +
-                                                                                 gridData().boundarySDF(i, j + 1) +
-                                                                                 gridData().boundarySDF(i + 1, j + 1));
+                                              const RealType phiValSolid = 0.25_f * (gridData().boundarySDF(i, j) +
+                                                                                     gridData().boundarySDF(i + 1, j) +
+                                                                                     gridData().boundarySDF(i, j + 1) +
+                                                                                     gridData().boundarySDF(i + 1, j + 1));
 
                                               if(phiValSolid < 0) {
                                                   gridData().fluidSDF(i, j) = -solverData().grid.getHalfCellSize();
@@ -761,7 +719,7 @@ void PIC_3DSolver::computeFluidSDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::computeSystem(Real timestep)
+void PIC_3DSolver::computeSystem(RealType timestep)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // make the list of indices of all active cells (cells contain fluid)
@@ -784,28 +742,28 @@ void PIC_3DSolver::computeSystem(Real timestep)
     {     //Build the linear system for pressure
         for(UInt j = 1; j < solverData().grid.getNCells()[1] - 1; ++j) {
             for(UInt i = 1; i < solverData().grid.getNCells()[0] - 1; ++i) {
-                const UInt cellIdx    = solverData().grid.getCellLinearizedIndex(i, j);
-                const Real center_phi = gridData().fluidSDF(i, j);
+                const UInt     cellIdx    = solverData().grid.getCellLinearizedIndex(i, j);
+                const RealType center_phi = gridData().fluidSDF(i, j);
 
                 if(center_phi < 0) {
-                    const Real right_phi  = gridData().fluidSDF(i + 1, j);
-                    const Real left_phi   = gridData().fluidSDF(i - 1, j);
-                    const Real top_phi    = gridData().fluidSDF(i, j + 1);
-                    const Real bottom_phi = gridData().fluidSDF(i, j - 1);
+                    const RealType right_phi  = gridData().fluidSDF(i + 1, j);
+                    const RealType left_phi   = gridData().fluidSDF(i - 1, j);
+                    const RealType top_phi    = gridData().fluidSDF(i, j + 1);
+                    const RealType bottom_phi = gridData().fluidSDF(i, j - 1);
 
-                    const Real right_term  = gridData().u_weights(i + 1, j) * timestep;
-                    const Real left_term   = gridData().u_weights(i, j) * timestep;
-                    const Real top_term    = gridData().v_weights(i, j + 1) * timestep;
-                    const Real bottom_term = gridData().v_weights(i, j) * timestep;
+                    const RealType right_term  = gridData().u_weights(i + 1, j) * timestep;
+                    const RealType left_term   = gridData().u_weights(i, j) * timestep;
+                    const RealType top_term    = gridData().v_weights(i, j + 1) * timestep;
+                    const RealType bottom_term = gridData().v_weights(i, j) * timestep;
 
-                    Real center_term = 0;
+                    RealType center_term = 0;
 
                     // right neighbor
                     if(right_phi < 0) {
                         center_term += right_term;
                         solverData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
                     } else {
-                        Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, right_phi));
+                        RealType theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, right_phi));
                         center_term += right_term / theta;
                     }
 
@@ -814,7 +772,7 @@ void PIC_3DSolver::computeSystem(Real timestep)
                         center_term += left_term;
                         solverData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
                     } else {
-                        Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, left_phi));
+                        RealType theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, left_phi));
                         center_term += left_term / theta;
                     }
 
@@ -823,7 +781,7 @@ void PIC_3DSolver::computeSystem(Real timestep)
                         center_term += top_term;
                         solverData().matrix.addElement(cellIdx, cellIdx + solverData().grid.getNCells()[0], -top_term);
                     } else {
-                        Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, top_phi));
+                        RealType theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, top_phi));
                         center_term += top_term / theta;
                     }
 
@@ -832,7 +790,7 @@ void PIC_3DSolver::computeSystem(Real timestep)
                         center_term += bottom_term;
                         solverData().matrix.addElement(cellIdx, cellIdx - solverData().grid.getNCells()[0], -bottom_term);
                     } else {
-                        Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, bottom_phi));
+                        RealType theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, bottom_phi));
                         center_term += bottom_term / theta;
                     }
 
@@ -847,11 +805,11 @@ void PIC_3DSolver::computeSystem(Real timestep)
                                       1, solverData().grid.getNCells()[1] - 1,
                                       [&](UInt i, UInt j)
                                       {
-                                          const UInt idx        = solverData().grid.getCellLinearizedIndex(i, j);
-                                          const Real center_phi = gridData().fluidSDF(i, j);
+                                          const UInt idx            = solverData().grid.getCellLinearizedIndex(i, j);
+                                          const RealType center_phi = gridData().fluidSDF(i, j);
 
                                           if(center_phi < 0) {
-                                              Real tmp = 0_f;
+                                              RealType tmp = 0_f;
 
                                               tmp -= gridData().u_weights(i + 1, j) * gridData().u(i + 1, j);
                                               tmp += gridData().u_weights(i, j) * gridData().u(i, j);
@@ -880,7 +838,7 @@ void PIC_3DSolver::computeSystem(Real timestep)
                                           const auto phi_far    = gridData().fluidSDF(i, j, k + 1);
                                           const auto phi_near   = gridData().fluidSDF(i, j, k - 1);
 
-                                          Real rhs              = 0_f;
+                                          RealType rhs          = 0_f;
                                           const auto term_right = gridData().u_weights(i + 1, j, k) * timestep;
                                           rhs -= gridData().u_weights(i + 1, j, k) * gridData().u(i + 1, j, k);
 
@@ -902,7 +860,7 @@ void PIC_3DSolver::computeSystem(Real timestep)
                                           const auto idx_center = gridData().activeCellIdx(i, j, k);
                                           solverData().rhs[idx_center] = rhs;
 
-                                          Real center_term = 0_f;
+                                          RealType center_term = 0_f;
 
                                           // right neighbor
                                           if(phi_right < 0) {
@@ -978,7 +936,7 @@ void PIC_3DSolver::solveSystem()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::updateProjectedVelocity(Real timestep)
+void PIC_3DSolver::updateProjectedVelocity(RealType timestep)
 {
     if constexpr(N == 2)
     {
@@ -990,18 +948,18 @@ void PIC_3DSolver::updateProjectedVelocity(Real timestep)
                                       {
                                           const UInt idx = solverData().grid.getCellLinearizedIndex(i, j);
 
-                                          const Real center_phi = gridData().fluidSDF(i, j);
-                                          const Real left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j) : 0;
-                                          const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1) : 0;
+                                          const RealType center_phi = gridData().fluidSDF(i, j);
+                                          const RealType left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j) : 0;
+                                          const RealType bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1) : 0;
 
                                           if(i > 0 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j) > 0) {
-                                              Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(left_phi, center_phi));
+                                              RealType theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(left_phi, center_phi));
                                               gridData().u(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
                                               gridData().u_valid(i, j) = 1;
                                           }
 
                                           if(j > 0 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j) > 0) {
-                                              Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                              RealType theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(bottom_phi, center_phi));
                                               gridData().v(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - solverData().grid.getNCells()[0]]) / theta;
                                               gridData().v_valid(i, j) = 1;
                                           }
@@ -1110,8 +1068,8 @@ void PIC_3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
                                                   return;
                                               }
 
-                                              Real sum   = 0_f;
-                                              UInt count = 0;
+                                              RealType sum = 0_f;
+                                              UInt count   = 0;
 
                                               // TODO
                                               if(old_valid(i + 1, j)) {
@@ -1136,7 +1094,7 @@ void PIC_3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
 
                                               if(count > 0) {
                                                   stop            = false;
-                                                  temp_grid(i, j) = sum / static_cast<Real>(count);
+                                                  temp_grid(i, j) = sum / static_cast<RealType>(count);
                                                   valid(i, j)     = 1;
                                               }
                                           });
@@ -1162,8 +1120,8 @@ void PIC_3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
                                                 }
 
                                                 ////////////////////////////////////////////////////////////////////////////////
-                                                Real sum   = 0_f;
-                                                UInt count = 0;
+                                                RealType sum = 0_f;
+                                                UInt count   = 0;
 
                                                 if(old_valid(i + 1, j, k)) {
                                                     sum += grid(i + 1, j, k);
@@ -1196,7 +1154,7 @@ void PIC_3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
                                                 }
                                                 ////////////////////////////////////////////////////////////////////////////////
                                                 if(count > 0) {
-                                                    temp_grid(i, j, k)   = sum / static_cast<Real>(count);
+                                                    temp_grid(i, j, k)   = sum / static_cast<RealType>(count);
                                                     valid(i, j, k)       = 1;
                                                     extrapolate(i, j, k) = 1;
                                                 }
@@ -1223,12 +1181,12 @@ void PIC_3DSolver::constrainGridVelocity()
                                                 const Vec2r gridPos = Vec2r(i, j + 0.5);
                                                 Vec2r vel           = getVelocityFromGrid(gridPos);
                                                 Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
+                                                RealType mag2Normal = glm::length2(normal);
                                                 if(mag2Normal > Tiny) {
                                                     normal /= sqrt(mag2Normal);
                                                 }
 
-                                                Real perp_component = glm::dot(vel, normal);
+                                                RealType perp_component = glm::dot(vel, normal);
                                                 vel                   -= perp_component * normal;
                                                 gridData().tmp_u(i, j) = vel[0];
                                             }
@@ -1241,12 +1199,12 @@ void PIC_3DSolver::constrainGridVelocity()
                                                 const Vec2r gridPos = Vec2r(i + 0.5, j);
                                                 Vec2r vel           = getVelocityFromGrid(gridPos);
                                                 Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
+                                                RealType mag2Normal = glm::length2(normal);
                                                 if(mag2Normal > Tiny) {
                                                     normal /= sqrt(mag2Normal);
                                                 }
 
-                                                Real perp_component = glm::dot(vel, normal);
+                                                RealType perp_component = glm::dot(vel, normal);
                                                 vel                   -= perp_component * normal;
                                                 gridData().tmp_v(i, j) = vel[1];
                                             }
@@ -1315,19 +1273,19 @@ void PIC_3DSolver::constrainGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real PIC_3DSolver::getVelocityFromGridU(const Vec3r& gridPos)
+RealType PIC_3DSolver::getVelocityFromGridU(const Vec3r& gridPos)
 {
     return ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), gridData().u);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Real PIC_3DSolver::getVelocityFromGridV(const Vec3r& gridPos)
+RealType PIC_3DSolver::getVelocityFromGridV(const Vec3r& gridPos)
 {
     return ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), gridData().v);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Real PIC_3DSolver::getVelocityFromGridW(const Vec3r& gridPos)
+RealType PIC_3DSolver::getVelocityFromGridW(const Vec3r& gridPos)
 {
     return ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), gridData().w);
 }
@@ -1341,7 +1299,7 @@ Vec3r PIC_3DSolver::getVelocityFromGrid(const Vec3r& gridPos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r PIC_3DSolver::trace_rk2(const Vec3r& ppos, Real timestep)
+Vec3r PIC_3DSolver::trace_rk2(const Vec3r& ppos, RealType timestep)
 {
     auto input   = ppos;
     auto gridPos = grid().getGridCoordinate(ppos);
@@ -1354,7 +1312,7 @@ Vec3r PIC_3DSolver::trace_rk2(const Vec3r& ppos, Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r PIC_3DSolver::trace_rk2_grid(const Vec3r& gridPos, Real timestep)
+Vec3r PIC_3DSolver::trace_rk2_grid(const Vec3r& gridPos, RealType timestep)
 {
     auto input = gridPos;
 
@@ -1373,7 +1331,7 @@ void PIC_3DSolver::computeBoundarySDF()
     Scheduler::parallel_for(gridData().boundarySDF.size(),
                             [&](size_t i, size_t j, size_t k)
                             {
-                                Real minSD = Huge;
+                                RealType minSD = Huge;
                                 for(auto& obj : m_BoundaryObjects) {
                                     minSD = MathHelpers::min(minSD, obj->signedDistance(grid().getWorldCoordinate(i, j, k)));
                                 }

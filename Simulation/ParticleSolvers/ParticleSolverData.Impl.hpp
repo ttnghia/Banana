@@ -119,7 +119,7 @@ void GlobalParameters<RealType >::printParams(Logger& logger)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType Banana::ParticleSolvers::GlobalParameters<RealType>::evolvedTime() const
+RealType GlobalParameters<RealType >::evolvedTime() const
 {
     return frameDuration * static_cast<RealType>(finishedFrame) + frameLocalTime;
 }
@@ -137,7 +137,7 @@ bool GlobalParameters<RealType >::savingData(const String& dataName) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::ParticleSolvers::SimulationParameters<N, RealType>::parseParameters(const JParams& jParams)
+void SimulationParameters<N, RealType >::parseParameters(const JParams& jParams)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
