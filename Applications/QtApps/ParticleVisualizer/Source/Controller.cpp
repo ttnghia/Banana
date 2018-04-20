@@ -48,7 +48,7 @@ void Controller::setupGUI()
     QTabWidget* tabWidget = new QTabWidget;
     tabWidget->setTabPosition(QTabWidget::South);
     tabWidget->setTabShape(QTabWidget::Triangular);
-    tabWidget->addTab(mainControls, "Main Controls");
+    tabWidget->addTab(mainControls,  "Main Controls");
     tabWidget->addTab(m_LightEditor, "Lights");
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ void Controller::connectWidgets()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // background mode
-    connect(m_smBackgroundMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setBackgroundMode(int)));
+    connect(m_smBackgroundMode, SIGNAL(mapped(int)),                                               m_RenderWidget, SLOT(setBackgroundMode(int)));
     connect(m_smBackgroundMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int backgroundMode)
             {
                 m_chkRenderBox->setChecked(backgroundMode == BackgroundMode::SkyBox || backgroundMode == BackgroundMode::Color);
@@ -86,28 +86,28 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // checkerboard background
-    connect(m_pkrCheckerColor1, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor1(Vec3f(r, g, b)); });
-    connect(m_pkrCheckerColor2, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor2(Vec3f(r, g, b)); });
-    connect(m_sldCheckerboardScale->getSlider(), &QSlider::valueChanged, [&](int value) { m_RenderWidget->setCheckerboarrdScales(Vec2i(value)); });
+    connect(m_pkrCheckerColor1,                  &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor1(Vec3f(r, g, b)); });
+    connect(m_pkrCheckerColor2,                  &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor2(Vec3f(r, g, b)); });
+    connect(m_sldCheckerboardScale->getSlider(), &QSlider::valueChanged,     [&](int value) { m_RenderWidget->setCheckerboarrdScales(Vec2i(value)); });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // grid background
-    connect(m_pkrGridBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridBackgroundColor(Vec3f(r, g, b)); });
-    connect(m_pkrGridLineColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridLineColor(Vec3f(r, g, b)); });
-    connect(m_sldGridScale->getSlider(), &QSlider::valueChanged, [&](int value) { m_RenderWidget->setGridScales(Vec2i(value)); });
+    connect(m_pkrGridBackgroundColor,    &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridBackgroundColor(Vec3f(r, g, b)); });
+    connect(m_pkrGridLineColor,          &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridLineColor(Vec3f(r, g, b)); });
+    connect(m_sldGridScale->getSlider(), &QSlider::valueChanged,     [&](int value) { m_RenderWidget->setGridScales(Vec2i(value)); });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // floor
     connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
-    connect(m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
-    connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorExposure);
+    connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,           m_RenderWidget, &RenderWidget::setFloorSize);
+    connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged,           m_RenderWidget, &RenderWidget::setFloorExposure);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // frame controllers
-    connect(m_sldFrameDelay->getSlider(), &QSlider::valueChanged, m_DataReader, &DataReader::setFrameDelayTime);
+    connect(m_sldFrameDelay->getSlider(),  &QSlider::valueChanged, m_DataReader, &DataReader::setFrameDelayTime);
     connect(m_sldFrameStride->getSlider(), &QSlider::valueChanged, m_DataReader, &DataReader::setFrameStride);
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -123,9 +123,9 @@ void Controller::connectWidgets()
                 }
             });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-    connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
-    connect(m_pkrColorDataMax, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_btnRndColor, &QPushButton::clicked, [&]
+    connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
+    connect(m_btnRndColor,        &QPushButton::clicked,              [&]
             {
                 auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
                                       NumberHelpers::generateRandomReal(0.0f, 1.0f),
@@ -150,31 +150,30 @@ void Controller::connectWidgets()
                     m_DataReader->reloadCurrentFrame();
                 }
             });
-    connect(m_chkRenderBox, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setRenderBox);
-    connect(m_pkrBoxColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setBoxColor(Vec3f(r, g, b)); });
+    connect(m_chkRenderBox, &QCheckBox::toggled,        m_RenderWidget, &RenderWidget::setRenderBox);
+    connect(m_pkrBoxColor,  &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setBoxColor(Vec3f(r, g, b)); });
 
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
-    connect(m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
-    connect(m_btnPause, &QPushButton::clicked, m_DataReader, &DataReader::pause);
-    connect(m_btnNextFrame, &QPushButton::clicked, m_DataReader, &DataReader::readNextFrame);
-    connect(m_btnReset, &QPushButton::clicked, m_DataReader, &DataReader::readFirstFrame);
-    connect(m_btnRepeatPlay, &QPushButton::clicked, m_DataReader, &DataReader::enableRepeat);
-    connect(m_btnReverse, &QPushButton::clicked, m_DataReader, &DataReader::enableReverse);
+    connect(m_btnResetCamera,   &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
+    connect(m_btnPause,         &QPushButton::clicked, m_DataReader,   &DataReader::pause);
+    connect(m_btnNextFrame,     &QPushButton::clicked, m_DataReader,   &DataReader::readNextFrame);
+    connect(m_btnReset,         &QPushButton::clicked, m_DataReader,   &DataReader::readFirstFrame);
+    connect(m_btnRepeatPlay,    &QPushButton::clicked, m_DataReader,   &DataReader::enableRepeat);
+    connect(m_btnReverse,       &QPushButton::clicked, m_DataReader,   &DataReader::enableReverse);
     connect(m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  data handle
     connect(m_DataReader, &DataReader::particleDataChanged, m_RenderWidget, &RenderWidget::updateVizData);
-    connect(m_DataReader, &DataReader::domainBoxChanged, m_RenderWidget, &RenderWidget::updateBox);
-    connect(m_DataReader, &DataReader::cameraChanged, m_RenderWidget, &RenderWidget::updateCamera);
-    connect(m_DataReader, &DataReader::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
-    connect(m_DataReader, &DataReader::capturePathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
+    connect(m_DataReader, &DataReader::domainBoxChanged,    m_RenderWidget, &RenderWidget::updateBox);
+    connect(m_DataReader, &DataReader::cameraChanged,       m_RenderWidget, &RenderWidget::updateCamera);
+    connect(m_DataReader, &DataReader::lightsChanged,       m_RenderWidget, &RenderWidget::updateLights);
+    connect(m_DataReader, &DataReader::capturePathChanged,  m_RenderWidget, &RenderWidget::setCapturePath);
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights
     connect(m_LightEditor, &PointLightEditor::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
-    connect(m_RenderWidget, &RenderWidget::lightsObjChanged, m_LightEditor, &PointLightEditor::setLights);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -224,10 +223,10 @@ void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
     rdbBackgroundSkyBox->setChecked(true);
 
     QGridLayout* layoutBackgroundType = new QGridLayout;
-    layoutBackgroundType->addWidget(rdbBackgroundSkyBox, 0, 0, 1, 1);
-    layoutBackgroundType->addWidget(rdbBackgroundColor, 0, 1, 1, 1);
+    layoutBackgroundType->addWidget(rdbBackgroundSkyBox,       0, 0, 1, 1);
+    layoutBackgroundType->addWidget(rdbBackgroundColor,        0, 1, 1, 1);
     layoutBackgroundType->addWidget(rdbBackgroundCheckerboard, 1, 0, 1, 1);
-    layoutBackgroundType->addWidget(rdbBackgroundGrid, 1, 1, 1, 1);
+    layoutBackgroundType->addWidget(rdbBackgroundGrid,         1, 1, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_cbSkyTexture = new EnhancedComboBox;
     QWidget* wSkyTex = new QWidget;
@@ -295,25 +294,25 @@ void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
     layoutBackground->addWidget(wCheckerboard);
     layoutBackground->addWidget(wGrid);
 
-    connect(rdbBackgroundSkyBox, &QRadioButton::toggled, wSkyTex, &QWidget::setVisible);
-    connect(rdbBackgroundColor, &QRadioButton::toggled, m_pkrBackgroundColor, &ColorPicker::setVisible);
-    connect(rdbBackgroundCheckerboard, &QRadioButton::toggled, wCheckerboard, &QWidget::setVisible);
-    connect(rdbBackgroundGrid, &QRadioButton::toggled, wGrid, &QWidget::setVisible);
+    connect(rdbBackgroundSkyBox,       &QRadioButton::toggled, wSkyTex,              &QWidget::setVisible);
+    connect(rdbBackgroundColor,        &QRadioButton::toggled, m_pkrBackgroundColor, &ColorPicker::setVisible);
+    connect(rdbBackgroundCheckerboard, &QRadioButton::toggled, wCheckerboard,        &QWidget::setVisible);
+    connect(rdbBackgroundGrid,         &QRadioButton::toggled, wGrid,                &QWidget::setVisible);
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grBackground = new QGroupBox("Background");
     grBackground->setLayout(layoutBackground);
     layoutCtr->addWidget(grBackground);
     ////////////////////////////////////////////////////////////////////////////////
     m_smBackgroundMode = new QSignalMapper(this);
-    connect(rdbBackgroundSkyBox, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
-    connect(rdbBackgroundColor, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+    connect(rdbBackgroundSkyBox,       SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+    connect(rdbBackgroundColor,        SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
     connect(rdbBackgroundCheckerboard, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
-    connect(rdbBackgroundGrid, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+    connect(rdbBackgroundGrid,         SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
 
-    m_smBackgroundMode->setMapping(rdbBackgroundSkyBox, static_cast<int>(BackgroundMode::SkyBox));
-    m_smBackgroundMode->setMapping(rdbBackgroundColor, static_cast<int>(BackgroundMode::Color));
+    m_smBackgroundMode->setMapping(rdbBackgroundSkyBox,       static_cast<int>(BackgroundMode::SkyBox));
+    m_smBackgroundMode->setMapping(rdbBackgroundColor,        static_cast<int>(BackgroundMode::Color));
     m_smBackgroundMode->setMapping(rdbBackgroundCheckerboard, static_cast<int>(BackgroundMode::Checkerboard));
-    m_smBackgroundMode->setMapping(rdbBackgroundGrid, static_cast<int>(BackgroundMode::Grid));
+    m_smBackgroundMode->setMapping(rdbBackgroundGrid,         static_cast<int>(BackgroundMode::Grid));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -407,24 +406,24 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     rdbColorRamp->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutColorMode = new QGridLayout;
-    layoutColorMode->addWidget(rdbColorRandom, 0, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorRamp, 0, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorRandom,  0, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorRamp,    0, 1, 1, 1);
     layoutColorMode->addWidget(rdbColorUniform, 1, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorObjIdx, 1, 1, 1, 1);
-    layoutColorMode->addWidget(rdbColorVelMag, 2, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorObjIdx,  1, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorVelMag,  2, 0, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_smParticleColorMode = new QSignalMapper(this);
-    connect(rdbColorRandom, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorRamp, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorRandom,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorRamp,    SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorObjIdx, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorVelMag, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorObjIdx,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorVelMag,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
 
-    m_smParticleColorMode->setMapping(rdbColorRandom, static_cast<int>(ParticleColorMode::Random));
-    m_smParticleColorMode->setMapping(rdbColorRamp, static_cast<int>(ParticleColorMode::Ramp));
+    m_smParticleColorMode->setMapping(rdbColorRandom,  static_cast<int>(ParticleColorMode::Random));
+    m_smParticleColorMode->setMapping(rdbColorRamp,    static_cast<int>(ParticleColorMode::Ramp));
     m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
-    m_smParticleColorMode->setMapping(rdbColorObjIdx, static_cast<int>(ParticleColorMode::ObjectIndex));
-    m_smParticleColorMode->setMapping(rdbColorVelMag, static_cast<int>(ParticleColorMode::VelocityMagnitude));
+    m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(ParticleColorMode::ObjectIndex));
+    m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(ParticleColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);
@@ -511,11 +510,11 @@ void Controller::setupButtons(QBoxLayout* layoutCtr)
     m_btnClipViewPlane->setCheckable(true);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutButtons = new QGridLayout;
-    layoutButtons->addWidget(m_btnPause, 0, 0, 1, 1);
-    layoutButtons->addWidget(m_btnNextFrame, 0, 1, 1, 1);
-    layoutButtons->addWidget(m_btnReset, 1, 0, 1, 1);
-    layoutButtons->addWidget(m_btnRepeatPlay, 1, 1, 1, 1);
-    layoutButtons->addWidget(m_btnReverse, 2, 0, 1, 1);
+    layoutButtons->addWidget(m_btnPause,         0, 0, 1, 1);
+    layoutButtons->addWidget(m_btnNextFrame,     0, 1, 1, 1);
+    layoutButtons->addWidget(m_btnReset,         1, 0, 1, 1);
+    layoutButtons->addWidget(m_btnRepeatPlay,    1, 1, 1, 1);
+    layoutButtons->addWidget(m_btnReverse,       2, 0, 1, 1);
     layoutButtons->addWidget(m_btnClipViewPlane, 2, 1, 1, 1);
     layoutCtr->addLayout(layoutButtons);
 }

@@ -48,6 +48,7 @@ out vec3 f_Color;
 #define COLOR_MODE_RANDOM             1
 #define COLOR_MODE_OBJ_INDEX          2
 #define COLOR_MODE_VELOCITY_MAGNITUDE 3
+
 float rand(vec2 co)
 {
     float a  = 12.9898f;

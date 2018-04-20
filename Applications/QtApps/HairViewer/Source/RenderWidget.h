@@ -57,8 +57,8 @@ public slots:
     void loadHairModel(const String& hairFile);
     void setRenderMode(int renderMode);
     void setColorMode(int colorMode);
-    void setColorDataMin(const Vec3f& colorMin) { m_RDataHair.colorMinVal = colorMin; }
-    void setColorDataMax(const Vec3f& colorMax) { m_RDataHair.colorMaxVal = colorMax; }
+    void setColorDataMin(const Vec3f& colorMin) { m_RDataCommon.colorMinVal = colorMin; }
+    void setColorDataMax(const Vec3f& colorMax) { m_RDataCommon.colorMaxVal = colorMax; }
     void setHairMaterial(const Material::MaterialData& material);
 private:
     struct RDataHairCommon
@@ -67,7 +67,6 @@ private:
         UniquePtr<OpenGLBuffer> buffColorData = nullptr;
         UniquePtr<Material>     material      = nullptr;
 
-        GLuint VAO;
         GLuint nVertices = 0;
         GLuint nStrands  = 0;
 
@@ -85,6 +84,7 @@ private:
     {
         SharedPtr<QtAppShaderProgram> shader = nullptr;
 
+        GLuint VAO;
         GLint  v_Position;
         GLint  v_iColor;
         GLint  v_fColor;
@@ -113,6 +113,7 @@ private:
     {
         SharedPtr<QtAppShaderProgram> shader = nullptr;
 
+        GLuint VAO;
         GLint  v_Position;
         GLint  v_iColor;
         GLint  v_fColor;
@@ -133,6 +134,9 @@ private:
         GLuint u_vColorMax;
         GLuint u_ColorMinVal;
         GLuint u_ColorMaxVal;
+
+        GLfloat pointRadius = 1.0f / 128.0f;
+        GLfloat pointScale;
 
         bool initialized = false;
     } m_RDataParticleRender;

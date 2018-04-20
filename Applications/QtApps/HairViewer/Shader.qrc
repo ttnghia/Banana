@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>Shaders/hair.fs.glsl</file>
-        <file>Shaders/hair.vs.glsl</file>
-        <file>Shaders/hair.gs.glsl</file>
+        <file>Shaders/line.fs.glsl</file>
+        <file>Shaders/line.vs.glsl</file>
+        <file>Shaders/line.gs.glsl</file>
         <file>Shaders/particle.fs.glsl</file>
         <file>Shaders/particle.vs.glsl</file>
     </qresource>

@@ -13,7 +13,7 @@
         "MemoryStateDataFolder" : "MPMState",
         "OptionalSavingData" : [ "object_index" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : true,
+        "PrintLogToFile" : false,
         "EnableSortParticle" : true,
         "SortFrequency" : 10
     },

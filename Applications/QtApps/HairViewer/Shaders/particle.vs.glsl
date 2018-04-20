@@ -23,19 +23,10 @@
 
 #define COLOR_MODE_UNIFORM_MATERIAL   0
 #define COLOR_MODE_RANDOM             1
-#define COLOR_MODE_RAMP               2
-#define COLOR_MODE_OBJ_INDEX          3
-#define COLOR_MODE_VELOCITY_MAGNITUDE 4
+#define COLOR_MODE_OBJ_INDEX          2
+#define COLOR_MODE_VELOCITY_MAGNITUDE 3
 
 #define UNIT_SPHERE_ISOLATED_PARTICLE
-
-uniform vec3 colorRamp[] = vec3[] (vec3(1.0, 0.0, 0.0),
-                                   vec3(1.0, 0.5, 0.0),
-                                   vec3(1.0, 1.0, 0.0),
-                                   vec3(1.0, 0.0, 1.0),
-                                   vec3(0.0, 1.0, 0.0),
-                                   vec3(0.0, 1.0, 1.0),
-                                   vec3(0.0, 0.0, 1.0));
 
 layout(std140) uniform CameraData
 {
@@ -47,8 +38,10 @@ layout(std140) uniform CameraData
     vec4 camPosition;
 };
 
+uniform uint u_nStrands;
+uniform uint u_SegmentIdx;
+
 uniform int   u_Dimension;
-uniform uint  u_nParticles;
 uniform int   u_ColorMode;
 uniform float u_vColorMin;
 uniform float u_vColorMax;
@@ -80,20 +73,19 @@ float rand(vec2 co)
     return fract(sin(sn) * c);
 }
 
+vec3 randColor()
+{
+    float r = rand(vec2(u_SegmentIdx, u_SegmentIdx));
+    float g = rand(vec2(u_SegmentIdx + 1, u_SegmentIdx));
+    float b = rand(vec2(u_SegmentIdx, u_SegmentIdx + 1));
+    return vec3(r, g, b);
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 vec3 generateVertexColor()
 {
     if(u_ColorMode == COLOR_MODE_RANDOM) {
-        return vec3(rand(vec2(gl_VertexID, gl_VertexID)),
-                    rand(vec2(gl_VertexID + 1, gl_VertexID)),
-                    rand(vec2(gl_VertexID, gl_VertexID + 1)));
-    } else if(u_ColorMode == COLOR_MODE_RAMP) {
-        float segmentSize = float(u_nParticles) / 6.0f;
-        float segment     = floor(float(gl_VertexID) / segmentSize);
-        float t           = (float(gl_VertexID) - segmentSize * segment) / segmentSize;
-        vec3  startVal    = colorRamp[int(segment)];
-        vec3  endVal      = colorRamp[int(segment) + 1];
-        return mix(startVal, endVal, t);
+        return randColor();
     } else if(u_ColorMode == COLOR_MODE_OBJ_INDEX) {
         float t = (float(v_iColor) - u_vColorMin) / (u_vColorMax - u_vColorMin);
         return mix(u_ColorMinVal, u_ColorMaxVal, t);
