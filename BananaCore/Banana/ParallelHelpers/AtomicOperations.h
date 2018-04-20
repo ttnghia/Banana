@@ -22,6 +22,7 @@
 #pragma once
 
 #include <atomic>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::AtomicOperations
@@ -47,11 +48,27 @@ void atomicAdd(T& target, const T& operand)
     atomicOp(target, operand, [](T a, T b) { return a + b; });
 }
 
+template<Int N, class T>
+void atomicAdd(VecX<N, T>& target, const VecX<N, T>& operand)
+{
+    for(Int i = 0; i < N; ++i) {
+        atomicOp(target[i], operand[i], [](T a, T b) { return a + b; });
+    }
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 void atomicSub(T& target, const T& operand)
 {
     atomicOp(target, operand, [](T a, T b) { return a - b; });
+}
+
+template<Int N, class T>
+void atomicSub(VecX<N, T>& target, const VecX<N, T>& operand)
+{
+    for(Int i = 0; i < N; ++i) {
+        atomicOp(target[i], operand[i], [](T a, T b) { return a - b; });
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -61,11 +78,27 @@ void atomicMul(T& target, const T& operand)
     atomicOp(target, operand, [](T a, T b) { return a * b; });
 }
 
+template<Int N, class T>
+void atomicMul(VecX<N, T>& target, const VecX<N, T>& operand)
+{
+    for(Int i = 0; i < N; ++i) {
+        atomicOp(target[i], operand[i], [](T a, T b) { return a * b; });
+    }
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 void atomicDiv(T& target, const T& operand)
 {
     atomicOp(target, operand, [](T a, T b) { return a / b; });
+}
+
+template<Int N, class T>
+void atomicDiv(VecX<N, T>& target, const VecX<N, T>& operand)
+{
+    for(Int i = 0; i < N; ++i) {
+        atomicOp(target[i], operand[i], [](T a, T b) { return a / b; });
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -105,8 +105,6 @@ struct MPM_Data : public SimulationData<N, RealType>
         Array<N, Vec_RealType> weight;
         Array<N, Vec_VecN>     weightGrad;
 
-        Array<N, ParallelObjects::SpinLock> nodeLocks;
-
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const VecX<N, UInt>& gridSize);
         virtual void resetGrid() override;

@@ -202,9 +202,7 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
 
                                             RealType w = particleData().weights[p * 16 + idx];
                                             if(w > Tiny) {
-                                                gridData().nodeLocks(x, y).lock();
-                                                gridData().velocity_new(x, y) += f * particleData().weightGradients[p * 16 + idx];
-                                                gridData().nodeLocks(x, y).unlock();
+                                                AtomicOperations::atomicAdd(gridData().velocity_new(x, y), f * particleData().weightGradients[p * 16 + idx]);
                                             }
                                         }
                                     }
@@ -273,9 +271,7 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
 
                                             RealType w = particleData().weights[p * 16 + idx];
                                             if(w > Tiny) {
-                                                gridData().nodeLocks(x, y).lock();
-                                                gridData().velocity_new(x, y) += f * w;
-                                                gridData().nodeLocks(x, y).unlock();
+                                                AtomicOperations::atomicAdd(gridData().velocity_new(x, y), f * w);
                                             }
                                         }
                                     }

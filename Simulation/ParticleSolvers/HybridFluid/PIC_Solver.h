@@ -20,28 +20,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//                                .--,       .--,
-//                               ( (  \.---./  ) )
-//                                '.__/o   o\__.'
-//                                   {=  ^  =}
-//                                    >  -  <
-//     ___________________________.""`-------`"".____________________________
-//    /                                                                      \
-//    \    This file is part of Banana - a graphics programming framework    /
-//    /                    Created: 2017 by Nghia Truong                     \
-//    \                      <nghiatruong.vn@gmail.com>                      /
-//    /                      https://ttnghia.github.io                       \
-//    \                        All rights reserved.                          /
-//    /                                                                      \
-//    \______________________________________________________________________/
-//                                  ___)( )(___
-//                                 (((__) (__)))
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#pragma once
 
 #include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid.h>
@@ -53,23 +31,23 @@
 #include <ParticleSolvers/ParticleSolverFactory.h>
 
 #include <Banana/Array/ArrayHelpers.h>
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+#include <ParticleSolvers/HybridFluid/PIC_Solver.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC_3DSolver : public ParticleSolver3D, public RegisteredInSolverFactory<PIC_3DSolver>
+class PIC_Solver : public ParticleSolver3D, public RegisteredInSolverFactory<PIC_Solver>
 {
 public:
-    PIC_3DSolver() = default;
+    PIC_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("PIC_3DSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PIC_3DSolver>(); }
+    static String                      solverName() { return String("PIC_Solver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PIC_Solver>(); }
 
-    virtual String getSolverName() { return PIC_3DSolver::solverName(); }
+    virtual String getSolverName() { return PIC_Solver::solverName(); }
     virtual String getSolverDescription() override { return String("Fluid Simulation using PIC-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////

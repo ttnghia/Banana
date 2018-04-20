@@ -198,8 +198,6 @@ void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>&gridSize)
 
     weight.resize(nNodes);
     weightGrad.resize(nNodes);
-
-    nodeLocks.resize(nNodes);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

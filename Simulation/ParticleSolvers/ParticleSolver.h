@@ -30,6 +30,10 @@
 #include <Banana/Data/DataPrinter.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
 
+#include <Banana/ParallelHelpers/AtomicOperations.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/LinearAlgebra/LinaHelpers.h>
+
 #include <ParticleTools/ParticleSerialization.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 

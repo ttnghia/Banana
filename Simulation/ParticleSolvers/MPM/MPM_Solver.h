@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <Banana/ParallelHelpers/ParallelSTL.h>
-#include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
 #include <ParticleSolvers/MPM/MPM_Data.h>
