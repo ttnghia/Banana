@@ -265,7 +265,6 @@ optix::TextureSampler RayTracer::createTexSampler(const std::string& texFile, bo
     sampler->setMipLevelCount(1u);
     sampler->setArraySize(1u);
 
-
     QImage         img(texFile.c_str());
     optix::Buffer  buffer     = m_OptiXContext->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_UNSIGNED_BYTE4, img.width(), img.height());
     unsigned char* bufferData = static_cast<unsigned char*>(buffer->map());
@@ -331,13 +330,13 @@ void RayTracer::resizeBuffer(optix::Buffer buffer, int width, int height)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RayTracer::computeEyeUVW(optix::float3& eye_out, optix::float3& u_out, optix::float3& v_out, optix::float3& w_out)
 {
-    float            ulen, vlen, wlen;
-    const glm::vec3& eye = m_Camera->getCameraPosition();
-    glm::vec3        W   = m_Camera->getCameraFocus() - eye; // Do not normalize W -- it implies focal length
+    float       ulen, vlen, wlen;
+    const auto& eye = m_Camera->getCameraPosition();
+    auto        W   = m_Camera->getCameraFocus() - eye; // Do not normalize W -- it implies focal length
 
     wlen = glm::length(W);
-    glm::vec3 U = glm::normalize(glm::cross(W, m_Camera->getCameraUpDirection()));
-    glm::vec3 V = glm::normalize(glm::cross(U, W));
+    auto U = glm::normalize(glm::cross(W, m_Camera->getCameraUpDirection()));
+    auto V = glm::normalize(glm::cross(U, W));
 
     vlen = wlen * tanf(0.5f * M_PIf * m_Camera->getFrustum().m_Fov / 180.0f);
     ulen = vlen * m_AspectRatio;

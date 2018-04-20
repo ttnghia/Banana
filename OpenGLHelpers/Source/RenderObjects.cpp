@@ -358,7 +358,7 @@ void PointLightRender::initRenderData()
 void WireFrameBoxRender::transform(const Vec3f& translation, const Vec3f& scale)
 {
     Mat4x4f modelMatrix  = glm::scale(glm::translate(Mat4x4f(1.0), translation), scale);
-    Mat4x4f normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+    Mat4x4f normalMatrix = glm::transpose(glm::inverse(Mat3x3f(modelMatrix)));
 
     m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),       0,          sizeof(Mat4x4f)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(Mat4x4f), sizeof(Mat4x4f)); // normal matrix}
@@ -868,7 +868,7 @@ void MeshRender::setExternalShadowMaps(const Vector<SharedPtr<OpenGLTexture>>& s
 void MeshRender::transform(const Vec3f& translation, const Vec3f& scales)
 {
     Mat4x4f modelMatrix  = glm::scale(glm::translate(Mat4x4f(1.0), translation), scales);
-    Mat4x4f normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+    Mat4x4f normalMatrix = glm::transpose(glm::inverse(Mat3x3f(modelMatrix)));
 
     m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),       0,          sizeof(Mat4x4f)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(Mat4x4f), sizeof(Mat4x4f)); // normal matrix

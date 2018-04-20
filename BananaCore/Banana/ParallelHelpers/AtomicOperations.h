@@ -30,6 +30,7 @@ namespace Banana::AtomicOperations
 template<class T, class Function>
 void atomicOp(T& target, const T& operand, Function&& f)
 {
+    static_assert(sizeof(T) <= 8);
     std::atomic<T>& tgt = *((std::atomic<T>*) & target);
 
     T cur_val = target;

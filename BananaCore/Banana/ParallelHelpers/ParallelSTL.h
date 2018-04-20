@@ -146,7 +146,7 @@ inline T sum(const Vector<T>& x)
 }
 
 template<Int N, class T>
-inline T sum(const Vector<T>& x)
+inline VecX<N, T> sum(const Vector<VecX<N, T>>& x)
 {
     ParallelObjects::VectorSum<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);

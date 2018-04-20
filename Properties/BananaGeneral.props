@@ -23,6 +23,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_WINDOWS;UNICODE;WIN32;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/std:c++latest /bigobj</AdditionalOptions>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
     </ClCompile>
     <PostBuildEvent>
       <Command>if exist $(IntDir)$(TargetName).pdb xcopy /C /r /y $(IntDir)$(TargetName).pdb $(OutDir)</Command>

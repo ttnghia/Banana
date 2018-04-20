@@ -243,9 +243,9 @@ void Camera::rotate()
     v = glm::normalize(v);
     w = glm::normalize(w);
 
-    float     scale          = eyeDir.length() * 0.002f;
-    Vec3f     rotationScaled = m_Rotation * scale;
-    glm::quat qRotation      = glm::angleAxis(rotationScaled.y, v) * glm::angleAxis(rotationScaled.x, u);
+    float scale          = eyeDir.length() * 0.002f;
+    Vec3f rotationScaled = m_Rotation * scale;
+    auto  qRotation      = glm::angleAxis(rotationScaled.y, v) * glm::angleAxis(rotationScaled.x, u);
     //                          *glm::angleAxis(rotation_scaled.z, eyeDir);
     eyeDir = qRotation * eyeDir;
 

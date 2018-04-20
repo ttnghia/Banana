@@ -27,7 +27,7 @@
         "NExpandCells" : 2,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.9,
-        "ImplicitRatio" : 1,
+        "ImplicitRatio" : 0,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
         "CellSize" : 0.05,
