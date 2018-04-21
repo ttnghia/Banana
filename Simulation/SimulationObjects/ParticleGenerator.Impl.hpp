@@ -77,7 +77,7 @@ void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Boundar
     NumberHelpers::scan(pGrid,
                         [&](const auto& idx)
                         {
-                            VecN ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
+                            VecN ppos = boxMin + VecX<N, RealType>(idx) * spacing;
                             for(auto& bdObj : boundaryObjects) {
                                 if(bdObj->signedDistance(ppos) < 0) {
                                     return;
@@ -188,7 +188,7 @@ UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecN& currentPositi
     if(currentPositions.size() > 0) {
         for(const auto& ppos0 : m_ObjParticles) {
             for(UInt i = 0; i < m_MaxIters; ++i) {
-                bool  bValid = true;
+                bool bValid = true;
                 VecN ppos   = ppos0;
                 NumberHelpers::jitter(ppos, m_Jitter);
                 const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);

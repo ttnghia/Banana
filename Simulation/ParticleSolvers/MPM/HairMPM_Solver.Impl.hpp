@@ -192,7 +192,7 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
 
                                     MatNxN f = particleData().CauchyStress[p];
 
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
 
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -262,7 +262,7 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
                                     //}
 
                                     ////////////////////////////////////////////////////////////////////////////////
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -289,7 +289,7 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     auto apicVel       = VecN(0);
                                     auto apicVelGrad   = MatNxN(0);
@@ -361,7 +361,7 @@ void HairMPM_Solver<N, RealType >::predictParticlePositions()
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     VecN ppos(0);
                                     MatNxN pposGrad(0);

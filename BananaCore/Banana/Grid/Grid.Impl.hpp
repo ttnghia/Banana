@@ -161,7 +161,7 @@ void Grid<N, RealType >::collectIndexToCells(const Vector<VecX<N, RealType>>& po
                             [&](UInt p)
                             {
                                 auto cellPos = getCellIdx<RealType>(positions[p]);
-                                auto cellIdx = NumberHelpers::convert<Int>(cellPos);
+                                auto cellIdx = VecX<N, Int>(cellPos);
                                 particleCellPos[p] = cellPos;
 
                                 m_Lock(cellIdx).lock();

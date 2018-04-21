@@ -371,7 +371,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                       {
                                           const auto& pPos   = particleData().positions[p];
                                           const auto& pg     = particleData().gridCoordinate[p];
-                                          const auto lcorner = NumberHelpers::convert<Int>(pg);
+                                          const auto lcorner = VecX<N, Int>(pg);
 
                                           auto pD = MatNxN(0);
                                           ////////////////////////////////////////////////////////////////////////////////
@@ -410,7 +410,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                 {
                                     const auto& pPos   = particleData().positions[p];
                                     const auto& pg     = particleData().gridCoordinate[p];
-                                    const auto lcorner = NumberHelpers::convert<Int>(pg);
+                                    const auto lcorner = VecX<N, Int>(pg);
 
                                     auto pD = Mat3x3r(0);
                                     ////////////////////////////////////////////////////////////////////////////////
@@ -465,7 +465,7 @@ bool MPM_Solver<N, RealType >::initParticleVolumes()
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     auto pDensity      = RealType(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -486,7 +486,7 @@ bool MPM_Solver<N, RealType >::initParticleVolumes()
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     auto pDensity      = 0_f;
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -527,7 +527,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
                                 [&](UInt p)
                                 {
                                     const auto& pVel   = particleData().velocities[p];
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
 
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -548,7 +548,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
                                 [&](UInt p)
                                 {
                                     const auto& pVel   = particleData().velocities[p];
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
 
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -590,7 +590,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                     const auto& pPos    = particleData().positions[p];
                                     const auto& pVel    = particleData().velocities[p];
                                     const auto pBxInvpD = particleData().B[p] * glm::inverse(particleData().D[p]);
-                                    const auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner  = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -615,7 +615,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                     const auto& pPos    = particleData().positions[p];
                                     const auto& pVel    = particleData().velocities[p];
                                     const auto pBxInvpD = particleData().B[p] * glm::inverse(particleData().D[p]);
-                                    const auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner  = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -678,7 +678,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                     particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
 
                                     MatNxN f     = particleData().CauchyStress[p];
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
 
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -718,7 +718,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                     particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
 
                                     Mat3x3r f    = particleData().CauchyStress[p];
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     ////////////////////////////////////////////////////////////////////////////////
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -807,7 +807,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                 {
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // compute gradient velocity
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     auto pVelGrad      = MatNxN(0);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -880,7 +880,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -901,7 +901,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                 {
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // compute gradient velocity
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     auto pVelGrad      = Mat3x3r(0);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -977,7 +977,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -1066,7 +1066,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                     auto picVel      = VecN(0);
                                     auto picVelGrad  = MatNxN(0);
 
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                             if(!grid().isValidNode(x, y)) {
@@ -1098,7 +1098,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                     auto picVel      = Vec3r(0);
                                     auto picVelGrad  = Mat3x3r(0);
 
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -1132,7 +1132,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     auto apicVel       = VecN(0);
                                     auto apicVelGrad   = MatNxN(0);
@@ -1162,7 +1162,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     auto apicVel       = Vec3r(0);
                                     auto apicVelGrad   = Mat3x3r(0);
@@ -1201,7 +1201,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     auto flipVel       = particleData().velocities[p];
                                     auto flipVelGrad   = particleData().velocityGrad[p];
@@ -1239,7 +1239,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto lcorner = VecX<N, Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     auto flipVel       = particleData().velocities[p];
                                     auto flipVelGrad   = particleData().velocityGrad[p];

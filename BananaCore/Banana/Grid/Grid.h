@@ -182,11 +182,9 @@ public:
     auto getNearestValidCellIdx(const VecX<N, IndexType>& cellIdx) const noexcept
     {
         VecX<N, IndexType> validCellIdx;
-
         for(Int i = 0; i < N; ++i) {
             validCellIdx[i] = MathHelpers::clamp<IndexType>(cellIdx[i], 0, static_cast<IndexType>(m_NCells[i]) - 1);
         }
-
         return validCellIdx;
     }
 
@@ -201,7 +199,7 @@ public:
     template<class IndexType>
     auto getWorldCoordinate(const VecX<N, IndexType>& nodeIdx) const
     {
-        return NumberHelpers::convert<RealType>(nodeIdx) * m_CellSize + m_BMin;
+        return VecX<N, RealType>(nodeIdx) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
