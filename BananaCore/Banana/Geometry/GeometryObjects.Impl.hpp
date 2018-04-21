@@ -572,25 +572,25 @@ void sweep(const Vector<Vec3ui>& tri,
 
     if(di > 0) {
         i0 = 1;
-        i1 = static_cast<Int>(phi.size()[0]);
+        i1 = static_cast<Int>(phi.vsize()[0]);
     } else {
-        i0 = static_cast<Int>(phi.size()[0]) - 2;
+        i0 = static_cast<Int>(phi.vsize()[0]) - 2;
         i1 = -1;
     }
 
     if(dj > 0) {
         j0 = 1;
-        j1 = static_cast<Int>(phi.size()[1]);
+        j1 = static_cast<Int>(phi.vsize()[1]);
     } else {
-        j0 = static_cast<Int>(phi.size()[1]) - 2;
+        j0 = static_cast<Int>(phi.vsize()[1]) - 2;
         j1 = -1;
     }
 
     if(dk > 0) {
         k0 = 1;
-        k1 = static_cast<Int>(phi.size()[2]);
+        k1 = static_cast<Int>(phi.vsize()[2]);
     } else {
-        k0 = static_cast<Int>(phi.size()[2]) - 2;
+        k0 = static_cast<Int>(phi.vsize()[2]) - 2;
         k1 = -1;
     }
 

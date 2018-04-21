@@ -138,7 +138,7 @@ public:
     auto        empty() const { return m_Data.empty(); }
     auto        capacity(void) const { return m_Data.capacity(); }
     auto        dataSize(void) const { return m_Data.size(); }
-    const auto& size() const { return m_Size; }
+    const auto& vsize() const { return m_Size; }
 
     ////////////////////////////////////////////////////////////////////////////////
     // index processing
