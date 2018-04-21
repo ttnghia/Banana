@@ -269,6 +269,10 @@ inline void throwIfFailed(HRESULT hr)
     testTimer.tock();                       \
     printf("Test %s finished. Time: %s\n", funcName, testTimer.getRunTime().c_str());
 
+#define __BNN_PERORMANCE_TEST_END_WITH_RUN_TIME(funcName, runTime)                    \
+    runTime = testTimer.tock();                                                       \
+    printf("Test %s finished. Time: %s\n", funcName, testTimer.getRunTime().c_str()); \
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // data macros
 #define __BNN_REQUIRE_EQUAL(a, b)                     __BNN_REQUIRE_MSG(a == b, "Numbers are not equal.");
