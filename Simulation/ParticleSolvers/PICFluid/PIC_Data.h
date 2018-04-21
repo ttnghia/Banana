@@ -98,11 +98,10 @@ struct PIC_Data : public SimulationData<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return particleData; }
     virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
-    void                                               makeReady(const PIC_3DParameters& params);
     virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override {}
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/HybridFluid/PIC_Data.Impl.hpp>
+#include <ParticleSolvers/PICFluid/PIC_Data.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

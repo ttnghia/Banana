@@ -91,59 +91,37 @@ UInt PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(const Vec_Int8& re
     STLHelpers::eraseByMarker(velocities,  removeMarker);
     STLHelpers::eraseByMarker(objectIndex, removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
-
-    deformGrad.resize(positions.size());
-    PiolaStress.resize(positions.size());
-    CauchyStress.resize(positions.size());
-
-    energy.resize(positions.size());
-    energyDensity.resize(positions.size());
-
-    gridCoordinate.resize(positions.size());
-    weightGradients.resize(positions.size() * MathHelpers::pow(4, N));
-    weights.resize(positions.size() * MathHelpers::pow(4, N));
-
-    ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>&gridSize)
+void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>&gridSize)
 {
-    auto nNodes = gridSize + VecX<N, UInt>(1u);
-    ////////////////////////////////////////////////////////////////////////////////
-    active.resize(nNodes, 0);
-    activeNodeIdx.resize(nNodes, 0u);
-    velocity.resize(nNodes, VecN(0));
-    velocity_new.resize(nNodes, VecN(0));
+    u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+    u_weights.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+    u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+    u_extrapolate.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+    tmp_u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+    tmp_u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
 
-    mass.resize(nNodes, 0);
-    energy.resize(nNodes, 0);
-    velocity.resize(nNodes, VecN(0));
+    v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+    v_weights.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+    v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+    v_extrapolate.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+    tmp_v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+    tmp_v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
 
-    weight.resize(nNodes);
-    weightGrad.resize(nNodes);
-}
+    w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+    w_weights.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+    w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+    w_extrapolate.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+    tmp_w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+    tmp_w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void PIC_Data<N, RealType>::MPM_GridData::resetGrid()
-{
-    active.assign(char(0));
-    activeNodeIdx.assign(0u);
-    mass.assign(0);
-    energy.assign(0);
-    velocity.assign(VecN(0));
-    velocity_new.assign(VecN(0));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void PIC_Data<N, RealType >::initialize()
-{
-    particleData = std::make_shared<PIC_ParticleData>();
-    gridData     = std::make_shared<MPM_GridData>();
+    activeCellIdx.resize(gridSize.x, gridSize.y, gridSize.z, 0);
+    fluidSDF.resize(gridSize.x, gridSize.y, gridSize.z, 0);
+    boundarySDF.resize(gridSize.x + 1, gridSize.y + 1, gridSize.z + 1, 0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -153,7 +131,15 @@ void PIC_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, R
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
     }
+    particleData.setupNeighborSearch(simParams->cellSize);
+
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
-    gridData->resize(grid.getNCells());
-    particleData->setupNeighborSearch(simParams->particleRadius * RealType(4));
+    gridData.resize(grid.getNCells());
+    matrix.reserve(grid.getNTotalCells());
+    rhs.reserve(grid.getNTotalCells());
+    pressure.reserve(grid.getNTotalCells());
+
+    pcgSolver.reserve(grid.getNTotalCells());
+    pcgSolver.setSolverParameters(simParams->CGRelativeTolerance, simParams->maxCGIteration);
+    pcgSolver.setPreconditioners(PCGSolver<RealType>::MICCL0_SYMMETRIC);
 }

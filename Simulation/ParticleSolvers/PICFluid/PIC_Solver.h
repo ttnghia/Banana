@@ -21,88 +21,84 @@
 
 #pragma once
 
-#include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Banana/Utils/NumberHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
 
 #include <Banana/Array/ArrayHelpers.h>
-#include <ParticleSolvers/HybridFluid/PIC_Solver.h>
+#include <ParticleSolvers/PICFluid/PIC_Data.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC_Solver : public ParticleSolver3D, public RegisteredInSolverFactory<PIC_Solver>
+template<Int N, class RealType>
+class PIC_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolverFactory<PIC_Solver<N, RealType>>
 {
 public:
     PIC_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("PIC_Solver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PIC_Solver>(); }
+    static auto solverName() { return String("PIC_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<PIC_Solver<N, RealType>>()); }
 
     virtual String getSolverName() { return PIC_Solver::solverName(); }
-    virtual String getSolverDescription() override { return String("Fluid Simulation using PIC-3D Solver"); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using PIC-") + std::to_string(N) + String("D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void advanceFrame() override;
-    virtual void sortParticles() override;
+    auto& solverParams() { assert(m_PICParams != nullptr); return *m_PICParams; }
+    auto& solverData() { assert(m_PICData != nullptr); return *m_PICData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<PIC_3DParameters>(m_SolverParams); return *ptrParams; }
-    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<PIC_3DParameters>(m_SolverParams); return *ptrParams; }
-    auto&       solverData() { static auto ptrData = std::static_pointer_cast<PIC_3DData>(m_SolverData); return *ptrData; }
-    const auto& solverData() const { static auto ptrData = std::static_pointer_cast<PIC_3DData>(m_SolverData); return *ptrData; }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
+    auto& particleData() { return solverData().particleData; }
+    auto& gridData() { return solverData().gridData; }
+    auto& grid() { return solverData().grid; }
 
 protected:
+    virtual void allocateSolverMemory() override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
-    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-    virtual void advanceVelocity(Real timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void advanceFrame() override;
+    virtual void sortParticles() override;
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void advanceVelocity(RealType timestep);
 
-    Real timestepCFL();
-    void moveParticles(Real timeStep);
-    bool correctParticlePositions(Real timestep);
-    void advectGridVelocity(Real timestep);
-    bool addGravity(Real timestep);
-    void pressureProjection(Real timestep);
-    void computeFluidWeights();
-    void computeFluidSDF();
-    void computeSystem(Real timestep);
-    void solveSystem();
-    void updateProjectedVelocity(Real timestep);
-    void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
-    void constrainGridVelocity();
+    RealType timestepCFL();
+    void     moveParticles(RealType timeStep);
+    bool     correctParticlePositions(RealType timestep);
+    void     advectGridVelocity(RealType timestep);
+    bool     addGravity(RealType timestep);
+    void     pressureProjection(RealType timestep);
+    void     computeCellWeights();
+    void     computeFluidSDF();
+    void     computeSystem(RealType timestep);
+    void     solveSystem();
+    void     updateProjectedVelocity(RealType timestep);
+    void     extrapolateVelocity();
+    void     extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
+    void     constrainGridVelocity();
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    Real  getVelocityFromGridU(const Vec3r& ppos);
-    Real  getVelocityFromGridV(const Vec3r& ppos);
-    Real  getVelocityFromGridW(const Vec3r& ppos);
-    Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
-    Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
-    void  computeBoundarySDF();
+    RealType getVelocityFromGridU(const VecN& ppos);
+    RealType getVelocityFromGridV(const VecN& ppos);
+    RealType getVelocityFromGridW(const VecN& ppos);
+    VecN     getVelocityFromGrid(const VecN& ppos);
+    VecN     trace_rk2(const VecN& ppos, RealType timestep);
+    VecN     trace_rk2_grid(const VecN& gridPos, RealType timestep);
+    void     computeBoundarySDF();
+    ////////////////////////////////////////////////////////////////////////////////
+    SharedPtr<PIC_Parameters<N, RealType>> m_PICParams = nullptr;
+    SharedPtr<PIC_Data<N, RealType>>       m_PICData   = nullptr;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/PICFluid/PIC_Solver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers
