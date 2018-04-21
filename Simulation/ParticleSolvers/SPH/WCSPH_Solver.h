@@ -22,7 +22,6 @@
 #pragma once
 
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
 #include <ParticleSolvers/SPH/SPH_Data.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
@@ -60,9 +59,9 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void advanceVelocity(RealType timestep);
 
-    ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     moveParticles(RealType timestep);
     void     computeNeighborRelativePositions();

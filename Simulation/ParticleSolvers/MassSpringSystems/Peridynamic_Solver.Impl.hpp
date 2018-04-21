@@ -169,7 +169,7 @@ void PeridynamicsSolver::setupDataIO()
     }
     if(m_GlobalParams.savingData("connected_component_label")) {
         m_ParticleDataIO->addFixedAttribute<UInt>("num_connected_components", ParticleSerialization::TypeUInt, 1);
-        m_ParticleDataIO->addParticleAttribute<Int8>("connected_component_label", ParticleSerialization::TypeVectorChar, 1);
+        m_ParticleDataIO->addParticleAttribute<Int16>("connected_component_label", ParticleSerialization::TypeVectorChar, 1);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +275,7 @@ Int PeridynamicsSolver::saveFrameData()
         UInt nComponents;
         ParticleHelpers::connectedComponentAnalysis(solverData().bondList, solverData().connectedComponentIdx, nComponents);
         m_ParticleDataIO->setFixedAttribute("num_connected_components", nComponents);
-        m_ParticleDataIO->addParticleAttribute<Int8>("connected_component_label", ParticleSerialization::TypeVectorChar, 1);
+        m_ParticleDataIO->addParticleAttribute<Int16>("connected_component_label", ParticleSerialization::TypeVectorChar, 1);
     }
 
     if(m_GlobalParams.savingData("particle_velocity")) {

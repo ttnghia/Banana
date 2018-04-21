@@ -18,7 +18,6 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 template<Int N, class RealType>
 void MPM_Solver<N, RealType >::allocateSolverMemory()
 {
@@ -66,6 +65,8 @@ void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
 template<Int N, class RealType>
 bool MPM_Solver<N, RealType >::advanceScene()
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // evolve the dynamic objects
     bool bSceneChanged = ParticleSolver<N, RealType>::advanceScene();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +105,7 @@ void MPM_Solver<N, RealType >::setupDataIO()
         m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, N);
         if(globalParams().savingData("ObjectIndex")) {
             m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
-            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeInt16, 1);
+            m_ParticleDataIO->addParticleAttribute<Int16>("object_index", ParticleSerialization::TypeInt16, 1);
         }
         if(globalParams().savingData("ParticleVelocity")) {
             m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, N);
@@ -117,8 +118,8 @@ void MPM_Solver<N, RealType >::setupDataIO()
         m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().memoryStateDataFolder, "frame", m_Logger);
         m_MemoryStateIO->addFixedAttribute<RealType>("grid_resolution", ParticleSerialization::TypeUInt, N);
         //m_MemoryStateIO->addFixedAttribute<RealType>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
-        m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_MemoryStateIO->addFixedAttribute<UInt>(    "NObjects",        ParticleSerialization::TypeUInt, 1);
+        m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_MemoryStateIO->addParticleAttribute<RealType>("particle_position", ParticleSerialization::TypeReal,  N);
         m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity", ParticleSerialization::TypeReal,  N);
         m_MemoryStateIO->addParticleAttribute<Int16>(   "object_index",      ParticleSerialization::TypeInt16, 1);
@@ -183,14 +184,16 @@ Int MPM_Solver<N, RealType >::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(particleData().getNParticles());
+    ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
     m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
+    ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
-    __BNN_TODO;
     return globalParams().finishedFrame;
 }
 
@@ -203,7 +206,9 @@ Int MPM_Solver<N, RealType >::saveFrameData()
     }
 
     ParticleSolver<N, RealType>::saveFrameData();
+    ////////////////////////////////////////////////////////////////////////////////
     m_ParticleDataIO->clearData();
+    ////////////////////////////////////////////////////////////////////////////////
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
@@ -214,6 +219,7 @@ Int MPM_Solver<N, RealType >::saveFrameData()
     if(globalParams().savingData("ParticleVelocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
+    ////////////////////////////////////////////////////////////////////////////////
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
     return globalParams().finishedFrame;
 }
@@ -235,7 +241,7 @@ void MPM_Solver<N, RealType >::advanceFrame()
         logger().printRunTime("Sub-step time: ",
                               [&]()
                               {
-                                  if(globalParams().finishedFrame > 0) {
+                                  if(finishedFrame > 0) {
                                       logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -252,7 +258,6 @@ void MPM_Solver<N, RealType >::advanceFrame()
                                                         [&]() { grid().collectIndexToCells(particleData().positions, particleData().gridCoordinate); });
                                   logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
-
                                   frameTime += substep;
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
@@ -301,20 +306,20 @@ void MPM_Solver<N, RealType >::sortParticles()
 template<Int N, class RealType>
 void MPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
 {
-    m_Logger->printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
-    m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
-    m_Logger->printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
-    m_Logger->printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
+    logger().printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
+    logger().printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
+    logger().printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
+    logger().printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
 
     if(solverParams().implicitRatio < Tiny) {
-        m_Logger->printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
+        logger().printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
     } else {
-        m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
+        logger().printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
     }
 
-    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               [&]() { gridCollision(timestep); });
-    m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
-    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleStates(timestep); });
+    logger().printRunTimeIndent("Constrain grid velocity: ",               [&]() { gridCollision(timestep); });
+    logger().printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
+    logger().printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleStates(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
