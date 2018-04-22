@@ -1,7 +1,7 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "FLIP3D_Solver",
+        "Solver" : "PIC_3DSolver",
         "FrameDuration" : 0.03333333333,
         "StartFrame" : 1,
         "FinalFrame" : 300,
@@ -13,7 +13,7 @@
         "MemoryStateDataFolder" : "FLIPState",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : true,
+        "PrintLogToFile" : false,
         "EnableSortParticle" : false,
         "SortFrequency" : 10
     },
@@ -30,7 +30,7 @@
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.015,
+        "CellSize" : 0.045,
         "CFLFactor" : 1
     },
     "AdditionalBoundaryObjects":
