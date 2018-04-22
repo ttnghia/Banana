@@ -21,23 +21,38 @@
 
 #pragma once
 
+#include <ParticleSolvers/PICFluid/PIC_Data.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP_3DData : public GridSimulationData<3, Real>
+template<Int N, class RealType>
+struct FLIP_Data : public GridSimulationData<N, RealType>
 {
-    Array3r du, dv, dw;
-    Array3r u_old, v_old, w_old;
+    Array<N, RealType> dVels[N];
+    Array<N, RealType> oldVels[N];
     //Array3SpinLock uLock, vLock, wLock;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void resize(const Vec3ui& nCells);
-    void         backupGridVelocity(const PIC_3DData& picData);
-};
+    virtual void resize(const VecX<N, UInt>& gridSize) override
+    {
+        for(Int i = 0; i < N; ++i) {
+            auto extra = VecX<N, UInt>(0);
+            extra[i] = 1u;
+            ////////////////////////////////////////////////////////////////////////////////
+            dVels[i].resize(gridSize + extra, 0);
+            oldVels[i].resize(gridSize + extra, 0);
+        }
+    }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/PICFluid/FLIP_Data.Impl.hpp>
+    void backupGridVelocity(const PIC_Data<N, RealType>& picData) override
+    {
+        for(Int i = 0; i < N; ++i) {
+            oldVels[i].copyDataFrom(picData.gridData.velocities[i]);
+        }
+    }
+};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

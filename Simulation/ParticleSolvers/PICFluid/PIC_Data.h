@@ -84,7 +84,7 @@ struct PIC_Data : public SimulationData<N, RealType>
         Array<N, RealType> tmpVels[N];
         Array<N, char>     tmpValids[N];
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void resize(const VecX<N, UInt>& gridSize);
+        virtual void resize(const VecX<N, UInt>& gridSize) override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -106,7 +106,6 @@
     <ClInclude Include="ParticleSolvers\PICFluid\APIC_Solver.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\APIC_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Data.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Solver.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\NarrowBandFLIP_Solver.h" />
