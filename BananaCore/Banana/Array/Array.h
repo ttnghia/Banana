@@ -54,8 +54,8 @@ public:
     template<class IndexType>
     Array(const VecX<N, IndexType>& size)
     {
-        for(Int i = 0; i < N; ++i) {
-            m_Size[i] = static_cast<size_type>(size[i]);
+        for(Int d = 0; d < N; ++d) {
+            m_Size[d] = static_cast<size_type>(size[d]);
         }
         m_Data.resize(glm::compMul(m_Size));
     }
@@ -145,8 +145,8 @@ public:
     template<class IndexType>
     bool isValidIndex(const VecX<N, IndexType>& index) const
     {
-        for(Int i = 0; i < N; ++i) {
-            if(index[i] < 0 || index[i] >= m_Size[i]) {
+        for(Int d = 0; d < N; ++d) {
+            if(index[d] < 0 || index[d] >= m_Size[d]) {
                 return false;
             }
         }
@@ -161,8 +161,8 @@ public:
             std::stringstream ss;
             ss << "Invalid array index: ";
 
-            for(Int i = 0; i < N - 1; ++i) {
-                ss << index[i] << "/" << m_Size[i] << ", ";
+            for(Int d = 0; d < N - 1; ++d) {
+                ss << index[d] << "/" << m_Size[d] << ", ";
             }
             ss << index[N - 1] << "/" << m_Size[N - 1];
 
@@ -173,8 +173,8 @@ public:
 
     bool equalSize(const Array<N, T>& other) const
     {
-        for(Int i = 0; i < N; ++i) {
-            if(m_Size[i] != other.m_Size[i]) {
+        for(Int d = 0; d < N; ++d) {
+            if(m_Size[d] != other.m_Size[d]) {
                 return false;
             }
         }
@@ -184,8 +184,8 @@ public:
     template<class IndexType>
     bool equalSize(const VecX<N, IndexType>& otherSize) const
     {
-        for(Int i = 0; i < N; ++i) {
-            if(m_Size[i] != otherSize[i]) {
+        for(Int d = 0; d < N; ++d) {
+            if(m_Size[d] != otherSize[d]) {
                 return false;
             }
         }
@@ -453,8 +453,8 @@ public:
     bool saveToFile(const String& fileName)
     {
         DataBuffer buffer;
-        for(Int i = 0; i < N; ++i) {
-            buffer.append<UInt>(static_cast<UInt>(m_Size[i]));
+        for(Int d = 0; d < N; ++d) {
+            buffer.append<UInt>(static_cast<UInt>(m_Size[d]));
         }
         buffer.append(m_Data, false);
         return FileHelpers::writeFile(buffer.data(), buffer.size(), fileName);
@@ -467,10 +467,10 @@ public:
             return false;
         }
 
-        for(Int i = 0; i < N; ++i) {
+        for(Int d = 0; d < N; ++d) {
             UInt tmp;
-            buffer.getData<UInt>(tmp, sizeof(UInt) * i);
-            m_Size[i] = static_cast<size_type>(tmp);
+            buffer.getData<UInt>(tmp, sizeof(UInt) * d);
+            m_Size[d] = static_cast<size_type>(tmp);
         }
         __BNN_REQUIRE(buffer.buffer().size() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
         buffer.getData(m_Data, sizeof(UInt) * N, static_cast<UInt>(glm::compMul(m_Size)));

@@ -130,9 +130,9 @@ public:
         Vector<RealType> rotations[N + 1];
         Vector<RealType> scales;
 
-        for(Int i = 0; i < N; ++i) {
-            translations[i].reserve(nKeyFrames);
-            rotations[i].reserve(nKeyFrames);
+        for(Int d = 0; d < N; ++d) {
+            translations[d].reserve(nKeyFrames);
+            rotations[d].reserve(nKeyFrames);
         }
         rotations[N].reserve(nKeyFrames);
         scales.reserve(nKeyFrames);
@@ -145,22 +145,21 @@ public:
             }
             m_MaxFrame = (m_MaxFrame < keyFrame.frame) ? keyFrame.frame : m_MaxFrame;
 
-            for(Int i = 0; i < N; ++i) {
-                translations[i].push_back(keyFrame.translation[i]);
-                rotations[i].push_back(keyFrame.rotation[i]);
+            for(Int d = 0; d < N; ++d) {
+                translations[d].push_back(keyFrame.translation[d]);
+                rotations[d].push_back(keyFrame.rotation[d]);
             }
             rotations[N].push_back(keyFrame.rotation[N]);
             scales.push_back(keyFrame.uniformScale);
             frames.push_back(static_cast<RealType>(keyFrame.frame));
         }
 
+        for(Int d = 0; d < N; ++d) {
+            m_TranslationSpline[d].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
+            m_TranslationSpline[d].setPoints(frames, translations[d], bCubicIntTranslation);
 
-        for(Int i = 0; i < N; ++i) {
-            m_TranslationSpline[i].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
-            m_TranslationSpline[i].setPoints(frames, translations[i], bCubicIntTranslation);
-
-            m_RotationSpline[i].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
-            m_RotationSpline[i].setPoints(frames, rotations[i], bCubicIntRotation);
+            m_RotationSpline[d].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
+            m_RotationSpline[d].setPoints(frames, rotations[d], bCubicIntRotation);
         }
         m_RotationSpline[N].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
         m_RotationSpline[N].setPoints(frames, rotations[N], bCubicIntRotation);
@@ -184,15 +183,14 @@ public:
         ////////////////////////////////////////////////////////////////////////////////
         __BNN_REQUIRE(m_bReady)
 
-
         if(m_bPeriodic && frame > m_MaxFrame) {
             frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
         }
         RealType x = static_cast<RealType>(frame) + fraction;
 
-        for(Int i = 0; i < N; ++i) {
-            translation[i] = m_TranslationSpline[i](x);
-            rotation[i]    = m_RotationSpline[i](x);
+        for(Int d = 0; d < N; ++d) {
+            translation[d] = m_TranslationSpline[d](x);
+            rotation[d]    = m_RotationSpline[d](x);
         }
         rotation[N] = m_RotationSpline[N](x);
         scale       = m_ScaleSpline(x);
@@ -219,9 +217,9 @@ public:
         }
         RealType x = static_cast<RealType>(frame) + fraction;
 
-        for(Int i = 0; i < N; ++i) {
-            translation[i] = m_TranslationSpline[i](x);
-            rotation[i]    = m_RotationSpline[i](x);
+        for(Int d = 0; d < N; ++d) {
+            translation[d] = m_TranslationSpline[d](x);
+            rotation[d]    = m_RotationSpline[d](x);
         }
         rotation[N] = m_RotationSpline[N](x);
         scale       = m_ScaleSpline(x);
@@ -258,10 +256,10 @@ public:
     //}
 
 private:
-    Vector<KeyFrame<N, RealType> > m_KeyFrames;
-    CubicSpline<RealType>          m_TranslationSpline[N];
-    CubicSpline<RealType>          m_RotationSpline[N + 1];
-    CubicSpline<RealType>          m_ScaleSpline;
+    Vector<KeyFrame<N, RealType>> m_KeyFrames;
+    CubicSpline<RealType>         m_TranslationSpline[N];
+    CubicSpline<RealType>         m_RotationSpline[N + 1];
+    CubicSpline<RealType>         m_ScaleSpline;
 
     UInt m_StartFrame = 0;
     UInt m_MaxFrame   = 0;

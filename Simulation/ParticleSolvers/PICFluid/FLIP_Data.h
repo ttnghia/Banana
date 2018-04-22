@@ -40,19 +40,19 @@ struct FLIP_Data : PIC_Data<N, RealType>
         virtual void resize(const VecX<N, UInt>& gridSize) override
         {
             PIC_Data<N, RealType>::PIC_GridData::resize(gridSize);
-            for(Int i = 0; i < N; ++i) {
+            for(Int d = 0; d < N; ++d) {
                 auto extra = VecX<N, UInt>(0);
-                extra[i] = 1u;
+                extra[d] = 1u;
                 ////////////////////////////////////////////////////////////////////////////////
-                dVels[i].resize(gridSize + extra, 0);
-                oldVels[i].resize(gridSize + extra, 0);
+                dVels[d].resize(gridSize + extra, 0);
+                oldVels[d].resize(gridSize + extra, 0);
             }
         }
 
         void backupGridVelocity()
         {
-            for(Int i = 0; i < N; ++i) {
-                oldVels[i].copyDataFrom(velocities[i]);
+            for(Int d = 0; d < N; ++d) {
+                oldVels[d].copyDataFrom(velocities[d]);
             }
         }
     };

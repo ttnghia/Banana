@@ -172,8 +172,8 @@ public:
     auto getCellIdx(const VecX<N, RealType>& ppos) const noexcept
     {
         VecX<N, IndexType> cellIdx;
-        for(Int i = 0; i < N; ++i) {
-            cellIdx[i] = static_cast<IndexType>((ppos[i] - m_BMin[i]) / m_CellSize);
+        for(Int d = 0; d < N; ++d) {
+            cellIdx[d] = static_cast<IndexType>((ppos[d] - m_BMin[d]) / m_CellSize);
         }
         return cellIdx;
     }
@@ -182,8 +182,8 @@ public:
     auto getNearestValidCellIdx(const VecX<N, IndexType>& cellIdx) const noexcept
     {
         VecX<N, IndexType> validCellIdx;
-        for(Int i = 0; i < N; ++i) {
-            validCellIdx[i] = MathHelpers::clamp<IndexType>(cellIdx[i], 0, static_cast<IndexType>(m_NCells[i]) - 1);
+        for(Int d = 0; d < N; ++d) {
+            validCellIdx[d] = MathHelpers::clamp<IndexType>(cellIdx[d], 0, static_cast<IndexType>(m_NCells[d]) - 1);
         }
         return validCellIdx;
     }

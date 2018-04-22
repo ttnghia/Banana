@@ -34,9 +34,9 @@ template<Int N, class RealType>
 HashKey<N> NeighborSearch<N, RealType >::cell_index(const RealType* x) const
 {
     HashKey<N> ret;
-    for(Int i = 0; i < N; ++i) {
-        RealType tmp = x[i] - RealType(SHIFT_POSITION);
-        ret.k[i] = tmp >= 0 ? static_cast<int>(m_inv_cell_size * tmp) : static_cast<int>(m_inv_cell_size * tmp) - 1;
+    for(Int d = 0; d < N; ++d) {
+        RealType tmp = x[d] - RealType(SHIFT_POSITION);
+        ret.k[d] = tmp >= 0 ? static_cast<int>(m_inv_cell_size * tmp) : static_cast<int>(m_inv_cell_size * tmp) - 1;
     }
     return ret;
 }

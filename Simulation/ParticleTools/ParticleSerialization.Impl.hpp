@@ -371,9 +371,9 @@ bool ParticleSerialization::getParticleAttributeCompressed(const String& attrNam
     __BNN_REQUIRE(segmentStart + segmentSize == attr->buffer.size());
     memcpy(values.data(), &attr->buffer.data()[segmentStart], segmentSize);
 
-    for(Int i = 0; i < N; ++i) {
-        dMin[i] = static_cast<T>(dMinf[i]);
-        dMax[i] = static_cast<T>(dMaxf[i]);
+    for(Int d = 0; d < N; ++d) {
+        dMin[d] = static_cast<T>(dMinf[d]);
+        dMax[d] = static_cast<T>(dMaxf[d]);
     }
     return true;
 }

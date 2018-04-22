@@ -98,16 +98,16 @@ UInt PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(const Vec_Int8& re
 template<Int N, class RealType>
 void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>&gridSize)
 {
-    for(Int i = 0; i < N; ++i) {
+    for(Int d = 0; d < N; ++d) {
         auto extra = VecX<N, UInt>(0);
-        extra[i] = 1u;
+        extra[d] = 1u;
         ////////////////////////////////////////////////////////////////////////////////
-        velocities[i].resize(gridSize + extra, 0);
-        weights[i].resize(gridSize + extra, 0);
-        valids[i].resize(gridSize + extra, 0);
-        extrapolates[i].resize(gridSize + extra, 0);
-        tmpVels[i].resize(gridSize + extra, 0);
-        tmpValids[i].resize(gridSize + extra, 0);
+        velocities[d].resize(gridSize + extra, 0);
+        weights[d].resize(gridSize + extra, 0);
+        valids[d].resize(gridSize + extra, 0);
+        extrapolates[d].resize(gridSize + extra, 0);
+        tmpVels[d].resize(gridSize + extra, 0);
+        tmpValids[d].resize(gridSize + extra, 0);
     }
     activeCellIdx.resize(gridSize, 0);
     fluidSDFLock.resize(gridSize);

@@ -51,8 +51,8 @@ void atomicAdd(T& target, const T& operand)
 template<Int N, class T>
 void atomicAdd(VecX<N, T>& target, const VecX<N, T>& operand)
 {
-    for(Int i = 0; i < N; ++i) {
-        atomicOp(target[i], operand[i], [](T a, T b) { return a + b; });
+    for(Int d = 0; d < N; ++d) {
+        atomicOp(target[d], operand[d], [](T a, T b) { return a + b; });
     }
 }
 
@@ -66,8 +66,8 @@ void atomicSub(T& target, const T& operand)
 template<Int N, class T>
 void atomicSub(VecX<N, T>& target, const VecX<N, T>& operand)
 {
-    for(Int i = 0; i < N; ++i) {
-        atomicOp(target[i], operand[i], [](T a, T b) { return a - b; });
+    for(Int d = 0; d < N; ++d) {
+        atomicOp(target[d], operand[d], [](T a, T b) { return a - b; });
     }
 }
 
@@ -81,8 +81,8 @@ void atomicMul(T& target, const T& operand)
 template<Int N, class T>
 void atomicMul(VecX<N, T>& target, const VecX<N, T>& operand)
 {
-    for(Int i = 0; i < N; ++i) {
-        atomicOp(target[i], operand[i], [](T a, T b) { return a * b; });
+    for(Int d = 0; d < N; ++d) {
+        atomicOp(target[d], operand[d], [](T a, T b) { return a * b; });
     }
 }
 
@@ -96,8 +96,8 @@ void atomicDiv(T& target, const T& operand)
 template<Int N, class T>
 void atomicDiv(VecX<N, T>& target, const VecX<N, T>& operand)
 {
-    for(Int i = 0; i < N; ++i) {
-        atomicOp(target[i], operand[i], [](T a, T b) { return a / b; });
+    for(Int d = 0; d < N; ++d) {
+        atomicOp(target[d], operand[d], [](T a, T b) { return a / b; });
     }
 }
 

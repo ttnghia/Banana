@@ -52,10 +52,10 @@ void FLIP_Solver<N, RealType >::advanceVelocity(Real timestep)
 template<Int N, class RealType>
 void FLIP_Solver<N, RealType >::mapParticles2Grid()
 {
-    for(Int i = 0; i < N; ++i) {
-        gridData().velocities[i].assign(0);
-        gridData().tmpVels[i].assign(0);
-        gridData().valids[i].assign(0);
+    for(Int d = 0; d < N; ++d) {
+        gridData().velocities[d].assign(0);
+        gridData().tmpVels[d].assign(0);
+        gridData().valids[d].assign(0);
     }
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for(particleData().getNParticles(),

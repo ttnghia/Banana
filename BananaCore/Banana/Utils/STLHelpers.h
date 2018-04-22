@@ -63,8 +63,8 @@ struct VecHash
     std::size_t operator()(const VecX<N, T>& x) const
     {
         size_t seed = 0;
-        for(Int i = 0; i < N; ++i) {
-            hash_combine(seed, x[i]);
+        for(Int d = 0; d < N; ++d) {
+            hash_combine(seed, x[d]);
         }
         return seed;
     }

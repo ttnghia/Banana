@@ -52,8 +52,8 @@ inline VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N
     VecX<N, RealType>  fgrid = (bmax - bmin) / spacing;
     VecX<N, IndexType> result;
 
-    for(Int i = 0; i < N; ++i) {
-        result[i] = static_cast<IndexType>(ceil(fgrid[i]));
+    for(Int d = 0; d < N; ++d) {
+        result[d] = static_cast<IndexType>(ceil(fgrid[d]));
     }
 
     return result;
@@ -273,8 +273,8 @@ inline String toString(const MatXxX<N, RealType>& mat, bool breakLine = false, I
 template<Int N, class RealType>
 bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
-    for(Int i = 0; i < N; ++i) {
-        if(ppos[i] < bMin[i] || ppos[i] > bMax[i]) {
+    for(Int d = 0; d < N; ++d) {
+        if(ppos[d] < bMin[d] || ppos[d] > bMax[d]) {
             return false;
         }
     }

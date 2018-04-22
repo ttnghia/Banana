@@ -54,9 +54,9 @@ void compress(const Vec_VecX<N, RealType>& dvec, DataBuffer& buffer, bool bWrite
 
     // convert bmin and bmax to Vec3f
     VecX<N, float> dMinf, dMaxf;
-    for(Int i = 0; i < N; ++i) {
-        dMinf[i] = static_cast<float>(dMin[i]);
-        dMaxf[i] = static_cast<float>(dMax[i]);
+    for(Int d = 0; d < N; ++d) {
+        dMinf[d] = static_cast<float>(dMin[d]);
+        dMaxf[d] = static_cast<float>(dMax[d]);
     }
     buffer.clearBuffer();
     if(bWriteVectorSize) { buffer.append(static_cast<UInt>(dvec.size())); }
@@ -224,9 +224,9 @@ void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nPar
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
     VecX<N, RealType> dMin, dMax;
-    for(Int i = 0; i < N; ++i) {
-        dMin[i] = static_cast<RealType>(dMinf[i]);
-        dMax[i] = static_cast<RealType>(dMaxf[i]);
+    for(Int d = 0; d < N; ++d) {
+        dMin[d] = static_cast<RealType>(dMinf[d]);
+        dMax[d] = static_cast<RealType>(dMaxf[d]);
     }
     decompress(dvec, dMin, dMax, compressedData);
 }

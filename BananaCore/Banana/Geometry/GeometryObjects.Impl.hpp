@@ -186,14 +186,14 @@ RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0,
     RealType mind = Huge<RealType>();
 
     if(NumberHelpers::isInside(ppos, m_BoxMin, m_BoxMax)) {
-        for(Int i = 0; i < N; ++i) {
-            mind = MathHelpers::min(mind, ppos[i] - m_BoxMin[i], m_BoxMax[i] - ppos[i]);
+        for(Int d = 0; d < N; ++d) {
+            mind = MathHelpers::min(mind, ppos[d] - m_BoxMin[d], m_BoxMax[d] - ppos[d]);
         }
         mind = -mind; // negative because inside
     } else {
         VecX<N, RealType> cp;
-        for(Int i = 0; i < N; ++i) {
-            cp[i] = MathHelpers::max(MathHelpers::min(ppos[i], m_BoxMax[i]), m_BoxMin[i]);
+        for(Int d = 0; d < N; ++d) {
+            cp[d] = MathHelpers::max(MathHelpers::min(ppos[d], m_BoxMax[d]), m_BoxMin[d]);
         }
         mind = glm::length(ppos - cp);
     }
@@ -228,9 +228,9 @@ void Banana::GeometryObjects::BoxObject<N, RealType>::makeReadyAnimation()
     Vector<RealType> bMins[N];
     Vector<RealType> bMaxs[N];
 
-    for(Int i = 0; i < N; ++i) {
-        bMins[i].reserve(nKeyFrames);
-        bMaxs[i].reserve(nKeyFrames);
+    for(Int d = 0; d < N; ++d) {
+        bMins[d].reserve(nKeyFrames);
+        bMaxs[d].reserve(nKeyFrames);
     }
     frames.reserve(nKeyFrames);
 
@@ -238,16 +238,16 @@ void Banana::GeometryObjects::BoxObject<N, RealType>::makeReadyAnimation()
     for(const auto& keyFrame : m_KeyFrames) {
         m_MaxFrame = (m_MaxFrame < keyFrame.frame) ? keyFrame.frame : m_MaxFrame;
 
-        for(Int i = 0; i < N; ++i) {
-            bMins[i].push_back(keyFrame.bMin[i]);
-            bMaxs[i].push_back(keyFrame.bMax[i]);
+        for(Int d = 0; d < N; ++d) {
+            bMins[d].push_back(keyFrame.bMin[d]);
+            bMaxs[d].push_back(keyFrame.bMax[d]);
         }
         frames.push_back(static_cast<RealType>(keyFrame.frame));
     }
 
-    for(Int i = 0; i < N; ++i) {
-        m_BoxMinSpline[i].setPoints(frames, bMins[i]);
-        m_BoxMaxSpline[i].setPoints(frames, bMaxs[i]);
+    for(Int d = 0; d < N; ++d) {
+        m_BoxMinSpline[d].setPoints(frames, bMins[d]);
+        m_BoxMaxSpline[d].setPoints(frames, bMaxs[d]);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -274,9 +274,9 @@ bool Banana::GeometryObjects::BoxObject<N, RealType>::updateTransformation(UInt 
     }
     RealType x = static_cast<RealType>(frame) + fraction;
 
-    for(Int i = 0; i < N; ++i) {
-        m_BoxMin[i] = m_BoxMinSpline[i](x);
-        m_BoxMax[i] = m_BoxMaxSpline[i](x);
+    for(Int d = 0; d < N; ++d) {
+        m_BoxMin[d] = m_BoxMinSpline[d](x);
+        m_BoxMax[d] = m_BoxMaxSpline[d](x);
     }
 
     return true;
@@ -287,8 +287,8 @@ template<Int N, class RealType>
 RealType SphereObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
-    RealType d    = m_UniformScale * (glm::length(ppos) - RealType(1.0));
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * (glm::length(ppos) - RealType(1.0));
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -296,8 +296,8 @@ template<class RealType>
 RealType TorusObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
-    RealType d    = m_UniformScale * (std::abs(MathHelpers::norm2(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * (std::abs(MathHelpers::norm2(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
+    return bNegativeInside ? dist : -dist;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,8 +337,8 @@ template<class RealType>
 RealType Torus88Object<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
-    RealType d    = m_UniformScale * (std::abs(MathHelpers::norm8(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * (std::abs(MathHelpers::norm8(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
+    return bNegativeInside ? dist : -dist;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,8 +356,8 @@ template<class RealType>
 RealType TorusInfInfObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
-    RealType d    = m_UniformScale * (std::abs(MathHelpers::norm_inf(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * (std::abs(MathHelpers::norm_inf(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
+    return bNegativeInside ? dist : -dist;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -376,8 +376,8 @@ RealType CylinderObject<N, RealType >::signedDistance(const VecX<N, RealType>& p
 {
     __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto     ppos = invTransform(ppos0);
-    RealType d    = m_UniformScale * MathHelpers::max(MathHelpers::norm2(ppos[0], ppos[2]) - m_Radius, std::abs(ppos[1]) - RealType(1.0));
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * MathHelpers::max(MathHelpers::norm2(ppos[0], ppos[2]) - m_Radius, std::abs(ppos[1]) - RealType(1.0));
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -388,8 +388,8 @@ RealType ConeObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0
     auto     ppos  = invTransform(ppos0);
     RealType theta = std::atan(m_Radius); // radius / h, where h = 1
     RealType d1    = MathHelpers::norm2(ppos[0], ppos[2]) * cos(theta) - std::abs(ppos[1]) * sin(theta);
-    RealType d     = m_UniformScale * MathHelpers::max(d1, ppos[1] - RealType(1.0), -ppos[1]);
-    return bNegativeInside ? d : -d;
+    RealType dist  = m_UniformScale * MathHelpers::max(d1, ppos[1] - RealType(1.0), -ppos[1]);
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -397,8 +397,8 @@ template<Int N, class RealType>
 RealType PlaneObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
-    RealType d    = glm::dot(ppos, m_Normal) - m_Offset;
-    return bNegativeInside ? d : -d;
+    RealType dist = glm::dot(ppos, m_Normal) - m_Offset;
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -420,8 +420,8 @@ RealType HexagonObject<N, RealType >::signedDistance(const VecX<N, RealType>& pp
     auto     ppos = invTransform(ppos0);
     RealType dx   = fabs(ppos[0]);
     RealType dy   = fabs(ppos[1]);
-    RealType d    = m_UniformScale * (MathHelpers::max((dx * RealType(0.866025) + dy * RealType(0.5)), dy) - RealType(1.0));
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * (MathHelpers::max((dx * RealType(0.866025) + dy * RealType(0.5)), dy) - RealType(1.0));
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -431,12 +431,12 @@ RealType TriangularPrismObject<N, RealType >::signedDistance(const VecX<N, RealT
     __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto              ppos = invTransform(ppos0);
     VecX<N, RealType> q;
-    for(Int i = 0; i < N; ++i) {
-        q[i] = std::abs(ppos[i]);
+    for(Int d = 0; d < N; ++d) {
+        q[d] = std::abs(ppos[d]);
     }
-    RealType d = m_UniformScale * MathHelpers::max(q[2] - m_Width,
-                                                   MathHelpers::max(q[0] * RealType(0.866025) + ppos[1] * RealType(0.5), -ppos[1]) - RealType(0.5));
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * MathHelpers::max(q[2] - m_Width,
+                                                      MathHelpers::max(q[0] * RealType(0.866025) + ppos[1] * RealType(0.5), -ppos[1]) - RealType(0.5));
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -446,12 +446,12 @@ RealType HexagonalPrismObject<N, RealType >::signedDistance(const VecX<N, RealTy
     __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto              ppos = invTransform(ppos0);
     VecX<N, RealType> q;
-    for(Int i = 0; i < N; ++i) {
-        q[i] = std::abs(ppos[i]);
+    for(Int d = 0; d < N; ++d) {
+        q[d] = std::abs(ppos[d]);
     }
-    RealType d = m_UniformScale * MathHelpers::max(q[2] - m_Width,
-                                                   MathHelpers::max(q[0] * RealType(0.866025) + q[1] * RealType(0.5), q[1]) - RealType(1.0));
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * MathHelpers::max(q[2] - m_Width,
+                                                      MathHelpers::max(q[0] * RealType(0.866025) + q[1] * RealType(0.5), q[1]) - RealType(1.0));
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -468,9 +468,9 @@ RealType CapsuleObject<N, RealType >::signedDistance(const VecX<N, RealType>& pp
     VecX<N, RealType> pa   = ppos - a;
     VecX<N, RealType> ba   = b - a;
 
-    RealType h = MathHelpers::clamp(glm::dot(pa, ba) / glm::dot(ba, ba), RealType(0.0), RealType(1.0));
-    RealType d = m_UniformScale * (glm::length(pa - ba * h) - m_Radius);
-    return bNegativeInside ? d : -d;
+    RealType h    = MathHelpers::clamp(glm::dot(pa, ba) / glm::dot(ba, ba), RealType(0.0), RealType(1.0));
+    RealType dist = m_UniformScale * (glm::length(pa - ba * h) - m_Radius);
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -478,11 +478,11 @@ template<Int N, class RealType>
 RealType EllipsoidObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto ppos = invTransform(ppos0);
-    for(Int i = 0; i < N; ++i) {
-        ppos[i] /= m_RadiusScale[i];
+    for(Int d = 0; d < N; ++d) {
+        ppos[d] /= m_RadiusScale[d];
     }
-    RealType d = m_UniformScale * glm::compMin(m_RadiusScale) * (glm::length(ppos) - RealType(1.0));
-    return bNegativeInside ? d : -d;
+    RealType dist = m_UniformScale * glm::compMin(m_RadiusScale) * (glm::length(ppos) - RealType(1.0));
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -550,10 +550,10 @@ void check_neighbour(const Vector<Vec3ui>& tri,
         UInt q = tri[closest_tri(i1, j1, k1)][1];
         UInt r = tri[closest_tri(i1, j1, k1)][2];
 
-        RealType d = point_triangle_distance(gx, x[p], x[q], x[r]);
+        RealType dist = point_triangle_distance(gx, x[p], x[q], x[r]);
 
-        if(d < phi(i0, j0, k0)) {
-            phi(i0, j0, k0)         = RealType(d);
+        if(dist < phi(i0, j0, k0)) {
+            phi(i0, j0, k0)         = RealType(dist);
             closest_tri(i0, j0, k0) = closest_tri(i1, j1, k1);
         }
     }
@@ -717,10 +717,10 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3<RealType>& verti
                                      [&](Int i, Int j, Int k)
                                      {
                                          Vec3<RealType> gx = Vec3<RealType>(i, j, k) * cellSize + origin;
-                                         RealType d        = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+                                         RealType dist     = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
 
-                                         if(d < SDF(i, j, k)) {
-                                             SDF(i, j, k)         = d;
+                                         if(dist < SDF(i, j, k)) {
+                                             SDF(i, j, k)         = dist;
                                              closest_tri(i, j, k) = face;
                                          }
                                      });
@@ -790,8 +790,8 @@ RealType TriMeshObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0
 
     auto     ppos    = invTransform(ppos0);
     auto     gridPos = m_Grid3D.getGridCoordinate(ppos);
-    RealType d       = m_UniformScale * ArrayHelpers::interpolateValueLinear(gridPos, m_SDFData);
-    return bNegativeInside ? d : -d;
+    RealType dist    = m_UniformScale * ArrayHelpers::interpolateValueLinear(gridPos, m_SDFData);
+    return bNegativeInside ? dist : -dist;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

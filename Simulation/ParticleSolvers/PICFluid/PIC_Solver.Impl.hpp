@@ -139,9 +139,9 @@ void PIC_Solver<N, RealType >::setupDataIO()
     if(globalParams().bLoadMemoryState || globalParams().bSaveMemoryState) {
         m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().memoryStateDataFolder, "frame", m_Logger);
         m_MemoryStateIO->addFixedAttribute<RealType>("grid_resolution", ParticleSerialization::TypeUInt, N);
-        for(Int i = 0; i < N; ++i) {
-            m_MemoryStateIO->addFixedAttribute<RealType>("grid_velocity_" + std::to_string(i), ParticleSerialization::TypeReal,
-                                                         static_cast<UInt>(gridData().velocities[i].dataSize()));
+        for(Int d = 0; d < N; ++d) {
+            m_MemoryStateIO->addFixedAttribute<RealType>("grid_velocity_" + std::to_string(d), ParticleSerialization::TypeReal,
+                                                         static_cast<UInt>(gridData().velocities[d].dataSize()));
         }
         m_MemoryStateIO->addFixedAttribute<UInt>(    "NObjects",        ParticleSerialization::TypeUInt, 1);
         m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -177,8 +177,8 @@ Int PIC_Solver<N, RealType >::loadMemoryState()
     VecX<N, UInt> nCells;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_resolution", nCells));
     __BNN_REQUIRE(grid().getNCells() == nCells);
-    for(Int i = 0; i < N; ++i) {
-        __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_velocity_" + std::to_string(i), gridData().velocities[i].data()));
+    for(Int d = 0; d < N; ++d) {
+        __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_velocity_" + std::to_string(d), gridData().velocities[d].data()));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -211,8 +211,8 @@ Int PIC_Solver<N, RealType >::saveMemoryState()
     m_MemoryStateIO->clearData();
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->setFixedAttribute("grid_resolution", grid().getNCells());
-    for(Int i = 0; i < N; ++i) {
-        m_MemoryStateIO->setFixedAttribute("grid_velocity_" + std::to_string(i), gridData().velocities[i].data());
+    for(Int d = 0; d < N; ++d) {
+        m_MemoryStateIO->setFixedAttribute("grid_velocity_" + std::to_string(d), gridData().velocities[d].data());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -348,8 +348,8 @@ template<Int N, class RealType>
 RealType PIC_Solver<N, RealType >::timestepCFL()
 {
     RealType maxVel = Tiny<RealType>();
-    for(Int i = 0; i < N; ++i) {
-        maxVel = MathHelpers::max(maxVel, ParallelSTL::maxAbs(gridData().velocities[i].data()));
+    for(Int d = 0; d < N; ++d) {
+        maxVel = MathHelpers::max(maxVel, ParallelSTL::maxAbs(gridData().velocities[d].data()));
     }
     RealType timestep = maxVel > Tiny<RealType>() ? solverParams().CFLFactor * (grid().getCellSize() / maxVel) : Huge<RealType>();
     return MathHelpers::clamp(timestep, solverParams().minTimestep, solverParams().maxTimestep);
@@ -499,17 +499,17 @@ bool PIC_Solver<N, RealType >::correctParticlePositions(RealType timestep)
 template<Int N, class RealType>
 void PIC_Solver<N, RealType >::advectGridVelocity(RealType timestep)
 {
-    for(Int i = 0; i < N; ++i) {
-        gridData().tmpVels[i].assign(0);
-        Scheduler::parallel_for(gridData().velocities[i].vsize(),
+    for(Int d = 0; d < N; ++d) {
+        gridData().tmpVels[d].assign(0);
+        Scheduler::parallel_for(gridData().velocities[d].vsize(),
                                 [&](auto... idx)
                                 {
                                     auto extra = VecN(0.5);
-                                    extra[i] = 0;
+                                    extra[d] = 0;
                                     auto gu = trace_rk2_grid(VecN(idx...) + extra, -timestep);
-                                    gridData().tmpVels[i] (idx...) = getVelocityFromGrid(gu, i);
+                                    gridData().tmpVels[d] (idx...) = getVelocityFromGrid(gu, d);
                                 });
-        gridData().velocities[i].copyDataFrom(gridData().tmpVels[i]);
+        gridData().velocities[d].copyDataFrom(gridData().tmpVels[d]);
     }
 }
 
@@ -525,17 +525,17 @@ bool PIC_Solver<N, RealType >::addGravity(RealType timestep)
         Scheduler::parallel_for(gridData().velocities[1].vsize(), [&](auto... idx) { gridData().velocities[1](idx...) -= RealType(9.81) * timestep; });
     } else if(solverParams().gravityType == GravityType::Directional) {
         auto gravity = solverParams().gravity();
-        for(Int i = 0; i < N; ++i) {
-            Scheduler::parallel_for(gridData().velocities[i].vsize(), [&](auto... idx) { gridData().velocities[i](idx...) += gravity[i] * timestep; });
+        for(Int d = 0; d < N; ++d) {
+            Scheduler::parallel_for(gridData().velocities[d].vsize(), [&](auto... idx) { gridData().velocities[d](idx...) += gravity[d] * timestep; });
         }
     } else {
-        for(Int i = 0; i < N; ++i) {
+        for(Int d = 0; d < N; ++d) {
             auto extra = VecN(0.5);
-            extra[i] = 0;
+            extra[d] = 0;
             Scheduler::parallel_for(gridData().velocities[0].vsize(), [&](auto... idx)
                                     {
                                         auto gravity = solverParams().gravity(grid().getWorldCoordinate(VecN(idx...) + extra));
-                                        gridData().velocities[i](idx...) += gravity[i] * timestep;
+                                        gridData().velocities[d](idx...) += gravity[d] * timestep;
                                     });
         }
     }
@@ -935,8 +935,8 @@ void PIC_Solver<N, RealType >::solveSystem()
 template<Int N, class RealType>
 void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
 {
-    for(Int i = 0; i < N; ++i) {
-        gridData().valids[i].assign(0);
+    for(Int d = 0; d < N; ++d) {
+        gridData().valids[d].assign(0);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -998,11 +998,11 @@ void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
                                     }
                                 });
     }
-    for(Int i = 0; i < N; ++i) {
+    for(Int d = 0; d < N; ++d) {
         ////////////////////////////////////////////////////////////////////////////////
-        for(size_t j = 0; j < gridData().valids[i].dataSize(); ++j) {
-            if(gridData().valids[i].data()[j] == 0) {
-                gridData().velocities[i].data()[j] = 0;
+        for(size_t j = 0; j < gridData().valids[d].dataSize(); ++j) {
+            if(gridData().valids[d].data()[j] == 0) {
+                gridData().velocities[d].data()[j] = 0;
             }
         }
     }
@@ -1012,8 +1012,8 @@ void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
 template<Int N, class RealType>
 void PIC_Solver<N, RealType >::extrapolateVelocity()
 {
-    for(Int i = 0; i < N; ++i) {
-        extrapolateVelocity(gridData().velocities[i], gridData().tmpVels[i], gridData().valids[i], gridData().tmpValids[i], gridData().extrapolates[i]);
+    for(Int d = 0; d < N; ++d) {
+        extrapolateVelocity(gridData().velocities[d], gridData().tmpVels[d], gridData().valids[d], gridData().tmpValids[d], gridData().extrapolates[d]);
     }
 }
 
@@ -1125,14 +1125,14 @@ void PIC_Solver<N, RealType >::extrapolateVelocity(Array<N, RealType>& grid, Arr
 template<Int N, class RealType>
 void PIC_Solver<N, RealType >::constrainGridVelocity()
 {
-    for(Int i = 0; i < N; ++i) {
-        gridData().tmpVels[i].copyDataFrom(gridData().velocities[i]);
-        Scheduler::parallel_for(gridData().velocities[i].vsize(),
+    for(Int d = 0; d < N; ++d) {
+        gridData().tmpVels[d].copyDataFrom(gridData().velocities[d]);
+        Scheduler::parallel_for(gridData().velocities[d].vsize(),
                                 [&](auto... idx)
                                 {
-                                    if(gridData().extrapolates[i](idx...) == 1 && gridData().weights[i](idx...) < Tiny<RealType>()) {
+                                    if(gridData().extrapolates[d](idx...) == 1 && gridData().weights[d](idx...) < Tiny<RealType>()) {
                                         auto extra = VecN(0.5);
-                                        extra[i] = 0;
+                                        extra[d] = 0;
                                         auto gridPos    = VecN(idx...) + extra;
                                         auto vel        = getVelocityFromGrid(gridPos);
                                         auto normal     = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
@@ -1140,11 +1140,11 @@ void PIC_Solver<N, RealType >::constrainGridVelocity()
                                         if(mag2Normal > Tiny<RealType>()) {
                                             normal                       /= sqrt(mag2Normal);
                                             vel                          -= glm::dot(vel, normal) * normal;
-                                            gridData().tmpVels[i](idx...) = vel[i];
+                                            gridData().tmpVels[d](idx...) = vel[d];
                                         }
                                     }
                                 });
-        gridData().velocities[i].copyDataFrom(gridData().tmpVels[i]);
+        gridData().velocities[d].copyDataFrom(gridData().tmpVels[d]);
     }
 }
 
@@ -1162,8 +1162,8 @@ template<Int N, class RealType>
 VecX<N, RealType> PIC_Solver<N, RealType >::getVelocityFromGrid(const VecN& gridPos)
 {
     VecN vel;
-    for(Int i = 0; i < N; ++i) {
-        vel[i] = getVelocityFromGrid(gridPos, i);
+    for(Int d = 0; d < N; ++d) {
+        vel[d] = getVelocityFromGrid(gridPos, d);
     }
     return vel;
 }

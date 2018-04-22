@@ -53,8 +53,8 @@ void Grid<N, RealType >::setCellSize(RealType cellSize)
 template<Int N, class RealType>
 bool Grid<N, RealType >::isInsideGrid(const VecX<N, RealType>& ppos) const noexcept
 {
-    for(Int i = 0; i < N; ++i) {
-        if(ppos[i] < m_BMin[i] || ppos[i] > m_BMax[i]) {
+    for(Int d = 0; d < N; ++d) {
+        if(ppos[d] < m_BMin[d] || ppos[d] > m_BMax[d]) {
             return false;
         }
     }
@@ -72,10 +72,10 @@ void Grid<N, RealType >::constrainToGrid(Vector<VecX<N, RealType>>& positions)
                                 VecX<N, RealType> pos = positions[p];
                                 bool dirty            = false;
 
-                                for(Int i = 0; i < N; ++i) {
-                                    if(pos[i] < m_BMin[i] || pos[i] > m_BMax[i]) {
+                                for(Int d = 0; d < N; ++d) {
+                                    if(pos[d] < m_BMin[d] || pos[d] > m_BMax[d]) {
                                         dirty  = true;
-                                        pos[i] = MathHelpers::clamp(pos[i], m_BMin[i],  m_BMax[i]);
+                                        pos[d] = MathHelpers::clamp(pos[d], m_BMin[d],  m_BMax[d]);
                                     }
                                 }
 

@@ -1032,9 +1032,9 @@ void MPM_Solver<N, RealType >::gridCollision(RealType timestep)
                                   [&](auto... idx)
                                   {
                                       auto node = VecX<N, UInt>(idx...);
-                                      for(Int i = 0; i < N; ++i) {
-                                          if(node[i] < 3 ||
-                                             node[i] > grid().getNNodes()[i] - 4) {
+                                      for(Int d = 0; d < N; ++d) {
+                                          if(node[d] < 3 ||
+                                             node[d] > grid().getNNodes()[d] - 4) {
                                               gridData().velocity_new(idx...) = VecN(0);
                                               return;
                                           }
@@ -1290,9 +1290,9 @@ void MPM_Solver<N, RealType >::constrainParticleVelocity(RealType timestep)
                                 auto new_pos    = particleData().gridCoordinate[p] + pVel * timestep / solverParams().cellSize;
 
                                 //Left border, right border
-                                for(Int i = 0; i < N; ++i) {
-                                    if(new_pos[i] < RealType(2 - 1) || new_pos[0] > RealType(grid().getNNodes()[i] - 2)) {
-                                        pVel[i]   *= solverParams().boundaryReflectionMultiplier;
+                                for(Int d = 0; d < N; ++d) {
+                                    if(new_pos[d] < RealType(2 - 1) || new_pos[0] > RealType(grid().getNNodes()[d] - 2)) {
+                                        pVel[d]   *= solverParams().boundaryReflectionMultiplier;
                                         velChanged = true;
                                     }
                                 }

@@ -288,8 +288,8 @@ template<Int N, class T>
 constexpr VecX<N, T> min(const VecX<N, T>& a, const VecX<N, T>& b)
 {
     VecX<N, T> result;
-    for(Int i = 0; i < N; ++i) {
-        result[i] = min(a[i], b[i]);
+    for(Int d = 0; d < N; ++d) {
+        result[d] = min(a[d], b[d]);
     }
     return result;
 }
@@ -329,8 +329,8 @@ template<Int N, class T>
 VecX<N, T> max(const VecX<N, T>& a, const VecX<N, T>& b)
 {
     VecX<N, T> result;
-    for(Int i = 0; i < N; ++i) {
-        result[i] = max(a[i], b[i]);
+    for(Int d = 0; d < N; ++d) {
+        result[d] = max(a[d], b[d]);
     }
     return result;
 }
@@ -467,8 +467,8 @@ template<Int N, class T>
 inline VecX<N, T> clamp(const VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, T>& b)
 {
     VecX<N, T> result;
-    for(Int i = 0; i < N; ++i) {
-        result[i] = clamp(x[i], a[i], b[i]);
+    for(Int d = 0; d < N; ++d) {
+        result[d] = clamp(x[d], a[d], b[d]);
     }
 
     return result;
