@@ -279,6 +279,9 @@
     <ClInclude Include="ParticleSolvers\PICFluid\PIC_Solver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Data.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
