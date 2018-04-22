@@ -89,7 +89,7 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void ParticleSerialization::setParticleAttribute(const String& attrName, const Vector<Vector<T> >& values)
+void ParticleSerialization::setParticleAttribute(const String& attrName, const Vector<Vector<T>>& values)
 {
     __BNN_REQUIRE(m_ParticleAttributes.find(attrName) != m_ParticleAttributes.end() && values.size() == static_cast<size_t>(m_nParticles));
     auto& attr = m_ParticleAttributes[attrName];
@@ -102,7 +102,7 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-void ParticleSerialization::setParticleAttribute(const String& attrName, const Vector<VecX<N, T> >& values)
+void ParticleSerialization::setParticleAttribute(const String& attrName, const Vector<VecX<N, T>>& values)
 {
     __BNN_REQUIRE(m_ParticleAttributes.find(attrName) != m_ParticleAttributes.end() && values.size() == static_cast<size_t>(m_nParticles));
     auto& attr = m_ParticleAttributes[attrName];
@@ -118,7 +118,7 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-void ParticleSerialization::setParticleAttribute(const String& attrName, const Vector<MatXxX<N, T> >& values)
+void ParticleSerialization::setParticleAttribute(const String& attrName, const Vector<MatXxX<N, T>>& values)
 {
     __BNN_REQUIRE(m_ParticleAttributes.find(attrName) != m_ParticleAttributes.end() && values.size() == static_cast<size_t>(m_nParticles));
     auto& attr = m_ParticleAttributes[attrName];
@@ -216,16 +216,16 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, T* valu
             memcpy(values, tmp.data(), attr->typeSize() * tmp.size());
         } else {
             if(attr->count == 2) {
-                Vector<Vec2<T> > tmp;
+                Vector<Vec2<T>> tmp;
                 ParticleHelpers::decompress(tmp, attr->buffer, m_nParticles);
                 memcpy(values, tmp.data(), attr->typeSize() * tmp.size());
             } else {
                 if(attr->count == 3) {
-                    Vector<Vec3<T> > tmp;
+                    Vector<Vec3<T>> tmp;
                     ParticleHelpers::decompress(tmp, attr->buffer, m_nParticles);
                     memcpy(values, tmp.data(), attr->typeSize() * tmp.size());
                 } else {
-                    Vector<Vec4<T> > tmp;
+                    Vector<Vec4<T>> tmp;
                     ParticleHelpers::decompress(tmp, attr->buffer, m_nParticles);
                     memcpy(values, tmp.data(), m_nParticles * attr->typeSize() * attr->count);
                 }
@@ -256,7 +256,7 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<Vector<T> >& values)
+bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<Vector<T>>& values)
 {
     if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
@@ -275,7 +275,7 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<VecX<N, T> >& values)
+bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<VecX<N, T>>& values)
 {
     if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
@@ -295,7 +295,7 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values)
+bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<MatXxX<N, T>>& values)
 {
     if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
@@ -424,7 +424,7 @@ bool ParticleSerialization::getParticleAttributeCompressed(const String& attrNam
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-void Banana::ParticleSerialization::saveParticle(const String& fileName, const Vector<VecX<N, T> >& positions, T particleRadius, bool bCompress /*= true*/)
+void Banana::ParticleSerialization::saveParticle(const String& fileName, const Vector<VecX<N, T>>&positions, T particleRadius, bool bCompress /*= true*/)
 {
     ParticleSerialization particleWriter;
     particleWriter.addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -441,7 +441,7 @@ void Banana::ParticleSerialization::saveParticle(const String& fileName, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<VecX<N, T> >& positions, T particleRadius)
+bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<VecX<N, T>>&positions, T particleRadius)
 {
     ParticleSerialization particleReader;
     if(!particleReader.read(fileName)) {
@@ -450,7 +450,7 @@ bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<
 
     Real tmpRadius;
     __BNN_REQUIRE(particleReader.getFixedAttribute("particle_radius", tmpRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(tmpRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE_APPROX_NUMBERS(tmpRadius, particleRadius, MEpsilon<T>());
     __BNN_REQUIRE(particleReader.getParticleAttribute("particle_position", positions));
 
     return true;

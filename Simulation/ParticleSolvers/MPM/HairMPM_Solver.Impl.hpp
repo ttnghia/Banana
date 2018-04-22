@@ -99,7 +99,7 @@ void HairMPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
     m_Logger->printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
     m_Logger->printRunTimeIndent("Damp velocity: ",                   [&]() { computeDamping(); });
 
-    if(solverParams().implicitRatio < Tiny) {
+    if(solverParams().implicitRatio < Tiny<RealType>()) {
         m_Logger->printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
     } else {
         m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
@@ -201,7 +201,7 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                             }
 
                                             RealType w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 AtomicOperations::atomicAdd(gridData().velocity_new(x, y), f * particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                             }
                                         }
@@ -270,7 +270,7 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
                                             }
 
                                             RealType w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 AtomicOperations::atomicAdd(gridData().velocity_new(x, y), f * w);
                                             }
                                         }
@@ -301,7 +301,7 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
                                                 apicVel     += nNewVel * w;
                                                 apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
@@ -372,7 +372,7 @@ void HairMPM_Solver<N, RealType >::predictParticlePositions()
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 auto dw      = particleData().weightGradients[p * MathHelpers::pow(4, N) + idx];
                                                 auto gridPos = gridData().predictNodePositions(x, y);
                                                 ppos     += gridPos * w;

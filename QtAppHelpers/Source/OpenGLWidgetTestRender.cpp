@@ -122,12 +122,12 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // camera
-    m_Camera->setCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    m_Camera->setCamera(Vec3f(2, 1, 0), Vec3f(0, 0, 0), Vec3f(0, 1, 0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // light
     m_Lights = std::make_shared<PointLights>();
-    m_Lights->setLightPosition(glm::vec4(0, 2, 0, 1.0));
+    m_Lights->setLightPosition(Vec4f(0, 2, 0, 1.0));
     m_Lights->uploadDataToGPU();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -152,10 +152,10 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
 
     m_Lights = std::make_shared<PointLights>();
     m_Lights->setNumLights(2);
-    m_Lights->setLightPosition(glm::vec4(0, 1000, 0, 1.0), 0);
-    m_Lights->setLightPosition(glm::vec4(1000, 0, 0, 1.0), 1);
-    m_Lights->setLightDiffuse(glm::vec4(0.7), 0);
-    m_Lights->setLightDiffuse(glm::vec4(0.7), 1);
+    m_Lights->setLightPosition(Vec4f(0, 1000, 0, 1.0), 0);
+    m_Lights->setLightPosition(Vec4f(1000, 0, 0, 1.0), 1);
+    m_Lights->setLightDiffuse(Vec4f(0.7f), 0);
+    m_Lights->setLightDiffuse(Vec4f(0.7f), 1);
     m_Lights->uploadDataToGPU();
 
     m_Material = std::make_shared<Material>();
@@ -164,7 +164,7 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
 
     m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights);
     m_MeshRender       = std::make_unique<MeshRender>(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
-    m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.3));
+    m_MeshRender->transform(Vec3f(0), Vec3f(0.3f));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -181,7 +181,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
     ////////////////////////////////////////////////////////////////////////////////
     // camera
-    m_Camera->setCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    m_Camera->setCamera(Vec3f(2, 1, 0), Vec3f(0, 0, 0), Vec3f(0, 1, 0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // light
@@ -191,32 +191,32 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
 #if NUM_LIGHTS == 1
     m_Lights->setNumLights(1);
-    m_Lights->setLightPosition(glm::vec4(0, 10, 3, 1.0), 0);
-    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
+    m_Lights->setLightPosition(Vec4f(0, 10, 3, 1.0), 0);
+    m_Lights->setLightDiffuse(Vec4f(1.0), 0);
 #endif
 #if NUM_LIGHTS == 2
     m_Lights->setNumLights(2);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
-    m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
-    m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
+    m_Lights->setLightPosition(Vec4f(0, 3, 0, 1.0), 0);
+    m_Lights->setLightPosition(Vec4f(0, 3, 3, 1.0), 1);
+    m_Lights->setLightDiffuse(Vec4f(0.5), 0);
+    m_Lights->setLightDiffuse(Vec4f(0.5), 1);
 #endif
 #if NUM_LIGHTS == 3
     m_Lights->setNumLights(3);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0),  0);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0),  1);
-    m_Lights->setLightPosition(glm::vec4(3, 3, -3, 1.0), 2);
-    m_Lights->setLightAmbient(glm::vec4(0.05), 0);
-    m_Lights->setLightAmbient(glm::vec4(0.05), 1);
-    m_Lights->setLightAmbient(glm::vec4(0.05), 2);
-    m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
-    m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
-    m_Lights->setLightDiffuse(glm::vec4(0.5), 2);
-    m_Lights->setLightSpecular(glm::vec4(0.5), 0);
-    m_Lights->setLightSpecular(glm::vec4(0.5), 1);
-    m_Lights->setLightSpecular(glm::vec4(0.5), 2);
+    m_Lights->setLightPosition(Vec4f(0, 3, 0, 1.0),  0);
+    m_Lights->setLightPosition(Vec4f(0, 3, 3, 1.0),  1);
+    m_Lights->setLightPosition(Vec4f(3, 3, -3, 1.0), 2);
+    m_Lights->setLightAmbient(Vec4f(0.05), 0);
+    m_Lights->setLightAmbient(Vec4f(0.05), 1);
+    m_Lights->setLightAmbient(Vec4f(0.05), 2);
+    m_Lights->setLightDiffuse(Vec4f(0.5), 0);
+    m_Lights->setLightDiffuse(Vec4f(0.5), 1);
+    m_Lights->setLightDiffuse(Vec4f(0.5), 2);
+    m_Lights->setLightSpecular(Vec4f(0.5), 0);
+    m_Lights->setLightSpecular(Vec4f(0.5), 1);
+    m_Lights->setLightSpecular(Vec4f(0.5), 2);
 #endif
-    m_Lights->setSceneCenter(glm::vec3(0, 0, 0));
+    m_Lights->setSceneCenter(Vec3f(0, 0, 0));
     m_Lights->setLightViewPerspective(30);
     m_Lights->uploadDataToGPU();
 
@@ -241,16 +241,16 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_Material->uploadDataToGPU();
 
     m_MeshRender = std::make_unique<MeshRender>(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
-    m_MeshRender->transform(glm::vec3(0, 0.5, 0), glm::vec3(0.03));
+    m_MeshRender->transform(Vec3f(0, 0.5f, 0), Vec3f(0.03f));
     m_MeshRender->initDepthBufferData(m_ClearColor);
     //m_MeshRender->resizeShadowMap(512, 512);
     m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllLightShadowMaps());
-    m_FloorRender->transform(glm::vec3(0, 0, 0), glm::vec3(10));
+    m_FloorRender->transform(Vec3f(0, 0, 0), Vec3f(10));
     m_FloorRender->scaleTexCoord(10, 10);
 
     m_ScreenQuadTexRender = std::make_unique<ScreenQuadTextureRender>();
     m_ScreenQuadTexRender->setTexture(m_MeshRender->getLightShadowMap(0));
-    m_ScreenQuadTexRender->setValueScale(-0.10);
+    m_ScreenQuadTexRender->setValueScale(-0.10f);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

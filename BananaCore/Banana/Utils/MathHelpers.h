@@ -1050,7 +1050,7 @@ Vec3<RealType> EulerToAxisAngle(Vec2<RealType> EulerAngles, bool bRadiansIn = tr
 template<class RealType>
 Vec4<RealType> EulerToAxisAngle(Vec3<RealType> EulerAngles, bool bRadiansIn = true, bool bRadiansOut = true)
 {
-    if(glm::length2(EulerAngles) < Tiny) {
+    if(glm::length2(EulerAngles) < Tiny<RealType>()) {
         return Vec4<RealType>(Vec3<RealType>(1.0), 0);
     }
 

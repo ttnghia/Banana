@@ -116,7 +116,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0, 0.5, 0.5), gridData().u.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
-                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5));
+                                    const auto gpos     = grid().getWorldCoordinate(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5);
                                     const auto momentum = weights[i] * (pvel[0] + glm::dot(pC[0], gpos - ppos));
                                     AFLIPData().uLock(indices[i]).lock();
                                     gridData().u(indices[i])     += momentum;
@@ -126,7 +126,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
-                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5));
+                                    const auto gpos     = grid().getWorldCoordinate(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5);
                                     const auto momentum = weights[i] * (pvel[1] + glm::dot(pC[1], gpos - ppos));
                                     AFLIPData().vLock(indices[i]).lock();
                                     gridData().v(indices[i])     += momentum;
@@ -136,7 +136,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
-                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]));
+                                    const auto gpos     = grid().getWorldCoordinate(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]);
                                     const auto momentum = weights[i] * (pvel[2] + glm::dot(pC[2], gpos - ppos));
                                     AFLIPData().wLock(indices[i]).lock();
                                     gridData().w(indices[i])     += momentum;
@@ -148,7 +148,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
     Scheduler::parallel_for(gridData().u.dataSize(),
                             [&](size_t i)
                             {
-                                if(gridData().tmp_u.data()[i] > Tiny) {
+                                if(gridData().tmp_u.data()[i] > Tiny<RealType>()) {
                                     gridData().u.data()[i]      /= gridData().tmp_u.data()[i];
                                     gridData().u_valid.data()[i] = 1;
                                 }
@@ -156,7 +156,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
     Scheduler::parallel_for(gridData().v.dataSize(),
                             [&](size_t i)
                             {
-                                if(gridData().tmp_v.data()[i] > Tiny) {
+                                if(gridData().tmp_v.data()[i] > Tiny<RealType>()) {
                                     gridData().v.data()[i]      /= gridData().tmp_v.data()[i];
                                     gridData().v_valid.data()[i] = 1;
                                 }
@@ -164,7 +164,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
     Scheduler::parallel_for(gridData().w.dataSize(),
                             [&](size_t i)
                             {
-                                if(gridData().tmp_w.data()[i] > Tiny) {
+                                if(gridData().tmp_w.data()[i] > Tiny<RealType>()) {
                                     gridData().w.data()[i]      /= gridData().tmp_w.data()[i];
                                     gridData().w_valid.data()[i] = 1;
                                 }

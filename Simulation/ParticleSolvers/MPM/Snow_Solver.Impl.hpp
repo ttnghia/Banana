@@ -189,7 +189,7 @@ Int Snow2DSolver::loadMemoryState()
 
     Real particleRadius;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon<RealType>());
 
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
@@ -238,7 +238,7 @@ Int Snow2DSolver::saveFrameData()
 Real Snow2DSolver::timestepCFL()
 {
     Real maxVel      = ParallelSTL::maxNorm2<2, Real>(particleData().velocities);
-    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge;
+    Real CFLTimeStep = maxVel > Real(Tiny<RealType>()) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge<RealType>();
     return MathHelpers::min(MathHelpers::max(CFLTimeStep, solverParams().minTimestep), solverParams().maxTimestep);
 }
 
@@ -256,7 +256,7 @@ void Snow2DSolver::advanceVelocity(Real timestep)
     logger().printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
     logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
-    if(solverParams().implicitRatio > Tiny) {
+    if(solverParams().implicitRatio > Tiny<RealType>()) {
         logger().printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
     }
 
@@ -386,7 +386,7 @@ void Snow2DSolver::velocityToGrid(Real timestep)
                                             }
 
                                             Real w = particleData().weights[p * 16 + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 gridData().nodeLocks(x, y).lock();
                                                 //We could also do a separate loop to divide by nodes[n].mass only once
                                                 gridData().velocity(x, y) += particleData().velocities[p] * w * solverParams().particleMass;
@@ -412,7 +412,7 @@ void Snow2DSolver::velocityToGrid(Real timestep)
                                                 }
 
                                                 Real w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     gridData().nodeLocks(x, y, z).lock();
                                                     //We could also do a separate loop to divide by nodes[n].mass only once
                                                     gridData().velocity(x, y, z) += particleData().velocities[p] * w * solverParams().particleMass;
@@ -456,7 +456,7 @@ void Snow2DSolver::calculateParticleVolumes()
                                             }
 
                                             Real w = particleData().weights[p * 16 + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 pdensity += w * gridData().mass(x, y);
                                             }
                                         }
@@ -485,7 +485,7 @@ void Snow2DSolver::calculateParticleVolumes()
                                                 }
 
                                                 Real w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     pdensity += w * gridData().mass(x, y, z);
                                                 }
                                             }
@@ -522,7 +522,7 @@ void Snow2DSolver::explicitVelocities(Real timestep)
                                             }
 
                                             Real w = particleData().weights[p * 16 + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 //Weight the force onto nodes
                                                 gridData().nodeLocks(x, y).lock();
                                                 gridData().velocity_new(x, y) += energy * particleData().weightGradients[p * 16 + idx];
@@ -549,7 +549,7 @@ void Snow2DSolver::explicitVelocities(Real timestep)
                                                 }
 
                                                 Real w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     //Weight the force onto nodes
                                                     gridData().nodeLocks(x, y, z).lock();
                                                     gridData().velocity_new(x, y, z) += energy * particleData().weightGradients[p * 64 + idx];
@@ -773,7 +773,7 @@ void Snow2DSolver::velocityToParticles(Real timestep)
                                             }
 
                                             Real w = particleData().weights[p * 16 + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 const Vec2r& velocity_new = gridData().velocity_new(x, y);
                                                 //Particle in cell
                                                 pic += velocity_new * w;
@@ -817,7 +817,7 @@ void Snow2DSolver::velocityToParticles(Real timestep)
                                                 }
 
                                                 Real w = particleData().weights[p * 16 + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     const Vec3r& velocity_new = gridData().velocity_new(x, y, z);
                                                     //Particle in cell
                                                     pic += velocity_new * w;
@@ -912,7 +912,7 @@ void Snow2DSolver::updateParticlePositions(Real timestep)
                                 //    Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                 //    Real mag2Grad = glm::length2(grad);
 
-                                //    if(mag2Grad > Tiny)
+                                //    if(mag2Grad > Tiny<RealType>())
                                 //        ppos -= phiVal * grad / sqrt(mag2Grad);
                                 //}
 
@@ -1014,7 +1014,7 @@ Vec2r Snow2DSolver::computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weigh
         Mat2x2r       del_elastic       = glm::outerProduct(u, weight_grad) * elasticDeformGrad * timestep;
 
         //Check to make sure we should do these calculations?
-        if(LinaHelpers::maxAbs(del_elastic) < Tiny) {
+        if(LinaHelpers::maxAbs(del_elastic) < Tiny<RealType>()) {
             return Vec2r(0);
         }
 
@@ -1047,7 +1047,7 @@ Vec2r Snow2DSolver::computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weigh
         Mat3x3r       del_elastic       = glm::outerProduct(u, weight_grad) * elasticDeformGrad * timestep;
 
         //Check to make sure we should do these calculations?
-        if(LinaHelpers::maxAbs(del_elastic) < Tiny) {
+        if(LinaHelpers::maxAbs(del_elastic) < Tiny<RealType>()) {
             return Vec3r(0);
         }
 

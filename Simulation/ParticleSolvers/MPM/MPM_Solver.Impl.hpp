@@ -159,7 +159,7 @@ Int MPM_Solver<N, RealType >::loadMemoryState()
     // load particle data
     RealType particleRadius;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon<RealType>());
 
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
@@ -311,7 +311,7 @@ void MPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
     logger().printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
     logger().printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
 
-    if(solverParams().implicitRatio < Tiny) {
+    if(solverParams().implicitRatio < Tiny<RealType>()) {
         logger().printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
     } else {
         logger().printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
@@ -327,7 +327,7 @@ template<Int N, class RealType>
 RealType MPM_Solver<N, RealType >::timestepCFL()
 {
     RealType maxVel   = ParallelSTL::maxNorm2(particleData().velocities);
-    RealType timestep = maxVel > Tiny ? (grid().getCellSize() / maxVel * solverParams().CFLFactor) : Huge;
+    RealType timestep = maxVel > Tiny<RealType>() ? (grid().getCellSize() / maxVel * solverParams().CFLFactor) : Huge<RealType>();
     return MathHelpers::clamp(timestep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
@@ -536,7 +536,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 gridData().active(x, y) = 1;
                                                 AtomicOperations::atomicAdd(gridData().velocity(x, y), pVel * w * solverParams().particleMass);
                                             }
@@ -558,7 +558,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     gridData().active(x, y, z) = 1;
                                                     AtomicOperations::atomicAdd(gridData().velocity(x, y, z), pVel * w * solverParams().particleMass);
                                                 }
@@ -598,7 +598,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 auto xixp    = grid().getWorldCoordinate(x, y) - pPos;
                                                 auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
 
@@ -624,7 +624,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
                                                     auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
 
@@ -687,7 +687,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                             }
 
                                             RealType w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 AtomicOperations::atomicAdd(gridData().velocity_new(x, y), f * particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                             }
                                         }
@@ -728,7 +728,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     AtomicOperations::atomicAdd(gridData().velocity_new(x, y, z), f * particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                                 }
                                             }
@@ -816,7 +816,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 auto gridIdx    = gridData().activeNodeIdx(x, y);
                                                 auto currentVel = vPtr[gridIdx];
                                                 pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
@@ -911,7 +911,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     auto gridIdx    = gridData().activeNodeIdx(x, y, z);
                                                     auto currentVel = vPtr[gridIdx];
                                                     pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
@@ -1074,7 +1074,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 const auto& nVel    = gridData().velocity(x, y);
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
                                                 picVel      += nNewVel * w;
@@ -1107,7 +1107,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     picVel      += nNewVel * w;
@@ -1144,7 +1144,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
                                                 apicVel     += nNewVel * w;
                                                 apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
@@ -1175,7 +1175,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     apicVel     += nNewVel * w;
                                                     apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
@@ -1216,7 +1216,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
                                             }
 
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                            if(w > Tiny) {
+                                            if(w > Tiny<RealType>()) {
                                                 const auto& nVel    = gridData().velocity(x, y);
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
                                                 auto diffVel        = nNewVel - nVel;
@@ -1255,7 +1255,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
                                                 }
 
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
-                                                if(w > Tiny) {
+                                                if(w > Tiny<RealType>()) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     auto diffVel        = nNewVel - nVel;

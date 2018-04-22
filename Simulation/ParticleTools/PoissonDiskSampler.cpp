@@ -48,7 +48,7 @@ void PoissonDiskSampler::sampleMesh(const UInt numVertices, const Vec3r* vertice
     m_cellSize = m_r / sqrt(3.0);
 
     // Init sampling
-    m_maxArea = Tiny;
+    m_maxArea = Tiny<RealType>();
     determineMinX(numVertices, vertices);
 
     determineTriangleAreas(numVertices, vertices, numFaces, faces);
@@ -102,7 +102,7 @@ void PoissonDiskSampler::determineTriangleAreas(const UInt numVertices, const Ve
 {
     m_areas.resize(numFaces);
     Real totalArea  = 0.0;
-    Real tmpMaxArea = Tiny;
+    Real tmpMaxArea = Tiny<RealType>();
 
         #pragma omp parallel default(shared)
     {
@@ -342,7 +342,7 @@ bool PoissonDiskSampler::checkCell(const std::unordered_map<Vec3i, HashEntry, Ce
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PoissonDiskSampler::determineMinX(const UInt numVertices, const Vec3r* vertices)
 {
-    m_minVec = Vec3r(Huge, Huge, Huge);
+    m_minVec = Vec3r(Huge<Real>());
 
     for(Int i = 0; i < (Int)numVertices; i++)
     {

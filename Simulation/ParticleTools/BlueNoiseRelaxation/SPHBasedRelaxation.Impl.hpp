@@ -44,7 +44,7 @@ template<Int N, class RealType>
 RealType SPHBasedRelaxation<N, RealType >::timestepCFL()
 {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
-    RealType CFLTimeStep = maxVel > RealType(Tiny) ? solverParams().CFLFactor * (RealType(2.0) * solverParams().particleRadius / maxVel) : RealType(Huge);
+    RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? solverParams().CFLFactor * (RealType(2.0) * solverParams().particleRadius / maxVel) : RealType(Huge);
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 

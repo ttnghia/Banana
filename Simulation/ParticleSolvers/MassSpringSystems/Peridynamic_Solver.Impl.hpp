@@ -204,7 +204,7 @@ Int PeridynamicsSolver::loadMemoryState()
 
     Real particleRadius;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon<RealType>());
 
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("num_active_particles", solverData().nActives));
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", solverData().positions));
@@ -410,7 +410,7 @@ void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& su
         Vec3r eij = solverData().positions[q] - ppos;
         Real  dij = glm::length(eij);
 
-        if(dij > Tiny) {
+        if(dij > Tiny<RealType>()) {
             eij /= dij;
         } else {
             continue;
@@ -485,7 +485,7 @@ void PeridynamicsSolver::computeExplicitForces()
                                     Vec3r eij = solverData().positions[q] - ppos;
                                     Real dij  = glm::length(eij);
 
-                                    if(dij > Tiny) {
+                                    if(dij > Tiny<RealType>()) {
                                         eij /= dij;
                                     }
 

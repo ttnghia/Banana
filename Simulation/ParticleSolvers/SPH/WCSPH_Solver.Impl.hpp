@@ -185,7 +185,7 @@ Int WCSPH_Solver<N, RealType >::loadMemoryState()
 
     RealType particleRadius;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon<RealType>());
 
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
@@ -348,7 +348,7 @@ template<Int N, class RealType>
 RealType WCSPH_Solver<N, RealType >::timestepCFL()
 {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
-    RealType CFLTimeStep = maxVel > Tiny ? solverParams().CFLFactor * (RealType(2.0) * solverParams().particleRadius / maxVel) : Huge;
+    RealType CFLTimeStep = maxVel > Tiny<RealType>() ? solverParams().CFLFactor * (RealType(2.0) * solverParams().particleRadius / maxVel) : Huge<RealType>();
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
@@ -519,7 +519,7 @@ void WCSPH_Solver<N, RealType >::computeAccelerations()
                                            {
                                                const auto d2 = glm::length2(r);
                                                const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
-                                               if(w < MEpsilon) {
+                                               if(w < MEpsilon<RealType>()) {
                                                    return VecN(0);
                                                } else if(d2 > solverParams().overlappingThresholdSqr) {
                                                    return -solverParams().shortRangeRepulsiveForceStiffness * w / RealType(sqrt(d2)) * r;

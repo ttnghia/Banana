@@ -45,7 +45,7 @@ void BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos)
         auto grad     = gradSignedDistance(ppos);
         auto mag2Grad = glm::length2(grad);
 
-        if(mag2Grad > Tiny) {
+        if(mag2Grad > Tiny<RealType>()) {
             grad /= sqrt(mag2Grad);
             ppos -= phiVal * grad;
         }
@@ -61,7 +61,7 @@ bool BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos, VecN& pvel)
         auto grad     = gradSignedDistance(ppos);
         auto mag2Grad = glm::length2(grad);
 
-        if(mag2Grad > Tiny) {
+        if(mag2Grad > Tiny<RealType>()) {
             grad /= sqrt(mag2Grad);
             ppos -= phiVal * grad;
             if(m_bReflectVelocityAtBoundary) {

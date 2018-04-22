@@ -183,7 +183,7 @@ template<Int N, class RealType>
 RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
-    RealType mind = Huge;
+    RealType mind = Huge<RealType>();
 
     if(NumberHelpers::isInside(ppos, m_BoxMin, m_BoxMax)) {
         for(Int i = 0; i < N; ++i) {
@@ -853,7 +853,7 @@ template<Int N, class RealType>
 RealType CSGObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     if(m_Objects.size() == 0) {
-        return Huge;
+        return Huge<RealType>();
     }
 
     auto     ppos = domainDeform(transform(ppos0));

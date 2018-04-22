@@ -51,7 +51,7 @@ void ClothSolver::makeReady()
                               Scheduler::parallel_for<UInt>(m_Grid.getNNodes(),
                                                             [&](UInt i, UInt j, UInt k)
                                                             {
-                                                                Real minSD = Huge;
+                                                                Real minSD = Huge<RealType>();
                                                                 for(auto& obj : m_BoundaryObjects) {
                                                                     minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
                                                                 }
@@ -179,7 +179,7 @@ Int ClothSolver::loadMemoryState()
 
     Real particleRadius;
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon<RealType>());
 
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
@@ -287,7 +287,7 @@ void ClothSolver::moveParticles(Real timestep)
                                           Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                           Real mag2Grad = glm::length2(grad);
 
-                                          if(mag2Grad > Tiny)
+                                          if(mag2Grad > Tiny<RealType>())
                                               ppos -= phiVal * grad / sqrt(mag2Grad);
                                          }*/
                                       bool velChanged = false;
@@ -365,7 +365,7 @@ void ClothSolver::addRepulsiveVelocity2Particles(Real timestep)
                                                       const Vec3r& qpos = particleData().positions[q];
                                                       const Vec3r xpq   = ppos - qpos;
                                                       const Real d      = glm::length(xpq);
-                                                      if(d > solverParams().nearKernelRadius || d < Tiny) {
+                                                      if(d > solverParams().nearKernelRadius || d < Tiny<RealType>()) {
                                                           continue;
                                                       }
 
@@ -428,7 +428,7 @@ void ClothSolver::velocityToGrid()
                                                       if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
                                                           const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
-                                                          if(weight > Tiny) {
+                                                          if(weight > Tiny<RealType>()) {
                                                               sum_u        += weight * pvel[0];
                                                               sum_weight_u += weight;
                                                           }
@@ -437,7 +437,7 @@ void ClothSolver::velocityToGrid()
                                                       if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
                                                           const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
-                                                          if(weight > Tiny) {
+                                                          if(weight > Tiny<RealType>()) {
                                                               sum_v        += weight * pvel[1];
                                                               sum_weight_v += weight;
                                                           }
@@ -446,7 +446,7 @@ void ClothSolver::velocityToGrid()
                                                       if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
                                                           const Real weight = m_WeightKernel((ppos - pw) / m_Grid.getCellSize());
 
-                                                          if(weight > Tiny) {
+                                                          if(weight > Tiny<RealType>()) {
                                                               sum_w        += weight * pvel[2];
                                                               sum_weight_w += weight;
                                                           }
@@ -457,18 +457,18 @@ void ClothSolver::velocityToGrid()
                                       }     // end loop over neighbor cells
 
                                       if(valid_index_u) {
-                                          gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : 0_f;
-                                          gridData().u_valid(i, j, k) = (sum_weight_u > Tiny) ? 1 : 0;
+                                          gridData().u(i, j, k)       = (sum_weight_u > Tiny<RealType>()) ? sum_u / sum_weight_u : 0_f;
+                                          gridData().u_valid(i, j, k) = (sum_weight_u > Tiny<RealType>()) ? 1 : 0;
                                       }
 
                                       if(valid_index_v) {
-                                          gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : 0_f;
-                                          gridData().v_valid(i, j, k) = (sum_weight_v > Tiny) ? 1 : 0;
+                                          gridData().v(i, j, k)       = (sum_weight_v > Tiny<RealType>()) ? sum_v / sum_weight_v : 0_f;
+                                          gridData().v_valid(i, j, k) = (sum_weight_v > Tiny<RealType>()) ? 1 : 0;
                                       }
 
                                       if(valid_index_w) {
-                                          gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : 0_f;
-                                          gridData().w_valid(i, j, k) = (sum_weight_w > Tiny) ? 1 : 0;
+                                          gridData().w(i, j, k)       = (sum_weight_w > Tiny<RealType>()) ? sum_w / sum_weight_w : 0_f;
+                                          gridData().w_valid(i, j, k) = (sum_weight_w > Tiny<RealType>()) ? 1 : 0;
                                       }
                                   });
 }
@@ -573,12 +573,12 @@ void ClothSolver::constrainGridVelocity()
     Scheduler::parallel_for<size_t>(gridData().u.size(),
                                     [&](size_t i, size_t j, size_t k)
                                     {
-                                        if(gridData().u_weights(i, j, k) < Tiny) {
+                                        if(gridData().u_weights(i, j, k) < Tiny<RealType>()) {
                                             const Vec3r gridPos = Vec3r(i, j + 0.5, k + 0.5);
                                             Vec3r vel           = getVelocityFromGrid(gridPos);
                                             Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                             Real mag2Normal     = glm::length2(normal);
-                                            if(mag2Normal > Tiny) {
+                                            if(mag2Normal > Tiny<RealType>()) {
                                                 normal /= sqrt(mag2Normal);
                                             }
 
@@ -591,12 +591,12 @@ void ClothSolver::constrainGridVelocity()
     Scheduler::parallel_for<size_t>(gridData().v.size(),
                                     [&](size_t i, size_t j, size_t k)
                                     {
-                                        if(gridData().v_weights(i, j, k) < Tiny) {
+                                        if(gridData().v_weights(i, j, k) < Tiny<RealType>()) {
                                             const Vec3r gridPos = Vec3r(i + 0.5, j, k + 0.5);
                                             Vec3r vel           = getVelocityFromGrid(gridPos);
                                             Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                             Real mag2Normal     = glm::length2(normal);
-                                            if(mag2Normal > Tiny) {
+                                            if(mag2Normal > Tiny<RealType>()) {
                                                 normal /= sqrt(mag2Normal);
                                             }
 
@@ -609,12 +609,12 @@ void ClothSolver::constrainGridVelocity()
     Scheduler::parallel_for<size_t>(gridData().w.size(),
                                     [&](size_t i, size_t j, size_t k)
                                     {
-                                        if(gridData().w_weights(i, j, k) < Tiny) {
+                                        if(gridData().w_weights(i, j, k) < Tiny<RealType>()) {
                                             const Vec3r gridPos = Vec3r(i + 0.5, j + 0.5, k);
                                             Vec3r vel           = getVelocityFromGrid(gridPos);
                                             Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                             Real mag2Normal     = glm::length2(normal);
-                                            if(mag2Normal > Tiny) {
+                                            if(mag2Normal > Tiny<RealType>()) {
                                                 normal /= sqrt(mag2Normal);
                                             }
 

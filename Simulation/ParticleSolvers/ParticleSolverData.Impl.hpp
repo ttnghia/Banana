@@ -237,7 +237,7 @@ void SimulationParameters<N, RealType >::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     if(gravityType == GravityType::Directional) {
-        if(glm::length2(gravityDirection) < MEpsilon) {
+        if(glm::length2(gravityDirection) < MEpsilon<RealType>()) {
             gravityType = GravityType::Earth;
         } else {
             gravityDirection = RealType(9.81) * glm::normalize(gravityDirection);
