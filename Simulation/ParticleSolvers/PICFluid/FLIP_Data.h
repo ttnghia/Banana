@@ -28,30 +28,36 @@ namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct FLIP_Data : public GridSimulationData<N, RealType>
+struct FLIP_Data : PIC_Data<N, RealType>
 {
-    Array<N, RealType> dVels[N];
-    Array<N, RealType> oldVels[N];
-    //Array3SpinLock uLock, vLock, wLock;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual void resize(const VecX<N, UInt>& gridSize) override
+    struct FLIP_GridData : PIC_Data<N, RealType>::PIC_GridData
     {
-        for(Int i = 0; i < N; ++i) {
-            auto extra = VecX<N, UInt>(0);
-            extra[i] = 1u;
-            ////////////////////////////////////////////////////////////////////////////////
-            dVels[i].resize(gridSize + extra, 0);
-            oldVels[i].resize(gridSize + extra, 0);
-        }
-    }
+        Array<N, RealType> dVels[N];
+        Array<N, RealType> oldVels[N];
+        //Array3SpinLock uLock, vLock, wLock;
 
-    void backupGridVelocity(const PIC_Data<N, RealType>& picData) override
-    {
-        for(Int i = 0; i < N; ++i) {
-            oldVels[i].copyDataFrom(picData.gridData.velocities[i]);
+        ////////////////////////////////////////////////////////////////////////////////
+        virtual void resize(const VecX<N, UInt>& gridSize) override
+        {
+            PIC_Data<N, RealType>::PIC_GridData::resize(gridSize);
+            for(Int i = 0; i < N; ++i) {
+                auto extra = VecX<N, UInt>(0);
+                extra[i] = 1u;
+                ////////////////////////////////////////////////////////////////////////////////
+                dVels[i].resize(gridSize + extra, 0);
+                oldVels[i].resize(gridSize + extra, 0);
+            }
         }
-    }
+
+        void backupGridVelocity()
+        {
+            for(Int i = 0; i < N; ++i) {
+                oldVels[i].copyDataFrom(velocities[i]);
+            }
+        }
+    };
+
+    SharedPtr<FLIP_GridData> FLIP_gridData = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

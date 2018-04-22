@@ -125,7 +125,7 @@ void PIC_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, R
     particleData.setupNeighborSearch(simParams->cellSize);
 
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
-    gridData.resize(grid.getNCells());
+    gridData->resize(grid.getNCells());
     matrix.reserve(grid.getNTotalCells());
     rhs.reserve(grid.getNTotalCells());
     pressure.reserve(grid.getNTotalCells());

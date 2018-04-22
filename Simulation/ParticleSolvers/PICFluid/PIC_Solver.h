@@ -51,7 +51,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     auto& particleData() { return solverData().particleData; }
-    auto& gridData() { return solverData().gridData; }
+    auto& gridData() { return *solverData().gridData; }
     auto& grid() { return solverData().grid; }
 
 protected:

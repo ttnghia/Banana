@@ -20,27 +20,32 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+
+#include <ParticleSolvers/PICFluid/PIC_Solver.h>
+#include <ParticleSolvers/PICFluid/FLIP_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP_3DSolver : public PIC_3DSolver, public RegisteredInSolverFactory<FLIP_3DSolver>
+template<Int N, class RealType>
+class FLIP_Solver : public PIC_Solver<N, RealType>, public RegisteredInSolverFactory<FLIP_Solver<N, RealType>>
 {
 public:
-    FLIP_3DSolver() = default;
+    FLIP_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("FLIP_3DSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<FLIP_3DSolver>(); }
+    static auto solverName() { return String("FLIP_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<FLIP_Solver<N, RealType>>()); }
 
-    virtual String getSolverName() { return FLIP_3DSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual String getSolverName() { return FLIP_Solver<N, RealType>::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using FLIP-") + std::to_string(N) + String("D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       FLIPData() { return m_FLIPData; }
-    const auto& FLIPData() const { return m_FLIPData; }
+    auto& solverData() { assert(m_FLIPData != nullptr); return *m_FLIPData; }
+    auto& particleData() { return solverData().particleData; }
+    auto& gridData() { return *solverData().FLIP_gridData; }
+    auto& grid() { return solverData().grid; }
 
 protected:
     virtual void allocateSolverMemory() override;
@@ -51,12 +56,13 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    void  computeChangesGridVelocity();
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
-
+    void              computeChangesGridVelocity();
+    VecX<N, RealType> getVelocityChangesFromGrid(const VecX<N, RealType>& ppos);
     ////////////////////////////////////////////////////////////////////////////////
-    FLIP_3DData m_FLIPData;
+    SharedPtr<FLIP_Data<N, RealType>> m_FLIPData = nullptr;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/PICFluid/FLIP_Solver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

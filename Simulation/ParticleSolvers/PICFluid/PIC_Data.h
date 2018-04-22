@@ -53,7 +53,7 @@ struct PIC_Parameters : public SimulationParameters<N, RealType>
 template<Int N, class RealType>
 struct PIC_Data : public SimulationData<N, RealType>
 {
-    struct PIC_ParticleData : public ParticleSimulationData<N, RealType>
+    struct PIC_ParticleData : ParticleSimulationData<N, RealType>
     {
         Vec_VecN   aniKernelCenters;
         Vec_MatNxN aniKernelMatrices;
@@ -63,7 +63,7 @@ struct PIC_Data : public SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct PIC_GridData : public GridSimulationData<N, RealType>
+    struct PIC_GridData : GridSimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
@@ -88,13 +88,13 @@ struct PIC_Data : public SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    PIC_ParticleData       particleData;
-    PIC_GridData           gridData;
-    Grid<N, RealType>      grid;
-    PCGSolver<RealType>    pcgSolver;
-    SparseMatrix<RealType> matrix;
-    Vector<RealType>       rhs;
-    Vector<RealType>       pressure;
+    PIC_ParticleData        particleData;
+    SharedPtr<PIC_GridData> gridData = nullptr;
+    Grid<N, RealType>       grid;
+    PCGSolver<RealType>     pcgSolver;
+    SparseMatrix<RealType>  matrix;
+    Vector<RealType>        rhs;
+    Vector<RealType>        pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return particleData; }

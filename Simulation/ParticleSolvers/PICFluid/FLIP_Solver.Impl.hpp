@@ -18,19 +18,28 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP_3DSolver::allocateSolverMemory()
+template<Int N, class RealType>
+void FLIP_Solver<N, RealType >::allocateSolverMemory()
 {
-    PIC_3DSolver::allocateSolverMemory();
-    FLIPData().resize(grid().getNCells());
+    m_PICParams    = std::make_shared<PIC_Parameters<N, RealType>>();
+    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_PICParams);
+
+    m_FLIPData   = std::make_shared<FLIP_Data<N, RealType>>();
+    m_PICData    = std::static_pointer_cast<PIC_Data<N, RealType>>(m_FLIPData);
+    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_FLIPData);
+
+    m_FLIPData->FLIP_gridData = std::make_shared<FLIP_Data<N, RealType>::FLIP_GridData>();
+    m_FLIPData->gridData      = std::static_pointer_cast<PIC_Data<N, RealType>::PIC_GridData>(m_FLIPData->FLIP_gridData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP_3DSolver::advanceVelocity(Real timestep)
+template<Int N, class RealType>
+void FLIP_Solver<N, RealType >::advanceVelocity(Real timestep)
 {
     logger().printRunTime("{   Map particles to grid: ", [&]() { mapParticles2Grid(); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
     logger().printRunTimeIndent("Constrain grid velocity: ", [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Backup grid: ", [&]() { FLIPData().backupGridVelocity(solverData()); });
+    logger().printRunTimeIndent("Backup grid: ", [&]() { gridData().backupGridVelocity(); });
     logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
     logger().printRunTimeIndent("}=> Pressure projection: ", [&]() { pressureProjection(timestep); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
@@ -40,163 +49,53 @@ void FLIP_3DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP_3DSolver::mapParticles2Grid()
+template<Int N, class RealType>
+void FLIP_Solver<N, RealType >::mapParticles2Grid()
 {
-    if constexpr(N == 2)
-    {
-        const Vec2r span = Vec2r(solverData().grid.getCellSize());
+    for(Int i = 0; i < N; ++i) {
+        gridData().velocities[i].assign(0);
+        gridData().tmpVels[i].assign(0);
+        gridData().valids[i].assign(0);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& ppos   = particleData().positions[p];
+                                const auto& pvel   = particleData().velocities[p];
+                                const auto gridPos = grid().getGridCoordinate(ppos);
 
-        Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
-                                      [&](UInt i, UInt j)
-                                      {
-                                          const Vec2r pu = Vec2r(i, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                          const Vec2r pv = Vec2r(i + 0.5, j) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-
-                                          const Vec2r puMin = pu - span;
-                                          const Vec2r pvMin = pv - span;
-
-                                          const Vec2r puMax = pu + span;
-                                          const Vec2r pvMax = pv + span;
-
-                                          Real sum_weight_u = 0_f;
-                                          Real sum_weight_v = 0_f;
-
-                                          Real sum_u = 0_f;
-                                          Real sum_v = 0_f;
-
-                                          bool valid_index_u = gridData().u.isValidIndex(i, j);
-                                          bool valid_index_v = gridData().v.isValidIndex(i, j);
-
-                                          // loop over neighbor cells (kernelSpan^3 cells)
-                                          for(Int lj = -1; lj <= 1; ++lj) {
-                                              for(Int li = -1; li <= 1; ++li) {
-                                                  const Vec2i cellId = Vec2i(static_cast<Int>(i), static_cast<Int>(j)) + Vec2i(li, lj);
-                                                  if(!solverData().grid.isValidCell(cellId)) {
-                                                      continue;
-                                                  }
-
-                                                  for(const UInt p : solverData().grid.getParticleIdxInCell(cellId)) {
-                                                      const Vec2r& ppos = particleData().positions[p];
-                                                      const Vec2r& pvel = particleData().velocities[p];
-
-                                                      if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                          const Vec2r gridPos = (ppos - pu) / solverData().grid.getCellSize();
-                                                          const Real weight   = MathHelpers::bilinear_kernel(gridPos.x, gridPos.y);
-
-                                                          if(weight > Tiny<RealType>()) {
-                                                              sum_u        += weight * pvel[0];
-                                                              sum_weight_u += weight;
-                                                          }
-                                                      }
-
-                                                      if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                          const Vec2r gridPos = (ppos - pv) / solverData().grid.getCellSize();
-                                                          const Real weight   = MathHelpers::bilinear_kernel(gridPos.x, gridPos.y);
-                                                          if(weight > Tiny<RealType>()) {
-                                                              sum_v        += weight * pvel[1];
-                                                              sum_weight_v += weight;
-                                                          }
-                                                      }
-                                                  }
-                                              }
-                                          } // end loop over neighbor cells
-
-                                          if(valid_index_u) {
-                                              gridData().u(i, j)       = (sum_weight_u > Tiny<RealType>()) ? sum_u / sum_weight_u : 0_f;
-                                              gridData().u_valid(i, j) = (sum_weight_u > Tiny<RealType>()) ? 1 : 0;
-                                          }
-
-                                          if(valid_index_v) {
-                                              gridData().v(i, j)       = (sum_weight_v > Tiny<RealType>()) ? sum_v / sum_weight_v : 0_f;
-                                              gridData().v_valid(i, j) = (sum_weight_v > Tiny<RealType>()) ? 1 : 0;
-                                          }
-                                      });
-    } else {
-        gridData().u.assign(0);
-        gridData().v.assign(0);
-        gridData().w.assign(0);
-
-        gridData().tmp_u.assign(0);
-        gridData().tmp_v.assign(0);
-        gridData().tmp_w.assign(0);
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // update valid variable for velocity extrapolation
-        gridData().u_valid.assign(0);
-        gridData().v_valid.assign(0);
-        gridData().w_valid.assign(0);
-        ////////////////////////////////////////////////////////////////////////////////
-
-        Scheduler::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto& ppos   = particleData().positions[p];
-                                    const auto& pvel   = particleData().velocities[p];
-                                    const auto gridPos = grid().getGridCoordinate(ppos);
-
-                                    std::array<Vec3i, 8> indices;
-                                    std::array<Real, 8> weights;
-
-                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0, 0.5, 0.5), gridData().u.size(), indices, weights);
+                                std::array<VecX<N, Int>, 8> indices;
+                                std::array<RealType, 8> weights;
+                                for(Int d = 0; d < N; ++d) {
+                                    auto extra = VecN(0.5);
+                                    extra[d] = 0;
+                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - extra, gridData().velocities[d].vsize(), indices, weights);
                                     for(Int i = 0; i < 8; ++i) {
-                                        const auto gpos     = grid().getWorldCoordinate(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5);
-                                        const auto momentum = weights[i] * pvel[0];
-                                        FLIPData().uLock(indices[i]).lock();
-                                        gridData().u(indices[i])     += momentum;
-                                        gridData().tmp_u(indices[i]) += weights[i];
-                                        FLIPData().uLock(indices[i]).unlock();
+                                        auto gpos     = grid().getWorldCoordinate(VecN(indices[i]) + extra);
+                                        auto momentum = weights[i] * pvel[d];
+                                        AtomicOperations::atomicAdd(gridData().velocities[d](indices[i]), momentum);
+                                        AtomicOperations::atomicAdd(gridData().tmpVels[d](indices[i]),    weights[i]);     // store weight into tmpVels
                                     }
+                                }
+                            });
 
-                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
-                                    for(Int i = 0; i < 8; ++i) {
-                                        const auto gpos     = grid().getWorldCoordinate(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5);
-                                        const auto momentum = weights[i] * pvel[1];
-                                        FLIPData().vLock(indices[i]).lock();
-                                        gridData().v(indices[i])     += momentum;
-                                        gridData().tmp_v(indices[i]) += weights[i];
-                                        FLIPData().vLock(indices[i]).unlock();
-                                    }
-
-                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
-                                    for(Int i = 0; i < 8; ++i) {
-                                        const auto gpos     = grid().getWorldCoordinate(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]);
-                                        const auto momentum = weights[i] * pvel[2];
-                                        FLIPData().wLock(indices[i]).lock();
-                                        gridData().w(indices[i])     += momentum;
-                                        gridData().tmp_w(indices[i]) += weights[i];
-                                        FLIPData().wLock(indices[i]).unlock();
-                                    }
-                                });
-        ////////////////////////////////////////////////////////////////////////////////
-        Scheduler::parallel_for(gridData().u.dataSize(),
+    for(Int d = 0; d < N; ++d) {
+        Scheduler::parallel_for(gridData().velocities[d].dataSize(),
                                 [&](size_t i)
                                 {
-                                    if(gridData().tmp_u.data()[i] > Tiny<RealType>()) {
-                                        gridData().u.data()[i]      /= gridData().tmp_u.data()[i];
-                                        gridData().u_valid.data()[i] = 1;
-                                    }
-                                });
-        Scheduler::parallel_for(gridData().v.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().tmp_v.data()[i] > Tiny<RealType>()) {
-                                        gridData().v.data()[i]      /= gridData().tmp_v.data()[i];
-                                        gridData().v_valid.data()[i] = 1;
-                                    }
-                                });
-        Scheduler::parallel_for(gridData().w.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().tmp_w.data()[i] > Tiny<RealType>()) {
-                                        gridData().w.data()[i]      /= gridData().tmp_w.data()[i];
-                                        gridData().w_valid.data()[i] = 1;
+                                    auto weight = gridData().tmpVels[d].data()[i];
+                                    if(weight > Tiny<RealType>()) {
+                                        gridData().velocities[d].data()[i] /= weight;
+                                        gridData().valids[d].data()[i]      = 1;
                                     }
                                 });
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP_3DSolver::mapGrid2Particles()
+template<Int N, class RealType>
+void FLIP_Solver<N, RealType >::mapGrid2Particles()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -213,27 +112,26 @@ void FLIP_3DSolver::mapGrid2Particles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP_3DSolver::computeChangesGridVelocity()
+template<Int N, class RealType>
+void FLIP_Solver<N, RealType >::computeChangesGridVelocity()
 {
-    Scheduler::parallel_for(gridData().u.dataSize(), [&](size_t i) { FLIPData().du.data()[i] = gridData().u.data()[i] - FLIPData().u_old.data()[i]; });
-    Scheduler::parallel_for(gridData().v.dataSize(), [&](size_t i) { FLIPData().dv.data()[i] = gridData().v.data()[i] - FLIPData().v_old.data()[i]; });
-    Scheduler::parallel_for(gridData().w.dataSize(), [&](size_t i) { FLIPData().dw.data()[i] = gridData().w.data()[i] - FLIPData().w_old.data()[i]; });
+    for(Int d = 0; d < N; ++d) {
+        Scheduler::parallel_for(gridData().velocities[d].dataSize(), [&](size_t i)
+                                {
+                                    gridData().dVels[d].data()[i] = gridData().velocities[d].data()[i] - gridData().oldVels[d].data()[i];
+                                });
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r FLIP_3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
+template<Int N, class RealType>
+VecX<N, RealType> FLIP_Solver<N, RealType >::getVelocityChangesFromGrid(const VecX<N, RealType>& gridPos)
 {
-    if constexpr(N == 2)
-    {
-        Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec2r(0, 0.5), gridData().du);
-        Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec2r(0.5, 0), gridData().dv);
-
-        return Vec2r(changed_vu, changed_vv);
-    } else {
-        Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), FLIPData().du);
-        Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), FLIPData().dv);
-        Real changed_vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), FLIPData().dw);
-
-        return Vec3r(changed_vu, changed_vv, changed_vw);
+    VecN vchanged;
+    for(Int d = 0; d < N; ++d) {
+        auto extra = VecN(0.5);
+        extra[d]    = 0;
+        vchanged[d] = ArrayHelpers::interpolateValueLinear(gridPos - extra, gridData().dVels[d]);
     }
+    return vchanged;
 }

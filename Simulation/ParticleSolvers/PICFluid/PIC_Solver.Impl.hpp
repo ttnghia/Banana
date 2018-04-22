@@ -26,6 +26,8 @@ void PIC_Solver<N, RealType >::allocateSolverMemory()
 
     m_PICData    = std::make_shared<PIC_Data<N, RealType>>();
     m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_PICData);
+
+    m_PICData->gridData = std::make_shared<PIC_Data<N, RealType>::PIC_GridData>();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -618,7 +620,7 @@ template<Int N, class RealType>
 void PIC_Solver<N, RealType >::computeFluidSDF()
 {
     const auto& boundarySDF  = gridData().boundarySDF;
-    auto&       fluidSDF     = gridData().boundarySDF;
+    auto&       fluidSDF     = gridData().fluidSDF;
     auto&       fluidSDFLock = gridData().fluidSDFLock;
     ////////////////////////////////////////////////////////////////////////////////
     fluidSDF.assign(grid().getCellSize() * RealType(3.0));
