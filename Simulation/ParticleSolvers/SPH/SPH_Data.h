@@ -113,9 +113,8 @@ struct WCSPH_Data : public SimulationData<N, RealType>
     Kernels      kernels;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return particleData; }
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
-    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual ParticleSimulationData<N, RealType>& generalParticleData() override { return particleData; }
+    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

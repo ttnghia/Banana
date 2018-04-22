@@ -116,10 +116,9 @@ struct MPM_Data : public SimulationData<N, RealType>
     Grid<N, RealType>                   grid;
     Optimization::LBFGSSolver<RealType> lbfgsSolver;
 
-    virtual void                                       initialize();
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { assert(particleData != nullptr); return *particleData; }
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { assert(particleData != nullptr); return *particleData; }
-    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void                                 initialize();
+    virtual ParticleSimulationData<N, RealType>& generalParticleData() override { assert(particleData != nullptr); return *particleData; }
+    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

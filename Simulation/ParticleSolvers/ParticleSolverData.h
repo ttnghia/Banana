@@ -284,9 +284,8 @@ struct SimulationData
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() = 0;
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
-    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) = 0;
+    virtual ParticleSimulationData<N, RealType>& generalParticleData() = 0;
+    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
