@@ -28,8 +28,7 @@ void FLIP_Solver<N, RealType >::allocateSolverMemory()
     m_PICData    = std::static_pointer_cast<PIC_Data<N, RealType>>(m_FLIPData);
     m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_FLIPData);
 
-    m_FLIPData->FLIP_gridData = std::make_shared<FLIP_Data<N, RealType>::FLIP_GridData>();
-    m_FLIPData->gridData      = std::static_pointer_cast<PIC_Data<N, RealType>::PIC_GridData>(m_FLIPData->FLIP_gridData);
+    m_FLIPData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

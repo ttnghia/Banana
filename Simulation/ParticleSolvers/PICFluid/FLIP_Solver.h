@@ -43,9 +43,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     auto& solverData() { assert(m_FLIPData != nullptr); return *m_FLIPData; }
-    auto& particleData() { return solverData().particleData; }
-    auto& gridData() { return *solverData().FLIP_gridData; }
-    auto& grid() { return solverData().grid; }
+    auto& gridData() { assert(solverData().FLIP_gridData != nullptr); return *solverData().FLIP_gridData; }
 
 protected:
     virtual void allocateSolverMemory() override;

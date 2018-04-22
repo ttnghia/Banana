@@ -117,12 +117,20 @@ void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>&gridSize)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void PIC_Data<N, RealType >::initialize()
+{
+    particleData = std::make_shared<PIC_ParticleData>();
+    gridData     = std::make_shared<PIC_GridData>();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void PIC_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
     if(simParams->maxNParticles > 0) {
-        particleData.reserve(simParams->maxNParticles);
+        particleData->reserve(simParams->maxNParticles);
     }
-    particleData.setupNeighborSearch(simParams->cellSize);
+    particleData->setupNeighborSearch(simParams->cellSize);
 
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
     gridData->resize(grid.getNCells());

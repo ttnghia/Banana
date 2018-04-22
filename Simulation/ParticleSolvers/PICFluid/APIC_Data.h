@@ -21,34 +21,50 @@
 
 #pragma once
 
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+#include <ParticleSolvers/PicFluid/PIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct APIC_3DData
+template<Int N, class RealType>
+struct APIC_Data : public PIC_Data<N, RealType>
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // affine matrices
-    Vec_Mat3x3r C;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // locks for grid velocities
-    Array3SpinLock uLock, vLock, wLock;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    UInt getNParticles() const { return static_cast<UInt>(C.size()); }
-
-    void reserveParticleData(UInt nParticles) { C.reserve(nParticles); }
-    void resizeParticleData(UInt nParticles) { C.resize(nParticles, Mat3x3r(0.0)); }
-    void resizeGridData(const Vec3ui& nCells)
+    struct APIC_ParticleData : PIC_Data<N, RealType>::PIC_ParticleData
     {
-        uLock.resize(nCells.x + 1, nCells.y, nCells.z);
-        vLock.resize(nCells.x, nCells.y + 1, nCells.z);
-        wLock.resize(nCells.x, nCells.y, nCells.z + 1);
+        ////////////////////////////////////////////////////////////////////////////////
+        // affine matrices
+        Vec_MatXxX<N, RealType> C;
+        ////////////////////////////////////////////////////////////////////////////////
+        virtual void reserve(UInt nParticles) override
+        {
+            PIC_Data<N, RealType>::PIC_ParticleData::reserve(nParticles);
+            C.reserve(nParticles);
+        }
+
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override
+        {
+            PIC_Data<N, RealType>::PIC_ParticleData::addParticles(newPositions, newVelocities);
+            C.resize(getNParticles(), MatXxX<N, RealType>(0));
+        }
+
+        virtual UInt removeParticles(const Vec_Int8& removeMarker) override
+        {
+            STLHelpers::eraseByMarker(C, removeMarker);
+            return PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(removeMarker);
+        }
+    };
+
+    void initialize()
+    {
+        APIC_particleData = std::make_shared<APIC_ParticleData>();
+        particleData      = std::static_pointer_cast<PIC_Data<N, RealType>::PIC_ParticleData>(APIC_particleData);
+
+        gridData = std::make_shared<PIC_Data<N, RealType>::PIC_GridData>();
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    SharedPtr<APIC_ParticleData> APIC_particleData = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

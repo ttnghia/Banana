@@ -21,31 +21,30 @@
 
 #pragma once
 
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+#include <ParticleSolvers/PICFluid/PIC_Solver.h>
+#include <ParticleSolvers/PICFluid/APIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC_3DSolver : public PIC_3DSolver, public RegisteredInSolverFactory<APIC_3DSolver>
+template<Int N, class RealType>
+class APIC_Solver : public PIC_Solver<N, RealType>, public RegisteredInSolverFactory<APIC_Solver<N, RealType>>
 {
 public:
-    APIC_3DSolver() = default;
+    APIC_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("APIC_3DSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<APIC_3DSolver>(); }
+    static auto solverName() { return String("APIC_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<APIC_Solver<N, RealType>>()); }
 
-    virtual String getSolverName() { return APIC_3DSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Fluid Simulation using APIC-3D Solver"); }
-
+    virtual String getSolverName() { return APIC_Solver<N, RealType>::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using APIC-") + std::to_string(N) + String("D Solver"); }
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       APICData() { return m_APICData; }
-    const auto& APICData() const { return m_APICData; }
+    auto& solverData() { assert(m_APICData != nullptr); return *m_APICData; }
+    auto& particleData() { assert(solverData().APIC_particleData != nullptr); return *solverData().APIC_particleData; }
 
 protected:
-    virtual void generateParticles(const JParams& jParams) override;
-    virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 
@@ -54,11 +53,13 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
+    MatXxX<N, RealType> getAffineMatrixFromGrid(const VecN& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
 
-    APIC_3DData m_APICData;
+    SharedPtr<APIC_Data<N, RealType>> m_APICData = nullptr;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/PICFluid/APIC_Solver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

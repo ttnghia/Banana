@@ -57,6 +57,15 @@ struct FLIP_Data : PIC_Data<N, RealType>
         }
     };
 
+    void initialize()
+    {
+        particleData = std::make_shared<PIC_Data<N, RealType>::PIC_ParticleData>();
+
+        FLIP_gridData = std::make_shared<FLIP_GridData>();
+        gridData      = std::static_pointer_cast<PIC_Data<N, RealType>::PIC_GridData>(FLIP_gridData);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<FLIP_GridData> FLIP_gridData = nullptr;
 };
 

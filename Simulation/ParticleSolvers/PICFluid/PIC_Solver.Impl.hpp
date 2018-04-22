@@ -27,7 +27,7 @@ void PIC_Solver<N, RealType >::allocateSolverMemory()
     m_PICData    = std::make_shared<PIC_Data<N, RealType>>();
     m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_PICData);
 
-    m_PICData->gridData = std::make_shared<PIC_Data<N, RealType>::PIC_GridData>();
+    m_PICData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

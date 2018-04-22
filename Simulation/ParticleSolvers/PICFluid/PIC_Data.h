@@ -88,18 +88,18 @@ struct PIC_Data : public SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    PIC_ParticleData        particleData;
-    SharedPtr<PIC_GridData> gridData = nullptr;
-    Grid<N, RealType>       grid;
-    PCGSolver<RealType>     pcgSolver;
-    SparseMatrix<RealType>  matrix;
-    Vector<RealType>        rhs;
-    Vector<RealType>        pressure;
+    SharedPtr<PIC_ParticleData> particleData = nullptr;
+    SharedPtr<PIC_GridData>     gridData     = nullptr;
+    Grid<N, RealType>           grid;
+    PCGSolver<RealType>         pcgSolver;
+    SparseMatrix<RealType>      matrix;
+    Vector<RealType>            rhs;
+    Vector<RealType>            pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return particleData; }
-    virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
-    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void                                 initialize();
+    virtual ParticleSimulationData<N, RealType>& generalParticleData() override { return *particleData; }
+    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/PICFluid/PIC_Data.Impl.hpp>

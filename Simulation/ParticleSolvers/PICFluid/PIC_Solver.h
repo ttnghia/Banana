@@ -50,8 +50,8 @@ public:
     auto& solverData() { assert(m_PICData != nullptr); return *m_PICData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto& particleData() { return solverData().particleData; }
-    auto& gridData() { return *solverData().gridData; }
+    auto& particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
+    auto& gridData() { assert(solverData().gridData != nullptr); return *solverData().gridData; }
     auto& grid() { return solverData().grid; }
 
 protected:
