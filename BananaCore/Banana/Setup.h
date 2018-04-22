@@ -338,6 +338,16 @@ UInt64 constexpr operator"" _uint64(unsigned long long int x)
     return static_cast<UInt64>(x);
 }
 
+std::size_t constexpr operator"" _sz(unsigned long long int x)
+{
+    return static_cast<std::size_t>(x);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T> constexpr auto MEpsilon() { return std::numeric_limits<T>::epsilon(); }
+template<class T> constexpr auto Tiny() { return std::numeric_limits<T>::min(); }
+template<class T> constexpr auto Huge() { return std::numeric_limits<T>::max(); }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // include macros after typename definitions
 #include <Banana/Macros.h>
