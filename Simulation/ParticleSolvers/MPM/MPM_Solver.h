@@ -39,7 +39,7 @@ public:
     static auto solverName() { return String("MPM_") + std::to_string(N) + String("DSolver"); }
     static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<MPM_Solver<N, RealType>>()); }
 
-    virtual String getSolverName() { return MPM_Solver::solverName(); }
+    virtual String getSolverName() { return MPM_Solver<N, RealType>::solverName(); }
     virtual String getSolverDescription() override { return String("Simulation using MPM-") + std::to_string(N) + String("D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
