@@ -80,18 +80,17 @@ protected:
     void     solveSystem();
     void     updateProjectedVelocity(RealType timestep);
     void     extrapolateVelocity();
-    void     extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
-    void     constrainGridVelocity();
+    void     extrapolateVelocity(Array<N, RealType>& grid, Array<N, RealType>& temp_grid,
+                                 Array<N, char>& valid, Array<N, char>& old_valid, Array<N, char>& extrapolate);
+    void constrainGridVelocity();
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    RealType getVelocityFromGridU(const VecN& ppos);
-    RealType getVelocityFromGridV(const VecN& ppos);
-    RealType getVelocityFromGridW(const VecN& ppos);
-    VecN     getVelocityFromGrid(const VecN& ppos);
-    VecN     trace_rk2(const VecN& ppos, RealType timestep);
-    VecN     trace_rk2_grid(const VecN& gridPos, RealType timestep);
-    void     computeBoundarySDF();
+    RealType          getVelocityFromGrid(const VecN& ppos, Int axis);
+    VecX<N, RealType> getVelocityFromGrid(const VecN& ppos);
+    VecX<N, RealType> trace_rk2(const VecN& ppos, RealType timestep);
+    VecX<N, RealType> trace_rk2_grid(const VecN& gridPos, RealType timestep);
+    void              computeBoundarySDF();
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<PIC_Parameters<N, RealType>> m_PICParams = nullptr;
     SharedPtr<PIC_Data<N, RealType>>       m_PICData   = nullptr;

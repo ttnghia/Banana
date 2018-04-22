@@ -22,6 +22,7 @@
 #pragma once
 #include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid.h>
+#include <Banana/ParallelHelpers/ParallelObjects.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -57,7 +58,7 @@ struct PIC_Data : public SimulationData<N, RealType>
         Vec_VecN   aniKernelCenters;
         Vec_MatNxN aniKernelMatrices;
         virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_VecN<RealType>& newPositions, const Vec_VecN<RealType>& newVelocities) override;
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 
@@ -66,22 +67,22 @@ struct PIC_Data : public SimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
-        Array<N, RealType> u, v, w;
-        Array<N, RealType> u_weights, v_weights, w_weights;                  // mark the percentage domain area that can be occupied by fluid
-        Array<N, char>     u_valid, v_valid, w_valid;                        // mark the current faces that are influenced by particles during velocity projection
-        Array<N, char>     u_extrapolate, v_extrapolate, w_extrapolate;      // mark the current faces that are influenced by particles during velocity extrapolation
+        Array<N, RealType> velocities[N];
+        Array<N, RealType> weights[N];      // mark the percentage domain area that can be occupied by fluid
+        Array<N, char>     valids[N];       // mark the current faces that are influenced by particles during velocity projection
+        Array<N, char>     extrapolates[N]; // mark the current faces that are empty but changed during velocity extrapolation
 
-        Array<N, UInt> activeCellIdx;                                        // store linearized indices of cells that contribute to pressure projection
+        Array<N, UInt> activeCellIdx;       // store linearized indices of cells that contribute to pressure projection
 
-        //Array3SpinLock fluidSDFLock;
-        Array<N, RealType> fluidSDF;
-        Array<N, RealType> boundarySDF;
+        Array<N, ParallelObjects::SpinLock> fluidSDFLock;
+        Array<N, RealType>                  fluidSDF;
+        Array<N, RealType>                  boundarySDF;
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // variables for temporary data
-        Array<N, RealType> tmp_u, tmp_v, tmp_w;
-        Array<N, char>     tmp_u_valid, tmp_v_valid, tmp_w_valid;
+        Array<N, RealType> tmpVels[N];
+        Array<N, char>     tmpValids[N];
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const VecX<N, UInt>& gridSize);
     };
@@ -98,7 +99,7 @@ struct PIC_Data : public SimulationData<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     virtual const ParticleSimulationData<N, RealType>& generalParticleData() const override { return particleData; }
     virtual ParticleSimulationData<N, RealType>&       generalParticleData() override { return particleData; }
-    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override {}
+    virtual void                                       makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/PICFluid/PIC_Data.Impl.hpp>

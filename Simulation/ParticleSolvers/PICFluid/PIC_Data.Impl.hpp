@@ -43,7 +43,7 @@ void PIC_Parameters<N, RealType >::makeReady()
 template<Int N, class RealType>
 void PIC_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
 {
-    logger->printLog(String("PIC-3D parameters:"));
+    logger->printLog(String("PIC parameters:"));
     SimulationParameters<N, RealType>::printParams(logger);
     logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
     ////////////////////////////////////////////////////////////////////////////////
@@ -98,30 +98,21 @@ UInt PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(const Vec_Int8& re
 template<Int N, class RealType>
 void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>&gridSize)
 {
-    u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-    u_weights.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-    u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-    u_extrapolate.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-    tmp_u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-    tmp_u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-
-    v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-    v_weights.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-    v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-    v_extrapolate.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-    tmp_v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-    tmp_v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-
-    w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-    w_weights.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-    w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-    w_extrapolate.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-    tmp_w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-    tmp_w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-
-    activeCellIdx.resize(gridSize.x, gridSize.y, gridSize.z, 0);
-    fluidSDF.resize(gridSize.x, gridSize.y, gridSize.z, 0);
-    boundarySDF.resize(gridSize.x + 1, gridSize.y + 1, gridSize.z + 1, 0);
+    for(Int i = 0; i < N; ++i) {
+        auto extra = VecX<N, UInt>(0);
+        extra[i] = 1u;
+        ////////////////////////////////////////////////////////////////////////////////
+        velocities[i].resize(gridSize + extra, 0);
+        weights[i].resize(gridSize + extra, 0);
+        valids[i].resize(gridSize + extra, 0);
+        extrapolates[i].resize(gridSize + extra, 0);
+        tmpVels[i].resize(gridSize + extra, 0);
+        tmpValids[i].resize(gridSize + extra, 0);
+    }
+    activeCellIdx.resize(gridSize, 0);
+    fluidSDFLock.resize(gridSize);
+    fluidSDF.resize(gridSize, 0);
+    boundarySDF.resize(gridSize + VecX<N, UInt>(1), 0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -129,7 +120,7 @@ template<Int N, class RealType>
 void PIC_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
     if(simParams->maxNParticles > 0) {
-        particleData->reserve(simParams->maxNParticles);
+        particleData.reserve(simParams->maxNParticles);
     }
     particleData.setupNeighborSearch(simParams->cellSize);
 

@@ -27,9 +27,9 @@ template class Banana::ParticleSolvers::WCSPH_Solver<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Hybrid fluid solver
-//#include <ParticleSolvers/HybridFluid/PIC_Solver.h>
-//template class Banana::ParticleSolvers::PIC_Solver<2, Real>;
-//template class Banana::ParticleSolvers::PIC_Solver<3, Real>;
+#include <ParticleSolvers/PICFluid/PIC_Solver.h>
+template class Banana::ParticleSolvers::PIC_Solver<2, Real>;
+template class Banana::ParticleSolvers::PIC_Solver<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // hyperelastic MPM
