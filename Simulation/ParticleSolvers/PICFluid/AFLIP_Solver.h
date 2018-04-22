@@ -20,46 +20,46 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+#include <ParticleSolvers/PICFluid/PIC_Solver.h>
+#include <ParticleSolvers/PICFluid/AFLIP_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AFLIP_3DSolver : public PIC_3DSolver, public RegisteredInSolverFactory<AFLIP_3DSolver>
+template<Int N, class RealType>
+class AFLIP_Solver : public FLIP_Solver<N, RealType>, public RegisteredInSolverFactory<AFLIP_Solver<N, RealType>>
 {
 public:
-    AFLIP_3DSolver() = default;
+    AFLIP_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("AFLIP_3DSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<AFLIP_3DSolver>(); }
+    static auto solverName() { return String("AFLIP_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<AFLIP_Solver<N, RealType>>()); }
 
-    virtual String getSolverName() { return AFLIP_3DSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Fluid Simulation using APIC/FLIP-3D Solver"); }
-
+    virtual String getSolverName() { return AFLIP_Solver<N, RealType>::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using AFLIP-") + std::to_string(N) + String("D Solver"); }
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       AFLIPData() { return m_AFLIPData; }
-    const auto& AFLIPData() const { return m_AFLIPData; }
+    auto& solverData() { assert(m_AFLIPData != nullptr); return *m_AFLIPData; }
+    auto& particleData() { assert(solverData().APIC_particleData != nullptr); return *solverData().APIC_particleData; }
+    auto& gridData() { assert(solverData().FLIP_gridData != nullptr); return *solverData().FLIP_gridData; }
 
 protected:
-    virtual void generateParticles(const JParams& jParams) override;
-    virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 
-    void mapParticles2Grid();
-    void mapGrid2Particles();
+    virtual void mapParticles2Grid() override;
+    virtual void mapGrid2Particles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    void    computeChangesGridVelocity();
-    Vec3r   getVelocityChangesFromGrid(const Vec3r& gridPos);
-    Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
-    Mat3x3r getAffineMatrixChangesFromGrid(const Vec3r& gridPos);
+    MatXxX<N, RealType> getAffineMatrixFromGrid(const VecN& gridPos);
+    MatXxX<N, RealType> getAffineMatrixChangesFromGrid(const VecN& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-    AFLIP_3DData m_AFLIPData;
+    SharedPtr<AFLIP_Data<N, RealType>> m_AFLIPData = nullptr;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/PICFluid/AFLIP_Solver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

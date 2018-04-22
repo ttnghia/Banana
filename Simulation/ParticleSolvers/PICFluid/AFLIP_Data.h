@@ -20,32 +20,27 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+#include <ParticleSolvers/PICFluid/FLIP_Data.h>
+#include <ParticleSolvers/PICFluid/APIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct AFLIP_3DData
+template<Int N, class RealType>
+struct AFLIP_Data : FLIP_Data<N, RealType>
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // affine matrices
-    Vec_Mat3x3r C;
-    ////////////////////////////////////////////////////////////////////////////////
+    virtual void initialize() override
+    {
+        APIC_particleData = std::make_shared<APIC_Data<N, RealType>::APIC_ParticleData>();
+        particleData      = std::static_pointer_cast<PIC_ParticleData>(APIC_particleData);
+
+        FLIP_gridData = std::make_shared<FLIP_GridData>();
+        gridData      = std::static_pointer_cast<PIC_GridData>(FLIP_gridData);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // grid variables
-    Array3r du, dv, dw;
-    Array3r u_old, v_old, w_old;
-    //Array3SpinLock uLock, vLock, wLock;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    UInt getNParticles() const { return static_cast<UInt>(C.size()); }
-
-    void reserveParticleData(UInt nParticles) { C.reserve(nParticles); }
-    void resizeParticleData(UInt nParticles) { C.resize(nParticles, Mat3x3r(0.0)); }
-    void resizeGridData(const Vec3ui& nCells);
-    void backupGridVelocity(const PIC_3DData& picData);
+    SharedPtr<typename APIC_Data<N, RealType>::APIC_ParticleData> APIC_particleData = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

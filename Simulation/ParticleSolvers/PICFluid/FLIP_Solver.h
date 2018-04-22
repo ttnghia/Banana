@@ -49,8 +49,8 @@ protected:
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 
-    void mapParticles2Grid();
-    void mapGrid2Particles();
+    virtual void mapParticles2Grid();
+    virtual void mapGrid2Particles();
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions

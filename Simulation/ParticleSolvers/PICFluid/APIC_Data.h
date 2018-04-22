@@ -28,7 +28,7 @@ namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct APIC_Data : public PIC_Data<N, RealType>
+struct APIC_Data : PIC_Data<N, RealType>
 {
     struct APIC_ParticleData : PIC_Data<N, RealType>::PIC_ParticleData
     {
@@ -55,12 +55,12 @@ struct APIC_Data : public PIC_Data<N, RealType>
         }
     };
 
-    void initialize()
+    virtual void initialize() override
     {
         APIC_particleData = std::make_shared<APIC_ParticleData>();
-        particleData      = std::static_pointer_cast<PIC_Data<N, RealType>::PIC_ParticleData>(APIC_particleData);
+        particleData      = std::static_pointer_cast<PIC_ParticleData>(APIC_particleData);
 
-        gridData = std::make_shared<PIC_Data<N, RealType>::PIC_GridData>();
+        gridData = std::make_shared<PIC_GridData>();
     }
 
     ////////////////////////////////////////////////////////////////////////////////

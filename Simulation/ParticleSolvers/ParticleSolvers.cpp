@@ -40,6 +40,10 @@ template class Banana::ParticleSolvers::FLIP_Solver<3, Real>;
 template class Banana::ParticleSolvers::APIC_Solver<2, Real>;
 template class Banana::ParticleSolvers::APIC_Solver<3, Real>;
 
+#include <ParticleSolvers/PICFluid/AFLIP_Solver.h>
+template class Banana::ParticleSolvers::AFLIP_Solver<2, Real>;
+template class Banana::ParticleSolvers::AFLIP_Solver<3, Real>;
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // hyperelastic MPM
 #include <ParticleSolvers/MPM/MPM_Solver.h>
