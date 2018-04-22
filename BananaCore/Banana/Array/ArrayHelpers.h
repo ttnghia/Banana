@@ -40,9 +40,9 @@ void getCoordinatesAndWeights(const Vec2<RealType>& point, const Vec2ui& size, s
     MathHelpers::get_barycentric(point[0], i, fi, 0, static_cast<Int>(size[0]));
     MathHelpers::get_barycentric(point[1], j, fj, 0, static_cast<Int>(size[1]));
 
-    indices[0] = Vec2i(i, j);
+    indices[0] = Vec2i(i,     j);
     indices[1] = Vec2i(i + 1, j);
-    indices[2] = Vec2i(i, j + 1);
+    indices[2] = Vec2i(i,     j + 1);
     indices[3] = Vec2i(i + 1, j + 1);
 
     weights[0] = (RealType(1.0) - fi) * (RealType(1.0) - fj);
@@ -61,13 +61,13 @@ void getCoordinatesAndWeights(const Vec3<RealType>& point, const Vec3ui& size, s
     MathHelpers::get_barycentric(point[1], j, fj, 0, static_cast<Int>(size[1]));
     MathHelpers::get_barycentric(point[2], k, fk, 0, static_cast<Int>(size[2]));
 
-    indices[0] = Vec3i(i, j, k);
-    indices[1] = Vec3i(i + 1, j, k);
-    indices[2] = Vec3i(i, j + 1, k);
+    indices[0] = Vec3i(i,     j,     k);
+    indices[1] = Vec3i(i + 1, j,     k);
+    indices[2] = Vec3i(i,     j + 1, k);
     indices[3] = Vec3i(i + 1, j + 1, k);
-    indices[4] = Vec3i(i, j, k + 1);
-    indices[5] = Vec3i(i + 1, j, k + 1);
-    indices[6] = Vec3i(i, j + 1, k + 1);
+    indices[4] = Vec3i(i,     j,     k + 1);
+    indices[5] = Vec3i(i + 1, j,     k + 1);
+    indices[6] = Vec3i(i,     j + 1, k + 1);
     indices[7] = Vec3i(i + 1, j + 1, k + 1);
 
     weights[0] = (RealType(1.0) - fi) * (RealType(1.0) - fj) * (RealType(1.0) - fk);
