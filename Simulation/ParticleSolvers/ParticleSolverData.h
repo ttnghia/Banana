@@ -64,7 +64,7 @@ static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 enum class HairStretchProcessingMethod { Projection = 0, SpringForce = 1 };
 enum class GravityType { Earth = 0, Directional = 1, ToCenter = 2, FromCenter = 3 };
 enum class IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
-enum class ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
+enum class Activity { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
 enum class HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -217,18 +217,17 @@ struct ParticleSimulationData
     // main variables
     Vec_VecN positions, velocities;
 
-    UInt      nObjects = 0;                     // number of individual objects that are added each time by particle generator
-    Vec_Int16 objectIndex;                      // store the index of individual objects based on the order they are added
+    UInt       nObjects = 0;                     // number of individual objects that are added each time by particle generator
+    Vec_UInt16 objectIndex;                      // store the index of individual objects based on the order they are added
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // optional variables
-    Vec_Int8          activity;             // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
-    Vec_Int8          removeMarker;         // mark the candidate particles for removal ( 1 = remove, 0 = intact)
-    Vec_VecN          positions_t0;         // positions at time t = 0, if needed
-    Vec_VecUInt       neighborIdx_t0;       // list of neighbors particles, if needed
-    Vec_Vec<RealType> neighborDistances_t0; // list of distances to neighbors particles, at time t = 0, if needed
-    Vec_VecN          boundaryParticles;    // store particles generated inside boundary, if applicable
+    Vec_Int8          activity;                                // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
+    Vec_Int8          removeMarker;                            // mark the candidate particles for removal ( 1 = remove, 0 = intact)
+    Vec_VecN          positions_t0;                            // positions at time t = 0, if needed
+    Vec_VecUInt       neighborIdx, neighborIdx_t0;             // list of neighbors particles, if needed
+    Vec_Vec<RealType> neighborDistances, neighborDistances_t0; // list of distances to neighbors particles, at time t = 0, if needed
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

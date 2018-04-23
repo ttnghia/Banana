@@ -373,10 +373,11 @@ void ParticleSimulationData<N, RealType >::findNeighborsAndDistances_t0()
     for(auto p : points) {
         neighborIdx_t0[p] = points.neighbors(0, p);
         ////////////////////////////////////////////////////////////////////////////////
+        neighborDistances_t0[p].resize(0);
         neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
-        auto& ppos = positions[p];
+        const auto& ppos = positions[p];
         for(auto q:  points.neighbors(0, p)) {
-            auto& qpos = positions[q];
+            const auto& qpos = positions[q];
             neighborDistances_t0[p].push_back(glm::length(ppos - qpos));
         }
     }
