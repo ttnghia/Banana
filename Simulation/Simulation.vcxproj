@@ -97,6 +97,8 @@
     <ClInclude Include="Optimization\LBFGSSolver.h" />
     <ClInclude Include="Optimization\MoreThuente.h" />
     <ClInclude Include="Optimization\Problem.h" />
+    <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.h" />
+    <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Solver.h" />
@@ -118,8 +120,8 @@
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Cloth_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Cloth_Solver.h" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Cloth_Solver.Impl.hpp" />
-    <ClInclude Include="ParticleSolvers\MassSpringSystems\MassSpringSystems_Data.h" />
-    <ClInclude Include="ParticleSolvers\MassSpringSystems\MassSpringSystems_Data.Impl.hpp" />
+    <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Data.h" />
+    <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Data.h" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamic_Solver.h" />
