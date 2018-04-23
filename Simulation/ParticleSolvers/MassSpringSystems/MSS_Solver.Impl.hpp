@@ -165,7 +165,7 @@ Int MSS_Solver<N, RealType >::loadMemoryState()
     __BNN_REQUIRE(m_MemoryStateIO_t0->getParticleAttribute("particle_neighbor", particleData().neighborIdx_t0));
     __BNN_REQUIRE(m_MemoryStateIO_t0->getParticleAttribute("particle_neighbor_distance", particleData().neighborDistances_t0));
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
+    logger().printLog(String("Loaded Mass-Spring memory state from frameIdx = ") + std::to_string(latestStateIdx));
     globalParams().finishedFrame = latestStateIdx;
     return latestStateIdx;
 }

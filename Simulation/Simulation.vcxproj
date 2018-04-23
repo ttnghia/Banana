@@ -124,8 +124,8 @@
     <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Data.h" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Data.Impl.hpp" />
-    <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamic_Solver.h" />
-    <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamic_Solver.Impl.hpp" />
+    <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.h" />
+    <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMData.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMMaterial.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMMaterial.Impl.hpp" />

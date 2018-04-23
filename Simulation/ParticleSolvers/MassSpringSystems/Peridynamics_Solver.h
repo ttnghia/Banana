@@ -21,75 +21,56 @@
 
 #pragma once
 
-#include <Banana/NeighborSearch/NeighborSearch.h>
-#include <ParticleSolvers/ParticleSolver.h>
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
-#include <ParticleSolvers/ParticleSolverData.h>
-#include <ParticleSolvers/ParticleSolverFactory.h>
-#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-#include <Banana/ParallelHelpers/Scheduler.h>
-#include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.h>
+#include <ParticleSolvers/MassSpringSystems/Peridynamics_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PeridynamicsSolver : public ParticleSolver3D, public RegisteredInSolverFactory<PeridynamicsSolver>
+template<Int N, class RealType>
+class Peridynamics_Solver : public MSS_Solver<N, RealType>, public RegisteredInSolverFactory<Peridynamics_Solver<N, RealType>>
 {
 public:
-    PeridynamicsSolver() = default;
+    Peridynamics_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("Peridynamics3DSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PeridynamicsSolver>(); }
+    static auto solverName() { return String("Peridynamics_") + std::to_string(N) + String("DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<N, RealType>>(std::make_shared<Peridynamics_Solver<N, RealType>>()); }
 
-    virtual String getSolverName() { return PeridynamicsSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Solid Simulation using Peridynamics-3D Solver"); }
-
-    virtual void makeReady() override;
-    virtual void advanceFrame() override;
-    virtual void sortParticles() override {}
+    virtual String getSolverName() { return Peridynamics_Solver<N, RealType>::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using Peridynamics-") + std::to_string(N) + String("D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto& solverParams() { assert(m_PDParams != nullptr); return *m_PDParams; }
+    auto& solverData() { assert(m_PDData != nullptr); return *m_PDData; }
+    auto& particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
 
 protected:
-    virtual void generateParticles(const JParams& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
-    virtual void allocateSolverMemory() override {}
+    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-
-protected:
-    Real timestepCFL();
-    void advanceVelocity(Real timestep);
-    void integrateExplicitEuler(Real timestep);
-    void integrateImplicitEuler(Real timestep);
-    void integrateImplicitNewmarkBeta(Real timestep);
-    void moveParticles(Real timeStep);
-
-    void buildLinearSystem(Real timestep);
-    void computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& sumLHS, Vec3r& sumRHS, Real timestep);
-    void computeExplicitForces();
-    void solveLinearSystem();
-    void updateVelocity(Real timestep);
-
-    bool removeBrokenBonds();
-    void computeRemainingBondRatio();
-
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters_Peridynamics3D m_SimParams;
-    SimulationData_Peridynamics3D       m_SimData;
+    virtual void sortParticles() override;
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void advanceVelocity(RealType timestep);
+    virtual void explicitVerletIntegration(RealType timestep);
+    virtual void explicitEulerIntegration(RealType timestep);
+    virtual void implicitEulerIntegration(RealType timestep);
+    virtual void newmarkBetaIntegration(RealType timestep);
+    virtual void computeExplicitForces(RealType timestep);
+    virtual void computeImplicitForces(RealType timestep);
 
-    UniquePtr<NeighborSearch::NeighborSearch> m_NSearch = nullptr;
-    BlockPCGSolver<3, Real>                   m_CGSolver;
+    void computeBondRemainingRatios();
+    ////////////////////////////////////////////////////////////////////////////////
+    SharedPtr<Peridynamics_Parameters<N, RealType>> m_PDParams = nullptr;
+    SharedPtr<Peridynamics_Data<N, RealType>>       m_PDData   = nullptr;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers
