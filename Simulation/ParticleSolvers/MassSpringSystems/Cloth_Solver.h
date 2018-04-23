@@ -21,90 +21,61 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/ClothSolver/ClothSolverData.h>
-#include <Banana/Array/Array.h>
-#include <Banana/ParallelHelpers/ParallelObjects.h>
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
+#include <ParticleSolvers/MassSpringSystems/Cloth_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ClothSolver : public ParticleSolver3D, public RegisteredInSolverFactory<ClothSolver>
+template<class RealType>
+class Cloth_Solver : public MSS_Solver<3, RealType>, public RegisteredInSolverFactory<Cloth_Solver<RealType>>
 {
 public:
-    ClothSolver() = default;
+    Cloth_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("ClothSolver"); }
-    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<ClothSolver>(); }
+    static auto solverName() { return String("Cloth_3DSolver"); }
+    static auto createSolver() { return std::static_pointer_cast<ParticleSolver<3, RealType>>(std::make_shared<Cloth_Solver<RealType>>()); }
 
-    virtual String getSolverName() { return ClothSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Cloth Simulation using Mass-Spring System"); }
-
-    virtual void makeReady() override;
-    virtual void advanceFrame() override;
-    virtual void sortParticles() override;
+    virtual String getSolverName() { return Cloth_Solver<N, RealType>::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using Cloth-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto& solverParams() { assert(m_ClothParams != nullptr); return *m_ClothParams; }
+    auto& solverData() { assert(m_ClothData != nullptr); return *m_ClothData; }
+    auto& particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
 
 protected:
+    virtual void allocateSolverMemory() override;
+    virtual void generateParticles(const JParams& jParams) override;
+    virtual bool advanceScene() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-
-    Real timestepCFL();
-    void advanceVelocity(Real timestep);
-    void moveParticles(Real timeStep);
-
-    void computeFluidWeights();
-    void addRepulsiveVelocity2Particles(Real timestep);
-    void velocityToGrid();
-    void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
-    void constrainGridVelocity();
-    void addGravity(Real timestep);
-    void pressureProjection(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    // pressure projection functions =>
-    void computeFluidSDF();
-    void computeMatrix(Real timestep);
-    void computeRhs();
-    void solveSystem();
-    void updateVelocity(Real timestep);
+    virtual void advanceFrame() override;
+    virtual void sortParticles() override;
     ////////////////////////////////////////////////////////////////////////////////
-    void computeChangesGridVelocity();
-    void velocityToParticles();
-
+    virtual void     advanceVelocity(RealType timestep);
+    virtual RealType timestepCFL();
+    virtual void     moveParticles(RealType timestep);
+    virtual void     integration(RealType timestep);
+    virtual void     explicitVerletIntegration(RealType timestep);
+    virtual void     explicitEulerIntegration(RealType timestep);
+    virtual void     implicitEulerIntegration(RealType timestep);
+    virtual void     newmarkBetaIntegration(RealType timestep);
+    virtual void     computeExplicitForces(RealType timestep);
+    virtual void     computeImplicitForces(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    // helper functions
-    Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters_Cloth3D                      m_SimParams;
-    SimulationData_Cloth3D                            m_SimData;
-    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
-
-    Grid3r          m_Grid;
-    PCGSolver<Real> m_PCGSolver;
+    SharedPtr<Cloth_Parameters<RealType>> m_ClothParams = nullptr;
+    SharedPtr<Cloth_Data<RealType>>       m_ClothData   = nullptr;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/MassSpringSystems/Cloth_Solver.Impl.hpp>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

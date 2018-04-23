@@ -53,7 +53,7 @@ template<Int N, class RealType>
 void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::reserve(UInt nParticles)
 {
     MSS_Data<N, RealType>::Peridynamics_ParticleData::reserve(nParticles);
-    bondRemainingRatio.resize(nParticles);
+    bondRemainingRatios.resize(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -61,7 +61,7 @@ template<Int N, class RealType>
 void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
 {
     MSS_Data<N, RealType>::Peridynamics_ParticleData::addParticles(newPositions, newVelocities);
-    bondRemainingRatio.resize(getNParticles(), 0);
+    bondRemainingRatios.resize(getNParticles(), 0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -69,7 +69,7 @@ template<Int N, class RealType>
 UInt Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     MSS_Data<N, RealType>::Peridynamics_ParticleData::removeParticles(removeMarker);
-    bondRemainingRatio.resize(getNParticles());
+    bondRemainingRatios.resize(getNParticles());
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
 }

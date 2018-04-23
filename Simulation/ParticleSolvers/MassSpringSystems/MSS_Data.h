@@ -70,7 +70,7 @@ struct MSS_Data : public SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::map<Int16, RealType>   objectStiffness;
+    std::map<Int16, RealType>   objectSpringStiffness;
     SharedPtr<MSS_ParticleData> particleData = nullptr;
 
     virtual void                                 initialize();
