@@ -119,11 +119,12 @@ protected:
     UniquePtr<ParticleSerialization> m_ParticleDataIO      = nullptr;
     UniquePtr<ParticleSerialization> m_DynamicObjectDataIO = nullptr;
     UniquePtr<ParticleSerialization> m_MemoryStateIO       = nullptr;
+    UniquePtr<ParticleSerialization> m_MemoryStateIO_t0    = nullptr;                          // use for store/load only once at t = 0
 
-    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>    m_BoundaryObjects;      // individual objects, as one can be dynamic while the others are not
-    Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, RealType>>> m_ParticleGenerators;   // individual objects, as they can have different behaviors
-    Vector<SharedPtr<SimulationObjects::ParticleRemover<N, RealType>>>   m_ParticleRemovers;     // individual objects, as they can have different behaviors
-    Vector<SharedPtr<SimulationObjects::SimulationObject<N, RealType>>>  m_DynamicObjects;       // store all dynamic objects
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>    m_BoundaryObjects;    // individual objects, as one can be dynamic while the others are not
+    Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, RealType>>> m_ParticleGenerators; // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::ParticleRemover<N, RealType>>>   m_ParticleRemovers;   // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::SimulationObject<N, RealType>>>  m_DynamicObjects;     // store all dynamic objects
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
