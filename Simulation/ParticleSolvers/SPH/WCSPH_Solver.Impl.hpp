@@ -138,7 +138,7 @@ void WCSPH_Solver<N, RealType >::setupDataIO()
     m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, N);
     if(globalParams().savingData("ObjectIndex")) {
         m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
-        m_ParticleDataIO->addParticleAttribute<Int16>("object_index", ParticleSerialization::TypeInt16, 1);
+        m_ParticleDataIO->addParticleAttribute<UInt16>("object_index", ParticleSerialization::TypeUInt16, 1);
     }
     if(globalParams().savingData("AniKernel")) {
         m_ParticleDataIO->addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, N * N);
@@ -171,7 +171,7 @@ Int WCSPH_Solver<N, RealType >::loadMemoryState()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Int lastFrame      = static_cast<Int>(globalParams().startFrame - 1);
+    Int lastFrame      = static_cast<Int>(globalParams().startFrame) - 1;
     Int latestStateIdx = (lastFrame > 1 && FileHelpers::fileExisted(m_MemoryStateIO->getFilePath(lastFrame))) ?
                          lastFrame : m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {

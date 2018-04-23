@@ -145,7 +145,7 @@ void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPosi
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int8>(nObjects));
+    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<UInt16>(nObjects));
     ++nObjects;                                     // increase the number of objects
 }
 

@@ -93,7 +93,8 @@ struct WCSPH_Data : public SimulationData<N, RealType>
         Vec_VecN                     diffuseVelocities;
         Vec_VecN                     aniKernelCenters;
         Vec_MatNxN                   aniKernelMatrices;
-        Vec_VecVecX<N + 1, RealType> neighborInfo; // store relative position and density of neighbors, including boundary particles
+        Vec_VecN                     boundaryParticles; // store particles generated inside boundary, if applicable
+        Vec_VecVecX<N + 1, RealType> neighborInfo;      // store relative position and density of neighbors, including boundary particles
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override;

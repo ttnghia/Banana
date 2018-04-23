@@ -74,7 +74,7 @@ void PIC_Data<N, RealType>::PIC_ParticleData::addParticles(const Vec_VecN& newPo
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int16>(nObjects));
+    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<UInt16>(nObjects));
     ++nObjects;                         // increase the number of objects
 }
 

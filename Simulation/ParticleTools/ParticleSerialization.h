@@ -58,7 +58,7 @@ public:
     enum DataType
     {
         TypeChar,
-        TypeInt16,
+        TypeUInt16,
         TypeInt,
         TypeUInt,
         TypeReal,
@@ -146,9 +146,9 @@ public:
     template<Int N, class T> void setFixedAttribute(const String& attrName, const MatXxX<N, T>& value);
 
     template<class T> void        setParticleAttribute(const String& attrName, const Vector<T>& values);
-    template<class T> void        setParticleAttribute(const String& attrName, const Vector<Vector<T> >& values);
-    template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<VecX<N, T> >& values);
-    template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<MatXxX<N, T> >& values);
+    template<class T> void        setParticleAttribute(const String& attrName, const Vector<Vector<T>>& values);
+    template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<VecX<N, T>>& values);
+    template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<MatXxX<N, T>>& values);
 
     void clearData();
     void flushAsync(Int fileID);
@@ -183,9 +183,9 @@ public:
 
     template<class T> bool        getParticleAttribute(const String& attrName, T* values);
     template<class T> bool        getParticleAttribute(const String& attrName, Vector<T>& values);
-    template<class T> bool        getParticleAttribute(const String& attrName, Vector<Vector<T> >& values);
-    template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<VecX<N, T> >& values);
-    template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values);
+    template<class T> bool        getParticleAttribute(const String& attrName, Vector<Vector<T>>& values);
+    template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<VecX<N, T>>& values);
+    template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<MatXxX<N, T>>& values);
 
     template<class T> bool        getParticleAttributeCompressed(const String& attrName, Vec_UInt16& values, T& dMin, T& dMax);
     template<Int N, class T> bool getParticleAttributeCompressed(const String& attrName, Vec_UInt16& values, VecX<N, T>& dMin, VecX<N, T>& dMax);
@@ -198,10 +198,10 @@ private:
     bool   readHeader(std::ifstream& ipf);
     bool   readAttribute(SharedPtr<Attribute>& attr, std::ifstream& ipf, size_t cursor);
 
-    UInt                               m_nParticles;
-    Map<String, SharedPtr<Attribute> > m_FixedAttributes;
-    Map<String, SharedPtr<Attribute> > m_ParticleAttributes;
-    String                             m_AttributeNameList;
+    UInt                              m_nParticles;
+    Map<String, SharedPtr<Attribute>> m_FixedAttributes;
+    Map<String, SharedPtr<Attribute>> m_ParticleAttributes;
+    String                            m_AttributeNameList;
 
     Map<String, size_t> m_ReadAttributeDataSizeMap;
     Map<String, bool>   m_bReadAttributeMap;
@@ -212,8 +212,8 @@ private:
     std::future<void> m_WriteFutureObj;
 
 public:
-    template<Int N, class T> static void saveParticle(const String& fileName, const Vector<VecX<N, T> >& positions, T particleRadius, bool bCompress = true);
-    template<Int N, class T> static bool loadParticle(const String& fileName, Vector<VecX<N, T> >& positions, T particleRadius);
+    template<Int N, class T> static void saveParticle(const String& fileName, const Vector<VecX<N, T>>& positions, T particleRadius, bool bCompress = true);
+    template<Int N, class T> static bool loadParticle(const String& fileName, Vector<VecX<N, T>>& positions, T particleRadius);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
