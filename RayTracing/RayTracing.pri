@@ -1,6 +1,25 @@
-INCLUDEPATH += $$PWD/Include
+#-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#                                .--,       .--,
+#                               ( (  \.---./  ) )
+#                                '.__/o   o\__.'
+#                                   {=  ^  =}
+#                                    >  -  <
+#     ___________________________.""`-------`"".____________________________
+#    /                                                                      \
+#    \    This file is part of Banana - a graphics programming framework    /
+#    /                    Created: 2018 by Nghia Truong                     \
+#    \                      <nghiatruong.vn@gmail.com>                      /
+#    /                      https://ttnghia.github.io                       \
+#    \                        All rights reserved.                          /
+#    /                                                                      \
+#    \______________________________________________________________________/
+#                                  ___)( )(___
+#                                 (((__) (__)))
+#-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-CONFIG += c++14
+INCLUDEPATH += $$PWD/Include
 
 CONFIG(debug, debug|release) {
     message("Ray Tracing -- Debug")
@@ -25,9 +44,9 @@ macx {
 }
 
 win32 {
-    CUDA_DIR = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0"
+    CUDA_DIR = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1"
     CUDA_SDK = "D:\Programming\CudaSamples\v9.0"
-    OPTIX_DIR = "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1"
+    OPTIX_DIR = "C:\ProgramData\NVIDIA Corporation\OptiX SDK 5.0.0"
 
     QMAKE_LIBDIR += $$CUDA_DIR\lib\x64
 #    QMAKE_LIBDIR += $$CUDA_SDK\common\lib\x64 # This is covered by Qt
@@ -84,13 +103,15 @@ optix_compiler.input = CUDA_SOURCES
 for(file, $$list($$CUDA_SOURCES)) {
     message(optix input is $$file)
 }
-
 optix_compiler.output = $$PTX_DIR/${QMAKE_FILE_BASE}.cu.ptx
+
 
 # Tweak arch according to your hw's compute capability
 # For optix you can only have one architechture when using the PTX flags when using the -ptx flag you dont want to have the -c flag for compiling
-optix_compiler.commands = \"$$CUDA_DIR/bin/nvcc\" -ccbin \"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\" -m64 -gencode arch=compute_52,code=sm_52 \
-                          $$NVCCFLAGS $$CUDA_INC \"$$_PRO_FILE_PWD_/${QMAKE_FILE_NAME}\" -o \"$$_PRO_FILE_PWD_/${QMAKE_FILE_OUT}\"
+optix_compiler.commands = \"$$CUDA_DIR/bin/nvcc\" -ccbin \"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\Hostx64\x64\" \
+                          -m64 -gencode arch=compute_52,code=sm_52 $$NVCCFLAGS $$CUDA_INC \
+                          \"${QMAKE_FILE_NAME}\" -o \"${QMAKE_FILE_OUT}\"
+#                          \"$$_PRO_FILE_PWD_/${QMAKE_FILE_NAME}\" -o \"$$_PRO_FILE_PWD_/${QMAKE_FILE_OUT}\"
 
 #Declare that we wnat to do this before compiling the C++ code
 optix_compiler.CONFIG = target_predeps

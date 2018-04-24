@@ -1,0 +1,8 @@
+**/.vs
+**/*.db
+**/*.opendb
+**/Debug/*
+**/Release/*
+**/GeneratedFiles/*
+*.user
+CUDA/PTX
