@@ -25,7 +25,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Parameters<N, RealType >::makeReady()
+void WCSPH_Parameters<N, RealType>::makeReady()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // explicitly set no grid
@@ -33,10 +33,10 @@ void WCSPH_Parameters<N, RealType >::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters<N, RealType>::makeReady();
-    particleMass   = RealType(pow(RealType(2.0) * particleRadius, N)) * restDensity * particleMassScale;
-    restDensitySqr = restDensity * restDensity;
-    densityMin     = restDensity / densityVariationRatio;
-    densityMax     = restDensity * densityVariationRatio;
+    particleMass   = RealType(pow(RealType(2.0) * particleRadius, N)) * materialDensity * particleMassScale;
+    restDensitySqr = materialDensity * materialDensity;
+    densityMin     = materialDensity / densityVariationRatio;
+    densityMax     = materialDensity * densityVariationRatio;
 
     kernelRadius    = particleRadius * ratioKernelPRadius;
     kernelRadiusSqr = kernelRadius * kernelRadius;
@@ -47,7 +47,7 @@ void WCSPH_Parameters<N, RealType >::makeReady()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
+void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 {
     logger->printLog("SPH simulation parameters:");
     SimulationParameters<N, RealType>::printParams(logger);
@@ -63,7 +63,7 @@ void WCSPH_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger
     logger->newLine();
     logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
     logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
-    logger->printLogIndent("Rest density: " + std::to_string(restDensity));
+    logger->printLogIndent("Rest density: " + std::to_string(materialDensity));
     logger->printLogIndent("Density variation: " + std::to_string(densityVariationRatio));
     logger->printLogIndent("Normalize density: " + (bNormalizeDensity ? std::string("Yes") : std::string("No")));
     logger->printLogIndent("Generate boundary particles: " + (bDensityByBDParticle ? std::string("Yes") : std::string("No")));
@@ -77,7 +77,7 @@ void WCSPH_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Parameters<N, RealType >::parseParameters(const JParams& jParams)
+void WCSPH_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 {
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ void WCSPH_Parameters<N, RealType >::parseParameters(const JParams& jParams)
     ////////////////////////////////////////////////////////////////////////////////
     // density
     JSONHelpers::readValue(jParams, particleMassScale,     "ParticleMassScale");
-    JSONHelpers::readValue(jParams, restDensity,           "RestDensity");
+    JSONHelpers::readValue(jParams, materialDensity,       "MaterialDensity");
     JSONHelpers::readValue(jParams, densityVariationRatio, "DensityVariationRatio");
     JSONHelpers::readBool(jParams, bNormalizeDensity,    "NormalizeDensity");
     JSONHelpers::readBool(jParams, bDensityByBDParticle, "DensityByBDParticle");
@@ -171,7 +171,7 @@ UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& remo
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
+void WCSPH_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
     auto sphParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(simParams);
     __BNN_REQUIRE(sphParams != nullptr);

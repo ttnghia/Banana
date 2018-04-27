@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::allocateSolverMemory()
+void HairMPM_Solver<N, RealType>::allocateSolverMemory()
 {
     m_HairMPMParams = std::make_shared<HairMPM_Parameters<N, RealType>>();
     m_MPMParams     = std::static_pointer_cast<MPM_Parameters<N, RealType>>(m_HairMPMParams);
@@ -33,7 +36,7 @@ void HairMPM_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
+void HairMPM_Solver<N, RealType>::generateParticles(const JParams& jParams)
 {
     MPM_Solver<N, RealType>::generateParticles(jParams);
     ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +47,7 @@ void HairMPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::setupDataIO()
+void HairMPM_Solver<N, RealType>::setupDataIO()
 {
     MPM_Solver<N, RealType>::setupDataIO();
     __BNN_TODO
@@ -52,7 +55,7 @@ void HairMPM_Solver<N, RealType >::setupDataIO()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int HairMPM_Solver<N, RealType >::loadMemoryState()
+Int HairMPM_Solver<N, RealType>::loadMemoryState()
 {
     Int latestStateIdx = MPM_Solver<N, RealType>::loadMemoryState();
     if(latestStateIdx < 0) {
@@ -65,7 +68,7 @@ Int HairMPM_Solver<N, RealType >::loadMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int HairMPM_Solver<N, RealType >::saveMemoryState()
+Int HairMPM_Solver<N, RealType>::saveMemoryState()
 {
     if(MPM_Solver<N, RealType>::saveMemoryState() < 0) {
         return -1;
@@ -79,7 +82,7 @@ Int HairMPM_Solver<N, RealType >::saveMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int HairMPM_Solver<N, RealType >::saveFrameData()
+Int HairMPM_Solver<N, RealType>::saveFrameData()
 {
     if(MPM_Solver<N, RealType>::saveFrameData() < 0) {
         return -1;
@@ -91,7 +94,7 @@ Int HairMPM_Solver<N, RealType >::saveFrameData()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
+void HairMPM_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
     m_Logger->printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
     m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
@@ -113,7 +116,7 @@ void HairMPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
+void HairMPM_Solver<N, RealType>::moveParticles(RealType timestep)
 {
     __BNN_TODO_MSG("How to avoid particle penetration? Changing velocity? Then how about vel gradient?");
 
@@ -124,9 +127,9 @@ void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
                                 size_t nNeighbors = particleData().neighborIdx_t0[p].size();
                                 if(particleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex) ||
                                    nNeighbors == 1) {
-                                    auto ppos = particleData().positions[p];
-                                    auto pvel = particleData().velocities[p];
-                                    ppos += timestep * pvel;
+                                    auto ppos        = particleData().positions[p];
+                                    auto pvel        = particleData().velocities[p];
+                                    ppos            += timestep * pvel;
                                     bool bVelChanged = false;
                                     __BNN_TODO_MSG("Trace_rk2 or just Euler?");
                                     //ppos = trace_rk2(ppos, time`step);
@@ -146,7 +149,7 @@ void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
                                     __BNN_REQUIRE(nNeighbors > 0);
                                     for(size_t j = 0; j < nNeighbors; ++j) {
                                         UInt q = particleData().neighborIdx_t0[p][j];
-                                        ppos += particleData().positions[q];
+                                        ppos  += particleData().positions[q];
                                     }
 
                                     particleData().positions[p] = ppos / static_cast<RealType>(nNeighbors);;
@@ -157,7 +160,7 @@ void HairMPM_Solver<N, RealType >::moveParticles(RealType timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Calculate next timestep velocities for use in implicit integration
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
+void HairMPM_Solver<N, RealType>::explicitIntegration(RealType timestep)
 {
     computeLagrangianForces();
 
@@ -224,7 +227,7 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                             {
                                 if(gridData().active.data()[i]) {
                                     auto newVel = gridData().velocity.data()[i];
-                                    newVel += timestep * (solverParams().gravity() - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                    newVel     += timestep * (solverParams().gravity() - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                     ////////////////////////////////////////////////////////////////////////////////
                                     gridData().velocity_new.data()[i] = newVel;
                                 }
@@ -233,7 +236,7 @@ void HairMPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::computeLagrangianForces()
+void HairMPM_Solver<N, RealType>::computeLagrangianForces()
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -247,7 +250,7 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
                                         UInt q     = particleData().neighborIdx_t0[p][j];
                                         auto xpq   = particleData().positions[q] - particleData().positions[p];
                                         RealType d = glm::length(xpq);
-                                        f += /*solverParams().KSpring*/ RealType(1e0) * (d / particleData().neighborDistances_t0[p][j] - RealType(1.0)) * xpq / d;
+                                        f         += /*solverParams().KSpring*/ RealType(1e0) * (d / particleData().neighborDistances_t0[p][j] - RealType(1.0)) * xpq / d;
 
                                         //if(p < 30) {
                                         //    printf("%u-%u,  %f,  d = %15.10f, d0=%15.10f,   f=%s\n", p, q, d / particleData().neighborDistances_t0[p][j] - 1.0_f,
@@ -283,7 +286,7 @@ void HairMPM_Solver<N, RealType >::computeLagrangianForces()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep)
+void HairMPM_Solver<N, RealType>::mapGridVelocities2ParticlesAPIC(RealType timestep)
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -303,11 +306,11 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                             if(w > Tiny<RealType>()) {
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
-                                                apicVel     += nNewVel * w;
-                                                apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                apicVel            += nNewVel * w;
+                                                apicVelGrad        += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                 auto xixp = grid().getWorldCoordinate(x, y) - pPos;
-                                                pB += w * glm::outerProduct(nNewVel, xixp);
+                                                pB       += w * glm::outerProduct(nNewVel, xixp);
                                             }
                                         }
                                     }
@@ -333,7 +336,7 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
                                 __BNN_REQUIRE(nNeighbors > 0);
                                 for(size_t j = 0; j < nNeighbors; ++j) {
                                     UInt q = particleData().neighborIdx_t0[p][j];
-                                    pvel += particleData().velocities[q];
+                                    pvel  += particleData().velocities[q];
                                 }
 
                                 particleData().velocities[p] = pvel / static_cast<RealType>(nNeighbors);
@@ -342,7 +345,7 @@ void HairMPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType time
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::predictGridNodePositions(RealType timestep)
+void HairMPM_Solver<N, RealType>::predictGridNodePositions(RealType timestep)
 {
     Scheduler::parallel_for(grid().getNNodes(),
                             [&](auto... idx)
@@ -355,7 +358,7 @@ void HairMPM_Solver<N, RealType >::predictGridNodePositions(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::predictParticlePositions()
+void HairMPM_Solver<N, RealType>::predictParticlePositions()
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -375,8 +378,8 @@ void HairMPM_Solver<N, RealType >::predictParticlePositions()
                                             if(w > Tiny<RealType>()) {
                                                 auto dw      = particleData().weightGradients[p * MathHelpers::pow(4, N) + idx];
                                                 auto gridPos = gridData().predictNodePositions(x, y);
-                                                ppos     += gridPos * w;
-                                                pposGrad += glm::outerProduct(gridPos, dw);
+                                                ppos        += gridPos * w;
+                                                pposGrad    += glm::outerProduct(gridPos, dw);
                                             }
                                         }
                                     }
@@ -392,7 +395,7 @@ void HairMPM_Solver<N, RealType >::predictParticlePositions()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::updateParticleStates(RealType timestep)
+void HairMPM_Solver<N, RealType>::updateParticleStates(RealType timestep)
 {
     predictGridNodePositions(timestep);
     predictParticlePositions();
@@ -405,9 +408,9 @@ void HairMPM_Solver<N, RealType >::updateParticleStates(RealType timestep)
                                 if(particleData().particleType[p] == static_cast<Int8>(HairParticleType::Quadrature)) {
                                     size_t nNeighbors = neighborIdx_t0[p].size();
                                     MatNxN deformGrad = particleData().deformGrad[p];
-                                    deformGrad[0] = nNeighbors == 1 ?
-                                                    (predictPositions[p] - predictPositions[neighborIdx_t0[p][0]]) :
-                                                    (predictPositions[neighborIdx_t0[p][1]] - predictPositions[neighborIdx_t0[p][0]]);
+                                    deformGrad[0]     = nNeighbors == 1 ?
+                                                        (predictPositions[p] - predictPositions[neighborIdx_t0[p][0]]) :
+                                                        (predictPositions[neighborIdx_t0[p][1]] - predictPositions[neighborIdx_t0[p][0]]);
 
                                     //if(p < 30) {
                                     //    printf("deformgrad1: %s, update: %s\n",
@@ -423,7 +426,7 @@ void HairMPM_Solver<N, RealType >::updateParticleStates(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::computeDamping()
+void HairMPM_Solver<N, RealType>::computeDamping()
 {
 #if 1
     Vec_VecN diffuseVelocity;
@@ -469,7 +472,7 @@ void HairMPM_Solver<N, RealType >::computeDamping()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Solver<N, RealType >::computePlasticity()
+void HairMPM_Solver<N, RealType>::computePlasticity()
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -478,7 +481,7 @@ void HairMPM_Solver<N, RealType >::computePlasticity()
                                     if(particleData().particleType[p] == static_cast<Int8>(HairParticleType::Quadrature)) {
                                         const auto& deformGrad = particleData().deformGrad[p];
                                         const auto& directions = particleData().localDirections[p];
-                                        auto[Q, R] = LinaHelpers::QRDecomposition(deformGrad * directions);
+                                        auto[Q, R]             = LinaHelpers::QRDecomposition(deformGrad * directions);
 
                                         MatNxN stretch = particleData().CauchyStress[p];
                                         MatNxN sQ;
@@ -487,13 +490,13 @@ void HairMPM_Solver<N, RealType >::computePlasticity()
                                                 sQ[i][j] = glm::dot(Q[i], stretch * Q[j]);
                                             }
                                         }
-                                        auto J2 = MathHelpers::sqr(sQ[2][2] - sQ[3][3]) + RealType(4) * sQ[3][2];
-                                        auto R3 = R;
+                                        auto J2  = MathHelpers::sqr(sQ[2][2] - sQ[3][3]) + RealType(4) * sQ[3][2];
+                                        auto R3  = R;
                                         R3[0][0] = RealType(1);
                                         R3[0][1] = RealType(0);
 
                                         auto[U, S, Vt] = LinaHelpers::orientedSVD(R3);
-                                        auto lnS = S;
+                                        auto lnS       = S;
                                         for(Int i = 0; i < 2; ++i) {
                                             assert(S[i] > 0);
                                             lnS[i] = log(S[i]);
@@ -521,3 +524,6 @@ void HairMPM_Solver<N, RealType >::computePlasticity()
         __BNN_TODO
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers

@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void FLIP_Solver<N, RealType >::allocateSolverMemory()
+void FLIP_Solver<N, RealType>::allocateSolverMemory()
 {
     m_PICParams    = std::make_shared<PIC_Parameters<N, RealType>>();
     m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_PICParams);
@@ -33,7 +36,7 @@ void FLIP_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void FLIP_Solver<N, RealType >::advanceVelocity(Real timestep)
+void FLIP_Solver<N, RealType>::advanceVelocity(Real timestep)
 {
     logger().printRunTime("{   Map particles to grid: ", [&]() { mapParticles2Grid(); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
@@ -49,7 +52,7 @@ void FLIP_Solver<N, RealType >::advanceVelocity(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void FLIP_Solver<N, RealType >::mapParticles2Grid()
+void FLIP_Solver<N, RealType>::mapParticles2Grid()
 {
     for(Int d = 0; d < N; ++d) {
         gridData().velocities[d].assign(0);
@@ -68,7 +71,7 @@ void FLIP_Solver<N, RealType >::mapParticles2Grid()
                                 std::array<RealType, 8> weights;
                                 for(Int d = 0; d < N; ++d) {
                                     auto extra = VecN(0.5);
-                                    extra[d] = 0;
+                                    extra[d]   = 0;
                                     ArrayHelpers::getCoordinatesAndWeights(gridPos - extra, gridData().velocities[d].vsize(), indices, weights);
                                     for(Int i = 0; i < 8; ++i) {
                                         auto gpos     = grid().getWorldCoordinate(VecN(indices[i]) + extra);
@@ -94,7 +97,7 @@ void FLIP_Solver<N, RealType >::mapParticles2Grid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void FLIP_Solver<N, RealType >::mapGrid2Particles()
+void FLIP_Solver<N, RealType>::mapGrid2Particles()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -112,7 +115,7 @@ void FLIP_Solver<N, RealType >::mapGrid2Particles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void FLIP_Solver<N, RealType >::computeChangesGridVelocity()
+void FLIP_Solver<N, RealType>::computeChangesGridVelocity()
 {
     for(Int d = 0; d < N; ++d) {
         Scheduler::parallel_for(gridData().velocities[d].dataSize(), [&](size_t i)
@@ -124,7 +127,7 @@ void FLIP_Solver<N, RealType >::computeChangesGridVelocity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> FLIP_Solver<N, RealType >::getVelocityChangesFromGrid(const VecX<N, RealType>& gridPos)
+VecX<N, RealType> FLIP_Solver<N, RealType>::getVelocityChangesFromGrid(const VecX<N, RealType>& gridPos)
 {
     VecN vchanged;
     for(Int d = 0; d < N; ++d) {
@@ -134,3 +137,6 @@ VecX<N, RealType> FLIP_Solver<N, RealType >::getVelocityChangesFromGrid(const Ve
     }
     return vchanged;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers

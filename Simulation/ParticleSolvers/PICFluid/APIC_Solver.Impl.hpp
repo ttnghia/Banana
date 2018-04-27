@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void APIC_Solver<N, RealType >::allocateSolverMemory()
+void APIC_Solver<N, RealType>::allocateSolverMemory()
 {
     m_PICParams    = std::make_shared<PIC_Parameters<N, RealType>>();
     m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_PICParams);
@@ -33,7 +36,7 @@ void APIC_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void APIC_Solver<N, RealType >::advanceVelocity(Real timestep)
+void APIC_Solver<N, RealType>::advanceVelocity(Real timestep)
 {
     logger().printRunTime("{   Map particles to grid: ", [&]() { mapParticles2Grid(); });
     logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
@@ -45,7 +48,7 @@ void APIC_Solver<N, RealType >::advanceVelocity(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void APIC_Solver<N, RealType >::mapParticles2Grid()
+void APIC_Solver<N, RealType>::mapParticles2Grid()
 {
     for(Int d = 0; d < N; ++d) {
         gridData().velocities[d].assign(0);
@@ -65,7 +68,7 @@ void APIC_Solver<N, RealType >::mapParticles2Grid()
                                 std::array<RealType, 8> weights;
                                 for(Int d = 0; d < N; ++d) {
                                     auto extra = VecN(0.5);
-                                    extra[d] = 0;
+                                    extra[d]   = 0;
                                     ArrayHelpers::getCoordinatesAndWeights(gridPos - extra, gridData().velocities[d].vsize(), indices, weights);
                                     for(Int i = 0; i < 8; ++i) {
                                         auto gpos     = grid().getWorldCoordinate(VecN(indices[i]) + extra);
@@ -91,7 +94,7 @@ void APIC_Solver<N, RealType >::mapParticles2Grid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void APIC_Solver<N, RealType >::mapGrid2Particles()
+void APIC_Solver<N, RealType>::mapGrid2Particles()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -106,7 +109,7 @@ void APIC_Solver<N, RealType >::mapGrid2Particles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-MatXxX<N, RealType> APIC_Solver<N, RealType >::getAffineMatrixFromGrid(const VecN& gridPos)
+MatXxX<N, RealType> APIC_Solver<N, RealType>::getAffineMatrixFromGrid(const VecN& gridPos)
 {
     MatXxX<N, RealType> C;
     for(Int d = 0; d < N; ++d) {
@@ -116,3 +119,6 @@ MatXxX<N, RealType> APIC_Solver<N, RealType >::getAffineMatrixFromGrid(const Vec
     }
     return C;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers

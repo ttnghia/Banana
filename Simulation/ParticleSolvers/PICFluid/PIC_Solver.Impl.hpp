@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::allocateSolverMemory()
+void PIC_Solver<N, RealType>::allocateSolverMemory()
 {
     m_PICParams    = std::make_shared<PIC_Parameters<N, RealType>>();
     m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_PICParams);
@@ -32,7 +35,7 @@ void PIC_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::generateParticles(const JParams& jParams)
+void PIC_Solver<N, RealType>::generateParticles(const JParams& jParams)
 {
     ParticleSolver<N, RealType>::generateParticles(jParams);
     if(loadMemoryState() < 0) {
@@ -63,7 +66,7 @@ void PIC_Solver<N, RealType >::generateParticles(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool PIC_Solver<N, RealType >::advanceScene()
+bool PIC_Solver<N, RealType>::advanceScene()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // evolve the dynamic objects
@@ -117,7 +120,7 @@ bool PIC_Solver<N, RealType >::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // This function must be called after the gridData() has been resized
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::setupDataIO()
+void PIC_Solver<N, RealType>::setupDataIO()
 {
     if(globalParams().bSaveFrameData) {
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
@@ -145,15 +148,15 @@ void PIC_Solver<N, RealType >::setupDataIO()
         }
         m_MemoryStateIO->addFixedAttribute<UInt>(    "NObjects",        ParticleSerialization::TypeUInt, 1);
         m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_MemoryStateIO->addParticleAttribute<RealType>("particle_position", ParticleSerialization::TypeReal,  N);
-        m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity", ParticleSerialization::TypeReal,  N);
+        m_MemoryStateIO->addParticleAttribute<RealType>("particle_position", ParticleSerialization::TypeReal,   N);
+        m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity", ParticleSerialization::TypeReal,   N);
         m_MemoryStateIO->addParticleAttribute<Int16>(   "object_index",      ParticleSerialization::TypeUInt16, 1);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int PIC_Solver<N, RealType >::loadMemoryState()
+Int PIC_Solver<N, RealType>::loadMemoryState()
 {
     if(!globalParams().bLoadMemoryState) {
         return -1;
@@ -201,7 +204,7 @@ Int PIC_Solver<N, RealType >::loadMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int PIC_Solver<N, RealType >::saveMemoryState()
+Int PIC_Solver<N, RealType>::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
         return -1;
@@ -230,7 +233,7 @@ Int PIC_Solver<N, RealType >::saveMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int PIC_Solver<N, RealType >::saveFrameData()
+Int PIC_Solver<N, RealType>::saveFrameData()
 {
     if(!globalParams().bSaveFrameData) {
         return -1;
@@ -265,7 +268,7 @@ Int PIC_Solver<N, RealType >::saveFrameData()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::advanceFrame()
+void PIC_Solver<N, RealType>::advanceFrame()
 {
     const auto& frameDuration = globalParams().frameDuration;
     auto&       frameTime     = globalParams().frameLocalTime;
@@ -315,7 +318,7 @@ void PIC_Solver<N, RealType >::advanceFrame()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::sortParticles()
+void PIC_Solver<N, RealType>::sortParticles()
 {
     if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
@@ -334,7 +337,7 @@ void PIC_Solver<N, RealType >::sortParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::advanceVelocity(RealType timestep)
+void PIC_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
     logger().printRunTime("{   Advect grid velocity: ", [&]() { advectGridVelocity(timestep); });
     logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
@@ -345,7 +348,7 @@ void PIC_Solver<N, RealType >::advanceVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType PIC_Solver<N, RealType >::timestepCFL()
+RealType PIC_Solver<N, RealType>::timestepCFL()
 {
     RealType maxVel = Tiny<RealType>();
     for(Int d = 0; d < N; ++d) {
@@ -357,7 +360,7 @@ RealType PIC_Solver<N, RealType >::timestepCFL()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::moveParticles(RealType timestep)
+void PIC_Solver<N, RealType>::moveParticles(RealType timestep)
 {
     const RealType substep = timestep / RealType(solverParams().advectionSteps);
     Scheduler::parallel_for(particleData().getNParticles(),
@@ -383,7 +386,7 @@ void PIC_Solver<N, RealType >::moveParticles(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool PIC_Solver<N, RealType >::correctParticlePositions(RealType timestep)
+bool PIC_Solver<N, RealType>::correctParticlePositions(RealType timestep)
 {
     if(!solverParams().bCorrectPosition) {
         return false;
@@ -497,16 +500,16 @@ bool PIC_Solver<N, RealType >::correctParticlePositions(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::advectGridVelocity(RealType timestep)
+void PIC_Solver<N, RealType>::advectGridVelocity(RealType timestep)
 {
     for(Int d = 0; d < N; ++d) {
         gridData().tmpVels[d].assign(0);
         Scheduler::parallel_for(gridData().velocities[d].vsize(),
                                 [&](auto... idx)
                                 {
-                                    auto extra = VecN(0.5);
-                                    extra[d] = 0;
-                                    auto gu = trace_rk2_grid(VecN(idx...) + extra, -timestep);
+                                    auto extra                     = VecN(0.5);
+                                    extra[d]                       = 0;
+                                    auto gu                        = trace_rk2_grid(VecN(idx...) + extra, -timestep);
                                     gridData().tmpVels[d] (idx...) = getVelocityFromGrid(gu, d);
                                 });
         gridData().velocities[d].copyDataFrom(gridData().tmpVels[d]);
@@ -515,7 +518,7 @@ void PIC_Solver<N, RealType >::advectGridVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool PIC_Solver<N, RealType >::addGravity(RealType timestep)
+bool PIC_Solver<N, RealType>::addGravity(RealType timestep)
 {
     if(!globalParams().bApplyGravity) {
         return false;
@@ -534,7 +537,7 @@ bool PIC_Solver<N, RealType >::addGravity(RealType timestep)
             extra[d] = 0;
             Scheduler::parallel_for(gridData().velocities[0].vsize(), [&](auto... idx)
                                     {
-                                        auto gravity = solverParams().gravity(grid().getWorldCoordinate(VecN(idx...) + extra));
+                                        auto gravity                      = solverParams().gravity(grid().getWorldCoordinate(VecN(idx...) + extra));
                                         gridData().velocities[d](idx...) += gravity[d] * timestep;
                                     });
         }
@@ -545,7 +548,7 @@ bool PIC_Solver<N, RealType >::addGravity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::pressureProjection(RealType timestep)
+void PIC_Solver<N, RealType>::pressureProjection(RealType timestep)
 {
     logger().printRunTimeIndent("{   Compute cell weights: ", [&]() { computeCellWeights(); });
     logger().printRunTimeIndent("Compute liquid SDF: ", [&]() { computeFluidSDF(); }, 2);
@@ -556,7 +559,7 @@ void PIC_Solver<N, RealType >::pressureProjection(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::computeCellWeights()
+void PIC_Solver<N, RealType>::computeCellWeights()
 {
     const auto& boundarySDF = gridData().boundarySDF;
     ////////////////////////////////////////////////////////////////////////////////
@@ -617,7 +620,7 @@ void PIC_Solver<N, RealType >::computeCellWeights()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::computeFluidSDF()
+void PIC_Solver<N, RealType>::computeFluidSDF()
 {
     const auto& boundarySDF  = gridData().boundarySDF;
     auto&       fluidSDF     = gridData().fluidSDF;
@@ -713,7 +716,7 @@ void PIC_Solver<N, RealType >::computeFluidSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
+void PIC_Solver<N, RealType>::computeSystem(RealType timestep)
 {
     auto& activeCellIdx = gridData().activeCellIdx;
     auto& fluidSDF      = gridData().fluidSDF;
@@ -758,19 +761,19 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
 
                                     auto rhsVal           = RealType(0);
                                     const auto term_right = weights_u(i + 1, j) * timestep;
-                                    rhsVal -= weights_u(i + 1, j) * u(i + 1, j);
+                                    rhsVal               -= weights_u(i + 1, j) * u(i + 1, j);
 
                                     const auto term_left = weights_u(i, j) * timestep;
-                                    rhsVal += weights_u(i, j) * u(i, j);
+                                    rhsVal              += weights_u(i, j) * u(i, j);
 
                                     const auto term_top = weights_v(i, j + 1) * timestep;
-                                    rhsVal -= weights_v(i, j + 1) * v(i, j + 1);
+                                    rhsVal             -= weights_v(i, j + 1) * v(i, j + 1);
 
                                     const auto term_bottom = weights_v(i, j) * timestep;
-                                    rhsVal += weights_v(i, j) * v(i, j);
+                                    rhsVal                += weights_v(i, j) * v(i, j);
 
                                     const auto idx_center = activeCellIdx(i, j);
-                                    rhs[idx_center] = rhsVal;
+                                    rhs[idx_center]       = rhsVal;
 
                                     RealType center_term = RealType(0);
 
@@ -779,7 +782,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_right;
                                         matrix.addElement(idx_center, activeCellIdx(i + 1, j), -term_right);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_right));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_right));
                                         center_term += term_right / theta;
                                     }
 
@@ -788,7 +791,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_left;
                                         matrix.addElement(idx_center, activeCellIdx(i - 1, j), -term_left);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_left));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_left));
                                         center_term += term_left / theta;
                                     }
 
@@ -797,7 +800,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_top;
                                         matrix.addElement(idx_center, activeCellIdx(i, j + 1), -term_top);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_top));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_top));
                                         center_term += term_top / theta;
                                     }
 
@@ -806,7 +809,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_bottom;
                                         matrix.addElement(idx_center, activeCellIdx(i, j - 1), -term_bottom);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_bottom));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_bottom));
                                         center_term += term_bottom / theta;
                                     }
                                     ////////////////////////////////////////////////////////////////////////////////
@@ -835,25 +838,25 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
 
                                     auto rhsVal           = RealType(0);
                                     const auto term_right = weights_u(i + 1, j, k) * timestep;
-                                    rhsVal -= weights_u(i + 1, j, k) * u(i + 1, j, k);
+                                    rhsVal               -= weights_u(i + 1, j, k) * u(i + 1, j, k);
 
                                     const auto term_left = weights_u(i, j, k) * timestep;
-                                    rhsVal += weights_u(i, j, k) * u(i, j, k);
+                                    rhsVal              += weights_u(i, j, k) * u(i, j, k);
 
                                     const auto term_top = weights_v(i, j + 1, k) * timestep;
-                                    rhsVal -= weights_v(i, j + 1, k) * v(i, j + 1, k);
+                                    rhsVal             -= weights_v(i, j + 1, k) * v(i, j + 1, k);
 
                                     const auto term_bottom = weights_v(i, j, k) * timestep;
-                                    rhsVal += weights_v(i, j, k) * v(i, j, k);
+                                    rhsVal                += weights_v(i, j, k) * v(i, j, k);
 
                                     const auto term_far = weights_w(i, j, k + 1) * timestep;
-                                    rhsVal -= weights_w(i, j, k + 1) * w(i, j, k + 1);
+                                    rhsVal             -= weights_w(i, j, k + 1) * w(i, j, k + 1);
 
                                     const auto term_near = weights_w(i, j, k) * timestep;
-                                    rhsVal += weights_w(i, j, k) * w(i, j, k);
+                                    rhsVal              += weights_w(i, j, k) * w(i, j, k);
 
                                     const auto idx_center = activeCellIdx(i, j, k);
-                                    rhs[idx_center] = rhsVal;
+                                    rhs[idx_center]       = rhsVal;
 
                                     RealType center_term = RealType(0);
 
@@ -862,7 +865,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_right;
                                         matrix.addElement(idx_center, activeCellIdx(i + 1, j, k), -term_right);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_right));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_right));
                                         center_term += term_right / theta;
                                     }
 
@@ -871,7 +874,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_left;
                                         matrix.addElement(idx_center, activeCellIdx(i - 1, j, k), -term_left);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_left));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_left));
                                         center_term += term_left / theta;
                                     }
 
@@ -880,7 +883,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_top;
                                         matrix.addElement(idx_center, activeCellIdx(i, j + 1, k), -term_top);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_top));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_top));
                                         center_term += term_top / theta;
                                     }
 
@@ -889,7 +892,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_bottom;
                                         matrix.addElement(idx_center, activeCellIdx(i, j - 1, k), -term_bottom);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_bottom));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_bottom));
                                         center_term += term_bottom / theta;
                                     }
 
@@ -898,7 +901,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_far;
                                         matrix.addElement(idx_center, activeCellIdx(i, j, k + 1), -term_far);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_far));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_far));
                                         center_term += term_far / theta;
                                     }
 
@@ -907,7 +910,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
                                         center_term += term_near;
                                         matrix.addElement(idx_center, activeCellIdx(i, j, k - 1), -term_near);
                                     } else {
-                                        auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_near));
+                                        auto theta   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_center, phi_near));
                                         center_term += term_near / theta;
                                     }
 
@@ -920,7 +923,7 @@ void PIC_Solver<N, RealType >::computeSystem(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::solveSystem()
+void PIC_Solver<N, RealType>::solveSystem()
 {
     bool success = solverData().pcgSolver.solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
     logger().printLogIndent("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
@@ -933,7 +936,7 @@ void PIC_Solver<N, RealType >::solveSystem()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
+void PIC_Solver<N, RealType>::updateProjectedVelocity(RealType timestep)
 {
     for(Int d = 0; d < N; ++d) {
         gridData().valids[d].assign(0);
@@ -954,13 +957,13 @@ void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
                                     const auto pr_bottom = phi_bottom < 0 ? solverData().pressure[gridData().activeCellIdx(i, j - 1)] : RealType(0);
 
                                     if(i > 0 && (phi_center < 0 || phi_left < 0) && gridData().weights[0](i, j) > 0) {
-                                        const auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_left, phi_center));
+                                        const auto theta                = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_left, phi_center));
                                         gridData().velocities[0](i, j) -= timestep * (pr_center - pr_left) / theta;
                                         gridData().valids[0](i, j)      = 1;
                                     }
 
                                     if(j > 0 && (phi_center < 0 || phi_bottom < 0) && gridData().weights[1](i, j) > 0) {
-                                        const auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_bottom, phi_center));
+                                        const auto theta                = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_bottom, phi_center));
                                         gridData().velocities[1](i, j) -= timestep * (pr_center - pr_bottom) / theta;
                                         gridData().valids[1](i, j)      = 1;
                                     }
@@ -980,19 +983,19 @@ void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
                                     const auto pr_near   = phi_near < 0 ? solverData().pressure[gridData().activeCellIdx(i, j, k - 1)] : RealType(0);
 
                                     if(i > 0 && (phi_center < 0 || phi_left < 0) && gridData().weights[0](i, j, k) > 0) {
-                                        const auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_left, phi_center));
+                                        const auto theta                   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_left, phi_center));
                                         gridData().velocities[0](i, j, k) -= timestep * (pr_center - pr_left) / theta;
                                         gridData().valids[0](i, j, k)      = 1;
                                     }
 
                                     if(j > 0 && (phi_center < 0 || phi_bottom < 0) && gridData().weights[1](i, j, k) > 0) {
-                                        const auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_bottom, phi_center));
+                                        const auto theta                   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_bottom, phi_center));
                                         gridData().velocities[1](i, j, k) -= timestep * (pr_center - pr_bottom) / theta;
                                         gridData().valids[1](i, j, k)      = 1;
                                     }
 
                                     if(k > 0 && gridData().weights[2](i, j, k) > 0 && (phi_center < 0 || phi_near < 0)) {
-                                        const auto theta = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_near, phi_center));
+                                        const auto theta                   = MathHelpers::max(RealType(0.01), MathHelpers::fraction_inside(phi_near, phi_center));
                                         gridData().velocities[2](i, j, k) -= timestep * (pr_center - pr_near) / theta;
                                         gridData().valids[2](i, j, k)      = 1;
                                     }
@@ -1010,7 +1013,7 @@ void PIC_Solver<N, RealType >::updateProjectedVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::extrapolateVelocity()
+void PIC_Solver<N, RealType>::extrapolateVelocity()
 {
     for(Int d = 0; d < N; ++d) {
         extrapolateVelocity(gridData().velocities[d], gridData().tmpVels[d], gridData().valids[d], gridData().tmpValids[d], gridData().extrapolates[d]);
@@ -1019,8 +1022,8 @@ void PIC_Solver<N, RealType >::extrapolateVelocity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::extrapolateVelocity(Array<N, RealType>& grid, Array<N, RealType>& temp_grid,
-                                                   Array<N, char>& valid, Array<N, char>& old_valid, Array<N, char>& extrapolate)
+void PIC_Solver<N, RealType>::extrapolateVelocity(Array<N, RealType>& grid, Array<N, RealType>& temp_grid,
+                                                  Array<N, char>& valid, Array<N, char>& old_valid, Array<N, char>& extrapolate)
 {
     extrapolate.assign(0);
     temp_grid.copyDataFrom(grid);
@@ -1123,7 +1126,7 @@ void PIC_Solver<N, RealType >::extrapolateVelocity(Array<N, RealType>& grid, Arr
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::constrainGridVelocity()
+void PIC_Solver<N, RealType>::constrainGridVelocity()
 {
     for(Int d = 0; d < N; ++d) {
         gridData().tmpVels[d].copyDataFrom(gridData().velocities[d]);
@@ -1131,8 +1134,8 @@ void PIC_Solver<N, RealType >::constrainGridVelocity()
                                 [&](auto... idx)
                                 {
                                     if(gridData().extrapolates[d](idx...) == 1 && gridData().weights[d](idx...) < Tiny<RealType>()) {
-                                        auto extra = VecN(0.5);
-                                        extra[d] = 0;
+                                        auto extra      = VecN(0.5);
+                                        extra[d]        = 0;
                                         auto gridPos    = VecN(idx...) + extra;
                                         auto vel        = getVelocityFromGrid(gridPos);
                                         auto normal     = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
@@ -1150,7 +1153,7 @@ void PIC_Solver<N, RealType >::constrainGridVelocity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType PIC_Solver<N, RealType >::getVelocityFromGrid(const VecN& gridPos, Int axis)
+RealType PIC_Solver<N, RealType>::getVelocityFromGrid(const VecN& gridPos, Int axis)
 {
     auto extra = VecN(0.5);
     extra[axis] = 0;
@@ -1159,7 +1162,7 @@ RealType PIC_Solver<N, RealType >::getVelocityFromGrid(const VecN& gridPos, Int 
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-VecX<N, RealType> PIC_Solver<N, RealType >::getVelocityFromGrid(const VecN& gridPos)
+VecX<N, RealType> PIC_Solver<N, RealType>::getVelocityFromGrid(const VecN& gridPos)
 {
     VecN vel;
     for(Int d = 0; d < N; ++d) {
@@ -1170,7 +1173,7 @@ VecX<N, RealType> PIC_Solver<N, RealType >::getVelocityFromGrid(const VecN& grid
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> PIC_Solver<N, RealType >::trace_rk2(const VecN& ppos, RealType timestep)
+VecX<N, RealType> PIC_Solver<N, RealType>::trace_rk2(const VecN& ppos, RealType timestep)
 {
     auto gridPos = grid().getGridCoordinate(ppos);
     auto pvel    = getVelocityFromGrid(gridPos);
@@ -1182,7 +1185,7 @@ VecX<N, RealType> PIC_Solver<N, RealType >::trace_rk2(const VecN& ppos, RealType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> PIC_Solver<N, RealType >::trace_rk2_grid(const VecN& gridPos, RealType timestep)
+VecX<N, RealType> PIC_Solver<N, RealType>::trace_rk2_grid(const VecN& gridPos, RealType timestep)
 {
     auto gvel       = getVelocityFromGrid(gridPos) * grid().getInvCellSize();
     auto newGridPos = gridPos + RealType(0.5) * timestep * gvel;          // advance to half way
@@ -1193,7 +1196,7 @@ VecX<N, RealType> PIC_Solver<N, RealType >::trace_rk2_grid(const VecN& gridPos, 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Solver<N, RealType >::computeBoundarySDF()
+void PIC_Solver<N, RealType>::computeBoundarySDF()
 {
     Scheduler::parallel_for(gridData().boundarySDF.vsize(),
                             [&](auto... idx)
@@ -1206,3 +1209,6 @@ void PIC_Solver<N, RealType >::computeBoundarySDF()
                                 gridData().boundarySDF(idx...) = minSD /*+ MEpsilon*/;
                             });
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers

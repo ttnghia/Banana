@@ -33,7 +33,7 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct WCSPH_Parameters : public SimulationParameters<N, RealType>
+struct WCSPH_Parameters : SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // pressure
@@ -53,7 +53,6 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     // density
     RealType particleMassScale     = RealType(0.9);
-    RealType restDensity           = RealType(1000.0);
     RealType densityVariationRatio = RealType(10.0);
     bool     bNormalizeDensity     = false;
     bool     bDensityByBDParticle  = false;
@@ -83,9 +82,9 @@ struct WCSPH_Parameters : public SimulationParameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct WCSPH_Data : public SimulationData<N, RealType>
+struct WCSPH_Data : SimulationData<N, RealType>
 {
-    struct ParticleData : public ParticleSimulationData<N, RealType>
+    struct ParticleData : ParticleSimulationData<N, RealType>
     {
         Vec_RealType                 densities;
         Vec_RealType                 tmp_densities;
@@ -115,7 +114,7 @@ struct WCSPH_Data : public SimulationData<N, RealType>
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual ParticleSimulationData<N, RealType>& generalParticleData() override { return particleData; }
-    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType >::allocateSolverMemory()
+void AFLIP_Solver<N, RealType>::allocateSolverMemory()
 {
     m_PICParams    = std::make_shared<PIC_Parameters<N, RealType>>();
     m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_PICParams);
@@ -34,14 +37,14 @@ void AFLIP_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType >::advanceVelocity(Real timestep)
+void AFLIP_Solver<N, RealType>::advanceVelocity(Real timestep)
 {
     FLIP_Solver<N, RealType>::advanceVelocity(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType >::mapParticles2Grid()
+void AFLIP_Solver<N, RealType>::mapParticles2Grid()
 {
     for(Int d = 0; d < N; ++d) {
         gridData().velocities[d].assign(0);
@@ -61,7 +64,7 @@ void AFLIP_Solver<N, RealType >::mapParticles2Grid()
                                 std::array<RealType, 8> weights;
                                 for(Int d = 0; d < N; ++d) {
                                     auto extra = VecN(0.5);
-                                    extra[d] = 0;
+                                    extra[d]   = 0;
                                     ArrayHelpers::getCoordinatesAndWeights(gridPos - extra, gridData().velocities[d].vsize(), indices, weights);
                                     for(Int i = 0; i < 8; ++i) {
                                         auto gpos     = grid().getWorldCoordinate(VecN(indices[i]) + extra);
@@ -87,7 +90,7 @@ void AFLIP_Solver<N, RealType >::mapParticles2Grid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType >::mapGrid2Particles()
+void AFLIP_Solver<N, RealType>::mapGrid2Particles()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -109,7 +112,7 @@ void AFLIP_Solver<N, RealType >::mapGrid2Particles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-MatXxX<N, RealType> AFLIP_Solver<N, RealType >::getAffineMatrixFromGrid(const VecN& gridPos)
+MatXxX<N, RealType> AFLIP_Solver<N, RealType>::getAffineMatrixFromGrid(const VecN& gridPos)
 {
     MatXxX<N, RealType> C;
     for(Int d = 0; d < N; ++d) {
@@ -122,7 +125,7 @@ MatXxX<N, RealType> AFLIP_Solver<N, RealType >::getAffineMatrixFromGrid(const Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-MatXxX<N, RealType> AFLIP_Solver<N, RealType >::getAffineMatrixChangesFromGrid(const VecN& gridPos)
+MatXxX<N, RealType> AFLIP_Solver<N, RealType>::getAffineMatrixChangesFromGrid(const VecN& gridPos)
 {
     MatXxX<N, RealType> C;
     for(Int d = 0; d < N; ++d) {
@@ -132,3 +135,6 @@ MatXxX<N, RealType> AFLIP_Solver<N, RealType >::getAffineMatrixChangesFromGrid(c
     }
     return C;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers

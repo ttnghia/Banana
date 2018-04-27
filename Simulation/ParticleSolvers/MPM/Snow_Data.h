@@ -132,7 +132,7 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_Snow2D
 {
-	struct ParticleData : public ParticleSimulationData<2, Real>
+	struct ParticleData : ParticleSimulationData<2, Real>
 	{
 		//    Vec_Vec2r   positions_tmp;
 		//    Vec_VecUInt neighborList;
@@ -247,7 +247,7 @@ struct SimulationData_Snow2D
 	} particleData;
 
 	////////////////////////////////////////////////////////////////////////////////
-	struct GridData : public GridSimulationData<2, Real>
+	struct GridData : GridSimulationData<2, Real>
 	{
 		Array2r         mass;
 		Array2c         active;

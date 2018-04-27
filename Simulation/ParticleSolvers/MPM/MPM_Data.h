@@ -36,7 +36,7 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MPM_Parameters : public SimulationParameters<N, RealType>
+struct MPM_Parameters : SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
@@ -55,7 +55,6 @@ struct MPM_Parameters : public SimulationParameters<N, RealType>
     RealType PoissonsRatio   = RealType(0);
     RealType mu              = RealType(0);
     RealType lambda          = RealType(0);
-    RealType materialDensity = RealType(1000.0);
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void parseParameters(const JParams& jParams) override;
@@ -69,9 +68,9 @@ struct MPM_Parameters : public SimulationParameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MPM_Data : public SimulationData<N, RealType>
+struct MPM_Data : SimulationData<N, RealType>
 {
-    struct MPM_ParticleData : public ParticleSimulationData<N, RealType>
+    struct MPM_ParticleData : ParticleSimulationData<N, RealType>
     {
         Vec_RealType volumes;
         Vec_MatNxN   velocityGrad;
@@ -93,7 +92,7 @@ struct MPM_Data : public SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct MPM_GridData : public GridSimulationData<N, RealType>
+    struct MPM_GridData : GridSimulationData<N, RealType>
     {
         Array<N, char> active;
         Array<N, UInt> activeNodeIdx;                // store linearized indices of active nodes

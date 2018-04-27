@@ -32,7 +32,7 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MSS_Parameters : public SimulationParameters<N, RealType>
+struct MSS_Parameters : SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
@@ -44,7 +44,6 @@ struct MSS_Parameters : public SimulationParameters<N, RealType>
     // material parameters
     RealType defaultSpringStiffness = RealType(1e5);
     RealType KDamping               = RealType(1e-2);
-    RealType materialDensity        = RealType(1000.0);
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void parseParameters(const JParams& jParams) override;
@@ -58,9 +57,9 @@ struct MSS_Parameters : public SimulationParameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MSS_Data : public SimulationData<N, RealType>
+struct MSS_Data : SimulationData<N, RealType>
 {
-    struct MSS_ParticleData : public ParticleSimulationData<N, RealType>
+    struct MSS_ParticleData : ParticleSimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
         Vector<RealType> objectSpringStiffness;
@@ -73,9 +72,9 @@ struct MSS_Data : public SimulationData<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<MSS_ParticleData> particleData = nullptr;
 
-    virtual void                                 initialize();
+    virtual void initialize();
     virtual ParticleSimulationData<N, RealType>& generalParticleData() override { assert(particleData != nullptr); return *particleData; }
-    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

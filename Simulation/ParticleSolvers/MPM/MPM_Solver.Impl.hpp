@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::allocateSolverMemory()
+void MPM_Solver<N, RealType>::allocateSolverMemory()
 {
     m_MPMParams    = std::make_shared<MPM_Parameters<N, RealType>>();
     m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_MPMParams);
@@ -31,7 +34,7 @@ void MPM_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
+void MPM_Solver<N, RealType>::generateParticles(const JParams& jParams)
 {
     ParticleSolver<N, RealType>::generateParticles(jParams);
     if(loadMemoryState() < 0) {
@@ -63,7 +66,7 @@ void MPM_Solver<N, RealType >::generateParticles(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool MPM_Solver<N, RealType >::advanceScene()
+bool MPM_Solver<N, RealType>::advanceScene()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // evolve the dynamic objects
@@ -97,7 +100,7 @@ bool MPM_Solver<N, RealType >::advanceScene()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::setupDataIO()
+void MPM_Solver<N, RealType>::setupDataIO()
 {
     if(globalParams().bSaveFrameData) {
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
@@ -120,15 +123,15 @@ void MPM_Solver<N, RealType >::setupDataIO()
         //m_MemoryStateIO->addFixedAttribute<RealType>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
         m_MemoryStateIO->addFixedAttribute<UInt>(    "NObjects",        ParticleSerialization::TypeUInt, 1);
         m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_MemoryStateIO->addParticleAttribute<RealType>("particle_position", ParticleSerialization::TypeReal,  N);
-        m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity", ParticleSerialization::TypeReal,  N);
+        m_MemoryStateIO->addParticleAttribute<RealType>("particle_position", ParticleSerialization::TypeReal,   N);
+        m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity", ParticleSerialization::TypeReal,   N);
         m_MemoryStateIO->addParticleAttribute<Int16>(   "object_index",      ParticleSerialization::TypeUInt16, 1);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int MPM_Solver<N, RealType >::loadMemoryState()
+Int MPM_Solver<N, RealType>::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
         return -1;
@@ -175,7 +178,7 @@ Int MPM_Solver<N, RealType >::loadMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int MPM_Solver<N, RealType >::saveMemoryState()
+Int MPM_Solver<N, RealType>::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
         return -1;
@@ -199,7 +202,7 @@ Int MPM_Solver<N, RealType >::saveMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int MPM_Solver<N, RealType >::saveFrameData()
+Int MPM_Solver<N, RealType>::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
         return -1;
@@ -226,7 +229,7 @@ Int MPM_Solver<N, RealType >::saveFrameData()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::advanceFrame()
+void MPM_Solver<N, RealType>::advanceFrame()
 {
     const auto& frameDuration = globalParams().frameDuration;
     auto&       frameTime     = globalParams().frameLocalTime;
@@ -279,7 +282,7 @@ void MPM_Solver<N, RealType >::advanceFrame()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::sortParticles()
+void MPM_Solver<N, RealType>::sortParticles()
 {
     if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
@@ -304,7 +307,7 @@ void MPM_Solver<N, RealType >::sortParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
+void MPM_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
     logger().printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
     logger().printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
@@ -324,7 +327,7 @@ void MPM_Solver<N, RealType >::advanceVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType MPM_Solver<N, RealType >::timestepCFL()
+RealType MPM_Solver<N, RealType>::timestepCFL()
 {
     RealType maxVel   = ParallelSTL::maxNorm2(particleData().velocities);
     RealType timestep = maxVel > Tiny<RealType>() ? (grid().getCellSize() / maxVel * solverParams().CFLFactor) : Huge<RealType>();
@@ -333,7 +336,7 @@ RealType MPM_Solver<N, RealType >::timestepCFL()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::moveParticles(RealType timestep)
+void MPM_Solver<N, RealType>::moveParticles(RealType timestep)
 {
     __BNN_TODO_MSG("How to avoid particle penetration? Changing velocity? Then how about vel gradient?");
 
@@ -341,9 +344,9 @@ void MPM_Solver<N, RealType >::moveParticles(RealType timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                auto ppos = particleData().positions[p];
-                                auto pvel = particleData().velocities[p];
-                                ppos += timestep * pvel;
+                                auto ppos        = particleData().positions[p];
+                                auto pvel        = particleData().velocities[p];
+                                ppos            += timestep * pvel;
                                 bool bVelChanged = false;
                                 __BNN_TODO_MSG("Trace_rk2 or just Euler?");
                                 //ppos = trace_rk2(ppos, timestep);
@@ -363,7 +366,7 @@ void MPM_Solver<N, RealType >::moveParticles(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
+void MPM_Solver<N, RealType>::mapParticleMasses2Grid()
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for<UInt>(particleData().getNParticles(),
@@ -392,13 +395,13 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                                   auto wx  = MathHelpers::cubic_bspline_kernel(dx);
                                                   auto dwx = MathHelpers::cubic_bspline_grad(dx);
 
-                                                  auto weight     = wx * wy;
-                                                  auto weightGrad = VecN(dwx * wy, dwy * wx) / grid().getCellSize();
+                                                  auto weight                                                      = wx * wy;
+                                                  auto weightGrad                                                  = VecN(dwx * wy, dwy * wx) / grid().getCellSize();
                                                   particleData().weights[p * MathHelpers::pow(4, N) + idx]         = weight;
                                                   particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = weightGrad;
                                                   AtomicOperations::atomicAdd(gridData().mass(x, y), weight * solverParams().particleMass);
                                                   auto xixp = grid().getWorldCoordinate(x, y) - pPos;
-                                                  pD += weight * glm::outerProduct(xixp, xixp);
+                                                  pD       += weight * glm::outerProduct(xixp, xixp);
                                               }
                                           }
 
@@ -435,13 +438,13 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
                                                 auto wx  = MathHelpers::cubic_bspline_kernel(dx);
                                                 auto dwx = MathHelpers::cubic_bspline_grad(dx);
 
-                                                auto weight     = wx * wy * wz;
-                                                auto weightGrad = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
+                                                auto weight                                                      = wx * wy * wz;
+                                                auto weightGrad                                                  = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
                                                 particleData().weights[p * MathHelpers::pow(4, N) + idx]         = weight;
                                                 particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = weightGrad;
                                                 AtomicOperations::atomicAdd(gridData().mass(x, y, z), weight * solverParams().particleMass);
                                                 auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                pD += weight * glm::outerProduct(xixp, xixp);
+                                                pD       += weight * glm::outerProduct(xixp, xixp);
                                             }
                                         }
                                     }
@@ -454,7 +457,7 @@ void MPM_Solver<N, RealType >::mapParticleMasses2Grid()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //This should only be called once, at the beginning of the simulation
 template<Int N, class RealType>
-bool MPM_Solver<N, RealType >::initParticleVolumes()
+bool MPM_Solver<N, RealType>::initParticleVolumes()
 {
     if(solverParams().bParticleVolumeComputed) {
         return false;
@@ -473,7 +476,7 @@ bool MPM_Solver<N, RealType >::initParticleVolumes()
                                                 continue;
                                             }
 
-                                            auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
+                                            auto w    = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                             pDensity += w * gridData().mass(x, y);
                                         }
                                     }
@@ -495,7 +498,7 @@ bool MPM_Solver<N, RealType >::initParticleVolumes()
                                                     continue;
                                                 }
 
-                                                auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
+                                                auto w    = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 pDensity += w * gridData().mass(x, y, z);
                                             }
                                         }
@@ -512,14 +515,14 @@ bool MPM_Solver<N, RealType >::initParticleVolumes()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapParticleVelocities2Grid(RealType timestep)
+void MPM_Solver<N, RealType>::mapParticleVelocities2Grid(RealType timestep)
 {
     mapParticleVelocities2GridAPIC(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
+void MPM_Solver<N, RealType>::mapParticleVelocities2GridFLIP(RealType timestep)
 {
     if constexpr(N == 2)
     {
@@ -581,7 +584,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridFLIP(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
+void MPM_Solver<N, RealType>::mapParticleVelocities2GridAPIC(RealType timestep)
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -651,7 +654,7 @@ void MPM_Solver<N, RealType >::mapParticleVelocities2GridAPIC(RealType timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Calculate next timestep velocities for use in implicit integration
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
+void MPM_Solver<N, RealType>::explicitIntegration(RealType timestep)
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -698,8 +701,8 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
                                 [&](UInt p)
                                 {
                                     auto deformGrad = particleData().deformGrad[p];
-                                    auto[U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
-                                    auto Ss = S;
+                                    auto[U, S, Vt]  = LinaHelpers::orientedSVD(deformGrad);
+                                    auto Ss         = S;
                                     if(S[2] < 0) {
                                         S[2] *= -1.0_f;
                                     }
@@ -751,7 +754,7 @@ void MPM_Solver<N, RealType >::explicitIntegration(RealType timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Solve linear system for implicit velocities
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::implicitIntegration(RealType timestep)
+void MPM_Solver<N, RealType>::implicitIntegration(RealType timestep)
 {
     UInt nActives = 0;
     for(size_t i = 0; i < gridData().active.dataSize(); ++i) {
@@ -791,7 +794,7 @@ void MPM_Solver<N, RealType >::implicitIntegration(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_RealType& grad)
+RealType MPM_Objective<N, RealType>::valueGradient(const Vec_RealType& v, Vec_RealType& grad)
 {
     auto vPtr    = reinterpret_cast<const VecN*>(v.data());
     auto gradPtr = reinterpret_cast<VecN*>(grad.data());
@@ -819,7 +822,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                             if(w > Tiny<RealType>()) {
                                                 auto gridIdx    = gridData().activeNodeIdx(x, y);
                                                 auto currentVel = vPtr[gridIdx];
-                                                pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                pVelGrad       += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                             }
                                         }
                                     }
@@ -830,7 +833,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
 
                                     pVelGrad *= m_timestep;
                                     LinaHelpers::sumToDiag(pVelGrad, RealType(1.0));
-                                    MatNxN newF = pVelGrad * pF;
+                                    MatNxN newF    = pVelGrad * pF;
                                     auto[U, S, Vt] = LinaHelpers::orientedSVD(newF);
                                     if(S[1] < 0) {
                                         S[1] *= -RealType(1.0);
@@ -857,7 +860,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                     assert(NumberHelpers::isValidNumber(t2));
                                     assert(NumberHelpers::isValidNumber(t3));
                                     //particleData().energyDensity[p] = t1 + t2 + t3;
-                                    auto eDensity = t1 + t2 + t3;
+                                    auto eDensity            = t1 + t2 + t3;
                                     particleData().energy[p] = eDensity * pVolume;
                                 });
 
@@ -914,7 +917,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                                 if(w > Tiny<RealType>()) {
                                                     auto gridIdx    = gridData().activeNodeIdx(x, y, z);
                                                     auto currentVel = vPtr[gridIdx];
-                                                    pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    pVelGrad       += glm::outerProduct(currentVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                                 }
                                             }
                                         }
@@ -926,7 +929,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
 
                                     pVelGrad *= m_timestep;
                                     LinaHelpers::sumToDiag(pVelGrad, 1.0_f);
-                                    Mat3x3r newF = pVelGrad * pF;
+                                    Mat3x3r newF   = pVelGrad * pF;
                                     auto[U, S, Vt] = LinaHelpers::orientedSVD(newF);
                                     if(S[2] < 0) {
                                         S[2] *= -1.0_f;
@@ -954,7 +957,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
                                     assert(NumberHelpers::isValidNumber(t2));
                                     assert(NumberHelpers::isValidNumber(t3));
                                     //particleData().energyDensity[p] = t1 + t2 + t3;
-                                    auto eDensity = t1 + t2 + t3;
+                                    auto eDensity            = t1 + t2 + t3;
                                     particleData().energy[p] = eDensity * pVolume;
                                 });
 
@@ -1000,7 +1003,7 @@ RealType MPM_Objective<N, RealType >::valueGradient(const Vec_RealType& v, Vec_R
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::gridCollision(RealType timestep)
+void MPM_Solver<N, RealType>::gridCollision(RealType timestep)
 {
 #if 0
     VecN delta_scale = VecN(timestep);
@@ -1046,14 +1049,14 @@ void MPM_Solver<N, RealType >::gridCollision(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapGridVelocities2Particles(RealType timestep)
+void MPM_Solver<N, RealType>::mapGridVelocities2Particles(RealType timestep)
 {
     mapGridVelocities2ParticlesAPIC(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep)
+void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesFLIP(RealType timestep)
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -1077,10 +1080,10 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                             if(w > Tiny<RealType>()) {
                                                 const auto& nVel    = gridData().velocity(x, y);
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
-                                                picVel      += nNewVel * w;
-                                                flipVel     += (nNewVel - nVel) * w;
-                                                picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
-                                                flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                picVel             += nNewVel * w;
+                                                flipVel            += (nNewVel - nVel) * w;
+                                                picVelGrad         += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                flipVelGrad        += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                             }
                                         }
                                     }
@@ -1110,10 +1113,10 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
                                                 if(w > Tiny<RealType>()) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
-                                                    picVel      += nNewVel * w;
-                                                    flipVel     += (nNewVel - nVel) * w;
-                                                    picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
-                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    picVel             += nNewVel * w;
+                                                    flipVel            += (nNewVel - nVel) * w;
+                                                    picVelGrad         += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    flipVelGrad        += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
                                                 }
                                             }
                                         }
@@ -1126,7 +1129,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesFLIP(RealType timestep
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep)
+void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesAPIC(RealType timestep)
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -1146,11 +1149,11 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                             if(w > Tiny<RealType>()) {
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
-                                                apicVel     += nNewVel * w;
-                                                apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                apicVel            += nNewVel * w;
+                                                apicVelGrad        += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                 auto xixp = grid().getWorldCoordinate(x, y) - pPos;
-                                                pB += w * glm::outerProduct(nNewVel, xixp);
+                                                pB       += w * glm::outerProduct(nNewVel, xixp);
                                             }
                                         }
                                     }
@@ -1177,11 +1180,11 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny<RealType>()) {
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
-                                                    apicVel     += nNewVel * w;
-                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    apicVel            += nNewVel * w;
+                                                    apicVelGrad        += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                     auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    pB += w * glm::outerProduct(nNewVel, xixp);
+                                                    pB       += w * glm::outerProduct(nNewVel, xixp);
                                                 }
                                             }
                                         }
@@ -1195,7 +1198,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAPIC(RealType timestep
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timestep)
+void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesAFLIP(RealType timestep)
 {
     if constexpr(N == 2) {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -1220,14 +1223,14 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
                                                 const auto& nVel    = gridData().velocity(x, y);
                                                 const auto& nNewVel = gridData().velocity_new(x, y);
                                                 auto diffVel        = nNewVel - nVel;
-                                                apicVel     += nNewVel * w;
-                                                flipVel     += diffVel * w;
-                                                apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
-                                                flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                apicVel            += nNewVel * w;
+                                                flipVel            += diffVel * w;
+                                                apicVelGrad        += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                flipVelGrad        += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                 auto xixp = grid().getWorldCoordinate(x, y) - pPos;
-                                                apicB += w * glm::outerProduct(nNewVel, xixp);
-                                                flipB += w * glm::outerProduct(diffVel, xixp);
+                                                apicB    += w * glm::outerProduct(nNewVel, xixp);
+                                                flipB    += w * glm::outerProduct(diffVel, xixp);
                                             }
                                         }
                                     }
@@ -1259,14 +1262,14 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     auto diffVel        = nNewVel - nVel;
-                                                    apicVel     += nNewVel * w;
-                                                    flipVel     += diffVel * w;
-                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
-                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    apicVel            += nNewVel * w;
+                                                    flipVel            += diffVel * w;
+                                                    apicVelGrad        += glm::outerProduct(nNewVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
+                                                    flipVelGrad        += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * MathHelpers::pow(4, N) + idx]);
 
                                                     auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    apicB += w * glm::outerProduct(nNewVel, xixp);
-                                                    flipB += w * glm::outerProduct(diffVel, xixp);
+                                                    apicB    += w * glm::outerProduct(nNewVel, xixp);
+                                                    flipB    += w * glm::outerProduct(diffVel, xixp);
                                                 }
                                             }
                                         }
@@ -1280,7 +1283,7 @@ void MPM_Solver<N, RealType >::mapGridVelocities2ParticlesAFLIP(RealType timeste
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::constrainParticleVelocity(RealType timestep)
+void MPM_Solver<N, RealType>::constrainParticleVelocity(RealType timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -1305,14 +1308,17 @@ void MPM_Solver<N, RealType >::constrainParticleVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Solver<N, RealType >::updateParticleStates(RealType timestep)
+void MPM_Solver<N, RealType>::updateParticleStates(RealType timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
                                 auto velGrad = particleData().velocityGrad[p];
-                                velGrad *= timestep;
+                                velGrad     *= timestep;
                                 LinaHelpers::sumToDiag(velGrad, RealType(1.0));
                                 particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
                             });
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers
