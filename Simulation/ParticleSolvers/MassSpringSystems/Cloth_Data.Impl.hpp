@@ -25,7 +25,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Cloth_Parameters<RealType >::parseParameters(const JParams& jParams)
+void Cloth_Parameters<RealType>::parseParameters(const JParams& jParams)
 {
     MSS_Parameters<3, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ void Cloth_Parameters<RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Cloth_Parameters<RealType >::printParams(const SharedPtr<Logger>& logger)
+void Cloth_Parameters<RealType>::printParams(const SharedPtr<Logger>& logger)
 {
     logger->printLog(String("Cloth parameters:"));
     MSS_Parameters<3, RealType>::printParams(logger);
@@ -76,7 +76,7 @@ void Cloth_Data<RealType>::Cloth_ParticleData::reserve(UInt nParticles)
 template<class RealType>
 void Cloth_Data<RealType>::Cloth_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
-	__BNN_UNUSED(jParams);
+    __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
@@ -112,7 +112,7 @@ UInt Cloth_Data<RealType>::Cloth_ParticleData::removeParticles(const Vec_Int8& r
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Cloth_Data<RealType >::initialize()
+void Cloth_Data<RealType>::initialize()
 {
     Cloth_particleData = std::make_shared<Cloth_ParticleData>();
     particleData       = std::static_pointer_cast<MSS_Data<3, RealType>::MSS_ParticleData>(Cloth_particleData);
@@ -120,7 +120,7 @@ void Cloth_Data<RealType >::initialize()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Cloth_Data<RealType >::makeReady(const SharedPtr<SimulationParameters<3, RealType>>& simParams)
+void Cloth_Data<RealType>::makeReady(const SharedPtr<SimulationParameters<3, RealType>>& simParams)
 {
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
