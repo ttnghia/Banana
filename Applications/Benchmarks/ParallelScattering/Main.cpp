@@ -67,7 +67,7 @@ void testSequentialScattering()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void testParallelCellScattering()
+void testParallelCellGathering()
 {
     arrayData.assign(sdfRadius * Real(3.0));
     for(size_t p = 0; p < positions.size(); ++p) {
@@ -162,8 +162,8 @@ int main()
     double t1;
     {
         __BNN_PERORMANCE_TEST_BEGIN;
-        testParallelCellScattering();
-        __BNN_PERORMANCE_TEST_END_WITH_RUN_TIME("parallel cell scattering", t1);
+        testParallelCellGathering();
+        __BNN_PERORMANCE_TEST_END_WITH_RUN_TIME("parallel cell gathering", t1);
     }
     ////////////////////////////////////////////////////////////////////////////////
     double t2;
@@ -173,8 +173,8 @@ int main()
         __BNN_PERORMANCE_TEST_END_WITH_RUN_TIME("parallel particle scattering", t2);
     }
     ////////////////////////////////////////////////////////////////////////////////
-    printf("\nSpeedup parallel cell scattering: %f\n",        t0 / t1);
-    printf("Speedup parallel particle scattering: %f\n",      t0 / t2);
-    printf("Ratio parallel cell/particle scattering: %f\n\n", t1 / t2);
+    printf("\nSpeedup parallel cell gathering: %f\n",                   t0 / t1);
+    printf("Speedup parallel particle scattering: %f\n",                t0 / t2);
+    printf("Ratio parallel cell gathering/particle scattering: %f\n\n", t1 / t2);
     return 0;
 }
