@@ -51,10 +51,10 @@ struct MPM_Parameters : SimulationParameters<N, RealType>
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    RealType YoungsModulus   = RealType(0);
-    RealType PoissonsRatio   = RealType(0);
-    RealType mu              = RealType(0);
-    RealType lambda          = RealType(0);
+    RealType YoungsModulus = RealType(0);
+    RealType PoissonsRatio = RealType(0);
+    RealType mu            = RealType(0);
+    RealType lambda        = RealType(0);
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void parseParameters(const JParams& jParams) override;
@@ -115,9 +115,9 @@ struct MPM_Data : SimulationData<N, RealType>
     Grid<N, RealType>                   grid;
     Optimization::LBFGSSolver<RealType> lbfgsSolver;
 
-    virtual void                                 initialize();
+    virtual void initialize();
     virtual ParticleSimulationData<N, RealType>& generalParticleData() override { assert(particleData != nullptr); return *particleData; }
-    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -154,8 +154,6 @@ private:
     MPM_Data<N, RealType>&             m_SimData;
     RealType                           m_timestep;
 };
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/MPM/MPM_Data.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

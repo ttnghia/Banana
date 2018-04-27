@@ -97,12 +97,10 @@ struct PIC_Data : SimulationData<N, RealType>
     Vector<RealType>            pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void                                 initialize();
+    virtual void initialize();
     virtual ParticleSimulationData<N, RealType>& generalParticleData() override { return *particleData; }
-    virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
+    virtual void makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) override;
 };
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/PICFluid/PIC_Data.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

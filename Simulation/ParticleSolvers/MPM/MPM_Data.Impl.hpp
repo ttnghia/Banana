@@ -18,14 +18,15 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+namespace Banana::ParticleSolvers
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // MPM_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Parameters<N, RealType >::parseParameters(const JParams& jParams)
+void MPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 {
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +47,7 @@ void MPM_Parameters<N, RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Parameters<N, RealType >::makeReady()
+void MPM_Parameters<N, RealType>::makeReady()
 {
     SimulationParameters<N, RealType>::makeReady();
     nExpandCells = MathHelpers::max(nExpandCells, 2u);
@@ -64,7 +65,7 @@ void MPM_Parameters<N, RealType >::makeReady()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
+void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 {
     logger->printLog(String("MPM parameters:"));
     SimulationParameters<N, RealType>::printParams(logger);
@@ -184,7 +185,7 @@ UInt MPM_Data<N, RealType>::MPM_ParticleData::removeParticles(const Vec_Int8& re
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>&gridSize)
+void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>& gridSize)
 {
     auto nNodes = gridSize + VecX<N, UInt>(1u);
     ////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +216,7 @@ void MPM_Data<N, RealType>::MPM_GridData::resetGrid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType >::initialize()
+void MPM_Data<N, RealType>::initialize()
 {
     particleData = std::make_shared<MPM_ParticleData>();
     gridData     = std::make_shared<MPM_GridData>();
@@ -223,7 +224,7 @@ void MPM_Data<N, RealType >::initialize()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
+void MPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
 {
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
@@ -232,3 +233,6 @@ void MPM_Data<N, RealType >::makeReady(const SharedPtr<SimulationParameters<N, R
     gridData->resize(grid.getNCells());
     particleData->setupNeighborSearch(simParams->particleRadius * RealType(4));
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers
