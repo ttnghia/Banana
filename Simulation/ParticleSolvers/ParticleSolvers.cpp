@@ -30,20 +30,22 @@ template class Banana::ParticleSolvers::WCSPH_Solver<3, Real>;
 // Hybrid fluid solver
 #include <ParticleSolvers/PICFluid/PIC_Solver.h>
 #include <ParticleSolvers/PICFluid/PIC_Solver.Impl.hpp>
-
 template class Banana::ParticleSolvers::PIC_Solver<2, Real>;
 template class Banana::ParticleSolvers::PIC_Solver<3, Real>;;
 
+////////////////////////////////////////////////////////////////////////////////
 #include <ParticleSolvers/PICFluid/FLIP_Solver.h>
 #include <ParticleSolvers/PICFluid/FLIP_Solver.Impl.hpp>
 template class Banana::ParticleSolvers::FLIP_Solver<2, Real>;
 template class Banana::ParticleSolvers::FLIP_Solver<3, Real>;
 
+////////////////////////////////////////////////////////////////////////////////
 #include <ParticleSolvers/PICFluid/APIC_Solver.h>
 #include <ParticleSolvers/PICFluid/APIC_Solver.Impl.hpp>
 template class Banana::ParticleSolvers::APIC_Solver<2, Real>;
 template class Banana::ParticleSolvers::APIC_Solver<3, Real>;
 
+////////////////////////////////////////////////////////////////////////////////
 #include <ParticleSolvers/PICFluid/AFLIP_Solver.h>
 #include <ParticleSolvers/PICFluid/AFLIP_Solver.Impl.hpp>
 template class Banana::ParticleSolvers::AFLIP_Solver<2, Real>;
