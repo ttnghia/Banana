@@ -63,14 +63,14 @@ struct MSS_Data : public SimulationData<N, RealType>
     struct MSS_ParticleData : public ParticleSimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
-        // data structure is ready, but need to resize
+        Vector<RealType> objectSpringStiffness;
+        ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override;
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::map<Int16, RealType>   objectSpringStiffness;
     SharedPtr<MSS_ParticleData> particleData = nullptr;
 
     virtual void                                 initialize();

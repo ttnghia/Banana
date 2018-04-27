@@ -42,7 +42,7 @@ struct APIC_Data : PIC_Data<N, RealType>
             C.reserve(nParticles);
         }
 
-        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) override
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override
         {
             PIC_Data<N, RealType>::PIC_ParticleData::addParticles(newPositions, newVelocities);
             C.resize(getNParticles(), MatXxX<N, RealType>(0));

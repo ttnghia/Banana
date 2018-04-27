@@ -118,8 +118,9 @@ void MPM_Data<N, RealType>::MPM_ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
+void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
+    __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());

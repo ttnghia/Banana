@@ -80,8 +80,9 @@ void HairMPM_Data<N, RealType>::HairMPM_ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::HairMPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
+void HairMPM_Data<N, RealType>::HairMPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
+	__BNN_UNUSED(jParams);
     MPM_Data<N, RealType>::MPM_ParticleData::addParticles(newPositions, newVelocities);
     ////////////////////////////////////////////////////////////////////////////////
     localDirections.resize(getNParticles(), MatNxN(1.0));

@@ -58,8 +58,9 @@ void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::reserve(UInt nPa
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
+void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
+	__BNN_UNUSED(jParams);
     MSS_Data<N, RealType>::Peridynamics_ParticleData::addParticles(newPositions, newVelocities);
     bondRemainingRatios.resize(getNParticles(), 0);
 }

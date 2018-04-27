@@ -40,7 +40,7 @@ void MSS_Solver<N, RealType >::generateParticles(const JParams& jParams)
             ////////////////////////////////////////////////////////////////////////////////
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {
-                particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
+                particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities(), generator->jParams());
                 logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
             }
         }
@@ -367,10 +367,27 @@ void MSS_Solver<N, RealType >::integration(RealType timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
+void MSS_Solver<N, RealType >::updateVelocities(RealType timestep)
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                particleData().velocities[p] = particleData().forces[p] / particleData().particleMass[p] * timestep;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+template<Int N, class RealType>
 void MSS_Solver<N, RealType >::explicitVerletIntegration(RealType timestep)
 {
-    computeExplicitForces();
-    moveParticles();
+    RealType halfStep = timestep * RealType(0.5);
+    ////////////////////////////////////////////////////////////////////////////////
+    computeExplicitForces(halfStep);
+    updateVelocities(halfStep);
+    moveParticles(halfStep);
+    computeExplicitForces(halfStep);
+    updateVelocities(halfStep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

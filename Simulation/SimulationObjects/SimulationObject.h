@@ -52,6 +52,7 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    auto& jParams() { return m_jParams; }
     auto& nameID() { return m_NameID; }
     auto& meshFile() { return m_MeshFile; }
     auto& particleFile() { return m_ParticleFile; }

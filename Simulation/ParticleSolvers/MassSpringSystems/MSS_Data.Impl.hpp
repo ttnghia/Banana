@@ -109,12 +109,13 @@ void MSS_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Data<N, RealType>::MSS_ParticleData::reserve(UInt nParticles)
+void MSS_Data<N, RealType >::MSS_ParticleData::reserve(UInt nParticles)
 {
     activity.reserve(nParticles);
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
     objectIndex.reserve(nParticles);
+    objectSpringStiffness.reserve(nParticles);
 
     neighborIdx_t0.resize(nParticles);
     neighborDistances_t0.resize(nParticles);
@@ -122,12 +123,18 @@ void MSS_Data<N, RealType>::MSS_ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities)
+void MSS_Data<N, RealType >::MSS_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
 
+    RealType stiffness;
+    if(JSONHelpers::readValue(jParams, stiffness, "SpringStiffness")) {
+        objectSpringStiffness.insert(objectSpringStiffness.end(), newPositions.size(), stiffness);
+    } else {
+        objectSpringStiffness.insert(objectSpringStiffness.end(), newPositions.size(), defaultSpringStiffness);
+    }
     neighborIdx_t0.resize(nParticles);
     neighborDistances_t0.resize(nParticles);
 
@@ -140,19 +147,20 @@ void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPo
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(const Vec_Int8& removeMarker)
+UInt MSS_Data<N, RealType >::MSS_ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;
     }
 
-    STLHelpers::eraseByMarker(positions,            removeMarker);
-    STLHelpers::eraseByMarker(velocities,           removeMarker);
-    STLHelpers::eraseByMarker(objectIndex,          removeMarker);
-    STLHelpers::eraseByMarker(activity,             removeMarker);
-    STLHelpers::eraseByMarker(neighborIdx_t0,       removeMarker);
-    STLHelpers::eraseByMarker(neighborDistances_t0, removeMarker);
+    STLHelpers::eraseByMarker(positions,             removeMarker);
+    STLHelpers::eraseByMarker(velocities,            removeMarker);
+    STLHelpers::eraseByMarker(objectIndex,           removeMarker);
+    STLHelpers::eraseByMarker(objectSpringStiffness, removeMarker);
+    STLHelpers::eraseByMarker(activity,              removeMarker);
+    STLHelpers::eraseByMarker(neighborIdx_t0,        removeMarker);
+    STLHelpers::eraseByMarker(neighborDistances_t0,  removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
 }

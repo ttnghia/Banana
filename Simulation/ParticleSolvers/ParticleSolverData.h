@@ -246,7 +246,7 @@ struct ParticleSimulationData
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void reserve(UInt nParticles) = 0;
-    virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities) = 0;
+    virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) = 0;
     virtual UInt removeParticles(const Vec_Int8& removeMarker) = 0;
     virtual void findNeighbors();
 
