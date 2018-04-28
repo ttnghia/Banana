@@ -68,3 +68,25 @@ template class Banana::ParticleSolvers::MPM_Solver<3, Real>;
 #include <ParticleSolvers/MPM/HairMPM_Solver.Impl.hpp>
 template class Banana::ParticleSolvers::HairMPM_Solver<2, Real>;
 template class Banana::ParticleSolvers::HairMPM_Solver<3, Real>;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// mass-spring system
+//#include <ParticleSolvers/MassSpringSystems/MSS_Solver.h>
+//#include <ParticleSolvers/MassSpringSystems/MSS_Data.Impl.hpp>
+//#include <ParticleSolvers/MassSpringSystems/MSS_Solver.Impl.hpp>
+//template class Banana::ParticleSolvers::MSS_Solver<2, Real>;
+//template class Banana::ParticleSolvers::MSS_Solver<3, Real>;
+
+////////////////////////////////////////////////////////////////////////////////
+//#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.h>
+//#include <ParticleSolvers/MassSpringSystems/Peridynamics_Data.Impl.hpp>
+//#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.Impl.hpp>
+//template class Banana::ParticleSolvers::Peridynamics_Solver<2, Real>;
+//template class Banana::ParticleSolvers::Peridynamics_Solver<3, Real>;
+
+////////////////////////////////////////////////////////////////////////////////
+//#include <ParticleSolvers/MassSpringSystems/Cloth_Solver.h>
+//#include <ParticleSolvers/MassSpringSystems/Cloth_Data.Impl.hpp>
+//#include <ParticleSolvers/MassSpringSystems/Cloth_Solver.Impl.hpp>
+//template class Banana::ParticleSolvers::Cloth_Solver<2, Real>;
+//template class Banana::ParticleSolvers::Cloth_Solver<3, Real>;

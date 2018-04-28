@@ -18,14 +18,15 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+namespace Banana::ParticleSolvers
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Peridynamics_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Parameters<N, RealType >::parseParameters(const JParams& jParams)
+void Peridynamics_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 {
     MSS_Parameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +36,7 @@ void Peridynamics_Parameters<N, RealType >::parseParameters(const JParams& jPara
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Parameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
+void Peridynamics_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 {
     MSS_Parameters<N, RealType>::printParams(logger);
     logger->printLog(String("Peridynamics parameters:"));
@@ -60,7 +61,7 @@ void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::reserve(UInt nPa
 template<Int N, class RealType>
 void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
-	__BNN_UNUSED(jParams);
+    __BNN_UNUSED(jParams);
     MSS_Data<N, RealType>::Peridynamics_ParticleData::addParticles(newPositions, newVelocities);
     bondRemainingRatios.resize(getNParticles(), 0);
 }
@@ -77,8 +78,11 @@ UInt Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::removeParticles(
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Data<N, RealType >::initialize()
+void Peridynamics_Data<N, RealType>::initialize()
 {
     PD_particleData = std::make_shared<Peridynamics_ParticleData>();
     particleData    = std::static_pointer_cast<MSS_Data<N, RealType>::MSS_ParticleData>(PD_particleData);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers
