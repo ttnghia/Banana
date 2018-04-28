@@ -219,9 +219,6 @@
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>

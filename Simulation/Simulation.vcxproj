@@ -100,7 +100,6 @@
     <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.h" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Solver.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Solver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\PICFluid\APIC_Data.h" />
