@@ -24,7 +24,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void GlobalParameters<RealType >::parseParameters(const JParams& jParams)
+void GlobalParameters<RealType>::parseParameters(const JParams& jParams)
 {
     JSONHelpers::readValue(jParams, nThreads, "NThreads");
 
@@ -71,7 +71,7 @@ void GlobalParameters<RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void GlobalParameters<RealType >::printParams(Logger& logger)
+void GlobalParameters<RealType>::printParams(Logger& logger)
 {
     logger.printLog(String("Global parameters:"));
     logger.printLogIndent(String("Number of working threads: ") + (nThreads > 0 ? std::to_string(nThreads) : String("Automatic")));
@@ -119,14 +119,14 @@ void GlobalParameters<RealType >::printParams(Logger& logger)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType GlobalParameters<RealType >::evolvedTime() const
+RealType GlobalParameters<RealType>::evolvedTime() const
 {
     return frameDuration * static_cast<RealType>(finishedFrame) + frameLocalTime;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-bool GlobalParameters<RealType >::savingData(const String& dataName) const
+bool GlobalParameters<RealType>::savingData(const String& dataName) const
 {
     return (std::find(SaveDataList.begin(), SaveDataList.end(), dataName) != SaveDataList.end());
 }
@@ -137,7 +137,7 @@ bool GlobalParameters<RealType >::savingData(const String& dataName) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SimulationParameters<N, RealType >::parseParameters(const JParams& jParams)
+void SimulationParameters<N, RealType>::parseParameters(const JParams& jParams)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
@@ -200,7 +200,7 @@ void SimulationParameters<N, RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> SimulationParameters<N, RealType >::gravity(const VecN& pos) const
+VecX<N, RealType> SimulationParameters<N, RealType>::gravity(const VecN& pos) const
 {
     if(gravityType == GravityType::Earth ||
        gravityType == GravityType::Directional) {
@@ -214,7 +214,7 @@ VecX<N, RealType> SimulationParameters<N, RealType >::gravity(const VecN& pos) c
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SimulationParameters<N, RealType >::makeReady()
+void SimulationParameters<N, RealType>::makeReady()
 {
     if(bUseGrid) {
         particleRadius = cellSize / ratioCellSizePRadius;
@@ -256,7 +256,7 @@ void SimulationParameters<N, RealType >::makeReady()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SimulationParameters<N, RealType >::printParams(const SharedPtr<Logger>& logger)
+void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
@@ -310,17 +310,22 @@ void SimulationParameters<N, RealType >::printParams(const SharedPtr<Logger>& lo
     ////////////////////////////////////////////////////////////////////////////////
     // gravity
     switch(gravityType) {
-        case static_cast<Int>(GravityType::Earth):
+        case GravityType::Earth:
             logger->printLogIndent(String("Gravity: Earth"));
-        case static_cast<Int>(GravityType::Directional):
+            logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
+            break;
+        case GravityType::Directional:
             logger->printLogIndent(String("Gravity: Directional"));
             logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
             break;
-        case static_cast<Int>(GravityType::ToCenter):
+        case GravityType::ToCenter:
             logger->printLogIndent(String("Gravity: ToCenter"));
-        case static_cast<Int>(GravityType::FromCenter):
+            logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
+            break;
+        case GravityType::FromCenter:
             logger->printLogIndent(String("Gravity: FromCenter"));
             logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
+            break;
         default:;
     }
     logger->newLine();
@@ -329,28 +334,28 @@ void SimulationParameters<N, RealType >::printParams(const SharedPtr<Logger>& lo
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType >::setupNeighborSearch(RealType searchDistance)
+void ParticleSimulationData<N, RealType>::setupNeighborSearch(RealType searchDistance)
 {
     neighborSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(searchDistance);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType >::findNeighbors()
+void ParticleSimulationData<N, RealType>::findNeighbors()
 {
     NSearch().find_neighbors();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType >::addSearchParticles(Vec_VecN& positions, bool bDynamic /*= true*/, bool bSearchNeighbor /*= true*/)
+void ParticleSimulationData<N, RealType>::addSearchParticles(Vec_VecN& positions, bool bDynamic /*= true*/, bool bSearchNeighbor /*= true*/)
 {
     NSearch().add_point_set(glm::value_ptr(positions.front()), static_cast<UInt>(positions.size()), bDynamic, bSearchNeighbor);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType >::findNeighbors_t0()
+void ParticleSimulationData<N, RealType>::findNeighbors_t0()
 {
     findNeighbors();
     ////////////////////////////////////////////////////////////////////////////////
@@ -363,7 +368,7 @@ void ParticleSimulationData<N, RealType >::findNeighbors_t0()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType >::findNeighborsAndDistances_t0()
+void ParticleSimulationData<N, RealType>::findNeighborsAndDistances_t0()
 {
     findNeighbors();
     ////////////////////////////////////////////////////////////////////////////////
