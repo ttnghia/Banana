@@ -369,14 +369,13 @@ void MSS_Solver<N, RealType>::integration(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 template<Int N, class RealType>
-void MSS_Solver<N, RealType>::updateVelocities(RealType timestep)
+void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                particleData().velocities[p] = particleData().forces[p] / particleData().particleMass[p] * timestep;
+                                particleData().velocities[p] = particleData().explicitForces[p] / particleData().mass(p) * timestep;
                             });
 }
 
@@ -388,30 +387,31 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
     computeExplicitForces(halfStep);
-    updateVelocities(halfStep);
+    updateExplicitVelocities(halfStep);
     moveParticles(halfStep);
     computeExplicitForces(halfStep);
-    updateVelocities(halfStep);
+    updateExplicitVelocities(halfStep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType >::explicitEulerIntegration(RealType timestep)
-
+void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
+{}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType >::implicitEulerIntegration(RealType timestep)
-
+void MSS_Solver<N, RealType>::implicitEulerIntegration(RealType timestep)
+{}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType >::newmarkBetaIntegration(RealType timestep)
-
+void MSS_Solver<N, RealType>::newmarkBetaIntegration(RealType timestep)
+{}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType >::computeExplicitForces(RealType timestep)
+void MSS_Solver<N, RealType>::computeExplicitForces(RealType timestep)
+{}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType >::computeImplicitForces(RealType timestep)
-
+void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
+{}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

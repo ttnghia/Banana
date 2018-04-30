@@ -36,14 +36,13 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
-    IntegrationScheme integrationScheme    = IntegrationScheme::NewmarkBeta;
-    RealType          defaultSpringHorizon = RealType(4);
-    RealType          maxSpringHorizon     = RealType(0);
+    IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
     RealType defaultSpringStiffness = RealType(1e5);
+    RealType defaultSpringHorizon   = RealType(4);
     RealType KDamping               = RealType(1e-2);
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,9 +62,25 @@ struct MSS_Data : SimulationData<N, RealType>
     struct MSS_ParticleData : ParticleSimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+        RealType defaultSpringStiffness = RealType(1e5);
+#else
         Vector<RealType> objectSpringStiffness;
+#endif
+
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+        RealType particleRadius       = RealType(0);
+        RealType defaultSpringHorizon = RealType(0);
+        RealType maxSpringHorizon     = RealType(0);
+#else
         Vector<RealType> objectSpringHorizon;
+#endif
         ////////////////////////////////////////////////////////////////////////////////
+        Vec_VecN explicitForces;
+        ////////////////////////////////////////////////////////////////////////////////
+        RealType springStiffness(UInt p);
+        RealType springHorizon(UInt p);
+
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;

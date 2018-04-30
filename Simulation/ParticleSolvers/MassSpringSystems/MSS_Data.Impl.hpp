@@ -31,9 +31,8 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
-    JSONHelpers::readValue(jParams, defaultSpringHorizon, "DefaultHorizonRatio");
     String tmp;
-    JSONHelpers::readValue(jParams, tmp,                  "IntegrationScheme");
+    JSONHelpers::readValue(jParams, tmp, "IntegrationScheme");
     if(tmp == "ExplicitVerlet") {
         integrationScheme = IntegrationScheme::ExplicitVerlet;
     } else if(tmp == "ExplicitEuler") {
@@ -43,7 +42,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     } else if(tmp == "NewmarkBeta") {
         integrationScheme = IntegrationScheme::NewmarkBeta;
     } else {
-        __BNN_DIE(String("Incorrect value for parameter ") + tmp);
+        __BNN_DIE((String("Incorrect value for parameter ") + tmp).c_str());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +50,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
     JSONHelpers::readValue(jParams, defaultSpringStiffness, "DefaultSpringStiffness");
+    JSONHelpers::readValue(jParams, defaultSpringHorizon,   "DefaultHorizonRatio");
     JSONHelpers::readValue(jParams, KDamping,               "KDamping");
     JSONHelpers::readValue(jParams, materialDensity,        "MaterialDensity");
     ////////////////////////////////////////////////////////////////////////////////
@@ -62,9 +62,8 @@ void MSS_Parameters<N, RealType>::makeReady()
 {
     SimulationParameters<N, RealType>::makeReady();
     ////////////////////////////////////////////////////////////////////////////////
-    particleMass          = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
+    defaultParticleMass   = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
     defaultSpringHorizon *= particleRadius;
-    maxSpringHorizon      = defaultSpringHorizon;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -92,19 +91,34 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
             logger->printLogIndent(String("Integration scheme: NewmarkBeta"));
             break;
         default:
-            __BNN_DIE(String("Incorrect value for integration scheme"));
+            __BNN_DIE("Incorrect value for integration scheme");
     }
 
-    logger->printLogIndent(String("Default horizon: ") + NumberHelpers::toString(defaultSpringHorizon, 2) +
-                           String(", which is ") + NumberHelpers::toString(defaultSpringHorizon / particleRadius, 2) + String(" particle radius"));
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+    logger->printLogIndent(String("Spring stiffness: ") + NumberHelpers::formatToScientific(defaultSpringStiffness));
+#else
     logger->printLogIndent(String("Default spring stiffness: ") + NumberHelpers::formatToScientific(defaultSpringStiffness));
-    logger->printLogIndent(String("Damping constant: ") + NumberHelpers::formatToScientific(KDamping));
+#endif
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+    logger->printLogIndent(String("Spring horizon: ") + NumberHelpers::toString(defaultSpringHorizon, 2) +
+                           String(", which is ") + NumberHelpers::toString(defaultSpringHorizon / particleRadius, 2) + String(" particle radius"));
+#else
+    logger->printLogIndent(String("Default horizon: ") + NumberHelpers::toString(defaultSpringHorizon, 2) +
+                           String(", which is ") + NumberHelpers::toString(defaultSpringHorizon / particleRadius, 2) + String(" particle radius"));
+#endif
+#ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
     logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
-    logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
+    logger->printLogIndent(String("Particle mass: ") + std::to_string(defaultParticleMass));
+#else
+    logger->printLogIndent(String("Default material density: ") + std::to_string(materialDensity));
+    logger->printLogIndent(String("Default particle mass: ") + std::to_string(defaultParticleMass));
+#endif
+    ////////////////////////////////////////////////////////////////////////////////
+    logger->printLogIndent(String("Damping constant: ") + NumberHelpers::formatToScientific(KDamping));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -115,14 +129,43 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+RealType MSS_Data<N, RealType>::MSS_ParticleData::springStiffness(UInt p)
+{
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+    __BNN_UNUSED(p);
+    return defaultSpringStiffness;
+#else
+    return objectSpringStiffness[p];
+#endif
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+RealType MSS_Data<N, RealType>::MSS_ParticleData::springHorizon(UInt p)
+{
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+    __BNN_UNUSED(p);
+    return defaultSpringHorizon;
+#else
+    return objectSpringHorizon[p];
+#endif
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void MSS_Data<N, RealType>::MSS_ParticleData::reserve(UInt nParticles)
 {
     activity.reserve(nParticles);
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
     objectIndex.reserve(nParticles);
+    explicitForces.reserve(nParticles);
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
     objectSpringStiffness.reserve(nParticles);
+#endif
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
     objectSpringHorizon.reserve(nParticles);
+#endif
 
     neighborIdx_t0.resize(nParticles);
     neighborDistances_t0.resize(nParticles);
@@ -136,13 +179,16 @@ void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPo
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
     ////////////////////////////////////////////////////////////////////////////////
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
     RealType stiffness;
     if(JSONHelpers::readValue(jParams, stiffness, "SpringStiffness")) {
         objectSpringStiffness.insert(objectSpringStiffness.end(), newPositions.size(), stiffness);
     } else {
         objectSpringStiffness.insert(objectSpringStiffness.end(), newPositions.size(), defaultSpringStiffness);
     }
-    ////////////////////////////////////////////////////////////////////////////////
+#endif
+
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
     RealType horizon;
     if(JSONHelpers::readValue(jParams, horizon, "HorizonRatio")) {
         horizon         *= particleRadius;
@@ -151,9 +197,11 @@ void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPo
     } else {
         objectSpringHorizon.insert(objectSpringHorizon.end(), newPositions.size(), defaultSpringHorizon);
     }
+#endif
     ////////////////////////////////////////////////////////////////////////////////
-    neighborIdx_t0.resize(nParticles);
-    neighborDistances_t0.resize(nParticles);
+    explicitForces.resize(getNParticles());
+    neighborIdx_t0.resize(getNParticles());
+    neighborDistances_t0.resize(getNParticles());
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
@@ -174,11 +222,18 @@ UInt MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(const Vec_Int8& re
     STLHelpers::eraseByMarker(positions,             removeMarker);
     STLHelpers::eraseByMarker(velocities,            removeMarker);
     STLHelpers::eraseByMarker(objectIndex,           removeMarker);
-    STLHelpers::eraseByMarker(objectSpringStiffness, removeMarker);
-    STLHelpers::eraseByMarker(objectSpringHorizon,   removeMarker);
     STLHelpers::eraseByMarker(activity,              removeMarker);
     STLHelpers::eraseByMarker(neighborIdx_t0,        removeMarker);
     STLHelpers::eraseByMarker(neighborDistances_t0,  removeMarker);
+
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+    STLHelpers::eraseByMarker(objectSpringStiffness, removeMarker);
+#endif
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+    STLHelpers::eraseByMarker(objectSpringHorizon,   removeMarker);
+#endif
+    ////////////////////////////////////////////////////////////////////////////////
+    explicitForces.resize(getNParticles());
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
 }
@@ -195,7 +250,7 @@ void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
     neighborIdx_t0.resize(getNParticles());
     neighborDistances_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
-    for(auto p : points) {
+    for(UInt p = 0; p < getNParticles(); ++p) {
         neighborIdx_t0[p].resize(0);
         neighborIdx_t0[p].reserve(points.n_neighbors(0, p));
         neighborDistances_t0[p].resize(0);
@@ -205,7 +260,7 @@ void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
         for(auto q : points.neighbors(0, p)) {
             const auto& qpos     = positions[q];
             auto        distance = glm::length(ppos - qpos);
-            if(distance < objectSpringHorizon[p] && distance < objectSpringHorizon[q]) {
+            if(distance < springHorizon(p) && distance < springHorizon(q)) {
                 neighborIdx_t0[p].push_back(q);
                 neighborDistances_t0[p].push_back(distance);
             }
@@ -227,7 +282,23 @@ void MSS_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
     }
-    particleData->setupNeighborSearch(simParams->particleRadius * maxSpringHorizon);
+    ////////////////////////////////////////////////////////////////////////////////
+    auto MSSParams = std::dynamic_pointer_cast<MSS_Parameters<N, RealType>>(simParams);
+    __BNN_REQUIRE(MSSParams != nullptr);
+
+#ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
+    particleData->defaultParticleMass = MSSParams->defaultParticleMass;
+#endif
+
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+    particleData->defaultSpringStiffness = MSSParams->defaultSpringStiffness;
+#endif
+
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+    particleData->defaultSpringHorizon = MSSParams->defaultSpringHorizon;
+#endif
+    ////////////////////////////////////////////////////////////////////////////////
+    particleData->setupNeighborSearch(MSSParams->particleRadius * MSSParams->defaultParticleMass);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

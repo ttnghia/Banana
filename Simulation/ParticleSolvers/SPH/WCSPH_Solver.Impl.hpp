@@ -432,7 +432,7 @@ void WCSPH_Solver<N, RealType>::computeDensity()
                                 }
                                 auto pdensity = kernels().kernelPoly6.W_zero();
                                 computeDensity(pdensity, pNeighborInfo);
-                                pdensity *= solverParams().particleMass;
+                                pdensity *= particleData().mass(p);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().densities[p] = MathHelpers::clamp(pdensity, solverParams().densityMin, solverParams().densityMax);
                             });
@@ -474,7 +474,7 @@ bool WCSPH_Solver<N, RealType>::normalizeDensity()
                                         tmp              += kernels().W(r) / solverParams().materialDensity;
                                     }
                                 }
-                                pdensity = pdensity / (tmp * solverParams().particleMass);
+                                pdensity = pdensity / (tmp * particleData().mass(p));
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().tmp_densities[p] = MathHelpers::clamp(pdensity, solverParams().densityMin, solverParams().densityMax);
                             });
@@ -556,7 +556,7 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                     }
                                     __BNN_TODO_MSG("add surface tension");
                                 }
-                                particleData().accelerations[p] = pAcc * solverParams().particleMass;
+                                particleData().accelerations[p] = pAcc * particleData().mass(p);
                             });
 }
 
@@ -629,7 +629,7 @@ void WCSPH_Solver<N, RealType>::computeViscosity()
                                     diffVelBoundary *= solverParams().viscosityBoundary;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().diffuseVelocities[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
+                                particleData().diffuseVelocities[p] = (diffVelFluid + diffVelBoundary) * particleData().mass(p);
                             });
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocities[p]; });
 }

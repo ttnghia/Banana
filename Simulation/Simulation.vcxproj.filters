@@ -282,6 +282,9 @@
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">

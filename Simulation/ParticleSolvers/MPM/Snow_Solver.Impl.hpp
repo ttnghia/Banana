@@ -313,7 +313,7 @@ void Snow2DSolver::massToGrid()
                                             //Interpolate mass
                                             // (Int)(y * gridData().size[0] + x);
                                             gridData().nodeLocks(x, y).lock();
-                                            gridData().mass(x, y) += weight * solverParams().particleMass;
+                                            gridData().mass(x, y) += weight * particleData().mass(p);
                                             gridData().nodeLocks(x, y).unlock();
                                         }
                                     }
@@ -359,7 +359,7 @@ void Snow2DSolver::massToGrid()
 
                                                       //Interpolate mass
                                                       gridData().nodeLocks(x, y, z).lock();
-                                                      gridData().mass(x, y, z) += weight * solverParams().particleMass;
+                                                      gridData().mass(x, y, z) += weight * particleData().mass(p);
                                                       gridData().nodeLocks(x, y, z).unlock();
                                                   }
                                               }
@@ -389,7 +389,7 @@ void Snow2DSolver::velocityToGrid(Real timestep)
                                             if(w > Tiny<RealType>()) {
                                                 gridData().nodeLocks(x, y).lock();
                                                 //We could also do a separate loop to divide by nodes[n].mass only once
-                                                gridData().velocity(x, y) += particleData().velocities[p] * w * solverParams().particleMass;
+                                                gridData().velocity(x, y) += particleData().velocities[p] * w * particleData().mass(p);
                                                 gridData().active(x, y)    = 1;;
                                                 gridData().nodeLocks(x, y).unlock();
                                             }
@@ -415,7 +415,7 @@ void Snow2DSolver::velocityToGrid(Real timestep)
                                                 if(w > Tiny<RealType>()) {
                                                     gridData().nodeLocks(x, y, z).lock();
                                                     //We could also do a separate loop to divide by nodes[n].mass only once
-                                                    gridData().velocity(x, y, z) += particleData().velocities[p] * w * solverParams().particleMass;
+                                                    gridData().velocity(x, y, z) += particleData().velocities[p] * w * particleData().mass(p);
                                                     gridData().active(x, y, z)    = 1;
                                                     gridData().nodeLocks(x, y, z).unlock();
                                                 }
@@ -465,7 +465,7 @@ void Snow2DSolver::calculateParticleVolumes()
                                     pdensity                   /= solverParams().cellArea;
                                     particleData().densities[p] = pdensity;
                                     //Volume for each particle can be found from density
-                                    particleData().volumes[p] = solverParams().particleMass / pdensity;
+                                    particleData().volumes[p] = particleData().mass(p) / pdensity;
                                 });
     } else {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -495,7 +495,7 @@ void Snow2DSolver::calculateParticleVolumes()
                                     pdensity                   /= solverParams().cellArea;
                                     particleData().densities[p] = pdensity;
                                     //Volume for each particle can be found from density
-                                    particleData().volumes[p] = solverParams().particleMass / pdensity;
+                                    particleData().volumes[p] = particleData().mass(p) / pdensity;
                                 });
     }
 }

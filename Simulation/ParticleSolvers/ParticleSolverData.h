@@ -28,6 +28,7 @@
 #include <Banana/Utils/STLHelpers.h>
 #include <Banana/Utils/Logger.h>
 #include <SimulationObjects/SimulationObject.h>
+#include <ParticleSolvers/Macros.h>
 
 #include <string>
 #include <numeric>
@@ -158,10 +159,10 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    RealType particleRadius    = RealType(0);
-    RealType particleRadiusSqr = RealType(0);
-    RealType particleMass      = RealType(1.0);
-    UInt     maxNParticles     = 0u;
+    RealType particleRadius      = RealType(0);
+    RealType particleRadiusSqr   = RealType(0);
+    RealType defaultParticleMass = RealType(1.0);
+    UInt     maxNParticles       = 0u;
     RealType overlappingThreshold;
     RealType overlappingThresholdSqr;
     ////////////////////////////////////////////////////////////////////////////////
@@ -219,11 +220,20 @@ struct ParticleSimulationData
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // particle mass
+#ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
+    RealType defaultParticleMass = RealType(1.0);
+#else
+    Vec_RealType particleMasses;                               // store the particle mass of individual objects
+#endif
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
     // main variables
     Vec_VecN positions, velocities;
 
-    UInt       nObjects = 0;                     // number of individual objects that are added each time by particle generator
-    Vec_UInt16 objectIndex;                      // store the index of individual objects based on the order they are added
+    UInt       nObjects = 0;                  // number of individual objects that are added each time by particle generator
+    Vec_UInt16 objectIndex;                   // store the index of individual objects based on the order they are added
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -258,8 +268,9 @@ struct ParticleSimulationData
     virtual void findNeighborsAndDistances_t0();
 
     UInt  getNParticles() const { return static_cast<UInt>(positions.size()); }
-    void setupNeighborSearch(RealType searchDistance);
-    void addSearchParticles(Vec_VecN& positions, bool bDynamic = true, bool bSearchNeighbor = true);
+    RealType mass(UInt p);
+    void     setupNeighborSearch(RealType searchDistance);
+    void     addSearchParticles(Vec_VecN& positions, bool bDynamic = true, bool bSearchNeighbor = true);
     auto& NSearch() { assert(neighborSearch != nullptr); return *neighborSearch; }
     auto& neighborList(UInt p) { return NSearch().point_set(0).neighbors(0, p); }
     auto& neighborList(UInt p, UInt pointSetID) { return NSearch().point_set(0).neighbors(pointSetID, p); }

@@ -334,6 +334,18 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+RealType ParticleSimulationData<N, RealType>::mass(UInt p)
+{
+#ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
+    __BNN_UNUSED(p);
+    return defaultParticleMass;
+#else
+    return particleMasses[p];
+#endif
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void ParticleSimulationData<N, RealType>::setupNeighborSearch(RealType searchDistance)
 {
     neighborSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(searchDistance);

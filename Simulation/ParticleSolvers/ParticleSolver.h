@@ -41,6 +41,8 @@
 #include <SimulationObjects/ParticleGenerator.h>
 #include <SimulationObjects/ParticleRemover.h>
 
+#include <ParticleSolvers/Macros.h>
+
 #include <tbb/tbb.h>
 #include <json.hpp>
 

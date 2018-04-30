@@ -63,7 +63,7 @@ protected:
     virtual RealType timestepCFL();
     virtual void     moveParticles(RealType timestep);
     virtual void     integration(RealType timestep);
-    virtual void     updateVelocities(RealType timestep);
+    virtual void     updateExplicitVelocities(RealType timestep);
     virtual void     explicitVerletIntegration(RealType timestep);
     virtual void     explicitEulerIntegration(RealType timestep);
     virtual void     implicitEulerIntegration(RealType timestep);

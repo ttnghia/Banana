@@ -262,6 +262,7 @@ void HairMPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N
 {
     MPM_Data<N, RealType>::makeReady(simParams);
     ////////////////////////////////////////////////////////////////////////////////
+	particleData->defaultParticleMass = simParams->defaultParticleMass;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

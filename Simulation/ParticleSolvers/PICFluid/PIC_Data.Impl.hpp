@@ -133,6 +133,7 @@ void PIC_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
         particleData->reserve(simParams->maxNParticles);
     }
     particleData->setupNeighborSearch(simParams->cellSize);
+	particleData->defaultParticleMass = simParams->defaultParticleMass;
 
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
     gridData->resize(grid.getNCells());

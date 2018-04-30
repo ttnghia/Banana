@@ -18,7 +18,7 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
+void ParticleSolver<N, RealType>::loadScene(const String& sceneFile)
 {
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open()) {
@@ -160,7 +160,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::setupLogger()
+void ParticleSolver<N, RealType>::setupLogger()
 {
     Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
     m_Logger = Logger::createLogger(getSolverName());
@@ -170,7 +170,7 @@ void ParticleSolver<N, RealType >::setupLogger()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::doSimulation()
+void ParticleSolver<N, RealType>::doSimulation()
 {
     logger().printAligned("Start Simulation", '=');
     ////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ void ParticleSolver<N, RealType >::doSimulation()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::doFrameSimulation(UInt frame)
+void ParticleSolver<N, RealType>::doFrameSimulation(UInt frame)
 {
     logger().newLine();
     logger().printAligned(String("Frame ") + NumberHelpers::formatWithCommas(frame), '=');
@@ -211,7 +211,7 @@ void ParticleSolver<N, RealType >::doFrameSimulation(UInt frame)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::finalizeSimulation()
+void ParticleSolver<N, RealType>::finalizeSimulation()
 {
     logger().newLine();
     logger().printAligned(String("Simulation finished"), '+');
@@ -230,7 +230,7 @@ void ParticleSolver<N, RealType >::finalizeSimulation()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
+void ParticleSolver<N, RealType>::generateBoundaries(const JParams& jParams)
 {
     if(jParams.find("AdditionalBoundaryObjects") != jParams.end()) {
         for(auto& jObj : jParams["AdditionalBoundaryObjects"]) {
@@ -290,7 +290,7 @@ void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateParticles(const JParams& jParams)
+void ParticleSolver<N, RealType>::generateParticles(const JParams& jParams)
 {
     __BNN_REQUIRE(jParams.find("ParticleGenerators") != jParams.end());
     for(auto& jObj : jParams["ParticleGenerators"]) {
@@ -300,7 +300,7 @@ void ParticleSolver<N, RealType >::generateParticles(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateRemovers(const JParams& jParams)
+void ParticleSolver<N, RealType>::generateRemovers(const JParams& jParams)
 {
     if(jParams.find("ParticleRemovers") == jParams.end()) {
         return;
@@ -312,7 +312,7 @@ void ParticleSolver<N, RealType >::generateRemovers(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool ParticleSolver<N, RealType >::advanceScene()
+bool ParticleSolver<N, RealType>::advanceScene()
 {
     bool bSceneChanged = false;
     if(m_DynamicObjects.size() > 0) {
@@ -362,7 +362,13 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
     }
 
     if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepKineticEnergy")) {
-        RealType kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSolverParams().particleMass * 0.5_f;
+        static Vec_VecN tmp;
+        tmp.resize(generalParticleData().getNParticles());
+        Scheduler::parallel_for(generalParticleData().getNParticles(), [&] (UInt p)
+                                {
+                                    tmp[p] = generalParticleData().velocities[p] * generalParticleData().mass(p);
+                                });
+        RealType kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(tmp) * RealType(0.5);
         String   dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
                                  String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);

@@ -143,7 +143,7 @@ void SPHBasedRelaxation<N, RealType >::computeDensity()
                                 }
                                 auto pdensity = kernels().kernelCubicSpline.W_zero();
                                 computeDensity(pdensity, pNeighborInfo);
-                                pdensity *= solverParams().particleMass;
+                                pdensity *= particleData().mass(p);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().densities[p] = MathHelpers::clamp(pdensity,
                                                                                  solverParams().densityMin,
@@ -188,7 +188,7 @@ void SPHBasedRelaxation<N, RealType >::normalizeDensity()
                                         tmp += kernels().kernelCubicSpline.W(r) / solverParams().restDensity;
                                     }
                                 }
-                                pdensity = pdensity / (tmp * solverParams().particleMass);
+                                pdensity = pdensity / (tmp * particleData().mass(p));
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().tmp_densities[p] = MathHelpers::clamp(pdensity,
                                                                                      solverParams().densityMin,
@@ -234,7 +234,7 @@ void SPHBasedRelaxation<N, RealType >::computeForces()
                                     __BNN_TODO_MSG("add surface tension");
                                     pforce += fpressure;
                                 }
-                                particleData().forces[p] = pforce * solverParams().particleMass;
+                                particleData().forces[p] = pforce * particleData().mass(p);
                             });
 }
 
@@ -307,7 +307,7 @@ void SPHBasedRelaxation<N, RealType >::computeViscosity()
                                 }
                                 diffVelBoundary *= solverParams().viscosityBoundary;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().diffuseVelocity[p] = (diffVelFluid + diffVelBoundary) * solverParams().particleMass;
+                                particleData().diffuseVelocity[p] = (diffVelFluid + diffVelBoundary) * particleData().mass(p);
                             });
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
 }

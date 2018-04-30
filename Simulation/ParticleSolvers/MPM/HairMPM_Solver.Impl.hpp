@@ -446,7 +446,7 @@ void HairMPM_Solver<N, RealType>::computeDamping()
                                 }
 
                                 ////////////////////////////////////////////////////////////////////////////////
-                                diffuseVelocity[p] = diffVelFluid * RealType(1e0) * solverParams().particleMass;
+                                diffuseVelocity[p] = diffVelFluid * RealType(1e0) * particleData().mass(p);
                             });
 
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += diffuseVelocity[p]; });
@@ -465,7 +465,7 @@ void HairMPM_Solver<N, RealType>::computeDamping()
                                 }
 
                                 ////////////////////////////////////////////////////////////////////////////////
-                                diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
+                                diffuseVelocity[p] = diffVelFluid * 1e0_f * particleData().mass(p);
                             });
 #endif
 }

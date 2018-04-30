@@ -399,7 +399,7 @@ void MPM_Solver<N, RealType>::mapParticleMasses2Grid()
                                                   auto weightGrad                                                  = VecN(dwx * wy, dwy * wx) / grid().getCellSize();
                                                   particleData().weights[p * MathHelpers::pow(4, N) + idx]         = weight;
                                                   particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = weightGrad;
-                                                  AtomicOperations::atomicAdd(gridData().mass(x, y), weight * solverParams().particleMass);
+                                                  AtomicOperations::atomicAdd(gridData().mass(x, y), weight * particleData().mass(p));
                                                   auto xixp = grid().getWorldCoordinate(x, y) - pPos;
                                                   pD       += weight * glm::outerProduct(xixp, xixp);
                                               }
@@ -442,7 +442,7 @@ void MPM_Solver<N, RealType>::mapParticleMasses2Grid()
                                                 auto weightGrad                                                  = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
                                                 particleData().weights[p * MathHelpers::pow(4, N) + idx]         = weight;
                                                 particleData().weightGradients[p * MathHelpers::pow(4, N) + idx] = weightGrad;
-                                                AtomicOperations::atomicAdd(gridData().mass(x, y, z), weight * solverParams().particleMass);
+                                                AtomicOperations::atomicAdd(gridData().mass(x, y, z), weight * particleData().mass(p));
                                                 auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
                                                 pD       += weight * glm::outerProduct(xixp, xixp);
                                             }
@@ -483,7 +483,7 @@ bool MPM_Solver<N, RealType>::initParticleVolumes()
 
                                     pDensity /= solverParams().cellVolume;
                                     __BNN_REQUIRE(pDensity > 0);
-                                    particleData().volumes[p] = solverParams().particleMass / pDensity;
+                                    particleData().volumes[p] = particleData().mass(p) / pDensity;
                                 });
     } else {
         Scheduler::parallel_for(particleData().getNParticles(),
@@ -506,7 +506,7 @@ bool MPM_Solver<N, RealType>::initParticleVolumes()
 
                                     pDensity /= solverParams().cellVolume;
                                     __BNN_REQUIRE(pDensity > 0);
-                                    particleData().volumes[p] = solverParams().particleMass / pDensity;
+                                    particleData().volumes[p] = particleData().mass(p) / pDensity;
                                 });
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -541,7 +541,7 @@ void MPM_Solver<N, RealType>::mapParticleVelocities2GridFLIP(RealType timestep)
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                             if(w > Tiny<RealType>()) {
                                                 gridData().active(x, y) = 1;
-                                                AtomicOperations::atomicAdd(gridData().velocity(x, y), pVel * w * solverParams().particleMass);
+                                                AtomicOperations::atomicAdd(gridData().velocity(x, y), pVel * w * particleData().mass(p));
                                             }
                                         }
                                     }
@@ -563,7 +563,7 @@ void MPM_Solver<N, RealType>::mapParticleVelocities2GridFLIP(RealType timestep)
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny<RealType>()) {
                                                     gridData().active(x, y, z) = 1;
-                                                    AtomicOperations::atomicAdd(gridData().velocity(x, y, z), pVel * w * solverParams().particleMass);
+                                                    AtomicOperations::atomicAdd(gridData().velocity(x, y, z), pVel * w * particleData().mass(p));
                                                 }
                                             }
                                         }
@@ -603,7 +603,7 @@ void MPM_Solver<N, RealType>::mapParticleVelocities2GridAPIC(RealType timestep)
                                             auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                             if(w > Tiny<RealType>()) {
                                                 auto xixp    = grid().getWorldCoordinate(x, y) - pPos;
-                                                auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
+                                                auto apicVel = (pVel + pBxInvpD * xixp) * w * particleData().mass(p);
 
                                                 gridData().active(x, y) = 1;
                                                 AtomicOperations::atomicAdd(gridData().velocity(x, y), apicVel);
@@ -629,7 +629,7 @@ void MPM_Solver<N, RealType>::mapParticleVelocities2GridAPIC(RealType timestep)
                                                 auto w = particleData().weights[p * MathHelpers::pow(4, N) + idx];
                                                 if(w > Tiny<RealType>()) {
                                                     auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
+                                                    auto apicVel = (pVel + pBxInvpD * xixp) * w * particleData().mass(p);
 
                                                     gridData().active(x, y, z) = 1;
                                                     AtomicOperations::atomicAdd(gridData().velocity(x, y, z), apicVel);

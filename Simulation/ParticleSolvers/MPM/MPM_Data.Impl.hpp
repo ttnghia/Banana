@@ -50,8 +50,8 @@ template<Int N, class RealType>
 void MPM_Parameters<N, RealType>::makeReady()
 {
     SimulationParameters<N, RealType>::makeReady();
-    nExpandCells = MathHelpers::max(nExpandCells, 2u);
-    particleMass = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
+    nExpandCells        = MathHelpers::max(nExpandCells, 2u);
+    defaultParticleMass = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
 
     __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
     if(mu == 0 || lambda == 0) {
@@ -82,7 +82,7 @@ void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     logger->printLogIndent(String("Youngs modulus/Poissons ratio: ") + std::to_string(YoungsModulus) + String("/") + std::to_string(PoissonsRatio));
     logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
     logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
-    logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
+    logger->printLogIndent(String("Particle mass: ") + std::to_string(defaultParticleMass));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -232,6 +232,7 @@ void MPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
     gridData->resize(grid.getNCells());
     particleData->setupNeighborSearch(simParams->particleRadius * RealType(4));
+    particleData->defaultParticleMass = simParams->defaultParticleMass;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

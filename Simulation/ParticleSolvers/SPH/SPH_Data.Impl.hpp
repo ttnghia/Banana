@@ -34,10 +34,10 @@ void WCSPH_Parameters<N, RealType>::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters<N, RealType>::makeReady();
-    particleMass   = RealType(pow(RealType(2.0) * particleRadius, N)) * materialDensity * particleMassScale;
-    restDensitySqr = materialDensity * materialDensity;
-    densityMin     = materialDensity / densityVariationRatio;
-    densityMax     = materialDensity * densityVariationRatio;
+    defaultParticleMass = RealType(pow(RealType(2.0) * particleRadius, N)) * materialDensity * particleMassScale;
+    restDensitySqr      = materialDensity * materialDensity;
+    densityMin          = materialDensity / densityVariationRatio;
+    densityMax          = materialDensity * densityVariationRatio;
 
     kernelRadius    = particleRadius * ratioKernelPRadius;
     kernelRadiusSqr = kernelRadius * kernelRadius;
@@ -63,8 +63,13 @@ void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     logger->printLogIndent("Viscosity fluid-boundary: " + NumberHelpers::formatToScientific(viscosityBoundary, 2));
     logger->newLine();
     logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
-    logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
+#ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
+    logger->printLogIndent("Particle mass: " + std::to_string(defaultParticleMass));
     logger->printLogIndent("Rest density: " + std::to_string(materialDensity));
+#else
+    logger->printLogIndent("Default particle mass: " + std::to_string(defaultParticleMass));
+    logger->printLogIndent("Default rest density: " + std::to_string(materialDensity));
+#endif
     logger->printLogIndent("Density variation: " + std::to_string(densityVariationRatio));
     logger->printLogIndent("Normalize density: " + (bNormalizeDensity ? std::string("Yes") : std::string("No")));
     logger->printLogIndent("Generate boundary particles: " + (bDensityByBDParticle ? std::string("Yes") : std::string("No")));
@@ -179,6 +184,7 @@ void WCSPH_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, 
     kernels.kernelPoly6.setRadius(sphParams->kernelRadius);
     kernels.kernelSpiky.setRadius(sphParams->kernelRadius);
     particleData.setupNeighborSearch(sphParams->kernelRadius);
+    particleData.defaultParticleMass = simParams->defaultParticleMass;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
