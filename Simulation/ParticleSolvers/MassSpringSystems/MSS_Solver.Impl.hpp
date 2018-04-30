@@ -261,7 +261,6 @@ void MSS_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
                                   logger().printRunTime("Find neighbors: ", [&]() { particleData().NSearch().find_neighbors(); });
                                   logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -382,17 +381,21 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
 {
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
-    computeExplicitForces();
-    updateExplicitVelocities(halfStep);
-    moveParticles(halfStep);
-    computeExplicitForces();
-    updateExplicitVelocities(halfStep);
+    logger().printRunTimeIndent("Compute explicit forces stage-1: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Update explicit velocities stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
+    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(halfStep); });
+    logger().printRunTimeIndent("Compute explicit forces stage-2: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Update explicit velocities stage-2: ", [&]() { updateExplicitVelocities(halfStep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
-{}
+{
+    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
+    logger().printRunTimeIndent("Compute explicit forces: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Update explicit velocities: ", [&]() { updateExplicitVelocities(timestep); });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
@@ -410,14 +413,14 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                             [&](UInt p)
                             {
                                 const auto& neighbors = particleData().neighborIdx_t0[p];
-                                const auto& ppos      = particleData().positions[p];
+                                const auto ppos       = particleData().positions[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 VecN forces(0);
                                 for(size_t i = 0; i < neighbors.size(); ++i) {
-                                    const auto q     = neighbors[i];
-                                    const auto& qpos = particleData().positions[q];
-                                    auto xpq         = qpos - ppos;
-                                    auto dist        = glm::length(xpq);
+                                    const auto q    = neighbors[i];
+                                    const auto qpos = particleData().positions[q];
+                                    const auto xpq  = qpos - ppos;
+                                    const auto dist = glm::length(xpq);
                                     if(dist > Tiny<RealType>()) {
                                         forces += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * (xpq / dist);
                                     } else {
