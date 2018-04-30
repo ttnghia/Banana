@@ -63,13 +63,13 @@ protected:
     virtual RealType timestepCFL();
     virtual void     moveParticles(RealType timestep);
     virtual void     integration(RealType timestep);
-    virtual void     updateExplicitVelocities(RealType timestep);
     virtual void     explicitVerletIntegration(RealType timestep);
     virtual void     explicitEulerIntegration(RealType timestep);
     virtual void     implicitEulerIntegration(RealType timestep);
     virtual void     newmarkBetaIntegration(RealType timestep);
-    virtual void     computeExplicitForces(RealType timestep);
+    virtual void     computeExplicitForces();
     virtual void     computeImplicitForces(RealType timestep);
+    virtual void     updateExplicitVelocities(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<MSS_Parameters<N, RealType>> m_MSSParams = nullptr;
     SharedPtr<MSS_Data<N, RealType>>       m_MSSData   = nullptr;

@@ -303,6 +303,14 @@ void MSS_Solver<N, RealType>::sortParticles()
 
                               d.sort_field(&particleData().neighborIdx_t0[0]);
                               d.sort_field(&particleData().neighborDistances_t0[0]);
+
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+                              d.sort_field(&particleData().objectSpringStiffness[0]);
+#endif
+
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+                              d.sort_field(&particleData().objectSpringHorizon[0]);
+#endif
                           });
     logger().newLine();
 }
@@ -370,26 +378,14 @@ void MSS_Solver<N, RealType>::integration(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
-{
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                particleData().velocities[p] = particleData().explicitForces[p] / particleData().mass(p) * timestep;
-                            });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-template<Int N, class RealType>
 void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
 {
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
-    computeExplicitForces(halfStep);
+    computeExplicitForces();
     updateExplicitVelocities(halfStep);
     moveParticles(halfStep);
-    computeExplicitForces(halfStep);
+    computeExplicitForces();
     updateExplicitVelocities(halfStep);
 }
 
@@ -397,6 +393,7 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
 {}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::implicitEulerIntegration(RealType timestep)
@@ -407,11 +404,46 @@ void MSS_Solver<N, RealType>::newmarkBetaIntegration(RealType timestep)
 {}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType>::computeExplicitForces(RealType timestep)
-{}
+void MSS_Solver<N, RealType>::computeExplicitForces()
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& neighbors = particleData().neighborIdx_t0[p];
+                                const auto& ppos      = particleData().positions[p];
+                                ////////////////////////////////////////////////////////////////////////////////
+                                VecN forces(0);
+                                for(size_t i = 0; i < neighbors.size(); ++i) {
+                                    const auto q     = neighbors[i];
+                                    const auto& qpos = particleData().positions[q];
+                                    auto xpq         = qpos - ppos;
+                                    auto dist        = glm::length(xpq);
+                                    if(dist > Tiny<RealType>()) {
+                                        forces += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * (xpq / dist);
+                                    } else {
+                                        forces += MathHelpers::vrand<VecN>() * solverParams().particleRadius * solverParams().overlapResolutionRatio;
+                                    }
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                particleData().explicitForces[p] = forces * particleData().springStiffness(p);
+                            });
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
 {}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                particleData().velocities[p] = particleData().explicitForces[p] / particleData().mass(p) * timestep;
+                            });
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

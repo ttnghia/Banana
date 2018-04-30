@@ -45,6 +45,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
         __BNN_DIE((String("Incorrect value for parameter ") + tmp).c_str());
     }
 
+    JSONHelpers::readValue(jParams, overlapResolutionRatio, "OverlapResolutionRatio");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +261,7 @@ void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
         for(auto q : points.neighbors(0, p)) {
             const auto& qpos     = positions[q];
             auto        distance = glm::length(ppos - qpos);
-            if(distance < springHorizon(p) && distance < springHorizon(q)) {
+            if(distance > Tiny<RealType>() && distance < springHorizon(p) && distance < springHorizon(q)) {
                 neighborIdx_t0[p].push_back(q);
                 neighborDistances_t0[p].push_back(distance);
             }
