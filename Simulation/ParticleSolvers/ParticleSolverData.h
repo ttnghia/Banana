@@ -254,12 +254,12 @@ struct ParticleSimulationData
     virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) = 0;
     virtual UInt removeParticles(const Vec_Int8& removeMarker)                                                    = 0;
     virtual void findNeighbors();
+    virtual void findNeighbors_t0();
+    virtual void findNeighborsAndDistances_t0();
 
     UInt  getNParticles() const { return static_cast<UInt>(positions.size()); }
     void setupNeighborSearch(RealType searchDistance);
     void addSearchParticles(Vec_VecN& positions, bool bDynamic = true, bool bSearchNeighbor = true);
-    void findNeighbors_t0();
-    void findNeighborsAndDistances_t0();
     auto& NSearch() { assert(neighborSearch != nullptr); return *neighborSearch; }
     auto& neighborList(UInt p) { return NSearch().point_set(0).neighbors(0, p); }
     auto& neighborList(UInt p, UInt pointSetID) { return NSearch().point_set(0).neighbors(pointSetID, p); }

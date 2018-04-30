@@ -341,16 +341,16 @@ void ParticleSimulationData<N, RealType>::setupNeighborSearch(RealType searchDis
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType>::findNeighbors()
+void ParticleSimulationData<N, RealType>::addSearchParticles(Vec_VecN& positions, bool bDynamic /*= true*/, bool bSearchNeighbor /*= true*/)
 {
-    NSearch().find_neighbors();
+    NSearch().add_point_set(glm::value_ptr(positions.front()), static_cast<UInt>(positions.size()), bDynamic, bSearchNeighbor);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSimulationData<N, RealType>::addSearchParticles(Vec_VecN& positions, bool bDynamic /*= true*/, bool bSearchNeighbor /*= true*/)
+void ParticleSimulationData<N, RealType>::findNeighbors()
 {
-    NSearch().add_point_set(glm::value_ptr(positions.front()), static_cast<UInt>(positions.size()), bDynamic, bSearchNeighbor);
+    NSearch().find_neighbors();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -361,7 +361,7 @@ void ParticleSimulationData<N, RealType>::findNeighbors_t0()
     ////////////////////////////////////////////////////////////////////////////////
     neighborIdx_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
-    for(auto p : points) {
+    for(UInt p = 0; p < getNParticles(); ++p) {
         neighborIdx_t0[p] = points.neighbors(0, p);
     }
 }
@@ -375,7 +375,7 @@ void ParticleSimulationData<N, RealType>::findNeighborsAndDistances_t0()
     neighborIdx_t0.resize(getNParticles());
     neighborDistances_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
-    for(auto p : points) {
+    for(UInt p = 0; p < getNParticles(); ++p) {
         neighborIdx_t0[p] = points.neighbors(0, p);
         ////////////////////////////////////////////////////////////////////////////////
         neighborDistances_t0[p].resize(0);
