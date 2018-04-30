@@ -53,13 +53,13 @@ void Cloth_Solver<RealType>::generateParticles(const JParams& jParams)
         particleData().addSearchParticles(particleData().positions);
 
         ////////////////////////////////////////////////////////////////////////////////
+        // sort particles
+        sortParticles();
+
+        ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
         logger().newLine();
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // sort particles after saving
-        sortParticles();
     } else {
         particleData().addSearchParticles(particleData().positions);
     }
