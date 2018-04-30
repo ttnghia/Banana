@@ -52,13 +52,14 @@ void MSS_Solver<N, RealType>::generateParticles(const JParams& jParams)
         particleData().addSearchParticles(particleData().positions);
 
         ////////////////////////////////////////////////////////////////////////////////
+        // sort particles and find neighbors
+        sortParticles();
+        particleData().findNeighborsAndDistances_t0();
+
+        ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
         logger().newLine();
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // sort particles after saving
-        sortParticles();
     } else {
         particleData().addSearchParticles(particleData().positions);
     }

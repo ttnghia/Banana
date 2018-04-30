@@ -36,8 +36,9 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
-    IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
-    RealType          horizon           = RealType(4);
+    IntegrationScheme integrationScheme    = IntegrationScheme::NewmarkBeta;
+    RealType          defaultSpringHorizon = RealType(4);
+    RealType          maxSpringHorizon     = RealType(0);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -63,10 +64,12 @@ struct MSS_Data : SimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
         Vector<RealType> objectSpringStiffness;
+        Vector<RealType> objectSpringHorizon;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
+        virtual void findNeighborsAndDistances_t0() override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////

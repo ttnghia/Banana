@@ -31,9 +31,9 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
-    JSONHelpers::readValue(jParams, horizon, "Horizon");
+    JSONHelpers::readValue(jParams, defaultSpringHorizon, "DefaultHorizonRatio");
     String tmp;
-    JSONHelpers::readValue(jParams, tmp,     "IntegrationScheme");
+    JSONHelpers::readValue(jParams, tmp,                  "IntegrationScheme");
     if(tmp == "ExplicitVerlet") {
         integrationScheme = IntegrationScheme::ExplicitVerlet;
     } else if(tmp == "ExplicitEuler") {
@@ -61,7 +61,10 @@ template<Int N, class RealType>
 void MSS_Parameters<N, RealType>::makeReady()
 {
     SimulationParameters<N, RealType>::makeReady();
-    particleMass = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
+    ////////////////////////////////////////////////////////////////////////////////
+    particleMass          = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
+    defaultSpringHorizon *= particleRadius;
+    maxSpringHorizon      = defaultSpringHorizon;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -92,6 +95,8 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
             __BNN_DIE(String("Incorrect value for integration scheme"));
     }
 
+    logger->printLogIndent(String("Default horizon: ") + NumberHelpers::toString(defaultSpringHorizon, 2) +
+                           String(", which is ") + NumberHelpers::toString(defaultSpringHorizon / particleRadius, 2) + String(" particle radius"));
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +122,7 @@ void MSS_Data<N, RealType>::MSS_ParticleData::reserve(UInt nParticles)
     velocities.reserve(nParticles);
     objectIndex.reserve(nParticles);
     objectSpringStiffness.reserve(nParticles);
+    objectSpringHorizon.reserve(nParticles);
 
     neighborIdx_t0.resize(nParticles);
     neighborDistances_t0.resize(nParticles);
@@ -129,13 +135,23 @@ void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPo
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-
+    ////////////////////////////////////////////////////////////////////////////////
     RealType stiffness;
     if(JSONHelpers::readValue(jParams, stiffness, "SpringStiffness")) {
         objectSpringStiffness.insert(objectSpringStiffness.end(), newPositions.size(), stiffness);
     } else {
         objectSpringStiffness.insert(objectSpringStiffness.end(), newPositions.size(), defaultSpringStiffness);
     }
+    ////////////////////////////////////////////////////////////////////////////////
+    RealType horizon;
+    if(JSONHelpers::readValue(jParams, horizon, "HorizonRatio")) {
+        horizon         *= particleRadius;
+        maxSpringHorizon = MathHelpers::max(maxSpringHorizon, horizon);
+        objectSpringHorizon.insert(objectSpringHorizon.end(), newPositions.size(), horizon);
+    } else {
+        objectSpringHorizon.insert(objectSpringHorizon.end(), newPositions.size(), defaultSpringHorizon);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
     neighborIdx_t0.resize(nParticles);
     neighborDistances_t0.resize(nParticles);
 
@@ -159,11 +175,42 @@ UInt MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(const Vec_Int8& re
     STLHelpers::eraseByMarker(velocities,            removeMarker);
     STLHelpers::eraseByMarker(objectIndex,           removeMarker);
     STLHelpers::eraseByMarker(objectSpringStiffness, removeMarker);
+    STLHelpers::eraseByMarker(objectSpringHorizon,   removeMarker);
     STLHelpers::eraseByMarker(activity,              removeMarker);
     STLHelpers::eraseByMarker(neighborIdx_t0,        removeMarker);
     STLHelpers::eraseByMarker(neighborDistances_t0,  removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // set radius again, as it will be changed during particle generation
+    NSearch().set_radius(maxSpringHorizon);
+    findNeighbors();
+    ////////////////////////////////////////////////////////////////////////////////
+    neighborIdx_t0.resize(getNParticles());
+    neighborDistances_t0.resize(getNParticles());
+    const auto& points = NSearch().point_set(0);
+    for(auto p : points) {
+        neighborIdx_t0[p].resize(0);
+        neighborIdx_t0[p].reserve(points.n_neighbors(0, p));
+        neighborDistances_t0[p].resize(0);
+        neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
+        ////////////////////////////////////////////////////////////////////////////////
+        const auto& ppos = positions[p];
+        for(auto q : points.neighbors(0, p)) {
+            const auto& qpos     = positions[q];
+            auto        distance = glm::length(ppos - qpos);
+            if(distance < objectSpringHorizon[p] && distance < objectSpringHorizon[q]) {
+                neighborIdx_t0[p].push_back(q);
+                neighborDistances_t0[p].push_back(distance);
+            }
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -180,7 +227,7 @@ void MSS_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
     }
-    particleData->setupNeighborSearch(simParams->particleRadius * horizon);
+    particleData->setupNeighborSearch(simParams->particleRadius * maxSpringHorizon);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
