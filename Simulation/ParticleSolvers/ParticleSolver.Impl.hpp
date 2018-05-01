@@ -365,6 +365,9 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
     }
 
     if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepKineticEnergy")) {
+#ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
+        RealType kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSolverParams().defaultParticleMass;
+#else
         static Vec_VecN tmp;
         tmp.resize(generalParticleData().getNParticles());
         Scheduler::parallel_for(generalParticleData().getNParticles(), [&] (UInt p)
@@ -372,8 +375,9 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
                                     tmp[p] = generalParticleData().velocities[p] * generalParticleData().mass(p);
                                 });
         RealType kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(tmp) * RealType(0.5);
-        String   dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
-                                 String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
+#endif
+        String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
+                         String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);
     }
 }
