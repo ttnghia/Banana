@@ -41,7 +41,6 @@ void MPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     JSONHelpers::readValue(jParams, PoissonsRatio,   "PoissonsRatio");
     JSONHelpers::readValue(jParams, mu,              "mu");
     JSONHelpers::readValue(jParams, lambda,          "lambda");
-    JSONHelpers::readValue(jParams, materialDensity, "MaterialDensity");
     ////////////////////////////////////////////////////////////////////////////////
 }
 

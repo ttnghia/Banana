@@ -421,21 +421,16 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                                     const auto qpos = particleData().positions[q];
                                     const auto xpq  = qpos - ppos;
                                     const auto dist = glm::length(xpq);
-                                    if(dist > Tiny<RealType>()) {
+                                    if(dist > solverParams().overlapThreshold) {
                                         forces += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * (xpq / dist);
                                     } else {
-                                        forces += MathHelpers::vrand<VecN>() * solverParams().particleRadius * solverParams().overlapResolutionRatio;
+                                        forces += MathHelpers::vrand<VecN>() * solverParams().overlapThreshold;
                                     }
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().explicitForces[p] = forces * particleData().springStiffness(p);
                             });
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
-{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
@@ -447,6 +442,11 @@ void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
                                 particleData().velocities[p] = particleData().explicitForces[p] / particleData().mass(p) * timestep;
                             });
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
+{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

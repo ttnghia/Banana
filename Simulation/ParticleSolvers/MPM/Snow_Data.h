@@ -80,7 +80,6 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 		JSONHelpers::readValue(jParams, thresholdCompression, "ThresholdCompression");
 		JSONHelpers::readValue(jParams, thresholdStretching, "ThresholdStretching");
 		JSONHelpers::readValue(jParams, hardening, "Hardening");
-		JSONHelpers::readValue(jParams, materialDensity, "MaterialDensity");
 		JSONHelpers::readValue(jParams, YoungsModulus, "YoungsModulus");
 		JSONHelpers::readValue(jParams, PoissonsRatio, "PoissonsRatio");
 

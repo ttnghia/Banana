@@ -44,8 +44,6 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     } else {
         __BNN_DIE((String("Incorrect value for parameter ") + tmp).c_str());
     }
-
-    JSONHelpers::readValue(jParams, overlapResolutionRatio, "OverlapResolutionRatio");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +51,6 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     JSONHelpers::readValue(jParams, defaultSpringStiffness, "DefaultSpringStiffness");
     JSONHelpers::readValue(jParams, defaultSpringHorizon,   "DefaultHorizonRatio");
     JSONHelpers::readValue(jParams, KDamping,               "KDamping");
-    JSONHelpers::readValue(jParams, materialDensity,        "MaterialDensity");
     ////////////////////////////////////////////////////////////////////////////////
 }
 

@@ -525,7 +525,7 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                                const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
                                                if(w < MEpsilon<RealType>()) {
                                                    return VecN(0);
-                                               } else if(d2 > solverParams().overlappingThresholdSqr) {
+                                               } else if(d2 > solverParams().overlapThresholdSqr) {
                                                    return -solverParams().shortRangeRepulsiveForceStiffness * w / RealType(sqrt(d2)) * r;
                                                } else {
                                                    return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<VecN>();

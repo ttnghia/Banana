@@ -104,7 +104,6 @@ void WCSPH_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     ////////////////////////////////////////////////////////////////////////////////
     // density
     JSONHelpers::readValue(jParams, particleMassScale,     "ParticleMassScale");
-    JSONHelpers::readValue(jParams, materialDensity,       "MaterialDensity");
     JSONHelpers::readValue(jParams, densityVariationRatio, "DensityVariationRatio");
     JSONHelpers::readBool(jParams, bNormalizeDensity,    "NormalizeDensity");
     JSONHelpers::readBool(jParams, bDensityByBDParticle, "DensityByBDParticle");
