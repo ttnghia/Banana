@@ -41,7 +41,7 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    RealType defaultSpringStiffness = RealType(1e5);
+    RealType defaultSpringStiffness = RealType(1e3);
     RealType defaultSpringHorizon   = RealType(4);
     RealType KDamping               = RealType(1e-2);
     ////////////////////////////////////////////////////////////////////////////////
@@ -63,18 +63,18 @@ struct MSS_Data : SimulationData<N, RealType>
     {
         ////////////////////////////////////////////////////////////////////////////////
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
-        RealType defaultSpringStiffness = RealType(1e5);
+        RealType defaultSpringStiffness = RealType(1e3);
 #else
         Vector<RealType> objectSpringStiffness;
 #endif
 
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
-        RealType particleRadius       = RealType(0);
         RealType defaultSpringHorizon = RealType(0);
-        RealType maxSpringHorizon     = RealType(0);
 #else
+        RealType         maxSpringHorizon = RealType(0);
         Vector<RealType> objectSpringHorizon;
 #endif
+        RealType particleRadius = RealType(0);
         ////////////////////////////////////////////////////////////////////////////////
         Vec_VecN explicitForces;
         ////////////////////////////////////////////////////////////////////////////////

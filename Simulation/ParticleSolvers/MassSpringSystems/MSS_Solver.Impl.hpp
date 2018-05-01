@@ -264,8 +264,22 @@ void MSS_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Find neighbors: ", [&]() { particleData().NSearch().find_neighbors(); });
-                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
+                                  switch(solverParams().integrationScheme) {
+                                      case IntegrationScheme::ExplicitVerlet:
+                                          logger().printRunTime("}=> Time integration (Explicit-Verlet): ", [&]() { integration(substep); });
+                                          break;
+                                      case IntegrationScheme::ExplicitEuler:
+                                          logger().printRunTime("}=> Time integration (Explicit-Euler): ", [&]() { integration(substep); });
+                                          break;;
+                                      case IntegrationScheme::ImplicitEuler:
+                                          logger().printRunTime("}=> Time integration (Implicit-Euler): ", [&]() { integration(substep); });
+                                          break;
+                                      case IntegrationScheme::NewmarkBeta:
+                                          logger().printRunTime("}=> Time integration (Implicit-Newmark-beta): ", [&]() { integration(substep); });
+                                          break;
+                                      default:
+                                          ;
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -315,13 +329,6 @@ void MSS_Solver<N, RealType>::sortParticles()
 #endif
                           });
     logger().newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void MSS_Solver<N, RealType>::advanceVelocity(RealType timestep)
-{
-    logger().printRunTime("{   Time integration: ", [&]() { integration(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -384,22 +391,24 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
 {
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTimeIndent("Compute explicit forces stage-1: ", [&]() { computeExplicitForces(); });
-    logger().printRunTimeIndent("Compute collision penalty forces stage-1: ", [&]() { computeCollisionPenaltyForces(); });
-    logger().printRunTimeIndent("Update explicit velocities stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
+    logger().printRunTime("{   Compute explicit forces, stage-1: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Compute collision penalty forces, stage-1: ", [&]() { computeCollisionPenaltyForces(); });
+    logger().printRunTimeIndent("Update explicit velocities, stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
 
     logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(halfStep); });
-    logger().printRunTimeIndent("Compute explicit forces stage-2: ", [&]() { computeExplicitForces(); });
-    logger().printRunTimeIndent("Compute collision penalty forces stage-2: ", [&]() { computeCollisionPenaltyForces(); });
-    logger().printRunTimeIndent("Update explicit velocities stage-2: ", [&]() { updateExplicitVelocities(halfStep); });
+    logger().printRunTimeIndent("Compute explicit forces, stage-2: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Find neighbors for collision detection, stage-2: ", [&]() { particleData().NSearch().find_neighbors(); });
+    logger().printRunTimeIndent("Compute collision penalty forces, stage-2: ", [&]() { computeCollisionPenaltyForces(); });
+    logger().printRunTimeIndent("Update explicit velocities, stage-2: ", [&]() { updateExplicitVelocities(halfStep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
 {
-    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
+    logger().printRunTime("{   Move particles: ", [&]() { moveParticles(timestep); });
     logger().printRunTimeIndent("Compute explicit forces: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Find neighbors for collision detection: ", [&]() { particleData().NSearch().find_neighbors(); });
     logger().printRunTimeIndent("Compute collision penalty forces: ", [&]() { computeCollisionPenaltyForces(); });
     logger().printRunTimeIndent("Update explicit velocities: ", [&]() { updateExplicitVelocities(timestep); });
 }
@@ -426,10 +435,10 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                                 for(size_t i = 0; i < neighbors.size(); ++i) {
                                     const auto q    = neighbors[i];
                                     const auto qpos = particleData().positions[q];
-                                    const auto xpq  = qpos - ppos;
-                                    const auto dist = glm::length(xpq);
+                                    const auto xqp  = qpos - ppos;
+                                    const auto dist = glm::length(xqp);
                                     if(dist > solverParams().overlapThreshold) {
-                                        forces += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * (xpq / dist);
+                                        forces += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * (xqp / dist);
                                     } else {
                                         forces += MathHelpers::vrand<VecN>() * solverParams().overlapThreshold;
                                     }
@@ -446,7 +455,7 @@ void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                particleData().velocities[p] = particleData().explicitForces[p] / particleData().mass(p) * timestep;
+                                particleData().velocities[p] += particleData().explicitForces[p] / particleData().mass(p) * timestep;
                             });
 }
 
@@ -459,7 +468,6 @@ void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::computeCollisionPenaltyForces()
 {
-    particleData().NSearch().find_neighbors();
     const auto& points = particleData().NSearch().point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -475,16 +483,16 @@ void MSS_Solver<N, RealType>::computeCollisionPenaltyForces()
                                         continue;
                                     }
                                     ////////////////////////////////////////////////////////////////////////////////
-                                    ////////////////////////////////////////////////////////////////////////////////
                                     const auto qpos = particleData().positions[q];
-                                    const auto xpq  = qpos - ppos;
-                                    const auto dist = glm::length(xpq);
-                                    if(dist > solverParams().overlapThreshold) {
-                                        __BNN_TODO_MSG("check")
-                                        forces += MathHelpers::smooth_kernel(dist, RealType(2) * solverParams().particleRadius) * (xpq / dist);
-                                    } else {
-                                        forces += glm::normalize(MathHelpers::vrand<VecN>());
+                                    auto xpq        = ppos - qpos;
+                                    auto dist2      = glm::length2(xpq);
+
+                                    // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
+                                    if(dist2 < solverParams().overlapThresholdSqr) {
+                                        dist2 = solverParams().overlapThresholdSqr;
+                                        xpq   = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
                                     }
+                                    forces += MathHelpers::smooth_kernel(dist2, RealType(4) * solverParams().particleRadiusSqr) * (xpq / sqrt(dist2));
                                     ////////////////////////////////////////////////////////////////////////////////
                                 }
                                 particleData().explicitForces[p] += forces * solverParams().repulsiveForceStiffness;

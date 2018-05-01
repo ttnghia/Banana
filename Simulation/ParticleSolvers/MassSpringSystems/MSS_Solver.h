@@ -59,7 +59,6 @@ protected:
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void     advanceVelocity(RealType timestep);
     virtual RealType timestepCFL();
     virtual void     moveParticles(RealType timestep);
     virtual void     integration(RealType timestep);

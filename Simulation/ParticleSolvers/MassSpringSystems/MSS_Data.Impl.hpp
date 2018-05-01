@@ -242,7 +242,7 @@ void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // set radius again, as it will be changed during particle generation
-    NSearch().set_radius(maxSpringHorizon);
+    NSearch().set_radius(defaultSpringHorizon);
     findNeighbors();
     ////////////////////////////////////////////////////////////////////////////////
     neighborIdx_t0.resize(getNParticles());
@@ -301,6 +301,7 @@ void MSS_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
     particleData->defaultSpringHorizon = MSSParams->defaultSpringHorizon;
 #endif
+    particleData->particleRadius = MSSParams->particleRadius;
     ////////////////////////////////////////////////////////////////////////////////
     particleData->setupNeighborSearch(MSSParams->particleRadius * MSSParams->defaultParticleMass);
 }
