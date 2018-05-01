@@ -61,6 +61,7 @@ RESOURCES += \
 
 DISTFILES += \
     Scenes/_Testing.json \
+    Scenes/AniMPM2D_2Cubes.json \
     Scenes/FLIP3D_2DamBreak.json \
     Scenes/FLIP3D_BallDrop.json \
     Scenes/FLIP3D_RotationalBoxBoundary.json \
