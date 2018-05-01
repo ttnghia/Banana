@@ -4,7 +4,7 @@
         "Solver" : "MSS_3DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 50,
+        "FinalFrame" : 100,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -13,8 +13,8 @@
         "MemoryStateDataFolder" : "MSSState",
         "OptionalSavingData" : [ "object_index" ],
         "LogLevel" : "Debug",
-        "PrintLogToFile" : false,
-        "EnableSortParticle" : true,
+        "PrintLogToFile" : true,
+        "EnableSortParticle" : false,
         "SortFrequency" : 10
     },
     "SimulationParameters":
@@ -26,10 +26,11 @@
         },
         "NExpandCells" : 2,
         "IntegrationScheme" : "ExplicitEuler",
-        "CellSize" : 0.05,
+        "CellSize" : 0.1,
         "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.2,
-        "MaterialDensity" : 1000
+        "CFLFactor" : 1.0,
+        "MaterialDensity" : 1000,
+        "RepulsiveForceStiffness": 1e4
     },
     "ParticleGenerators":
     [

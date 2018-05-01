@@ -430,21 +430,30 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                             {
                                 const auto& neighbors = particleData().neighborIdx_t0[p];
                                 const auto ppos       = particleData().positions[p];
+                                const auto pvel       = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
-                                VecN forces(0);
+                                VecN spring(0);
+                                VecN damping(0);
                                 for(size_t i = 0; i < neighbors.size(); ++i) {
                                     const auto q    = neighbors[i];
                                     const auto qpos = particleData().positions[q];
-                                    const auto xqp  = qpos - ppos;
-                                    const auto dist = glm::length(xqp);
-                                    if(dist > solverParams().overlapThreshold) {
-                                        forces += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * (xqp / dist);
-                                    } else {
-                                        forces += MathHelpers::vrand<VecN>() * solverParams().overlapThreshold;
+                                    auto xqp        = qpos - ppos;
+                                    auto dist       = glm::length(xqp);
+
+                                    // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
+                                    if(dist < solverParams().overlapThreshold) {
+                                        dist = solverParams().overlapThreshold;
+                                        xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
                                     }
+                                    xqp    /= dist;
+                                    spring += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * xqp;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    const auto qvel   = particleData().velocities[q];
+                                    const auto relVel = qvel - pvel;
+                                    damping          += glm::dot(xqp, relVel) * xqp;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().explicitForces[p] = forces * particleData().springStiffness(p);
+                                particleData().explicitForces[p] = (spring + damping * solverParams().KDamping) * particleData().springStiffness(p);
                             });
 }
 
