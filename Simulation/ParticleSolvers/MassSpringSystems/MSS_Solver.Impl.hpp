@@ -63,6 +63,9 @@ void MSS_Solver<N, RealType>::generateParticles(const JParams& jParams)
     } else {
         particleData().addSearchParticles(particleData().positions);
     }
+    ////////////////////////////////////////////////////////////////////////////////
+    // set nsearch to 2*particleRadius for collision detection
+    particleData().NSearch().set_radius(RealType(2) * solverParams().particleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -382,9 +385,12 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTimeIndent("Compute explicit forces stage-1: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Compute collision penalty forces stage-1: ", [&]() { computeCollisionPenaltyForces(); });
     logger().printRunTimeIndent("Update explicit velocities stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
+
     logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(halfStep); });
     logger().printRunTimeIndent("Compute explicit forces stage-2: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Compute collision penalty forces stage-2: ", [&]() { computeCollisionPenaltyForces(); });
     logger().printRunTimeIndent("Update explicit velocities stage-2: ", [&]() { updateExplicitVelocities(halfStep); });
 }
 
@@ -394,6 +400,7 @@ void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
 {
     logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
     logger().printRunTimeIndent("Compute explicit forces: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Compute collision penalty forces: ", [&]() { computeCollisionPenaltyForces(); });
     logger().printRunTimeIndent("Update explicit velocities: ", [&]() { updateExplicitVelocities(timestep); });
 }
 
@@ -447,6 +454,42 @@ void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
 {}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void MSS_Solver<N, RealType>::computeCollisionPenaltyForces()
+{
+    particleData().NSearch().find_neighbors();
+    const auto& points = particleData().NSearch().point_set(0);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto& neighbors_t0 = particleData().neighborIdx_t0[p];
+                                auto& neighbors    = points.neighbors(0, p);
+                                const auto ppos    = particleData().positions[p];
+                                ////////////////////////////////////////////////////////////////////////////////
+                                VecN forces(0);
+                                for(auto q : neighbors) {
+                                    // ignore if p-q is connected by spring
+                                    if(std::binary_search(neighbors_t0.begin(), neighbors_t0.end(), q)) {
+                                        continue;
+                                    }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    const auto qpos = particleData().positions[q];
+                                    const auto xpq  = qpos - ppos;
+                                    const auto dist = glm::length(xpq);
+                                    if(dist > solverParams().overlapThreshold) {
+                                        __BNN_TODO_MSG("check")
+                                        forces += MathHelpers::smooth_kernel(dist, RealType(2) * solverParams().particleRadius) * (xpq / dist);
+                                    } else {
+                                        forces += glm::normalize(MathHelpers::vrand<VecN>());
+                                    }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                }
+                                particleData().explicitForces[p] += forces * solverParams().repulsiveForceStiffness;
+                            });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers
