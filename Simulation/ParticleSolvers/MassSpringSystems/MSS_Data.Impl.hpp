@@ -33,7 +33,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     // MSS parameters
     String tmp;
     JSONHelpers::readValue(jParams, tmp, "IntegrationScheme");
-    if(tmp == "ExplicitVerlet") {
+    if(tmp == "VelocityVerlet") {
         integrationScheme = IntegrationScheme::ExplicitVerlet;
     } else if(tmp == "ExplicitEuler") {
         integrationScheme = IntegrationScheme::ExplicitEuler;

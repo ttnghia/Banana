@@ -395,7 +395,7 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
     logger().printRunTimeIndent("Compute collision penalty forces, stage-1: ", [&]() { computeCollisionPenaltyForces(); });
     logger().printRunTimeIndent("Update explicit velocities, stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
 
-    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(halfStep); });
+    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
     logger().printRunTimeIndent("Compute explicit forces, stage-2: ", [&]() { computeExplicitForces(); });
     logger().printRunTimeIndent("Find neighbors for collision detection, stage-2: ", [&]() { particleData().NSearch().find_neighbors(); });
     logger().printRunTimeIndent("Compute collision penalty forces, stage-2: ", [&]() { computeCollisionPenaltyForces(); });
