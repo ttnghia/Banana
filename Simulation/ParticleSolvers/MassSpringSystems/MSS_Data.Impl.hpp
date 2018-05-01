@@ -248,22 +248,28 @@ void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
     neighborIdx_t0.resize(getNParticles());
     neighborDistances_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
-    for(UInt p = 0; p < getNParticles(); ++p) {
-        neighborIdx_t0[p].resize(0);
-        neighborIdx_t0[p].reserve(points.n_neighbors(0, p));
-        neighborDistances_t0[p].resize(0);
-        neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
-        ////////////////////////////////////////////////////////////////////////////////
-        const auto& ppos = positions[p];
-        for(auto q : points.neighbors(0, p)) {
-            const auto& qpos     = positions[q];
-            auto        distance = glm::length(ppos - qpos);
-            if(distance > Tiny<RealType>() && distance < springHorizon(p) && distance < springHorizon(q)) {
-                neighborIdx_t0[p].push_back(q);
-                neighborDistances_t0[p].push_back(distance);
-            }
-        }
-    }
+    Scheduler::parallel_for(getNParticles(), [&](UInt p)
+                            {
+                                neighborIdx_t0[p].resize(0);
+                                neighborIdx_t0[p].reserve(points.n_neighbors(0, p));
+                                neighborDistances_t0[p].resize(0);
+                                neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
+                                ////////////////////////////////////////////////////////////////////////////////
+                                const auto& ppos = positions[p];
+                                for(auto q : points.neighbors(0, p)) {
+                                    const auto& qpos = positions[q];
+                                    auto distance    = glm::length(ppos - qpos);
+                                    if(distance > Tiny<RealType>() && distance < springHorizon(p) && distance < springHorizon(q)) {
+                                        neighborIdx_t0[p].push_back(q);
+                                    }
+                                }
+
+                                std::sort(neighborIdx_t0[p].begin(), neighborIdx_t0[p].end());
+                                for(auto q : neighborIdx_t0[p]) {
+                                    const auto& qpos = positions[q];
+                                    neighborDistances_t0[p].push_back(glm::length(ppos - qpos));
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

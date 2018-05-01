@@ -378,9 +378,11 @@ void ParticleSimulationData<N, RealType>::findNeighbors_t0()
     ////////////////////////////////////////////////////////////////////////////////
     neighborIdx_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
-    for(UInt p = 0; p < getNParticles(); ++p) {
-        neighborIdx_t0[p] = points.neighbors(0, p);
-    }
+    Scheduler::parallel_for(getNParticles(), [&](UInt p)
+                            {
+                                neighborIdx_t0[p] = points.neighbors(0, p);
+                                std::sort(neighborIdx_t0[p].begin(), neighborIdx_t0[p].end());
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -392,17 +394,19 @@ void ParticleSimulationData<N, RealType>::findNeighborsAndDistances_t0()
     neighborIdx_t0.resize(getNParticles());
     neighborDistances_t0.resize(getNParticles());
     const auto& points = NSearch().point_set(0);
-    for(UInt p = 0; p < getNParticles(); ++p) {
-        neighborIdx_t0[p] = points.neighbors(0, p);
-        ////////////////////////////////////////////////////////////////////////////////
-        neighborDistances_t0[p].resize(0);
-        neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
-        const auto& ppos = positions[p];
-        for(auto q:  points.neighbors(0, p)) {
-            const auto& qpos = positions[q];
-            neighborDistances_t0[p].push_back(glm::length(ppos - qpos));
-        }
-    }
+    Scheduler::parallel_for(getNParticles(), [&](UInt p)
+                            {
+                                neighborIdx_t0[p] = points.neighbors(0, p);
+                                std::sort(neighborIdx_t0[p].begin(), neighborIdx_t0[p].end());
+                                ////////////////////////////////////////////////////////////////////////////////
+                                neighborDistances_t0[p].resize(0);
+                                neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
+                                const auto& ppos = positions[p];
+                                for(auto q:  neighborIdx_t0[p]) {
+                                    const auto& qpos = positions[q];
+                                    neighborDistances_t0[p].push_back(glm::length(ppos - qpos));
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
