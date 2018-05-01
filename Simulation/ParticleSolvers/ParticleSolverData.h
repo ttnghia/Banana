@@ -23,12 +23,14 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Geometry/GeometryObjects.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/STLHelpers.h>
 #include <Banana/Utils/Logger.h>
-#include <SimulationObjects/SimulationObject.h>
+
 #include <ParticleSolvers/Macros.h>
+#include <SimulationObjects/SimulationObject.h>
 
 #include <string>
 #include <numeric>
@@ -163,8 +165,11 @@ struct SimulationParameters
     RealType particleRadiusSqr   = RealType(0);
     RealType defaultParticleMass = RealType(1.0);
     UInt     maxNParticles       = 0u;
-    RealType overlappingThreshold;
-    RealType overlappingThresholdSqr;
+
+    // two particle are overlapped if (length(ppos - qpos) < overlapThreshold),
+    // they are resolved by moving apart by vrand<VecN>() * overlapResolution
+    RealType overlapThreshold = RealType(1e-6);
+    RealType overlapThresholdSqr;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -302,9 +307,6 @@ struct SimulationData
     virtual ParticleSimulationData<N, RealType>& generalParticleData()                                                    = 0;
     virtual void                                 makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) = 0;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/ParticleSolverData.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

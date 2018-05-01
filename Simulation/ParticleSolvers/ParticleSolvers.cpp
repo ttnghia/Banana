@@ -20,6 +20,15 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// implementation of base classes
+#include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverData.Impl.hpp>
+#include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/ParticleSolver.Impl.hpp>
+template class Banana::ParticleSolvers::ParticleSolver<2, Real>;
+template class Banana::ParticleSolvers::ParticleSolver<3, Real>;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // SPH
 #include <ParticleSolvers/SPH/WCSPH_Solver.h>
 #include <ParticleSolvers/SPH/SPH_Data.Impl.hpp>

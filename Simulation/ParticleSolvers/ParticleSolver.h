@@ -28,7 +28,6 @@
 #include <Banana/Utils/Timer.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Data/DataPrinter.h>
-#include <Banana/NeighborSearch/NeighborSearch.h>
 
 #include <Banana/ParallelHelpers/AtomicOperations.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
@@ -128,13 +127,6 @@ protected:
     Vector<SharedPtr<SimulationObjects::ParticleRemover<N, RealType>>>   m_ParticleRemovers;   // individual objects, as they can have different behaviors
     Vector<SharedPtr<SimulationObjects::SimulationObject<N, RealType>>>  m_DynamicObjects;     // store all dynamic objects
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-using ParticleSolver2D = ParticleSolver<2, Real>;
-using ParticleSolver3D = ParticleSolver<3, Real>;
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/ParticleSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

@@ -47,8 +47,8 @@ public:
     float getParticleRadius() const;
 
 private:
-    SharedPtr<ParticleSolver2D> m_Solver2D = nullptr;
-    SharedPtr<ParticleSolver3D> m_Solver3D = nullptr;
+    SharedPtr<ParticleSolver<2, Real>> m_Solver2D = nullptr;
+    SharedPtr<ParticleSolver<3, Real>> m_Solver3D = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

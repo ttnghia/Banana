@@ -17,7 +17,9 @@
 //                                  ___)( )(___
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // GlobalParameters
@@ -156,8 +158,11 @@ void SimulationParameters<N, RealType>::parseParameters(const JParams& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    JSONHelpers::readValue(jParams, maxNParticles,  "MaxNParticles");
-    JSONHelpers::readValue(jParams, advectionSteps, "AdvectionSteps");
+    JSONHelpers::readValue(jParams, maxNParticles,    "MaxNParticles");
+    JSONHelpers::readValue(jParams, overlapThreshold, "OverlapThresholdRatio");
+    JSONHelpers::readValue(jParams, materialDensity,  "MaterialDensity");
+
+    JSONHelpers::readValue(jParams, advectionSteps,   "AdvectionSteps");
     JSONHelpers::readBool(jParams, bCorrectPosition, "CorrectPosition");
     JSONHelpers::readValue(jParams, repulsiveForceStiffness, "RepulsiveForceStiffness");
     ////////////////////////////////////////////////////////////////////////////////
@@ -222,10 +227,10 @@ void SimulationParameters<N, RealType>::makeReady()
         cellSize     = RealType(0);
         nExpandCells = 0u;
     }
-    particleRadiusSqr       = particleRadius * particleRadius;
-    overlappingThreshold    = RealType(0.01) * particleRadius;
-    overlappingThresholdSqr = overlappingThreshold * overlappingThreshold;
-    cellVolume              = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
+    particleRadiusSqr   = particleRadius * particleRadius;
+    overlapThreshold   *= particleRadius;
+    overlapThresholdSqr = overlapThreshold * overlapThreshold;
+    cellVolume          = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
 
     // expand domain simulation by nExpandCells for each dimension
     // this is necessary if the boundary is a box which coincides with the simulation domain
@@ -399,3 +404,6 @@ void ParticleSimulationData<N, RealType>::findNeighborsAndDistances_t0()
         }
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::ParticleSolvers
