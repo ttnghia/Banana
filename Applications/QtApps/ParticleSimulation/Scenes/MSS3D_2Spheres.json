@@ -1,0 +1,72 @@
+{
+    "GlobalParameters":
+    {
+        "Solver" : "MSS_3DSolver",
+        "FrameDuration" : 0.003333333333,
+        "StartFrame" : 1,
+        "FinalFrame" : 50,
+        "SaveFrameData" : false,
+        "SaveMemoryState" : false,
+        "FramePerState" : 10,
+        "DataPath" : "D:/Scratch/MSS3D_TwoSpheres",
+        "FrameDataFolder" : "MSSData",
+        "MemoryStateDataFolder" : "MSSState",
+        "OptionalSavingData" : [ "object_index" ],
+        "LogLevel" : "Debug",
+        "PrintLogToFile" : false,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10
+    },
+    "SimulationParameters":
+    {
+        "SimulationDomainBox" :
+        {
+            "BoxMin" : [-1, -1, -2],
+            "BoxMax" : [1, 1, 2]
+        },
+        "NExpandCells" : 2,
+        "IntegrationScheme" : "ExplicitEuler",
+        "CellSize" : 0.05,
+        "RatioCellSizePRadius" : 4,
+        "CFLFactor" : 0.2,
+        "MaterialDensity" : 1000
+    },
+    "ParticleGenerators":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereRight",
+            "Translation" : [0, 0, -1],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.1,
+            "InitialVelocity" : [0, 0, 10]
+        },
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereLeft",
+            "Translation" : [0, 0, 1],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.1,
+            "InitialVelocity" : [0, 0, -10]
+        }
+    ],
+    "VisualizationParameters":
+    {
+        "CapturePath" : "D:/Scratch/MSS3D_TwoSpheres/Capture",
+        "Light" :
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [10, 20, -10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [0, -20, 0],
+                "Diffuse" : [1, 1, 1]
+            }
+        ]
+    }
+}
