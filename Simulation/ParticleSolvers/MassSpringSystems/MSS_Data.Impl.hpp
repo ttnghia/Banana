@@ -44,6 +44,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     } else {
         __BNN_DIE((String("Incorrect value for parameter ") + tmp).c_str());
     }
+    JSONHelpers::readBool(jParams, bInternalCollision, "InternalCollision");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

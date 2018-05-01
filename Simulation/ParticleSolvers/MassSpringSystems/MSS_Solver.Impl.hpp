@@ -392,13 +392,17 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("{   Compute explicit forces, stage-1: ", [&]() { computeExplicitForces(); });
-    logger().printRunTimeIndent("Compute collision penalty forces, stage-1: ", [&]() { computeCollisionPenaltyForces(); });
+    if(solverParams().bInternalCollision) {
+        logger().printRunTimeIndent("Compute collision penalty forces, stage-1: ", [&]() { computeCollisionPenaltyForces(); });
+    }
     logger().printRunTimeIndent("Update explicit velocities, stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
 
     logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
     logger().printRunTimeIndent("Compute explicit forces, stage-2: ", [&]() { computeExplicitForces(); });
-    logger().printRunTimeIndent("Find neighbors for collision detection, stage-2: ", [&]() { particleData().NSearch().find_neighbors(); });
-    logger().printRunTimeIndent("Compute collision penalty forces, stage-2: ", [&]() { computeCollisionPenaltyForces(); });
+    if(solverParams().bInternalCollision) {
+        logger().printRunTimeIndent("Find neighbors for collision detection, stage-2: ", [&]() { particleData().NSearch().find_neighbors(); });
+        logger().printRunTimeIndent("Compute collision penalty forces, stage-2: ", [&]() { computeCollisionPenaltyForces(); });
+    }
     logger().printRunTimeIndent("Update explicit velocities, stage-2: ", [&]() { updateExplicitVelocities(halfStep); });
 }
 
@@ -408,8 +412,10 @@ void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
 {
     logger().printRunTime("{   Move particles: ", [&]() { moveParticles(timestep); });
     logger().printRunTimeIndent("Compute explicit forces: ", [&]() { computeExplicitForces(); });
-    logger().printRunTimeIndent("Find neighbors for collision detection: ", [&]() { particleData().NSearch().find_neighbors(); });
-    logger().printRunTimeIndent("Compute collision penalty forces: ", [&]() { computeCollisionPenaltyForces(); });
+    if(solverParams().bInternalCollision) {
+        logger().printRunTimeIndent("Find neighbors for collision detection: ", [&]() { particleData().NSearch().find_neighbors(); });
+        logger().printRunTimeIndent("Compute collision penalty forces: ", [&]() { computeCollisionPenaltyForces(); });
+    }
     logger().printRunTimeIndent("Update explicit velocities: ", [&]() { updateExplicitVelocities(timestep); });
 }
 
