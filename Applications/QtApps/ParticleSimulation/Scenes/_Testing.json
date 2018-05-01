@@ -1,80 +1,59 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "HairMPM_2DSolver",
+        "Solver" : "MSS_3DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 5,
+        "FinalFrame" : 100,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
-        "DataPath" : "D:/Scratch/MPM2D_TwoSphere_APIC",
-        "FrameDataFolder" : "FLIPData",
-        "MemoryStateDataFolder" : "MPMState",
+        "DataPath" : "D:/Scratch/MSS3D_TwoSpheres",
+        "FrameDataFolder" : "MSSData",
+        "MemoryStateDataFolder" : "MSSState",
         "OptionalSavingData" : [ "object_index" ],
         "LogLevel" : "Debug",
-        "PrintLogToConsole" : true,
-        "PrintLogToFile" : false,
-        "EnableSortParticle" : true,
+        "PrintLogToFile" : true,
+        "EnableSortParticle" : false,
         "SortFrequency" : 10
     },
     "SimulationParameters":
     {
         "SimulationDomainBox" :
         {
-            "BoxMin" : [-2, -1],
-            "BoxMax" : [2, 1]
+            "BoxMin" : [-1, -1, -2],
+            "BoxMax" : [1, 1, 2]
         },
         "NExpandCells" : 2,
-        "AdvectionSteps" : 2,
-        "PIC_FLIP_Ratio" : 0.9,
-        "ImplicitRatio" : 0,
-        "CGRelativeTolerance" : 1e-18,
-        "MaxCGIteration" : 1000,
-        "CellSize" : 0.05,
+        "IntegrationScheme" : "ExplicitEuler",
+        "CellSize" : 0.1,
         "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.02,
-        "lambda" : 100,
-        "mu": 100,
-        "MaterialDensity" : 1,
-        "GravityType" : "Directional",
-        "GravityDirection" : [-1, -1]
+        "CFLFactor" : 1.0,
+        "MaterialDensity" : 1000,
+        "RepulsiveForceStiffness": 1e4
     },
-    "ParticleGeneratorsXXX":
-    [
-        {
-            "GeometryType" : "Box",
-            "UniqueName" : "Box",
-            "Translation" : [0.5, -0.5],
-            "Scale" : 0.3,
-            "JitterRatio" : 0.0,
-            "InitialVelocity" : [0, 0]
-        }
-    ],
     "ParticleGenerators":
     [
         {
-            "GeometryType" : "Box",
+            "GeometryType" : "Sphere",
             "UniqueName" : "SphereRight",
-            "Translation" : [-1, 0.1],
+            "Translation" : [0, 0, -1],
             "Scale" : 0.3,
-            "JitterRatio" : 0.0,
-            "InitialVelocity" : [10, 0]
+            "JitterRatio" : 0.1,
+            "InitialVelocity" : [0, 0, 10]
         },
         {
-            "GeometryType" : "Box",
+            "GeometryType" : "Sphere",
             "UniqueName" : "SphereLeft",
-            "Translation" : [1, -0.1],
+            "Translation" : [0, 0, 1],
             "Scale" : 0.3,
-            "JitterRatio" : 0.0,
-            "InitialVelocity" : [-10, 0]
+            "JitterRatio" : 0.1,
+            "InitialVelocity" : [0, 0, -10]
         }
     ],
     "VisualizationParameters":
     {
-        "CameraPosition" : [0, 0, 0.5],
-        "CameraFocus" : [0, 0, 0],
-        "CapturePath" : "D:/Scratch/MPM2D_TwoSphere_APIC/Capture",
+        "CapturePath" : "D:/Scratch/MSS3D_TwoSpheres/Capture",
         "Light" :
         [
             {
