@@ -31,6 +31,7 @@
         "RatioCellSizePRadius" : 4,
         "CFLFactor" : 0.10,
         "MaterialDensity" : 1000,
+        "CollisionThresholdRatio" : 3.0,
         "ReflectVelocityAtBoundary" : true,
         "InternalCollision" : true,
         "DefaultHorizonRatio" : 6,

@@ -158,11 +158,12 @@ void SimulationParameters<N, RealType>::parseParameters(const JParams& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    JSONHelpers::readValue(jParams, maxNParticles,    "MaxNParticles");
-    JSONHelpers::readValue(jParams, overlapThreshold, "OverlapThresholdRatio");
-    JSONHelpers::readValue(jParams, materialDensity,  "MaterialDensity");
+    JSONHelpers::readValue(jParams, maxNParticles,      "MaxNParticles");
+    JSONHelpers::readValue(jParams, overlapThreshold,   "OverlapThresholdRatio");
+    JSONHelpers::readValue(jParams, collisionThreshold, "CollisionThresholdRatio");
+    JSONHelpers::readValue(jParams, materialDensity,    "MaterialDensity");
 
-    JSONHelpers::readValue(jParams, advectionSteps,   "AdvectionSteps");
+    JSONHelpers::readValue(jParams, advectionSteps,     "AdvectionSteps");
     JSONHelpers::readBool(jParams, bCorrectPosition, "CorrectPosition");
     JSONHelpers::readValue(jParams, repulsiveForceStiffness, "RepulsiveForceStiffness");
     ////////////////////////////////////////////////////////////////////////////////
@@ -227,10 +228,15 @@ void SimulationParameters<N, RealType>::makeReady()
         cellSize     = RealType(0);
         nExpandCells = 0u;
     }
-    particleRadiusSqr   = particleRadius * particleRadius;
+    particleRadiusSqr = particleRadius * particleRadius;
+
     overlapThreshold   *= particleRadius;
     overlapThresholdSqr = overlapThreshold * overlapThreshold;
-    cellVolume          = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
+
+    collisionThreshold   *= particleRadius;
+    collisionThresholdSqr = collisionThreshold * collisionThreshold;
+
+    cellVolume = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
 
     // expand domain simulation by nExpandCells for each dimension
     // this is necessary if the boundary is a box which coincides with the simulation domain
@@ -250,8 +256,7 @@ void SimulationParameters<N, RealType>::makeReady()
     }
 
     if(gravityType == GravityType::Earth) {
-        if constexpr(N == 2)
-        {
+        if constexpr(N == 2) {
             gravityDirection = Gravity2D;
         } else {
             gravityDirection = Gravity3D;
@@ -301,6 +306,11 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
     logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
     logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
     logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
+    logger->printLogIndent(String("Overlap threshold (if applicable): ") + NumberHelpers::formatToScientific(overlapThreshold) +
+                           String(", which is ") + std::to_string(overlapThreshold / particleRadius) + String(" particle radius"));
+    logger->printLogIndent(String("Collision threshold (if applicable): ") + std::to_string(collisionThreshold) +
+                           String(", which is ") + std::to_string(collisionThreshold / particleRadius) + String(" particle radius"));
+
     logger->newLine();
     ////////////////////////////////////////////////////////////////////////////////
 

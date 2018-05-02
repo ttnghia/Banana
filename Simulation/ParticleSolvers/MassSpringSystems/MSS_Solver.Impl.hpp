@@ -64,8 +64,8 @@ void MSS_Solver<N, RealType>::generateParticles(const JParams& jParams)
         particleData().addSearchParticles(particleData().positions);
     }
     ////////////////////////////////////////////////////////////////////////////////
-    // set nsearch to 2*particleRadius for collision detection
-    particleData().NSearch().set_radius(RealType(2) * solverParams().particleRadius);
+    // set nsearch to collisionThreshold for collision detection
+    particleData().NSearch().set_radius(solverParams().collisionThreshold);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -507,7 +507,7 @@ void MSS_Solver<N, RealType>::computeCollisionPenaltyForces()
                                         dist2 = solverParams().overlapThresholdSqr;
                                         xpq   = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
                                     }
-                                    forces += MathHelpers::smooth_kernel(dist2, RealType(4) * solverParams().particleRadiusSqr) * (xpq / sqrt(dist2));
+                                    forces += MathHelpers::smooth_kernel(dist2, solverParams().collisionThresholdSqr) * (xpq / sqrt(dist2));
                                     ////////////////////////////////////////////////////////////////////////////////
                                 }
                                 particleData().explicitForces[p] += forces * solverParams().repulsiveForceStiffness;
