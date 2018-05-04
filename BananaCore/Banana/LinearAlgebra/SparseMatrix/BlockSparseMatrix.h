@@ -21,13 +21,12 @@
 
 #pragma once
 
-#include <tbb/tbb.h>
-
-#include <iostream>
-
 #include <Banana/Setup.h>
 #include <Banana/Utils/STLHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <Banana/ParallelHelpers/Scheduler.h>
+
+#include <iostream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -55,19 +54,19 @@ public:
     void resize(UInt newSize);
     void clear(void);
 
-    template<class IndexType> Vec_UInt&                      getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
-    template<class IndexType> const Vec_UInt&                getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
-    template<class IndexType> Vec_MatXxX<N, RealType>&       getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
+    template<class IndexType> Vec_UInt& getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> const Vec_UInt& getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> Vec_MatXxX<N, RealType>& getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
     template<class IndexType> const Vec_MatXxX<N, RealType>& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
-    template<class IndexType> const MatXxX<N, RealType>& operator ()(IndexType i, IndexType j) const;
+    template<class IndexType> const MatXxX<N, RealType>& operator()(IndexType i, IndexType j) const;
 
     template<class IndexType> void setElement(IndexType i, IndexType j, const MatXxX<N, RealType>& newValue);
     template<class IndexType> void addElement(IndexType i, IndexType j, const MatXxX<N, RealType>& incrementValue);
     template<class IndexType> void eraseElement(IndexType i, IndexType j);
 
     void printDebug() const noexcept;
-    void checkSymmetry() const noexcept;
+    void checkSymmetry(RealType threshold = RealType(1e-8)) const noexcept;
 
     void writeMatlabFile(const char* fileName, int showPercentage = -1) const;
 };
@@ -99,20 +98,19 @@ public:
     void clear(void) { m_ColValue.resize(0); m_ColIndex.resize(0); m_RowStart.resize(0); }
     void constructFromSparseMatrix(const BlockSparseMatrix<N, RealType>& fixedMatrix);
 
-    template<class IndexType> Vec_UInt&       getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> Vec_UInt& getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
     template<class IndexType> const Vec_UInt& getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
-    template<class IndexType> Vec_UInt&       getRowStarts(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_RowStart[row]; }
+    template<class IndexType> Vec_UInt& getRowStarts(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_RowStart[row]; }
     template<class IndexType> const Vec_UInt& getRowStarts(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_RowStart[row]; }
-    template<class IndexType> Vec_Real&       getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
+    template<class IndexType> Vec_Real& getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
     template<class IndexType> const Vec_Real& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const FixedBlockSparseMatrix<N, RealType>& matrix, const Vector<VecX<N, RealType> >& x, Vector<VecX<N, RealType> >& result);
+    static void multiply(const FixedBlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result);
 };
-
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.Impl.hpp>

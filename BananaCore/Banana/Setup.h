@@ -41,6 +41,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/component_wise.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <json.hpp>
 

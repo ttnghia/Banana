@@ -23,6 +23,9 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Utils/STLHelpers.h>
+#include <Banana/Utils/FileHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -43,20 +46,21 @@ public:
     // values corresponding to indices
     Vec_Vec<RealType> colValue;
 
+    ////////////////////////////////////////////////////////////////////////////////
     explicit SparseMatrix(UInt size = 0) : nRows(size), colIndex(size), colValue(size) {}
 
     void reserve(UInt size);
     void resize(UInt newSize);
-    void clear(void);
+    void clear();
 
-    template<class IndexType> RealType operator ()(IndexType i, IndexType j) const;
+    template<class IndexType> RealType operator()(IndexType i, IndexType j) const;
 
     template<class IndexType> void setElement(IndexType i, IndexType j, RealType newValue);
     template<class IndexType> void addElement(IndexType i, IndexType j, RealType incrementValue);
     template<class IndexType> void eraseElement(IndexType i, IndexType j);
 
-    void printDebug(UInt maxRows = 0) const noexcept;
-    void checkSymmetry() const noexcept;
+    void printDebug(UInt maxRows          = 0) const noexcept;
+    void checkSymmetry(RealType threshold = RealType(1e-8)) const noexcept;
     void printTextFile(const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +86,7 @@ struct FixedSparseMatrix
     // where each row starts in value and col index (and last entry is one past the end, the number of non zeros)
     Vec_UInt rowStart;
 
+    ////////////////////////////////////////////////////////////////////////////////
     explicit FixedSparseMatrix(UInt size = 0) : nRows(size), colValue(0), colIndex(0), rowStart(size + 1) {}
 
     void reserve(UInt size) { rowStart.reserve(size + 1); }
@@ -91,11 +96,10 @@ struct FixedSparseMatrix
 
     ////////////////////////////////////////////////////////////////////////////////
     static void multiply(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result);
-    //static void multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.Impl.hpp>
+} // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.Impl.hpp>

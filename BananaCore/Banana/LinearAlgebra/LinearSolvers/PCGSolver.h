@@ -23,6 +23,7 @@
 
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -61,7 +62,7 @@ public:
     };
 
     PCGSolver() = default;
-    void     reserve(UInt size);
+    void reserve(UInt size);
     RealType residual() const noexcept { return m_OutResidual; }
     UInt     iterations() const noexcept { return m_OutIterations; }
 
@@ -84,7 +85,7 @@ private:
     void solveLower_TransposeInPlace(Vector<RealType>& x);
 
     void formPreconditioner_Jacobi(const SparseMatrix<RealType>& matrix);
-    void formPreconditioner_MICC0L0(const SparseMatrix<RealType>& matrix, RealType MICCL0Param = RealType(0.97), RealType minDiagonalRatio = RealType(0.25));
+    void formPreconditioner_MICC0L0(const SparseMatrix<RealType>& matrix, RealType MICCL0Param                = RealType(0.97), RealType minDiagonalRatio = RealType(0.25));
     void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<RealType>& matrix, RealType minDiagonalRatio = RealType(0.25));
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +112,7 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.Impl.hpp>
+} // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.Impl.hpp>

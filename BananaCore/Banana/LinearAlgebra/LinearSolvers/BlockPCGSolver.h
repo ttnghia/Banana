@@ -23,6 +23,7 @@
 
 #include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -52,7 +53,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     Vec_VecX<N, RealType>               z, s, r;
-    Vector<MatXxX<N, RealType> >        m_JacobiPreconditioner;
+    Vector<MatXxX<N, RealType>>         m_JacobiPreconditioner;
     FixedBlockSparseMatrix<N, RealType> m_FixedSparseMatrix;
 
     RealType m_ToleranceFactor = RealType(1e-20);
@@ -66,7 +67,7 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.Impl.hpp>
+} // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.Impl.hpp>

@@ -18,9 +18,12 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BlockPCGSolver<N, RealType >::solve(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result)
+bool BlockPCGSolver<N, RealType>::solve(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result)
 {
     const UInt n = matrix.size();
     if(z.size() != n) {
@@ -95,7 +98,7 @@ bool BlockPCGSolver<N, RealType >::solve(const BlockSparseMatrix<N, RealType>& m
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BlockPCGSolver<N, RealType >::solve_precond(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result)
+bool BlockPCGSolver<N, RealType>::solve_precond(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result)
 {
     UInt n = matrix.size();
 
@@ -115,7 +118,7 @@ bool BlockPCGSolver<N, RealType >::solve_precond(const BlockSparseMatrix<N, Real
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    FixedBlockSparseMatrix<3, RealType>::multiply(m_FixedSparseMatrix, result, s);
+    FixedBlockSparseMatrix<N, RealType>::multiply(m_FixedSparseMatrix, result, s);
     ParallelBLAS::addScaled(RealType(-1.0), s, r);
 
     m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
@@ -174,21 +177,24 @@ bool BlockPCGSolver<N, RealType >::solve_precond(const BlockSparseMatrix<N, Real
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlockPCGSolver<N, RealType >::formPreconditioner(const BlockSparseMatrix<N, RealType>& matrix)
+void BlockPCGSolver<N, RealType>::formPreconditioner(const BlockSparseMatrix<N, RealType>& matrix)
 {
     m_JacobiPreconditioner.resize(matrix.size());
     Scheduler::parallel_for(matrix.size(),
                             [&](UInt i)
                             {
-                                auto& v = matrix.getIndices(i);
-                                auto it = std::lower_bound(v.begin(), v.end(), i);
+                                auto& v                   = matrix.getIndices(i);
+                                auto it                   = std::lower_bound(v.begin(), v.end(), i);
                                 m_JacobiPreconditioner[i] = (it != v.end()) ? glm::inverse(matrix.getValues(i)[std::distance(v.begin(), it)]) : MatXxX<N, RealType>(0);
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlockPCGSolver<N, RealType >::applyPreconditioner(const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result)
+void BlockPCGSolver<N, RealType>::applyPreconditioner(const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result)
 {
     Scheduler::parallel_for(x.size(), [&](size_t i) { result[i] = m_JacobiPreconditioner[i] * x[i]; });
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana
