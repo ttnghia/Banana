@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.h>
+#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -44,7 +46,14 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
     // material parameters
     RealType defaultSpringStiffness = RealType(1e3);
     RealType defaultSpringHorizon   = RealType(4);
-    RealType KDamping               = RealType(1e-2);
+    RealType dampingStiffnessRatio  = RealType(1e-2);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // coefficients for implicit integration, if applicable
+    RealType FDxMultiplier;
+    RealType FDvMultiplier;
+    RealType RHSMultiplier;
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void parseParameters(const JParams& jParams) override;
@@ -75,9 +84,13 @@ struct MSS_Data : SimulationData<N, RealType>
         RealType         maxSpringHorizon = RealType(0);
         Vector<RealType> objectSpringHorizon;
 #endif
-        RealType particleRadius = RealType(0);
+        RealType          particleRadius    = RealType(0);
+        IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
         ////////////////////////////////////////////////////////////////////////////////
         Vec_VecN explicitForces;
+
+        BlockSparseMatrix<MatNxN> matrix;
+        Vec_VecN                  rhs;
         ////////////////////////////////////////////////////////////////////////////////
         RealType springStiffness(UInt p);
         RealType springHorizon(UInt p);
@@ -90,6 +103,7 @@ struct MSS_Data : SimulationData<N, RealType>
 
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<MSS_ParticleData> particleData = nullptr;
+    BlockPCGSolver<MatNxN>      pcgSolver;
 
     virtual void initialize();
     virtual ParticleSimulationData<N, RealType>& generalParticleData() override { assert(particleData != nullptr); return *particleData; }

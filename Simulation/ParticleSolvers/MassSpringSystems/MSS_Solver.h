@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
 #include <ParticleSolvers/MassSpringSystems/MSS_Data.h>
@@ -68,10 +69,13 @@ protected:
     virtual void implicitEulerIntegration(RealType timestep);
     virtual void newmarkBetaIntegration(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void computeExplicitForces();
-    virtual void updateExplicitVelocities(RealType timestep);
+    bool addGravity(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void computeImplicitForces(RealType timestep);
+    void computeExplicitForces();
+    void updateExplicitVelocities(RealType timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    void buildImplicitLinearSystem(RealType timestep);
+    auto computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain);
     ////////////////////////////////////////////////////////////////////////////////
     void computeCollisionPenaltyForces();
     ////////////////////////////////////////////////////////////////////////////////

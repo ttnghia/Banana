@@ -34,7 +34,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     String tmp;
     JSONHelpers::readValue(jParams, tmp, "IntegrationScheme");
     if(tmp == "VelocityVerlet") {
-        integrationScheme = IntegrationScheme::ExplicitVerlet;
+        integrationScheme = IntegrationScheme::VelocityVerlet;
     } else if(tmp == "ExplicitEuler") {
         integrationScheme = IntegrationScheme::ExplicitEuler;
     } else if(tmp == "ImplicitEuler") {
@@ -51,7 +51,7 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     // material parameters
     JSONHelpers::readValue(jParams, defaultSpringStiffness, "DefaultSpringStiffness");
     JSONHelpers::readValue(jParams, defaultSpringHorizon,   "DefaultHorizonRatio");
-    JSONHelpers::readValue(jParams, KDamping,               "KDamping");
+    JSONHelpers::readValue(jParams, dampingStiffnessRatio,  "DampingStiffnessRatio");
     ////////////////////////////////////////////////////////////////////////////////
 }
 
@@ -63,6 +63,10 @@ void MSS_Parameters<N, RealType>::makeReady()
     ////////////////////////////////////////////////////////////////////////////////
     defaultParticleMass   = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
     defaultSpringHorizon *= particleRadius;
+
+    FDxMultiplier = (integrationScheme == IntegrationScheme::NewmarkBeta) ? RealType(1.0 / 4.0) : RealType(1.0);
+    FDvMultiplier = (integrationScheme == IntegrationScheme::NewmarkBeta) ? RealType(1.0 / 2.0) : RealType(1.0);
+    RHSMultiplier = (integrationScheme == IntegrationScheme::NewmarkBeta) ? RealType(2.0) : RealType(1.0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -75,8 +79,8 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
     switch(integrationScheme) {
-        case IntegrationScheme::ExplicitVerlet:
-            logger->printLogIndent(String("Integration scheme: ExplicitVerlet"));
+        case IntegrationScheme::VelocityVerlet:
+            logger->printLogIndent(String("Integration scheme: VelocityVerlet"));
             break;
         case IntegrationScheme::ExplicitEuler:
             logger->printLogIndent(String("Integration scheme: ExplicitEuler"));
@@ -117,7 +121,7 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     logger->printLogIndent(String("Default particle mass: ") + std::to_string(defaultParticleMass));
 #endif
     ////////////////////////////////////////////////////////////////////////////////
-    logger->printLogIndent(String("Damping constant: ") + NumberHelpers::formatToScientific(KDamping));
+    logger->printLogIndent(String("Damping stiffness ratio: ") + NumberHelpers::formatToScientific(dampingStiffnessRatio));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -158,13 +162,19 @@ void MSS_Data<N, RealType>::MSS_ParticleData::reserve(UInt nParticles)
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
     objectIndex.reserve(nParticles);
-    explicitForces.reserve(nParticles);
 #ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
     objectSpringStiffness.reserve(nParticles);
 #endif
 #ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
     objectSpringHorizon.reserve(nParticles);
 #endif
+
+    if(integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
+        explicitForces.reserve(nParticles);
+    } else {
+        matrix.reserve(nParticles);
+        rhs.reserve(nParticles);
+    }
 
     neighborIdx_t0.resize(nParticles);
     neighborDistances_t0.resize(nParticles);
@@ -198,9 +208,16 @@ void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPo
     }
 #endif
     ////////////////////////////////////////////////////////////////////////////////
-    explicitForces.resize(getNParticles());
     neighborIdx_t0.resize(getNParticles());
     neighborDistances_t0.resize(getNParticles());
+
+    // only store  explicit forces if using explicit time integration schemes
+    if(integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
+        explicitForces.resize(getNParticles());
+    } else {
+        matrix.resize(getNParticles());
+        rhs.resize(getNParticles());
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
@@ -232,7 +249,12 @@ UInt MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(const Vec_Int8& re
     STLHelpers::eraseByMarker(objectSpringHorizon,   removeMarker);
 #endif
     ////////////////////////////////////////////////////////////////////////////////
-    explicitForces.resize(getNParticles());
+    if(integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
+        explicitForces.resize(getNParticles());
+    } else {
+        matrix.resize(getNParticles());
+        rhs.resize(getNParticles());
+    }
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
 }
@@ -302,7 +324,8 @@ void MSS_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
     particleData->defaultSpringHorizon = MSSParams->defaultSpringHorizon;
 #endif
-    particleData->particleRadius = MSSParams->particleRadius;
+    particleData->particleRadius    = MSSParams->particleRadius;
+    particleData->integrationScheme = MSSParams->integrationScheme;
     ////////////////////////////////////////////////////////////////////////////////
     particleData->setupNeighborSearch(MSSParams->particleRadius * MSSParams->defaultParticleMass);
 }

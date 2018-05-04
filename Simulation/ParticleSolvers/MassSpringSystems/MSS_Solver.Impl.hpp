@@ -264,9 +264,10 @@ void MSS_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTimeIf("Add gravity: ", [&]() { return addGravity(substep); });
                                   switch(solverParams().integrationScheme) {
-                                      case IntegrationScheme::ExplicitVerlet:
-                                          logger().printRunTime("}=> Time integration (Explicit-Verlet): ", [&]() { integration(substep); });
+                                      case IntegrationScheme::VelocityVerlet:
+                                          logger().printRunTime("}=> Time integration (Velocity-Verlet): ", [&]() { integration(substep); });
                                           break;
                                       case IntegrationScheme::ExplicitEuler:
                                           logger().printRunTime("}=> Time integration (Explicit-Euler): ", [&]() { integration(substep); });
@@ -368,7 +369,7 @@ template<Int N, class RealType>
 void MSS_Solver<N, RealType>::integration(RealType timestep)
 {
     switch(solverParams().integrationScheme) {
-        case IntegrationScheme::ExplicitVerlet:
+        case IntegrationScheme::VelocityVerlet:
             explicitVerletIntegration(timestep);
             break;
         case IntegrationScheme::ExplicitEuler:
@@ -427,6 +428,31 @@ void MSS_Solver<N, RealType>::implicitEulerIntegration(RealType timestep)
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::newmarkBetaIntegration(RealType timestep)
 {}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+;
+template<Int N, class RealType>
+bool MSS_Solver<N, RealType>::addGravity(RealType timestep)
+{
+    if(globalParams().bApplyGravity) {
+        if(solverParams().gravityType == GravityType::Earth ||
+           solverParams().gravityType == GravityType::Directional) {
+            Scheduler::parallel_for(particleData().velocities.size(),
+                                    [&](size_t p)
+                                    {
+                                        particleData().velocities[p] += solverParams().gravity() * timestep;
+                                    });
+        } else {
+            Scheduler::parallel_for(particleData().velocities.size(),
+                                    [&](size_t p)
+                                    {
+                                        particleData().velocities[p] += solverParams().gravity(particleData().positions[p]) * timestep;
+                                    });
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::computeExplicitForces()
@@ -434,9 +460,10 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                const auto& neighbors = particleData().neighborIdx_t0[p];
-                                const auto ppos       = particleData().positions[p];
-                                const auto pvel       = particleData().velocities[p];
+                                const auto& neighbors            = particleData().neighborIdx_t0[p];
+                                const auto& neighborDistances_t0 = particleData().neighborDistances_t0[p];
+                                const auto ppos                  = particleData().positions[p];
+                                const auto pvel                  = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 VecN spring(0);
                                 VecN damping(0);
@@ -451,15 +478,17 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                                         dist = solverParams().overlapThreshold;
                                         xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
                                     }
-                                    xqp    /= dist;
-                                    spring += (dist / particleData().neighborDistances_t0[p][i] - RealType(1.0)) * xqp;
+                                    auto strain = dist / neighborDistances_t0[i] - RealType(1.0);
+                                    xqp        /= dist;
+                                    spring     += strain * xqp;
                                     ////////////////////////////////////////////////////////////////////////////////
-                                    const auto qvel   = particleData().velocities[q];
-                                    const auto relVel = qvel - pvel;
-                                    damping          += glm::dot(xqp, relVel) * xqp;
+                                    const auto qvel = particleData().velocities[q];
+                                    const auto vqp  = qvel - pvel;
+                                    damping        += glm::dot(xqp, vqp) * xqp;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                particleData().explicitForces[p] = (spring + damping * solverParams().KDamping) * particleData().springStiffness(p);
+                                damping                         *= solverParams().dampingStiffnessRatio;
+                                particleData().explicitForces[p] = (spring + damping) * particleData().springStiffness(p);
                             });
 }
 
@@ -476,8 +505,82 @@ void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MSS_Solver<N, RealType>::computeImplicitForces(RealType timestep)
-{}
+void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
+{
+    const auto FDxCoeff = solverParams().FDxMultiplier * timestep * timestep;
+    const auto FDvCoeff = solverParams().FDvMultiplier * timestep;
+    const auto RHSCoeff = solverParams().RHSMultiplier;
+
+    particleData().matrix.clear();
+    particleData().rhs.assign(particleData().rhs.size(), VecN(0));
+
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                if(particleData().activity[p] == static_cast<Int8>(Activity::Constrained)) {
+                                    return;
+                                }
+                                const auto& neighbors            = particleData().neighborIdx_t0[p];
+                                const auto& neighborDistances_t0 = particleData().neighborDistances_t0[p];
+                                const auto ppos                  = particleData().positions[p];
+                                const auto pvel                  = particleData().velocities[p];
+
+                                MatNxN sumLHS(0);
+                                VecN sumRHS(0);
+                                VecN spring(0);
+                                VecN damping(0);
+                                for(size_t i = 0; i < neighbors.size(); ++i) {
+                                    const auto q    = neighbors[i];
+                                    const auto qpos = particleData().positions[q];
+                                    auto xqp        = qpos - ppos;
+                                    auto dist       = glm::length(xqp);
+
+                                    // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
+                                    if(dist < solverParams().overlapThreshold) {
+                                        dist = solverParams().overlapThreshold;
+                                        xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
+                                    }
+                                    auto strain = dist / neighborDistances_t0[i] - RealType(1.0);
+                                    xqp        /= dist;
+                                    spring     += strain * xqp;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    const auto qvel = particleData().velocities[q];
+                                    const auto vqp  = qvel - pvel;
+                                    damping        += glm::dot(xqp, vqp) * xqp;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    auto [FDx, FDv] = computeForceDerivative(p, xqp, dist, strain);
+                                    FDx            *= FDxCoeff;
+                                    FDv            *= FDvCoeff;
+                                    auto FDxFdv     = FDx + FDv;
+
+                                    sumLHS -= FDxFdv;
+                                    sumRHS -= (FDx * vqp);
+
+                                    if(particleData().activity[q] != static_cast<Int8>(Activity::Constrained)) {
+                                        particleData().matrix.addElement(p, q, FDxFdv);
+                                    }
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                damping           *= solverParams().dampingStiffnessRatio;
+                                auto explicitForce = (spring + damping) * particleData().springStiffness(p);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                LinaHelpers::sumToDiag(sumLHS, particleData().mass(p));
+                                particleData().matrix.setElement(p, p, sumLHS);
+                                particleData().rhs[p] = sumRHS * RHSCoeff + explicitForce * timestep;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+auto MSS_Solver<N, RealType>::computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain)
+{
+    auto pStiffness = particleData().springStiffness(p);
+    auto xqp_xqpT   = glm::outerProduct(xqp, xqp);
+    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);   // (MatNxN(1.0) * strain + xqp_xqpT);
+    auto FDv        = -(solverParams().dampingStiffnessRatio * pStiffness) * xqp_xqpT;;
+    ////////////////////////////////////////////////////////////////////////////////
+    return std::make_tuple(FDx, FDv);
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
