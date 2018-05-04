@@ -930,7 +930,9 @@ void PIC_Solver<N, RealType>::solveSystem()
                             ". Final residual: " + NumberHelpers::formatToScientific(solverData().pcgSolver.residual()), 2);
     if(!success) {
         logger().printError("Pressure projection failed to solved!");
-        exit(EXIT_FAILURE);
+        if(solverParams().bExitIfPressureProjectionFailed) {
+            exit(EXIT_FAILURE);
+        }
     }
 }
 

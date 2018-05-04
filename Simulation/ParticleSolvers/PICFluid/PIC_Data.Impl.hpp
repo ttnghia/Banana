@@ -30,6 +30,7 @@ void PIC_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 {
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
+    JSONHelpers::readBool(jParams, bExitIfPressureProjectionFailed, "ExitIfPressureProjectionFailed");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,6 +48,7 @@ void PIC_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     logger->printLog(String("PIC parameters:"));
     SimulationParameters<N, RealType>::printParams(logger);
     logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
+    logger->printLogIndent(String("Exit if pressure projection failed: ") + (bExitIfPressureProjectionFailed ? String("Yes") : String("No")));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -133,7 +135,7 @@ void PIC_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
         particleData->reserve(simParams->maxNParticles);
     }
     particleData->setupNeighborSearch(simParams->cellSize);
-	particleData->defaultParticleMass = simParams->defaultParticleMass;
+    particleData->defaultParticleMass = simParams->defaultParticleMass;
 
     grid.setGrid(simParams->domainBMin, simParams->domainBMax, simParams->cellSize);
     gridData->resize(grid.getNCells());

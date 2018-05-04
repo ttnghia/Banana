@@ -39,6 +39,7 @@ template<Int N, class RealType>
 struct PIC_Parameters : SimulationParameters<N, RealType>
 {
     RealType sdfRadius; // this radius is used for computing fluid signed distance field
+    bool     bExitIfPressureProjectionFailed = false;
     ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams) override;
     virtual void makeReady() override;
