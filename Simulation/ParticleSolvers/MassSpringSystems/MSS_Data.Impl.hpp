@@ -44,7 +44,8 @@ void MSS_Parameters<N, RealType>::parseParameters(const JParams& jParams)
     } else {
         __BNN_DIE((String("Incorrect value for parameter ") + tmp).c_str());
     }
-    JSONHelpers::readBool(jParams, bInternalCollision, "InternalCollision");
+    JSONHelpers::readBool(jParams, bCollision,      "InternalCollision");
+    JSONHelpers::readBool(jParams, bExitIfCGFailed, "ExitIfCGFailed");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +123,7 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 #endif
     ////////////////////////////////////////////////////////////////////////////////
     logger->printLogIndent(String("Damping stiffness ratio: ") + NumberHelpers::formatToScientific(dampingStiffnessRatio));
+    logger->printLogIndent(String("Exit if Conjugate Gradient failed: ") + (bExitIfCGFailed ? String("Yes") : String("No")));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -169,11 +171,13 @@ void MSS_Data<N, RealType>::MSS_ParticleData::reserve(UInt nParticles)
     objectSpringHorizon.reserve(nParticles);
 #endif
 
-    if(integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
+    if(bCollision || integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
         explicitForces.reserve(nParticles);
-    } else {
+    }
+    if(integrationScheme == IntegrationScheme::ImplicitEuler || integrationScheme == IntegrationScheme::NewmarkBeta) {
         matrix.reserve(nParticles);
         rhs.reserve(nParticles);
+        dvelocities.reserve(nParticles);
     }
 
     neighborIdx_t0.resize(nParticles);
@@ -212,11 +216,13 @@ void MSS_Data<N, RealType>::MSS_ParticleData::addParticles(const Vec_VecN& newPo
     neighborDistances_t0.resize(getNParticles());
 
     // only store  explicit forces if using explicit time integration schemes
-    if(integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
+    if(bCollision || integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
         explicitForces.resize(getNParticles());
-    } else {
+    }
+    if(integrationScheme == IntegrationScheme::ImplicitEuler || integrationScheme == IntegrationScheme::NewmarkBeta) {
         matrix.resize(getNParticles());
         rhs.resize(getNParticles());
+        dvelocities.resize(getNParticles());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -249,11 +255,13 @@ UInt MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(const Vec_Int8& re
     STLHelpers::eraseByMarker(objectSpringHorizon,   removeMarker);
 #endif
     ////////////////////////////////////////////////////////////////////////////////
-    if(integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
+    if(bCollision || integrationScheme == IntegrationScheme::ExplicitEuler || integrationScheme == IntegrationScheme::VelocityVerlet) {
         explicitForces.resize(getNParticles());
-    } else {
+    }
+    if(integrationScheme == IntegrationScheme::ImplicitEuler || integrationScheme == IntegrationScheme::NewmarkBeta) {
         matrix.resize(getNParticles());
         rhs.resize(getNParticles());
+        dvelocities.resize(getNParticles());
     }
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
@@ -326,6 +334,7 @@ void MSS_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
 #endif
     particleData->particleRadius    = MSSParams->particleRadius;
     particleData->integrationScheme = MSSParams->integrationScheme;
+    particleData->bCollision        = MSSParams->bCollision;
     ////////////////////////////////////////////////////////////////////////////////
     particleData->setupNeighborSearch(MSSParams->particleRadius * MSSParams->defaultParticleMass);
 }

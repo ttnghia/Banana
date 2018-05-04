@@ -66,18 +66,20 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void explicitVerletIntegration(RealType timestep);
     virtual void explicitEulerIntegration(RealType timestep);
-    virtual void implicitEulerIntegration(RealType timestep);
-    virtual void newmarkBetaIntegration(RealType timestep);
+    virtual void implicitIntegration(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
     bool addGravity(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
     void computeExplicitForces();
     void updateExplicitVelocities(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    void buildImplicitLinearSystem(RealType timestep);
     auto computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain);
+    void resetImplicitIntegrationData();
+    void buildImplicitLinearSystem(RealType timestep);
+    void solveImplicitLinearSystem();
+    void updateImplicitVelocities();
     ////////////////////////////////////////////////////////////////////////////////
-    void computeCollisionPenaltyForces();
+    void computeInternalCollisionPenaltyForces();
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<MSS_Parameters<N, RealType>> m_MSSParams = nullptr;
     SharedPtr<MSS_Data<N, RealType>>       m_MSSData   = nullptr;

@@ -38,8 +38,9 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
-    IntegrationScheme integrationScheme  = IntegrationScheme::NewmarkBeta;
-    bool              bInternalCollision = true;
+    IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
+    bool              bCollision        = true;;
+    bool              bExitIfCGFailed   = false;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -86,11 +87,13 @@ struct MSS_Data : SimulationData<N, RealType>
 #endif
         RealType          particleRadius    = RealType(0);
         IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
+        bool              bCollision        = true;
         ////////////////////////////////////////////////////////////////////////////////
         Vec_VecN explicitForces;
 
         BlockSparseMatrix<MatNxN> matrix;
         Vec_VecN                  rhs;
+        Vec_VecN                  dvelocities;
         ////////////////////////////////////////////////////////////////////////////////
         RealType springStiffness(UInt p);
         RealType springHorizon(UInt p);
