@@ -33,19 +33,18 @@ namespace Banana::LinaHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline bool hasValidElements(const VecX<N, RealType>& vec)
+bool hasValidElements(const VecX<N, RealType>& vec)
 {
     for(Int i = 0; i < N; ++i) {
         if(!NumberHelpers::isValidNumber(vec[i])) {
             return false;
         }
     }
-
     return true;
 }
 
 template<Int N, class RealType>
-inline bool hasValidElements(const MatXxX<N, RealType>& mat)
+bool hasValidElements(const MatXxX<N, RealType>& mat)
 {
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
@@ -54,16 +53,14 @@ inline bool hasValidElements(const MatXxX<N, RealType>& mat)
             }
         }
     }
-
     return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline RealType maxAbs(const MatXxX<N, RealType>& mat)
+RealType maxAbs(const MatXxX<N, RealType>& mat)
 {
     RealType result = RealType(0);
-
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
             result = MathHelpers::max(result, fabs(mat[i][j]));
@@ -74,10 +71,9 @@ inline RealType maxAbs(const MatXxX<N, RealType>& mat)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline RealType norm2(const MatXxX<N, RealType>& mat)
+RealType norm2(const MatXxX<N, RealType>& mat)
 {
     RealType prod = RealType(0);
-
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
             prod += mat[i][j] * mat[i][j];
@@ -88,7 +84,7 @@ inline RealType norm2(const MatXxX<N, RealType>& mat)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T, class S>
-inline void fill(MatXxX<N, T>& mat, S x)
+void fill(MatXxX<N, T>& mat, S x)
 {
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
@@ -99,7 +95,7 @@ inline void fill(MatXxX<N, T>& mat, S x)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline RealType trace(const MatXxX<N, RealType>& mat)
+RealType trace(const MatXxX<N, RealType>& mat)
 {
     RealType prod = RealType(0);
     for(Int i = 0; i < N; ++i) {
@@ -110,23 +106,43 @@ inline RealType trace(const MatXxX<N, RealType>& mat)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline MatXxX<N, RealType> dev(const MatXxX<N, RealType>& mat)
+MatXxX<N, RealType> dev(const MatXxX<N, RealType>& mat)
 {
     return mat - MatXxX<N, RealType>(LinaHelpers::trace<RealType>(mat) / RealType(N));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline void sumToDiag(MatXxX<N, RealType>& mat, RealType c)
+void sumToDiag(MatXxX<N, RealType>& mat, RealType c)
 {
     for(Int i = 0; i < N; ++i) {
         mat[i][i] += c;
     }
 }
 
+template<Int N, class RealType>
+MatXxX<N, RealType> getDiagSum(const MatXxX<N, RealType>& mat, RealType c)
+{
+    auto result = mat;
+    for(Int i = 0; i < N; ++i) {
+        result[i][i] += c;
+    }
+    return result;
+}
+
+template<Int N, class RealType>
+MatXxX<N, RealType> getDiagSum(const MatXxX<N, RealType>& mat, const VecX<N, RealType>& c)
+{
+    auto result = mat;
+    for(Int i = 0; i < N; ++i) {
+        result[i][i] += c[i];
+    }
+    return result;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline VecX<N, RealType> extractDiag(const MatXxX<N, RealType>& mat)
+VecX<N, RealType> extractDiag(const MatXxX<N, RealType>& mat)
 {
     VecX<N, RealType> diag;
     for(Int i = 0; i < N; ++i) {
@@ -137,7 +153,7 @@ inline VecX<N, RealType> extractDiag(const MatXxX<N, RealType>& mat)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline MatXxX<N, RealType> diagMatrix(const VecX<N, RealType>& diag)
+MatXxX<N, RealType> diagMatrix(const VecX<N, RealType>& diag)
 {
     MatXxX<N, RealType> mat(0);
     for(Int i = 0; i < N; ++i) {
@@ -148,7 +164,7 @@ inline MatXxX<N, RealType> diagMatrix(const VecX<N, RealType>& diag)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline void diagProduct(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
+void diagProduct(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
 {
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
@@ -160,7 +176,7 @@ inline void diagProduct(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Matrix * Matrix^-1
 template<Int N, class RealType>
-inline void diagProductInv(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
+void diagProductInv(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
 {
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
@@ -171,7 +187,7 @@ inline void diagProductInv(MatXxX<N, RealType>& mat, const VecX<N, RealType>& ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline RealType frobeniusInnerProduct(const MatXxX<N, RealType>& m1, const MatXxX<N, RealType>& m2)
+RealType frobeniusInnerProduct(const MatXxX<N, RealType>& m1, const MatXxX<N, RealType>& m2)
 {
     RealType prod = RealType(0);
     for(Int i = 0; i < N; ++i) {
@@ -184,25 +200,22 @@ inline RealType frobeniusInnerProduct(const MatXxX<N, RealType>& m1, const MatXx
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline VecX<N, RealType> innerProduct(const VecX<N, RealType>& vec, const MatXxX<N, RealType>& mat)
+VecX<N, RealType> innerProduct(const VecX<N, RealType>& vec, const MatXxX<N, RealType>& mat)
 {
     VecX<N, RealType> prod(0);
-
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
             prod[i] += vec[j] * mat[j][i];
         }
     }
-
     return prod;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline MatXxX<N, RealType> innerProduct(const MatXxX<N, RealType>& m1, const MatXxX<N, RealType>& m2)
+MatXxX<N, RealType> innerProduct(const MatXxX<N, RealType>& m1, const MatXxX<N, RealType>& m2)
 {
     MatXxX<N, RealType> prod(0);
-
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
             for(Int k = 0; k < N; ++k) {
@@ -210,14 +223,13 @@ inline MatXxX<N, RealType> innerProduct(const MatXxX<N, RealType>& m1, const Mat
             }
         }
     }
-
     return prod;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // TODO: check row-col major
 template<class RealType>
-inline Mat2x2<RealType> cofactor(const Mat2x2<RealType>& mat)
+Mat2x2<RealType> cofactor(const Mat2x2<RealType>& mat)
 {
     return Mat2x2<RealType>(mat[1][1], -mat[0][1],
                             -mat[1][0], mat[0][0]);
@@ -226,7 +238,7 @@ inline Mat2x2<RealType> cofactor(const Mat2x2<RealType>& mat)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // TODO: test value row-col major
 template<class RealType>
-inline RealType elementCofactor(const Mat3x3<RealType>& mat, Int x, Int y)
+RealType elementCofactor(const Mat3x3<RealType>& mat, Int x, Int y)
 {
     RealType         cofactor_v;
     RealType         minor;
@@ -247,7 +259,7 @@ inline RealType elementCofactor(const Mat3x3<RealType>& mat, Int x, Int y)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline Mat3x3<RealType> cofactor(const Mat3x3<RealType>& mat)
+Mat3x3<RealType> cofactor(const Mat3x3<RealType>& mat)
 {
     Mat2x2<RealType> result;
     for(Int i = 0; i < N; ++i) {
@@ -260,7 +272,7 @@ inline Mat3x3<RealType> cofactor(const Mat3x3<RealType>& mat)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline RealType vonMisesPlaneStress(const Mat3x3<RealType>& mat)
+RealType vonMisesPlaneStress(const Mat3x3<RealType>& mat)
 {
     const RealType vm = mat[0][0] * mat[0][0] + mat[1][1] * mat[1][1] + mat[2][2] * mat[2][2] -
                         mat[0][0] * mat[1][1] - mat[1][1] * mat[2][2] - mat[2][2] * mat[0][0] +
@@ -271,36 +283,31 @@ inline RealType vonMisesPlaneStress(const Mat3x3<RealType>& mat)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline MatXxX<N, RealType> randMatrix(RealType minVal = RealType(0), RealType maxVal = RealType(1.0))
+MatXxX<N, RealType> randMatrix(RealType minVal = RealType(0), RealType maxVal = RealType(1.0))
 {
     std::random_device                       rd;
     std::mt19937                             gen(rd());
     std::uniform_real_distribution<RealType> dis(minVal, maxVal);
 
-
     MatXxX<N, RealType> result;
-
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
             result[i][j] = dis(gen);
         }
     }
-
     return result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class SizeType, class RealType>
-inline Vector<MatXxX<N, RealType> > randVecMatrices(SizeType size, RealType minVal = RealType(0), RealType maxVal = RealType(1.0))
+Vector<MatXxX<N, RealType>> randVecMatrices(SizeType size, RealType minVal = RealType(0), RealType maxVal = RealType(1.0))
 {
     std::random_device                       rd;
     std::mt19937                             gen(rd());
     std::uniform_real_distribution<RealType> dis(minVal, maxVal);
 
-
-    Vector<MatXxX<N, RealType> > results;
+    Vector<MatXxX<N, RealType>> results;
     results.resize(size);
-
     for(SizeType idx = 0; idx < size; ++idx) {
         for(Int i = 0; i < N; ++i) {
             for(Int j = 0; j < N; ++j) {
@@ -308,13 +315,12 @@ inline Vector<MatXxX<N, RealType> > randVecMatrices(SizeType size, RealType minV
             }
         }
     }
-
     return results;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline auto orientedSVD(const MatXxX<N, RealType>& M)
+auto orientedSVD(const MatXxX<N, RealType>& M)
 {
     MatXxX<N, RealType> U, Vt;
     VecX<N, RealType>   S;
@@ -340,7 +346,7 @@ inline auto orientedSVD(const MatXxX<N, RealType>& M)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline auto QRDecomposition(const MatXxX<N, RealType>& M)
+auto QRDecomposition(const MatXxX<N, RealType>& M)
 {
     MatXxX<N, RealType> Q, R;
 
@@ -371,7 +377,7 @@ inline auto QRDecomposition(const MatXxX<N, RealType>& M)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline auto symmetryDecomposition(const MatXxX<N, RealType>& M)
+auto symmetryDecomposition(const MatXxX<N, RealType>& M)
 {
     MatXxX<N, RealType> symComp, skewSymComp;
     auto                Mt = glm::transpose(M);
