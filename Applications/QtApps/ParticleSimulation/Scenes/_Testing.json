@@ -37,7 +37,7 @@
         "DefaultHorizonRatio" : 6,
         "DefaultSpringStiffness" : 1e2,
         "RepulsiveForceStiffness": 2e4,
-        "KDamping": 1e-2
+        "DampingStiffnessRatio": 1e-2
     },
     "ParticleGenerators":
     [

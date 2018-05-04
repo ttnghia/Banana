@@ -4,7 +4,7 @@
         "Solver" : "MSS_3DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 100,
+        "FinalFrame" : 1000,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -26,11 +26,18 @@
         },
         "NExpandCells" : 2,
         "IntegrationScheme" : "ExplicitEuler",
+        "IntegrationSchemeXX" : "VelocityVerlet",
         "CellSize" : 0.1,
         "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 1.0,
+        "CFLFactor" : 0.10,
         "MaterialDensity" : 1000,
-        "RepulsiveForceStiffness": 1e4
+        "CollisionThresholdRatio" : 3.0,
+        "ReflectVelocityAtBoundary" : true,
+        "InternalCollision" : true,
+        "DefaultHorizonRatio" : 6,
+        "DefaultSpringStiffness" : 1e2,
+        "RepulsiveForceStiffness": 2e4,
+        "DampingStiffnessRatio": 1e-2
     },
     "ParticleGenerators":
     [
@@ -39,7 +46,7 @@
             "UniqueName" : "SphereRight",
             "Translation" : [0, 0, -1],
             "Scale" : 0.3,
-            "JitterRatio" : 0.1,
+            "JitterRatio" : 0.0,
             "InitialVelocity" : [0, 0, 10]
         },
         {
@@ -47,7 +54,7 @@
             "UniqueName" : "SphereLeft",
             "Translation" : [0, 0, 1],
             "Scale" : 0.3,
-            "JitterRatio" : 0.1,
+            "JitterRatio" : 0.0,
             "InitialVelocity" : [0, 0, -10]
         }
     ],
