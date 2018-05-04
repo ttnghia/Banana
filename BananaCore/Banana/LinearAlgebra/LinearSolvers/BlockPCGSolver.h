@@ -29,9 +29,12 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
+template<class MatrixType>
 class BlockPCGSolver
 {
+    using RealType   = typename MatrixType::value_type;
+    using VectorType = typename MatrixType::col_type;
+
 public:
     BlockPCGSolver() = default;
 
@@ -44,17 +47,17 @@ public:
     void enableZeroInitial() { m_bZeroInitial = true; }
     void disableZeroInitial() { m_bZeroInitial = false; }
 
-    bool solve(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result);
-    bool solve_precond(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result);
+    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& rhs, Vector<VectorType>& result);
+    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& rhs, Vector<VectorType>& result);
 
 private:
-    void formPreconditioner(const BlockSparseMatrix<N, RealType>& matrix);
-    void applyPreconditioner(const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result);
+    void formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix);
+    void applyPreconditioner(const Vector<VectorType>& x, Vector<VectorType>& result);
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_VecX<N, RealType>               z, s, r;
-    Vector<MatXxX<N, RealType>>         m_JacobiPreconditioner;
-    FixedBlockSparseMatrix<N, RealType> m_FixedSparseMatrix;
+    Vector<VectorType>                 z, s, r;
+    Vector<MatrixType>                 m_JacobiPreconditioner;
+    FixedBlockSparseMatrix<MatrixType> m_FixedSparseMatrix;
 
     RealType m_ToleranceFactor = RealType(1e-20);
     UInt     m_MaxIterations   = 10000u;

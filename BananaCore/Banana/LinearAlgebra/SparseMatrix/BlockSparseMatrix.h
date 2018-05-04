@@ -35,34 +35,38 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix
 //
-template<Int N, class RealType>
+template<class MatrixType>
 class BlockSparseMatrix
 {
 private:
+    using RealType   = typename MatrixType::value_type;
+    using VectorType = typename MatrixType::col_type;
+
     UInt m_Size;
 
     // for each row, a list of all column indices (sorted)
     Vec_VecUInt m_ColIndex;
 
     // values corresponding to indices
-    Vec_VecMatXxX<N, RealType> m_ColValue;
+    Vec_Vec<MatrixType> m_ColValue;
 
 public:
     explicit BlockSparseMatrix(UInt size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
     UInt size() const noexcept { return m_Size; }
+    void reserve(UInt size);
     void resize(UInt newSize);
-    void clear(void);
+    void clear();
 
     template<class IndexType> Vec_UInt& getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
     template<class IndexType> const Vec_UInt& getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
-    template<class IndexType> Vec_MatXxX<N, RealType>& getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
-    template<class IndexType> const Vec_MatXxX<N, RealType>& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
+    template<class IndexType> Vec_Vec<MatrixType>& getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
+    template<class IndexType> const Vec_Vec<MatrixType>& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
-    template<class IndexType> const MatXxX<N, RealType>& operator()(IndexType i, IndexType j) const;
+    template<class IndexType> const auto& operator()(IndexType i, IndexType j) const;
 
-    template<class IndexType> void setElement(IndexType i, IndexType j, const MatXxX<N, RealType>& newValue);
-    template<class IndexType> void addElement(IndexType i, IndexType j, const MatXxX<N, RealType>& incrementValue);
+    template<class IndexType> void setElement(IndexType i, IndexType j, const MatrixType& newValue);
+    template<class IndexType> void addElement(IndexType i, IndexType j, const MatrixType& incrementValue);
     template<class IndexType> void eraseElement(IndexType i, IndexType j);
 
     void printDebug() const noexcept;
@@ -75,14 +79,17 @@ public:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix. This can be significantly faster for matrix-vector
 // multiplies due to better data locality.
-template<Int N, class RealType>
+template<class MatrixType>
 class FixedBlockSparseMatrix
 {
 private:
+    using RealType   = typename MatrixType::value_type;
+    using VectorType = typename MatrixType::col_type;
+
     UInt m_Size;
 
     // nonzero values row by row
-    Vec_MatXxX<N, RealType> m_ColValue;
+    Vec_Vec<MatrixType> m_ColValue;
 
     // corresponding column indices
     Vec_UInt m_ColIndex;
@@ -96,7 +103,7 @@ public:
     UInt size() const noexcept { return m_Size; }
     void resize(UInt newSize) { m_Size = newSize; m_RowStart.resize(m_Size + 1); }
     void clear(void) { m_ColValue.resize(0); m_ColIndex.resize(0); m_RowStart.resize(0); }
-    void constructFromSparseMatrix(const BlockSparseMatrix<N, RealType>& fixedMatrix);
+    void constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& fixedMatrix);
 
     template<class IndexType> Vec_UInt& getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
     template<class IndexType> const Vec_UInt& getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
@@ -106,7 +113,7 @@ public:
     template<class IndexType> const Vec_Real& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const FixedBlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result);
+    static void multiply(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
