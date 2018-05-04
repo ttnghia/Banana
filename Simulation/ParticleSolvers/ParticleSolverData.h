@@ -66,7 +66,7 @@ static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
 enum class HairStretchProcessingMethod { Projection = 0, SpringForce = 1 };
 enum class GravityType { Earth = 0, Directional = 1, ToCenter = 2, FromCenter = 3 };
-enum class IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
+enum class IntegrationScheme { VelocityVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
 enum class Activity { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
 enum class HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
 
