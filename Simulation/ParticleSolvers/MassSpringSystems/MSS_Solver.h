@@ -70,14 +70,14 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool addGravity(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    void computeExplicitForces();
-    void updateExplicitVelocities(RealType timestep);
+    virtual void computeExplicitForces();
+    void         updateExplicitVelocities(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    void resetImplicitIntegrationData();
-    auto computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain);
-    void buildImplicitLinearSystem(RealType timestep);
-    void solveImplicitLinearSystem();
-    void updateImplicitVelocities();
+    void         resetImplicitIntegrationData();
+    auto         computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain);
+    virtual void buildImplicitLinearSystem(RealType timestep);
+    void         solveImplicitLinearSystem();
+    void         updateImplicitVelocities();
     ////////////////////////////////////////////////////////////////////////////////
     void computeInternalCollisionPenaltyForces();
     ////////////////////////////////////////////////////////////////////////////////

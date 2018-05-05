@@ -477,7 +477,7 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                                     const auto qpos = particleData().positions[q];
                                     auto xqp        = qpos - ppos;
                                     auto dist       = glm::length(xqp);
-
+                                    ////////////////////////////////////////////////////////////////////////////////
                                     // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
                                     if(dist < solverParams().overlapThreshold) {
                                         dist = solverParams().overlapThreshold;
@@ -561,7 +561,7 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                     const auto qpos = particleData().positions[q];
                                     auto xqp        = qpos - ppos;
                                     auto dist       = glm::length(xqp);
-
+                                    ////////////////////////////////////////////////////////////////////////////////
                                     // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
                                     if(dist < solverParams().overlapThreshold) {
                                         dist = solverParams().overlapThreshold;

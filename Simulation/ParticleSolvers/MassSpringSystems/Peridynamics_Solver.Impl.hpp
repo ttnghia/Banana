@@ -172,27 +172,37 @@ void Peridynamics_Solver<N, RealType>::computeExplicitForces()
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                const auto& neighbors    = particleData().neighborIdx_t0[p];
-                                const auto& distances_t0 = particleData().neighborDistances_t0[p];
-                                const auto ppos          = particleData().positions[p];
-                                const auto pvel          = particleData().velocities[p];
+                                const auto& neighbors = particleData().neighborIdx[p];
+                                const auto& distances = particleData().neighborDistances[p];
+                                const auto ppos       = particleData().positions[p];
+                                const auto pvel       = particleData().velocities[p];
+                                const auto pthreshold = particleData().bondStretchThresholds[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 VecN spring(0);
                                 VecN damping(0);
-                                for(size_t i = 0; i < neighbors.size(); ++i) {
-                                    const auto q    = neighbors[i];
+                                RealType minStrain(0);
+                                for(size_t bondIdx = 0; bondIdx < neighbors.size(); ++bondIdx) {
+                                    const auto q    = neighbors[bondIdx];
                                     const auto qpos = particleData().positions[q];
                                     auto xqp        = qpos - ppos;
                                     auto dist       = glm::length(xqp);
-
+                                    ////////////////////////////////////////////////////////////////////////////////
                                     // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
                                     if(dist < solverParams().overlapThreshold) {
                                         dist = solverParams().overlapThreshold;
                                         xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
                                     }
-                                    auto strain = dist / distances_t0[i] - RealType(1.0);
-                                    xqp        /= dist;
-                                    spring     += strain * xqp;
+                                    auto strain = dist / distances[bondIdx] - RealType(1.0);;
+                                    minStrain   = MathHelpers::min(minStrain, strain);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // remove bond if needed
+                                    if(strain > MathHelpers::min(pthreshold, particleData().bondStretchThresholds[q])) {
+                                        particleData().brokenBondList[p].push_back(static_cast<UInt>(bondIdx));
+                                        continue;
+                                    }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    xqp    /= dist;
+                                    spring += strain * xqp;
                                     ////////////////////////////////////////////////////////////////////////////////
                                     const auto qvel = particleData().velocities[q];
                                     const auto vqp  = qvel - pvel;
@@ -201,23 +211,143 @@ void Peridynamics_Solver<N, RealType>::computeExplicitForces()
                                 ////////////////////////////////////////////////////////////////////////////////
                                 damping                         *= solverParams().dampingStiffnessRatio;
                                 particleData().explicitForces[p] = (spring + damping) * particleData().springStiffness(p);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                particleData().bondStretchThresholds[p] = particleData().bondStretchThresholds_t0[p] - RealType(0.25) * minStrain;
                             });
+    ////////////////////////////////////////////////////////////////////////////////
+    removeBrokenBonds();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void Peridynamics_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
-{}
+{
+    const auto FDxCoeff = solverParams().FDxMultiplier * timestep * timestep;
+    const auto FDvCoeff = solverParams().FDvMultiplier * timestep;
+    const auto RHSCoeff = solverParams().RHSMultiplier;
+
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                if(particleData().activity[p] == static_cast<Int8>(Activity::Constrained)) {
+                                    return;
+                                }
+                                const auto& neighbors = particleData().neighborIdx[p];
+                                const auto& distances = particleData().neighborDistances[p];
+                                const auto ppos       = particleData().positions[p];
+                                const auto pvel       = particleData().velocities[p];
+                                const auto pthreshold = particleData().bondStretchThresholds[p];
+                                auto forces           = particleData().explicitForces[p];
+
+                                MatNxN sumLHS(0);
+                                VecN sumRHS(0);
+                                VecN spring(0);
+                                VecN damping(0);
+                                RealType minStrain(0);
+                                for(size_t bondIdx = 0; bondIdx < neighbors.size(); ++bondIdx) {
+                                    const auto q    = neighbors[bondIdx];
+                                    const auto qpos = particleData().positions[q];
+                                    auto xqp        = qpos - ppos;
+                                    auto dist       = glm::length(xqp);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
+                                    if(dist < solverParams().overlapThreshold) {
+                                        dist = solverParams().overlapThreshold;
+                                        xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
+                                    }
+                                    auto strain = dist / distances[bondIdx] - RealType(1.0);
+                                    minStrain   = MathHelpers::min(minStrain, strain);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // remove bond if needed
+                                    if(strain > MathHelpers::min(pthreshold, particleData().bondStretchThresholds[q])) {
+                                        particleData().brokenBondList[p].push_back(static_cast<UInt>(bondIdx));
+                                        continue;
+                                    }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    xqp    /= dist;
+                                    spring += strain * xqp;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    const auto qvel = particleData().velocities[q];
+                                    const auto vqp  = qvel - pvel;
+                                    damping        += glm::dot(xqp, vqp) * xqp;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    auto [FDx, FDv] = computeForceDerivative(p, xqp, dist, strain);
+                                    FDx            *= FDxCoeff;
+                                    FDv            *= FDvCoeff;
+                                    auto FDxFdv     = FDx + FDv;
+
+                                    sumLHS -= FDxFdv;
+                                    sumRHS -= (FDx * vqp);
+
+                                    if(particleData().activity[q] != static_cast<Int8>(Activity::Constrained)) {
+                                        particleData().matrix.addElement(p, q, FDxFdv);
+                                    }
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                damping *= solverParams().dampingStiffnessRatio;
+                                forces  += (spring + damping) * particleData().springStiffness(p);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                LinaHelpers::sumToDiag(sumLHS, particleData().mass(p));
+                                particleData().matrix.setElement(p, p, sumLHS);
+                                particleData().rhs[p] = sumRHS * RHSCoeff + forces * timestep;
+                                ////////////////////////////////////////////////////////////////////////////////
+                                particleData().bondStretchThresholds[p] = particleData().bondStretchThresholds_t0[p] - RealType(0.25) * minStrain;
+                            });
+    ////////////////////////////////////////////////////////////////////////////////
+    removeBrokenBonds();
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void Peridynamics_Solver<N, RealType>::removeBrokenBonds()
-{}
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& brokenBondIdxs = particleData().brokenBondList[p];
+                                if(brokenBondIdxs.size() == 0) {
+                                    return;
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                auto& neighbors = particleData().neighborIdx[p];
+                                auto& distances = particleData().neighborDistances[p];
+
+                                UInt src = 0, dst = 0;
+                                for(auto idx : brokenBondIdxs) {
+                                    while(src < idx) {
+                                        neighbors[dst] = neighbors[src];
+                                        distances[dst] = distances[src];
+                                        ++src;
+                                        ++dst;
+                                    }
+                                    ++src;
+                                }
+
+                                UInt nNeighbors = static_cast<UInt>(neighbors.size());
+                                while(src < nNeighbors) {
+                                    neighbors[dst] = neighbors[src];
+                                    distances[dst] = distances[src];
+                                    ++src;
+                                    ++dst;
+                                }
+                                neighbors.resize(dst);
+                                distances.resize(dst);
+                            });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void Peridynamics_Solver<N, RealType>::computeBondRemainingRatios()
-{}
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto nBonds    = particleData().neighborIdx[p].size();
+                                auto nBonds_t0 = particleData().neighborIdx_t0[p].size();
+                                ////////////////////////////////////////////////////////////////////////////////
+                                particleData().bondRemainingRatios[p] = static_cast<RealType>(nBonds) / static_cast<RealType>(nBonds_t0);
+                            });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

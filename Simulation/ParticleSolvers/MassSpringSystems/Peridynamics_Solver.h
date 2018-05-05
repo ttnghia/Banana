@@ -55,10 +55,10 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void sortParticles() override;
     ////////////////////////////////////////////////////////////////////////////////
-    void computeExplicitForces();
-    void buildImplicitLinearSystem(RealType timestep);
-    void removeBrokenBonds();
-    void computeBondRemainingRatios();
+    virtual void computeExplicitForces() override;
+    virtual void buildImplicitLinearSystem(RealType timestep) override;
+    void         removeBrokenBonds();
+    void         computeBondRemainingRatios();
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<Peridynamics_Parameters<N, RealType>> m_PDParams = nullptr;
     SharedPtr<Peridynamics_Data<N, RealType>>       m_PDData   = nullptr;
