@@ -87,11 +87,11 @@ template class Banana::ParticleSolvers::MSS_Solver<2, Real>;
 template class Banana::ParticleSolvers::MSS_Solver<3, Real>;
 
 ////////////////////////////////////////////////////////////////////////////////
-//#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.h>
-//#include <ParticleSolvers/MassSpringSystems/Peridynamics_Data.Impl.hpp>
-//#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.Impl.hpp>
-//template class Banana::ParticleSolvers::Peridynamics_Solver<2, Real>;
-//template class Banana::ParticleSolvers::Peridynamics_Solver<3, Real>;
+#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.h>
+#include <ParticleSolvers/MassSpringSystems/Peridynamics_Data.Impl.hpp>
+#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.Impl.hpp>
+template class Banana::ParticleSolvers::Peridynamics_Solver<2, Real>;
+template class Banana::ParticleSolvers::Peridynamics_Solver<3, Real>;
 
 ////////////////////////////////////////////////////////////////////////////////
 //#include <ParticleSolvers/MassSpringSystems/Cloth_Solver.h>
