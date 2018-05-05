@@ -2,6 +2,29 @@
     "files.associations": {
         "vector": "cpp",
         "xhash": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "valarray": "cpp",
+        "*.tcc": "cpp",
+        "random": "cpp",
+        "bitset": "cpp",
+        "deque": "cpp",
+        "initializer_list": "cpp",
+        "list": "cpp",
+        "queue": "cpp",
+        "regex": "cpp",
+        "stack": "cpp",
+        "type_traits": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp",
+        "array": "cpp",
+        "forward_list": "cpp",
+        "atomic": "cpp",
+        "filesystem": "cpp",
+        "ios": "cpp",
+        "system_error": "cpp",
+        "xiosbase": "cpp",
+        "codecvt": "cpp",
+        "xlocale": "cpp",
+        "*.isph": "cpp"
     }
 }

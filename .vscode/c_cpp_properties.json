@@ -1,5 +1,6 @@
 {
-    "configurations": [{
+    "configurations": [
+        {
             "name": "Mac",
             "includePath": [
                 "/usr/include",
@@ -20,7 +21,9 @@
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
-            ]
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         },
         {
             "name": "Linux",
@@ -39,7 +42,9 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         },
         {
             "name": "Win32",
@@ -51,7 +56,6 @@
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/ucrt",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/shared",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/winrt",
-
                 "D:/Programming/Banana/Externals/vdb-win",
                 "D:/Programming/Banana/Externals/json/single_include/nlohmann",
                 "D:/Programming/Banana/Externals/catch/single_include",
@@ -82,7 +86,6 @@
                     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/ucrt",
                     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/shared",
                     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/winrt",
-
                     "D:/Programming/Banana/Externals/vdb-win",
                     "D:/Programming/Banana/Externals/json/single_include/nlohmann",
                     "D:/Programming/Banana/Externals/catch/single_include",
