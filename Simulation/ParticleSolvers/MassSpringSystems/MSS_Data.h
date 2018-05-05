@@ -39,7 +39,7 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
     IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
-    bool              bCollision        = true;;
+    bool              bCollision        = true;
     bool              bExitIfCGFailed   = false;
     ////////////////////////////////////////////////////////////////////////////////
 
