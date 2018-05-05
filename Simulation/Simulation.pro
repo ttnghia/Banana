@@ -21,15 +21,15 @@
 
 #include ../Banana.pri
 
-TARGET = BananaCore
+TARGET = Simulation
 
 TEMPLATE = lib
 CONFIG += staticlib
 
-HEADERS = $$files(Banana/*.h, true)
-SOURCES = $$files(Banana/*.hpp, true)
-SOURCES += $$files(Banana/*.cpp, true)
+HEADERS = $$files(*.h, true)
+SOURCES = $$files(*.hpp, true)
+SOURCES += $$files(*.cpp, true)
 
 DISTFILES += \
-    BananaCore.pri \
-    BananaCore.licenseheader
+    Simulation.pri \
+    Simulation.licenseheader

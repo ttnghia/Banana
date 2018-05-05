@@ -21,15 +21,14 @@
 
 #include ../Banana.pri
 
-TARGET = BananaCore
+TARGET = RayTracing
 
 TEMPLATE = lib
 CONFIG += staticlib
 
-HEADERS = $$files(Banana/*.h, true)
-SOURCES = $$files(Banana/*.hpp, true)
-SOURCES += $$files(Banana/*.cpp, true)
+HEADERS = $$files(include/*.h, true)
+SOURCES = $$files(Source/*.cpp, true)
 
 DISTFILES += \
-    BananaCore.pri \
-    BananaCore.licenseheader
+    QtAppHelpers.pri \
+    QtAppHelpers.licenseheader

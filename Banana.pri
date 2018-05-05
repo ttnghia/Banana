@@ -19,17 +19,33 @@
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include ../Banana.pri
+INCLUDEPATH += $$PWD/Externals/vdb-win
+INCLUDEPATH += $$PWD/Externals/json/single_include/nlohmann
+INCLUDEPATH += $$PWD/Externals/catch/single_include
+INCLUDEPATH += $$PWD/Externals/tinyply/source
+INCLUDEPATH += $$PWD/Externals/tinyobjloader
+INCLUDEPATH += $$PWD/Externals/spdlog/include
+INCLUDEPATH += $$PWD/Externals/glm
+INCLUDEPATH += $$PWD/Externals/tbb_win/include
 
-TARGET = BananaCore
+QT += core
+CONFIG += c++17
+CONFIG += force_debug_info
 
-TEMPLATE = lib
-CONFIG += staticlib
+win32 {
+    CONFIG(debug, debug|release) {
+        message("Banana -- Debug")
+        QMAKE_CXXFLAGS += /D "_DEBUG" /wd"4305"
+    } else {
+        message("Banana -- Release")
+        QMAKE_CXXFLAGS += /Zo /Qpar /GL /W3 /Gy /Gm- /O2 /Ob2 /fp:precise /D "NDEBUG" /fp:except /Oi /EHsc /Ot /wd"4305"
+    }
 
-HEADERS = $$files(Banana/*.h, true)
-SOURCES = $$files(Banana/*.hpp, true)
-SOURCES += $$files(Banana/*.cpp, true)
+    QMAKE_CXXFLAGS += /std:c++latest
+}
 
-DISTFILES += \
-    BananaCore.pri \
-    BananaCore.licenseheader
+macx {
+    CONFIG(debug, debug|release) {
+    }else {
+    }
+}
