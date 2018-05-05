@@ -273,7 +273,11 @@ void MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // set radius again, as it will be changed during particle generation
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
     NSearch().set_radius(defaultSpringHorizon);
+#else
+    NSearch().set_radius(maxSpringHorizon);
+#endif
     findNeighbors();
     ////////////////////////////////////////////////////////////////////////////////
     neighborIdx_t0.resize(getNParticles());

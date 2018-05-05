@@ -65,6 +65,7 @@ struct Peridynamics_Data : public MSS_Data<N, RealType>
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override;
         virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
+        virtual void findNeighborsAndDistances_t0() override;
     };
 
     virtual void initialize();

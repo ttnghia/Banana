@@ -56,6 +56,8 @@ template<Int N, class RealType>
 void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::reserve(UInt nParticles)
 {
     MSS_Data<N, RealType>::MSS_ParticleData::reserve(nParticles);
+    neighborIdx.resize(nParticles);
+    neighborDistances.resize(nParticles);
     bondRemainingRatios.reserve(nParticles);
     bondStretchThresholds.reserve(nParticles);
     bondStretchThresholds_t0.reserve(nParticles);
@@ -68,9 +70,11 @@ void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::addParticles(con
 {
     __BNN_UNUSED(jParams);
     MSS_Data<N, RealType>::MSS_ParticleData::addParticles(newPositions, newVelocities);
+    neighborIdx.resize(getNParticles());
+    neighborDistances.resize(getNParticles());
     bondRemainingRatios.resize(getNParticles(), 0);
     brokenBondList.resize(getNParticles());
-
+    ////////////////////////////////////////////////////////////////////////////////
     std::random_device rd;
     std::mt19937       gen(rd());
     // distribute around 3*sigma
@@ -88,12 +92,29 @@ UInt Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::removeParticles(
 {
     MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
+    STLHelpers::eraseByMarker(neighborIdx,              removeMarker);
+    STLHelpers::eraseByMarker(neighborDistances,        removeMarker);
     STLHelpers::eraseByMarker(bondStretchThresholds,    removeMarker);
     STLHelpers::eraseByMarker(bondStretchThresholds_t0, removeMarker);
     bondRemainingRatios.resize(getNParticles());
     brokenBondList.resize(getNParticles());
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::findNeighborsAndDistances_t0()
+{
+    MSS_Data<N, RealType>::MSS_ParticleData::findNeighborsAndDistances_t0();
+    ////////////////////////////////////////////////////////////////////////////////
+    // copy data
+    neighborIdx.resize(neighborIdx_t0.size());
+    neighborDistances.resize(neighborDistances_t0.size());
+    for(UInt p = 0; p < getNParticles(); ++p) {
+        neighborIdx      [p] = neighborIdx_t0[p];
+        neighborDistances[p] = neighborDistances_t0[p];
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -40,14 +40,13 @@ void Peridynamics_Solver<N, RealType>::setupDataIO()
 {
     MSS_Solver<N, RealType>::setupDataIO();
     ////////////////////////////////////////////////////////////////////////////////
-    if(globalParams().bSaveFrameData) {
-        if(globalParams().savingData("BondRemainingRatio")) {
-            m_ParticleDataIO->addParticleAttribute<float>("bond_remaining_ratio", ParticleSerialization::TypeCompressedReal, 1);
-        }
-    }
+    m_ParticleDataIO->addParticleAttribute<float>("bond_remaining_ratio", ParticleSerialization::TypeCompressedReal, 1);
+
     ////////////////////////////////////////////////////////////////////////////////
     if(globalParams().bLoadMemoryState || globalParams().bSaveMemoryState) {
-        m_MemoryStateIO->addParticleAttribute<RealType>("bond_stretch_threshold", ParticleSerialization::TypeReal, 1);
+        m_MemoryStateIO->addParticleAttribute<UInt>(    "particle_neighbor",          ParticleSerialization::TypeVectorUInt, 1);
+        m_MemoryStateIO->addParticleAttribute<UInt>(    "particle_neighbor_distance", ParticleSerialization::TypeVectorReal, 1);
+        m_MemoryStateIO->addParticleAttribute<RealType>("bond_stretch_threshold",     ParticleSerialization::TypeReal,       1);
         m_MemoryStateIO_t0->addParticleAttribute<RealType>("bond_stretch_threshold", ParticleSerialization::TypeReal, 1);
     }
 }
@@ -124,10 +123,9 @@ Int Peridynamics_Solver<N, RealType>::saveFrameData()
     if(globalParams().savingData("ParticleVelocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
-    if(globalParams().savingData("BondRemainingRatio")) {
-        computeBondRemainingRatios();
-        m_ParticleDataIO->setParticleAttribute("bond_remaining_ratio", particleData().bondRemainingRatios);
-    }
+    ////////////////////////////////////////////////////////////////////////////////
+    computeBondRemainingRatios();
+    m_ParticleDataIO->setParticleAttribute("bond_remaining_ratio", particleData().bondRemainingRatios);
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
     return globalParams().finishedFrame;
