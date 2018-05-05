@@ -929,7 +929,7 @@ void PIC_Solver<N, RealType>::solveSystem()
     logger().printLogIndent("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
                             ". Final residual: " + NumberHelpers::formatToScientific(solverData().pcgSolver.residual()), 2);
     if(!success) {
-        logger().printError("Pressure projection failed to solved!");
+        logger().printErrorIndent("Pressure projection failed to solved!", 2);
         if(solverParams().bExitIfPressureProjectionFailed) {
             exit(EXIT_FAILURE);
         }

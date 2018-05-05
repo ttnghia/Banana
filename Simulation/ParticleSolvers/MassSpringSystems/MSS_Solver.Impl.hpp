@@ -527,7 +527,8 @@ void MSS_Solver<N, RealType>::resetImplicitIntegrationData()
     // because collision force is the only explicit force, reset it first
     particleData().explicitForces.assign(particleData().explicitForces.size(), VecN(0));
     ////////////////////////////////////////////////////////////////////////////////
-    assert(particleData().matrix.size() == paticleData().getNParticles());
+    assert(particleData().matrix.size() == particleData().getNParticles());
+    assert(particleData().rhs.size() == static_cast<size_t>(particleData().getNParticles()));
     particleData().matrix.clear();
 }
 
@@ -594,6 +595,7 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                 particleData().matrix.setElement(p, p, sumLHS);
                                 particleData().rhs[p] = sumRHS * RHSCoeff + forces * timestep;
                             });
+    // particleData().matrix.printDebug();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -604,7 +606,7 @@ void MSS_Solver<N, RealType>::solveImplicitLinearSystem()
     logger().printLogIndent("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
                             ". Final residual: " + NumberHelpers::formatToScientific(solverData().pcgSolver.residual()), 2);
     if(!success) {
-        logger().printError("Implicit velocity failed to solved!");
+        logger().printErrorIndent("Implicit velocity failed to solved!", 2);
         if(solverParams().bExitIfCGFailed) {
             exit(EXIT_FAILURE);
         }
