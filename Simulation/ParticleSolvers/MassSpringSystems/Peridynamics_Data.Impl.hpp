@@ -31,7 +31,8 @@ void Peridynamics_Parameters<N, RealType>::parseParameters(const JParams& jParam
     MSS_Parameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     // Peridynamics parameters
-    JSONHelpers::readValue(jParams, defaultStretchThreshold, "DefaultStretchThreshold");
+    JSONHelpers::readValue(jParams, defaultStretchThreshold,        "DefaultStretchThreshold");
+    JSONHelpers::readValue(jParams, stretchThresholdDeviationRatio, "StretchThresholdDeviationRatio");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -41,6 +42,7 @@ void Peridynamics_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& 
     MSS_Parameters<N, RealType>::printParams(logger);
     logger->printLog(String("Peridynamics parameters:"));
     logger->printLogIndent(String("Default stretch threshold: ") + NumberHelpers::formatToScientific(defaultStretchThreshold));
+    logger->printLogIndent(String("Stretch threshold deviation ratio: ") + NumberHelpers::formatToScientific(stretchThresholdDeviationRatio));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -53,8 +55,11 @@ void Peridynamics_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& 
 template<Int N, class RealType>
 void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::reserve(UInt nParticles)
 {
-    MSS_Data<N, RealType>::Peridynamics_ParticleData::reserve(nParticles);
-    bondRemainingRatios.resize(nParticles);
+    MSS_Data<N, RealType>::MSS_ParticleData::reserve(nParticles);
+    bondRemainingRatios.reserve(nParticles);
+    bondStretchThresholds.reserve(nParticles);
+    bondStretchThresholds_t0.reserve(nParticles);
+    brokenBondList.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -62,16 +67,31 @@ template<Int N, class RealType>
 void Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
     __BNN_UNUSED(jParams);
-    MSS_Data<N, RealType>::Peridynamics_ParticleData::addParticles(newPositions, newVelocities);
+    MSS_Data<N, RealType>::MSS_ParticleData::addParticles(newPositions, newVelocities);
     bondRemainingRatios.resize(getNParticles(), 0);
+    brokenBondList.resize(getNParticles());
+
+    std::random_device rd;
+    std::mt19937       gen(rd());
+    // distribute around 3*sigma
+    std::normal_distribution<RealType> dis(0, stretchThresholdDeviationRatio / RealType(3.0));
+    for(size_t i = bondStretchThresholds.size(); i < positions.size(); ++i) {
+        auto stretchThreshold = (RealType(1.0) + dis(gen)) * defaultStretchThreshold;
+        bondStretchThresholds.push_back(stretchThreshold);
+        bondStretchThresholds_t0.push_back(stretchThreshold);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 UInt Peridynamics_Data<N, RealType>::Peridynamics_ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
-    MSS_Data<N, RealType>::Peridynamics_ParticleData::removeParticles(removeMarker);
+    MSS_Data<N, RealType>::MSS_ParticleData::removeParticles(removeMarker);
+    ////////////////////////////////////////////////////////////////////////////////
+    STLHelpers::eraseByMarker(bondStretchThresholds,    removeMarker);
+    STLHelpers::eraseByMarker(bondStretchThresholds_t0, removeMarker);
     bondRemainingRatios.resize(getNParticles());
+    brokenBondList.resize(getNParticles());
     ////////////////////////////////////////////////////////////////////////////////
     return static_cast<UInt>(removeMarker.size() - positions.size());
 }

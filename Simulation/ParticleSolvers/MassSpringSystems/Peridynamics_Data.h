@@ -36,7 +36,8 @@ struct Peridynamics_Parameters : public MSS_Parameters<N, RealType>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    RealType defaultStretchThreshold = Huge<RealType>();
+    RealType defaultStretchThreshold        = Huge<RealType>();
+    RealType stretchThresholdDeviationRatio = RealType(0.1);
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void parseParameters(const JParams& jParams) override;
@@ -54,8 +55,12 @@ struct Peridynamics_Data : public MSS_Data<N, RealType>
     struct Peridynamics_ParticleData : public MSS_Data<N, RealType>::MSS_ParticleData
     {
         ////////////////////////////////////////////////////////////////////////////////
+        RealType defaultStretchThreshold        = Huge<RealType>();
+        RealType stretchThresholdDeviationRatio = RealType(0.1);
+        ////////////////////////////////////////////////////////////////////////////////
         Vector<RealType> bondRemainingRatios;
         Vector<RealType> bondStretchThresholds, bondStretchThresholds_t0;
+        Vec_VecUInt      brokenBondList;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override;

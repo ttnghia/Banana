@@ -18,8 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::allocateSolverMemory()
+void Peridynamics_Solver<N, RealType>::allocateSolverMemory()
 {
     m_PDParams     = std::make_shared<Peridynamics_Parameters<N, RealType>>();
     m_MSSParams    = std::static_pointer_cast<MSS_Parameters<N, RealType>>(m_PDParams);
@@ -33,7 +36,7 @@ void Peridynamics_Solver<N, RealType >::allocateSolverMemory()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::setupDataIO()
+void Peridynamics_Solver<N, RealType>::setupDataIO()
 {
     MSS_Solver<N, RealType>::setupDataIO();
     ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +54,7 @@ void Peridynamics_Solver<N, RealType >::setupDataIO()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int Peridynamics_Solver<N, RealType >::loadMemoryState()
+Int Peridynamics_Solver<N, RealType>::loadMemoryState()
 {
     Int latestStateIdx = MSS_Solver<N, RealType>::loadMemoryState();
     if(latestStateIdx < 0) {
@@ -68,7 +71,7 @@ Int Peridynamics_Solver<N, RealType >::loadMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int Peridynamics_Solver<N, RealType >::saveMemoryState()
+Int Peridynamics_Solver<N, RealType>::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
         return -1;
@@ -101,7 +104,7 @@ Int Peridynamics_Solver<N, RealType >::saveMemoryState()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int Peridynamics_Solver<N, RealType >::saveFrameData()
+Int Peridynamics_Solver<N, RealType>::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
         return -1;
@@ -132,7 +135,7 @@ Int Peridynamics_Solver<N, RealType >::saveFrameData()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::sortParticles()
+void Peridynamics_Solver<N, RealType>::sortParticles()
 {
     if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
@@ -150,41 +153,71 @@ void Peridynamics_Solver<N, RealType >::sortParticles()
                               d.sort_field(&particleData().neighborIdx_t0[0]);
                               d.sort_field(&particleData().neighborDistances_t0[0]);
                               d.sort_field(&particleData().bondStretchThresholds_t0[0]);
+
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+                              d.sort_field(&particleData().objectSpringStiffness[0]);
+#endif
+
+#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
+                              d.sort_field(&particleData().objectSpringHorizon[0]);
+#endif
                           });
     logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::advanceVelocity(RealType timestep)
+void Peridynamics_Solver<N, RealType>::computeExplicitForces()
 {
-    logger().printRunTime("{   Time integration: ", [&]() { integration(timestep); });
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& neighbors    = particleData().neighborIdx_t0[p];
+                                const auto& distances_t0 = particleData().neighborDistances_t0[p];
+                                const auto ppos          = particleData().positions[p];
+                                const auto pvel          = particleData().velocities[p];
+                                ////////////////////////////////////////////////////////////////////////////////
+                                VecN spring(0);
+                                VecN damping(0);
+                                for(size_t i = 0; i < neighbors.size(); ++i) {
+                                    const auto q    = neighbors[i];
+                                    const auto qpos = particleData().positions[q];
+                                    auto xqp        = qpos - ppos;
+                                    auto dist       = glm::length(xqp);
+
+                                    // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
+                                    if(dist < solverParams().overlapThreshold) {
+                                        dist = solverParams().overlapThreshold;
+                                        xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
+                                    }
+                                    auto strain = dist / distances_t0[i] - RealType(1.0);
+                                    xqp        /= dist;
+                                    spring     += strain * xqp;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    const auto qvel = particleData().velocities[q];
+                                    const auto vqp  = qvel - pvel;
+                                    damping        += glm::dot(xqp, vqp) * xqp;
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                damping                         *= solverParams().dampingStiffnessRatio;
+                                particleData().explicitForces[p] = (spring + damping) * particleData().springStiffness(p);
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::explicitVerletIntegration(RealType timestep)
-{
-    computeExplicitForces();
-    moveParticles();
-}
+void Peridynamics_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
+{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::explicitEulerIntegration(RealType timestep)
+void Peridynamics_Solver<N, RealType>::removeBrokenBonds()
+{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::implicitEulerIntegration(RealType timestep)
+void Peridynamics_Solver<N, RealType>::computeBondRemainingRatios()
+{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::newmarkBetaIntegration(RealType timestep)
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::computeExplicitForces(RealType timestep)
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void Peridynamics_Solver<N, RealType >::computeImplicitForces(RealType timestep)
+}   // end namespace Banana::ParticleSolvers

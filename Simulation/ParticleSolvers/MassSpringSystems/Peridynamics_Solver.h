@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.h>
+#include <ParticleSolvers/MassSpringSystems/MSS_Solver.h>
 #include <ParticleSolvers/MassSpringSystems/Peridynamics_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -44,7 +44,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     auto& solverParams() { assert(m_PDParams != nullptr); return *m_PDParams; }
     auto& solverData() { assert(m_PDData != nullptr); return *m_PDData; }
-    auto& particleData() { assert(solverData().particleData != nullptr); return *solverData().particleData; }
+    auto& particleData() { assert(solverData().PD_particleData != nullptr); return *solverData().PD_particleData; }
 
 protected:
     virtual void allocateSolverMemory() override;
@@ -55,22 +55,14 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void sortParticles() override;
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void advanceVelocity(RealType timestep);
-    virtual void explicitVerletIntegration(RealType timestep);
-    virtual void explicitEulerIntegration(RealType timestep);
-    virtual void implicitEulerIntegration(RealType timestep);
-    virtual void newmarkBetaIntegration(RealType timestep);
-    virtual void computeExplicitForces(RealType timestep);
-    virtual void computeImplicitForces(RealType timestep);
-
+    void computeExplicitForces();
+    void buildImplicitLinearSystem(RealType timestep);
+    void removeBrokenBonds();
     void computeBondRemainingRatios();
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<Peridynamics_Parameters<N, RealType>> m_PDParams = nullptr;
     SharedPtr<Peridynamics_Data<N, RealType>>       m_PDData   = nullptr;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/MassSpringSystems/Peridynamics_Solver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers
