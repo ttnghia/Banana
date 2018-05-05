@@ -144,10 +144,20 @@ void Logger::printWarning(const String& s, UInt maxSize)
     printLogPadding(s, spdlog::level::warn, maxSize);
 }
 
+void Logger::printWarningIndent(const String& s, UInt indentLevel /* = 1 */, char trailing /* = ' ' */, UInt maxSize /* = 100 */)
+{
+    printLogPaddingIndent(s, spdlog::level::warn, indentLevel, trailing, maxSize);
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printError(const String& s, UInt maxSize)
 {
     printLogPadding(s, spdlog::level::err, maxSize);
+}
+
+void Logger::printErrorIndent(const String& s, UInt indentLevel /* = 1 */, char trailing /* = ' ' */, UInt maxSize /* = 100 */)
+{
+    printLogPaddingIndent(s, spdlog::level::err, indentLevel, trailing, maxSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -220,7 +230,7 @@ void Logger::printLogPadding(const String& s, spdlog::level::level_enum level, U
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLogPaddingIndent(const String& s, UInt maxSize /*= 100*/, UInt indentLevel /*= 1*/, char trailing /*= ' '*/)
+void Logger::printLogPaddingIndent(const String& s, UInt indentLevel /*= 1*/, char trailing /*= ' '*/, UInt maxSize /* = 100 */)
 {
     String str;
     str.reserve(256);
@@ -232,6 +242,26 @@ void Logger::printLogPaddingIndent(const String& s, UInt maxSize /*= 100*/, UInt
     str += String(paddingSize, '*');
 
     printLog(str);
+}
+
+void Logger::printLogPaddingIndent(const String& s, spdlog::level::level_enum level, UInt indentLevel /*= 1*/, char trailing /*= ' '*/, UInt maxSize /* = 100 */)
+{
+    String str;
+    str.reserve(256);
+    str += String(INDENT_SIZE * indentLevel, trailing);
+    str += s;
+    str += String(" ");
+
+    size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
+    str += String(paddingSize, '*');
+
+    if(m_bPrint2Console) {
+        m_ConsoleLogger->log(level, str);
+    }
+
+    if(m_bWriteLog2File) {
+        m_FileLogger->log(level, str);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

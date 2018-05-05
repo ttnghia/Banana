@@ -58,8 +58,10 @@ public:
     void printAligned(const String& s, char padding = PADDING, const String& wrapper = WRAPPER, UInt maxSize = 100);
     void printTextBox(const String& s);
     void printTextBox(const Vector<String>& strs);
-    void printWarning(const String& s, UInt maxSize = 100);
-    void printError(const String& s, UInt maxSize = 100);
+    void printWarning(const String& s, UInt maxSize            = 100);
+    void printWarningIndent(const String& s,  UInt indentLevel = 1, char trailing = ' ', UInt maxSize = 100);
+    void printError(const String& s, UInt maxSize              = 100);
+    void printErrorIndent(const String& s, UInt indentLevel    = 1, char trailing = ' ', UInt maxSize = 100);
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class Function> void printRunTime(const char* caption, const Function& function)
@@ -95,9 +97,10 @@ public:
     void printLog(const String& s, spdlog::level::level_enum level);
     void printLogIndent(const String& s, UInt indentLevel = 1, char trailing = ' ');
 
-    void printLogPadding(const String& s, UInt maxSize = 100);
-    void printLogPadding(const String& s, spdlog::level::level_enum level, UInt maxSize = 100);
-    void printLogPaddingIndent(const String& s, UInt maxSize = 100, UInt indentLevel = 1, char trailing = ' ');
+    void printLogPadding(const String& s, UInt maxSize                                            = 100);
+    void printLogPadding(const String& s, spdlog::level::level_enum level, UInt maxSize           = 100);
+    void printLogPaddingIndent(const String& s, UInt indentLevel                                  = 1, char trailing = ' ', UInt maxSize = 100);
+    void printLogPaddingIndent(const String& s, spdlog::level::level_enum level, UInt indentLevel = 1, char trailing = ' ', UInt maxSize = 100);
 
     void printLogIf(bool bCondition, const String& s);
     void printLogIf(bool bCondition, const String& s, spdlog::level::level_enum level);
@@ -117,9 +120,9 @@ public:
     }
 
     static void  registerDataLogFile(const String& logFile) { __BNN_REQUIRE(!s_bInitialized); s_DataLogFiles.push_back(logFile); }
-    static void  initialize(bool bPrint2Console = true, bool bWriteLog2File = false);
-    static void  initialize(const String& dataPath, bool bPrint2Console = true, bool bWriteLog2File = false);
-    static void  shutdown();
+    static void initialize(bool bPrint2Console                         = true, bool bWriteLog2File = false);
+    static void initialize(const String& dataPath, bool bPrint2Console = true, bool bWriteLog2File = false);
+    static void shutdown();
     static void  setDataPath(const String& dataPath) { s_DataPath = dataPath; }
     static auto& mainLogger() noexcept { assert(s_MainLogger != nullptr); return *s_MainLogger; }
 
