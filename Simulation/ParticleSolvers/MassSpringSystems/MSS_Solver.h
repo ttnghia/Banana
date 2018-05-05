@@ -73,8 +73,8 @@ protected:
     void computeExplicitForces();
     void updateExplicitVelocities(RealType timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    auto computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain);
     void resetImplicitIntegrationData();
+    auto computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain);
     void buildImplicitLinearSystem(RealType timestep);
     void solveImplicitLinearSystem();
     void updateImplicitVelocities();

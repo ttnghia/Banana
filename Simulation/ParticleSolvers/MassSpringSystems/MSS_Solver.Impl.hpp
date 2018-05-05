@@ -510,18 +510,6 @@ void MSS_Solver<N, RealType>::updateExplicitVelocities(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-auto MSS_Solver<N, RealType>::computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain)
-{
-    auto pStiffness = particleData().springStiffness(p);
-    auto xqp_xqpT   = glm::outerProduct(xqp, xqp);
-    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);   // (MatNxN(1.0) * strain + xqp_xqpT);
-    auto FDv        = -(solverParams().dampingStiffnessRatio * pStiffness) * xqp_xqpT;;
-    ////////////////////////////////////////////////////////////////////////////////
-    return std::make_tuple(FDx, FDv);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
 void MSS_Solver<N, RealType>::resetImplicitIntegrationData()
 {
     // because collision force is the only explicit force, reset it first
@@ -530,6 +518,18 @@ void MSS_Solver<N, RealType>::resetImplicitIntegrationData()
     assert(particleData().matrix.size() == particleData().getNParticles());
     assert(particleData().rhs.size() == static_cast<size_t>(particleData().getNParticles()));
     particleData().matrix.clear();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+auto MSS_Solver<N, RealType>::computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain)
+{
+    auto pStiffness = particleData().springStiffness(p);
+    auto xqp_xqpT   = glm::outerProduct(xqp, xqp);
+    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);   // (MatNxN(1.0) * strain + xqp_xqpT);
+    auto FDv        = -(solverParams().dampingStiffnessRatio * pStiffness) * xqp_xqpT;;
+    ////////////////////////////////////////////////////////////////////////////////
+    return std::make_tuple(FDx, FDv);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
