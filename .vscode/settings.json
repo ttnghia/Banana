@@ -25,6 +25,8 @@
         "xiosbase": "cpp",
         "codecvt": "cpp",
         "xlocale": "cpp",
-        "*.isph": "cpp"
+        "*.isph": "cpp",
+        "variant": "cpp",
+        "*.cuh": "cpp"
     }
 }
