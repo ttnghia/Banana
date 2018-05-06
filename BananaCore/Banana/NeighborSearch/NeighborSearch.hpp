@@ -18,6 +18,9 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::NeighborSearch
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 NeighborSearch<N, RealType>::NeighborSearch(RealType r, bool erase_empty_cells) :
     m_r2(r * r), m_inv_cell_size(static_cast<RealType>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
@@ -31,7 +34,7 @@ NeighborSearch<N, RealType>::NeighborSearch(RealType r, bool erase_empty_cells) 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes index to a world space position x.
 template<Int N, class RealType>
-HashKey<N> NeighborSearch<N, RealType >::cell_index(const RealType* x) const
+HashKey<N> NeighborSearch<N, RealType>::cell_index(const RealType* x) const
 {
     HashKey<N> ret;
     for(Int d = 0; d < N; ++d) {
@@ -44,7 +47,7 @@ HashKey<N> NeighborSearch<N, RealType >::cell_index(const RealType* x) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines Morten value according to z-curve.
 template<Int N, class RealType>
-uint_fast64_t NeighborSearch<N, RealType >::z_value(const HashKey<N>& key)
+uint_fast64_t NeighborSearch<N, RealType>::z_value(const HashKey<N>& key)
 {
     if constexpr(N == 2) {
         return morton2D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
@@ -59,7 +62,7 @@ uint_fast64_t NeighborSearch<N, RealType >::z_value(const HashKey<N>& key)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines permutation table for point array.
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::z_sort()
+void NeighborSearch<N, RealType>::z_sort()
 {
     for(PointSet<N, RealType>& d : m_point_sets) {
         d.m_sort_table.resize(d.n_points());
@@ -78,7 +81,7 @@ void NeighborSearch<N, RealType >::z_sort()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Build hash table and entry array from scratch.
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::init()
+void NeighborSearch<N, RealType>::init()
 {
     m_entries.clear();
     m_map.clear();
@@ -123,7 +126,7 @@ void NeighborSearch<N, RealType >::init()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::resize_point_set(UInt index, const RealType* x, UInt size)
+void NeighborSearch<N, RealType>::resize_point_set(UInt index, const RealType* x, UInt size)
 {
     PointSet<N, RealType>& point_set = m_point_sets[index];
     UInt                   old_size  = point_set.n_points();
@@ -188,7 +191,7 @@ void NeighborSearch<N, RealType >::resize_point_set(UInt index, const RealType* 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::update_activation_table()
+void NeighborSearch<N, RealType>::update_activation_table()
 {
     if(m_activation_table != m_old_activation_table) {
         for(auto& entry : m_entries) {
@@ -206,7 +209,7 @@ void NeighborSearch<N, RealType >::update_activation_table()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::find_neighbors(bool points_changed_)
+void NeighborSearch<N, RealType>::find_neighbors(bool points_changed_)
 {
     if(points_changed_) {
         update_point_sets();
@@ -217,7 +220,7 @@ void NeighborSearch<N, RealType >::find_neighbors(bool points_changed_)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::update_point_sets()
+void NeighborSearch<N, RealType>::update_point_sets()
 {
     if(!m_initialized) {
         init();
@@ -250,14 +253,14 @@ void NeighborSearch<N, RealType >::update_point_sets()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch<N, RealType>::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     query(point_set_id, point_index, neighbors);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::erase_empty_entries(const Vec_UInt& to_delete)
+void NeighborSearch<N, RealType>::erase_empty_entries(const Vec_UInt& to_delete)
 {
     if(to_delete.empty()) {
         return;
@@ -300,7 +303,7 @@ void NeighborSearch<N, RealType >::erase_empty_entries(const Vec_UInt& to_delete
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::update_hash_table(Vec_UInt& to_delete)
+void NeighborSearch<N, RealType>::update_hash_table(Vec_UInt& to_delete)
 {
     // Indicate points changing inheriting cell.
     for(UInt j = 0; j < m_point_sets.size(); ++j) {
@@ -345,7 +348,7 @@ void NeighborSearch<N, RealType >::update_hash_table(Vec_UInt& to_delete)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::query()
+void NeighborSearch<N, RealType>::query()
 {
     if constexpr(N == 2) {
         query2D();
@@ -356,7 +359,7 @@ void NeighborSearch<N, RealType >::query()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::query2D()
+void NeighborSearch<N, RealType>::query2D()
 {
     for(UInt i = 0, iend = static_cast<UInt>(m_point_sets.size()); i < iend; ++i) {
         PointSet<N, RealType>& d = m_point_sets[i];
@@ -515,7 +518,7 @@ void NeighborSearch<N, RealType >::query2D()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::query3D()
+void NeighborSearch<N, RealType>::query3D()
 {
     for(UInt i = 0, iend = static_cast<UInt>(m_point_sets.size()); i < iend; ++i) {
         PointSet<N, RealType>& d = m_point_sets[i];
@@ -679,7 +682,7 @@ void NeighborSearch<N, RealType >::query3D()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch<N, RealType>::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     if constexpr(N == 2) {
         query2D(point_set_id, point_index, neighbors);
@@ -690,7 +693,7 @@ void NeighborSearch<N, RealType >::query(UInt point_set_id, UInt point_index, Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::query2D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch<N, RealType>::query2D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     neighbors.resize(m_point_sets.size());
     PointSet<N, RealType>& d = m_point_sets[point_set_id];
@@ -772,7 +775,7 @@ void NeighborSearch<N, RealType >::query2D(UInt point_set_id, UInt point_index, 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void NeighborSearch<N, RealType >::query3D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch<N, RealType>::query3D(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     neighbors.resize(m_point_sets.size());
     PointSet<N, RealType>& d = m_point_sets[point_set_id];
@@ -855,3 +858,6 @@ void NeighborSearch<N, RealType >::query3D(UInt point_set_id, UInt point_index, 
         }
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace Banana::NeighborSearch

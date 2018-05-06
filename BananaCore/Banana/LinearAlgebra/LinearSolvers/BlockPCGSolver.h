@@ -73,4 +73,4 @@ private:
 } // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.Impl.hpp>
+#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.hpp>

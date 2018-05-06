@@ -45,16 +45,10 @@
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h">
@@ -153,9 +147,6 @@
     <ClInclude Include="Banana\Grid\Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Grid\Grid.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -169,12 +160,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Geometry\GeometryObjects.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Animation\Animation.h">
@@ -204,9 +189,6 @@
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -214,6 +196,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Geometry\GeometryObjects.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\Grid\Grid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -102,4 +102,4 @@ struct FixedSparseMatrix
 } // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.Impl.hpp>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.hpp>

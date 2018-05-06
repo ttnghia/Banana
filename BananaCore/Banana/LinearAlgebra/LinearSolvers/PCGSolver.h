@@ -115,4 +115,4 @@ private:
 } // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.Impl.hpp>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.hpp>

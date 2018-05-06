@@ -115,4 +115,4 @@ public:
 } // end namespace Banana
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.Impl.hpp>
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.hpp>

@@ -120,7 +120,7 @@ public:
      * set.
      */
     UInt add_point_set(const RealType* x, UInt n, bool is_dynamic = true,
-                       bool search_neighbors = true, bool find_neighbors = true)
+                       bool search_neighbors                      = true, bool find_neighbors = true)
     {
         m_point_sets.push_back({ x, n, is_dynamic });
         m_activation_table.add_point_set(search_neighbors, find_neighbors);
@@ -248,7 +248,7 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/NeighborSearch/NeighborSearch.Impl.hpp>
+}   // end namespace Banana::NeighborSearch
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::NeighborSearch
+#include <Banana/NeighborSearch/NeighborSearch.hpp>
