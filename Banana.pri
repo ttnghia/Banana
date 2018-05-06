@@ -19,6 +19,14 @@
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+INCLUDEPATH += $$PWD/BananaCore
+INCLUDEPATH += $$PWD/MachineLearning
+INCLUDEPATH += $$PWD/OpenGLHelpers/Include
+INCLUDEPATH += $$PWD/QtAppHelpers/Include
+INCLUDEPATH += $$PWD/RayTracing/Include
+INCLUDEPATH += $$PWD/Simulation
+
+
 INCLUDEPATH += $$PWD/Externals/vdb-win
 INCLUDEPATH += $$PWD/Externals/json/single_include/nlohmann
 INCLUDEPATH += $$PWD/Externals/catch/single_include
