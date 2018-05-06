@@ -35,11 +35,9 @@
 #include <filesystem>
 #include <windows.h>
 #endif
- 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-namespace FileHelpers
+namespace Banana::FileHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void createFolder(const char* folderName)
@@ -286,13 +284,13 @@ inline bool writeFile(const void* dataBuffer, size_t dataSize, const String& fil
 inline std::future<void> writeFileAsync(const void* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::future<void> futureObj = std::async(std::launch::async, [&]
-            {
-                std::ofstream file(fileName, std::ios::binary | std::ios::out);
-                __BNN_REQUIRE_MSG(file.is_open(), "Could not open file for writing.");
+                                             {
+                                                 std::ofstream file(fileName, std::ios::binary | std::ios::out);
+                                                 __BNN_REQUIRE_MSG(file.is_open(), "Could not open file for writing.");
 
-                file.write((char*)dataBuffer, dataSize);
-                file.close();
-            });
+                                                 file.write((char*)dataBuffer, dataSize);
+                                                 file.close();
+                                             });
 
     return futureObj;
 }
@@ -437,7 +435,4 @@ inline std::future<void> writeBinaryFileAsync(const Vector<T>& dvec, const Strin
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace FileHelpers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::FileHelpers

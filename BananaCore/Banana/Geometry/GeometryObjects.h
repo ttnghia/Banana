@@ -35,10 +35,7 @@
 #include <Banana/Geometry/OBJLoader.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace GeometryObjects
+namespace Banana::GeometryObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -53,7 +50,7 @@ public:
     GeometryObject() = default;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
 
-    virtual String   name() = 0;
+    virtual String   name()                                                              = 0;
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const = 0;
 
     Vec2<RealType> gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside = true, RealType dxy = RealType(1e-4)) const;
@@ -67,7 +64,7 @@ public:
 
     auto        getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
     auto        getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
-    auto&       getAnimation() { return m_Animation; }
+    auto& getAnimation() { return m_Animation; }
     const auto& getTransformationMatrix() const { return m_TransformationMatrix; }
 
     VecX<N, RealType> getVelocityAt(const VecX<N, RealType>& ppos) const;
@@ -76,7 +73,6 @@ public:
 
     virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f));
 protected:
-
 
     ////////////////////////////////////////////////////////////////////////////////
     bool     m_bTransformed = false;
@@ -91,9 +87,6 @@ protected:
     MatXxX<N + 1, RealType> m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
     Animation<N, RealType>  m_Animation;
 };
-
-using GeometryObject2D = GeometryObject<2, Real>;
-using GeometryObject3D = GeometryObject<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -153,14 +146,13 @@ public:
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class TorusObject;
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class TorusObject<2, RealType> : public GeometryObject<2, RealType>
+class TorusObject<2, RealType>: public GeometryObject<2, RealType>
 {
 public:
     virtual String   name() override { return String("TorusObject"); }
@@ -175,7 +167,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class TorusObject<3, RealType> : public GeometryObject<3, RealType>
+class TorusObject<3, RealType>: public GeometryObject<3, RealType>
 {
 public:
     virtual String   name() override { return String("TorusObject"); }
@@ -210,7 +202,7 @@ class Torus88Object;
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class Torus88Object<2, RealType> : public TorusObject<2, RealType>
+class Torus88Object<2, RealType>: public TorusObject<2, RealType>
 {
 public:
     virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override;
@@ -218,7 +210,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class Torus88Object<3, RealType> : public TorusObject<3, RealType>
+class Torus88Object<3, RealType>: public TorusObject<3, RealType>
 {
 public:
     virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
@@ -230,7 +222,7 @@ class TorusInfInfObject;
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class TorusInfInfObject<2, RealType> : public TorusObject<2, RealType>
+class TorusInfInfObject<2, RealType>: public TorusObject<2, RealType>
 {
 public:
     virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override;
@@ -238,7 +230,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class TorusInfInfObject<3, RealType> : public TorusObject<3, RealType>
+class TorusInfInfObject<3, RealType>: public TorusObject<3, RealType>
 {
 public:
     virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
@@ -284,7 +276,6 @@ protected:
     VecX<N, RealType> m_Normal = VecX<N, RealType>(0);
     RealType          m_Offset = RealType(0);
 };
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
@@ -366,7 +357,7 @@ class TriMeshObject;
 ////////////////////////////////////////////////////////////////////////////////
 // this is an empty class, to get rid of compiler error
 template<class RealType>
-class TriMeshObject<2, RealType> : public GeometryObject<2, RealType>
+class TriMeshObject<2, RealType>: public GeometryObject<2, RealType>
 {
 public:
     virtual String   name() override { return String("TriMeshObject-Unimplemented"); }
@@ -383,7 +374,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-class TriMeshObject<3, RealType> : public GeometryObject<3, RealType>
+class TriMeshObject<3, RealType>: public GeometryObject<3, RealType>
 {
 public:
     virtual String   name() override { return String("TriMeshObject"); }
@@ -391,7 +382,7 @@ public:
 
     auto& meshFile() { return m_TriMeshFile; }
     auto& sdfStep() { return m_Step; }
-    void  computeSDF();
+    void computeSDF();
 
 protected:
 
@@ -427,8 +418,8 @@ class CSGObject : public GeometryObject<N, RealType>
 public:
     struct CSGData
     {
-        SharedPtr<GeometryObject<N, RealType> > obj = nullptr;
-        CSGOperations                           op  = Union;
+        SharedPtr<GeometryObject<N, RealType>> obj = nullptr;
+        CSGOperations                          op  = Union;
     };
 
     virtual String   name() override { return String("CSGObject"); }
@@ -449,10 +440,7 @@ protected:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Geometry/GeometryObjects.Impl.hpp>
+#include <Banana/Geometry/GeometryObjects.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace GeometryObjects
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::GeometryObjects

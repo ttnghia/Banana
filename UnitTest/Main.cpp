@@ -23,16 +23,14 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // BananaCore project
-//#include <Banana/Geometry/_Geometry.Test.hpp>
-//#include <Banana/LinearAlgebra/_SVD.Test.hpp>
-//#include <Banana/Animation/Animation.Test.hpp>
+
+#include <Banana/Animation/Animation.Test.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // ParticleTools
-//#include <ParticleTools/ParticleSerialization.Test.hpp>
+// #include <ParticleTools/ParticleSerialization.Test.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Simulation project
-//#include <Banana/NeighborSearch/_NeighborSearch.Test.hpp>
+#include <Banana/NeighborSearch/_NeighborSearch.Test.hpp>
 #include <Banana/Grid/_Grid.Test.hpp>
-//#include <ParticleSolvers/_ParticleSolvers.Test.hpp>
