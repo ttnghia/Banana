@@ -75,8 +75,10 @@ struct MSS_Data : SimulationData<N, RealType>
         ////////////////////////////////////////////////////////////////////////////////
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
         RealType defaultSpringStiffness = RealType(1e3);
+        RealType defaultSpringDamping   = RealType(1e1);
 #else
         Vector<RealType> objectSpringStiffness;
+        RealType         springDampingRatio = RealType(1e-2);
 #endif
 
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
@@ -96,6 +98,7 @@ struct MSS_Data : SimulationData<N, RealType>
         Vec_VecN                  dvelocities;
         ////////////////////////////////////////////////////////////////////////////////
         RealType springStiffness(UInt p);
+        RealType springDamping(UInt p);
         RealType springHorizon(UInt p);
 
         virtual void reserve(UInt nParticles) override;

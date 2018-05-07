@@ -148,7 +148,9 @@ void Peridynamics_Solver<N, RealType>::sortParticles()
                               d.sort_field(&particleData().velocities[0]);
                               d.sort_field(&particleData().objectIndex[0]);
 
+                              d.sort_field(&particleData().neighborIdx[0]);
                               d.sort_field(&particleData().neighborIdx_t0[0]);
+                              d.sort_field(&particleData().neighborDistances[0]);
                               d.sort_field(&particleData().neighborDistances_t0[0]);
                               d.sort_field(&particleData().bondStretchThresholds_t0[0]);
 
@@ -207,8 +209,9 @@ void Peridynamics_Solver<N, RealType>::computeExplicitForces()
                                     damping        += glm::dot(xqp, vqp) * xqp;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                damping                         *= solverParams().dampingStiffnessRatio;
-                                particleData().explicitForces[p] = (spring + damping) * particleData().springStiffness(p);
+                                spring                          *= particleData().springStiffness(p);
+                                damping                         *= particleData().springDamping(p);
+                                particleData().explicitForces[p] = spring + damping;
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().bondStretchThresholds[p] = particleData().bondStretchThresholds_t0[p] - RealType(0.25) * minStrain;
                             });
@@ -282,8 +285,9 @@ void Peridynamics_Solver<N, RealType>::buildImplicitLinearSystem(RealType timest
                                     }
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                damping *= solverParams().dampingStiffnessRatio;
-                                forces  += (spring + damping) * particleData().springStiffness(p);
+                                spring  *= particleData().springStiffness(p);
+                                damping *= particleData().springDamping(p);
+                                forces  += (spring + damping);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 LinaHelpers::sumToDiag(sumLHS, particleData().mass(p));
                                 particleData().matrix.setElement(p, p, sumLHS);

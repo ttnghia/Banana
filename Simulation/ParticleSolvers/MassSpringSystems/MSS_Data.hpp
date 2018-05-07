@@ -146,6 +146,18 @@ RealType MSS_Data<N, RealType>::MSS_ParticleData::springStiffness(UInt p)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+RealType MSS_Data<N, RealType>::MSS_ParticleData::springDamping(UInt p)
+{
+#ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
+    __BNN_UNUSED(p);
+    return defaultSpringDamping;
+#else
+    return objectSpringStiffness[p] * springDampingRatio;
+#endif
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 RealType MSS_Data<N, RealType>::MSS_ParticleData::springHorizon(UInt p)
 {
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
@@ -331,6 +343,9 @@ void MSS_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
 
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
     particleData->defaultSpringStiffness = MSSParams->defaultSpringStiffness;
+    particleData->defaultSpringDamping   = MSSParams->dampingStiffnessRatio * MSSParams->defaultSpringStiffness;
+#else
+    particleData->springDampingRatio = MSSParams->dampingStiffnessRatio;
 #endif
 
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON

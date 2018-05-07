@@ -492,8 +492,9 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                                     damping        += glm::dot(xqp, vqp) * xqp;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                damping                         *= solverParams().dampingStiffnessRatio;
-                                particleData().explicitForces[p] = (spring + damping) * particleData().springStiffness(p);
+                                spring                          *= particleData().springStiffness(p);
+                                damping                         *= particleData().springDamping(p);
+                                particleData().explicitForces[p] = spring + damping;
                             });
 }
 
@@ -525,9 +526,10 @@ template<Int N, class RealType>
 auto MSS_Solver<N, RealType>::computeForceDerivative(UInt p, const VecN& xqp, RealType dist, RealType strain)
 {
     auto pStiffness = particleData().springStiffness(p);
+    auto pDamping   = particleData().springDamping(p);
     auto xqp_xqpT   = glm::outerProduct(xqp, xqp);
     auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);   // (MatNxN(1.0) * strain + xqp_xqpT);
-    auto FDv        = -(solverParams().dampingStiffnessRatio * pStiffness) * xqp_xqpT;;
+    auto FDv        = -pDamping * xqp_xqpT;;
     ////////////////////////////////////////////////////////////////////////////////
     return std::make_tuple(FDx, FDv);
 }
@@ -588,8 +590,9 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                     }
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                damping *= solverParams().dampingStiffnessRatio;
-                                forces  += (spring + damping) * particleData().springStiffness(p);
+                                spring  *= particleData().springStiffness(p);
+                                damping *= particleData().springDamping(p);
+                                forces  += (spring + damping);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 LinaHelpers::sumToDiag(sumLHS, particleData().mass(p));
                                 particleData().matrix.setElement(p, p, sumLHS);
