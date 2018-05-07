@@ -159,7 +159,6 @@
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h" />
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />

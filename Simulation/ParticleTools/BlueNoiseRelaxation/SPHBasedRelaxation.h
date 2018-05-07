@@ -21,10 +21,6 @@
 
 #pragma once
 
-#include <Banana/Array/Array.h>
-#include <Banana/Utils/Logger.h>
-#include <Banana/Utils/MathHelpers.h>
-#include <Banana/Grid/Grid.h>
 #include <ParticleTools/BlueNoiseRelaxation/BlueNoiseRelaxation.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
 #include <ParticleSolvers/SPH/SPH_Data.h>
@@ -42,18 +38,14 @@ public:
     SPHBasedRelaxation(const GlobalParameters& globalParams,
                        const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
-        BlueNoiseRelaxation(globalParams, solverParams, boundaryObjs)
-    {
-        __BNN_REQUIRE(N == 3);
-    }
-
-    virtual String getName() const override { return String("SPHBasedRelaxation"); }
+        BlueNoiseRelaxation(globalParams, solverParams, boundaryObjs) {}
 
 protected:
-    virtual void iterate(Vec_VecX<N, RealType>& positions, UInt iter) override;
-    virtual void allocateMemory(Vec_VecX<N, RealType>& positions) override { particleData().allocateMemory(positions); }
+    virtual String getName() const override { return String("SPHBasedRelaxation"); }
+    virtual void makeReady(Vec_VecN& positions) override { particleData().makeReady(positions); }
+    virtual void iterate(Vec_VecN& positions, UInt iter) override;
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
+    auto& solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
     const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
@@ -78,7 +70,7 @@ protected:
         Vector<VecX<N, RealType>>         diffuseVelocity;
         ////////////////////////////////////////////////////////////////////////////////
         UInt getNParticles() const { return nParticles; }
-        void allocateMemory(Vec_VecX<N, RealType>& positions_)
+        void makeReady(Vec_VecN& positions_)
         {
             nParticles = static_cast<UInt>(positions_.size());
             positions  = positions_.data();
@@ -92,7 +84,7 @@ protected:
         }
     } m_SPHData;
 
-    auto&       particleData() { return m_SPHData; }
+    auto& particleData() { return m_SPHData; }
     const auto& particleData() const { return m_SPHData; }
     ////////////////////////////////////////////////////////////////////////////////
     struct Kernels
@@ -102,13 +94,11 @@ protected:
         PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
     } m_Kernels;
 
-    auto&       kernels() { return m_Kernels; }
-    const auto& kernels() const { return m_Kernels; }
+    auto& kernels() { return m_Kernels; }
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana::ParticleTools
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.hpp>

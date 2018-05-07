@@ -213,9 +213,6 @@
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Data.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
