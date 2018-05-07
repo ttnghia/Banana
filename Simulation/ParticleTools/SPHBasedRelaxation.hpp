@@ -22,6 +22,37 @@ namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+bool SPHBasedRelaxation<N, RealType>::relaxPositions(Vec_VecN& positions, RealType threshold /* = RealType(1.8) */, UInt maxIters /* = 1000u */,
+                                                     UInt checkFrequency /* = 10u */)
+{
+    makeReady(positions);
+    for(UInt iter = 1; iter <= maxIters; ++iter) {
+        iterate(positions, iter);
+        if(iter > 1 && (iter % checkFrequency) == 0) {
+            computeMinDistanceRatio(positions);
+            logger().printLog("Iteration #" + std::to_string(iter) + ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
+            if(getMinDistanceRatio() > threshold) {
+                logger().printLogPadding("Relaxation finished successfully.");
+                logger().printMemoryUsage();
+                logger().newLine();
+                return true;
+            }
+        }
+        logger().printMemoryUsage();
+        logger().newLine();
+    }
+    if(((iter - 1) % checkFrequency) == 0) {
+        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(maxIters));
+    } else {
+        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(maxIters) +
+                                 ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
+    }
+    logger().newLine();
+    return false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::iterate(Vec_VecN& positions, UInt iter)
 {
     RealType substep;
@@ -36,6 +67,31 @@ void SPHBasedRelaxation<N, RealType>::iterate(Vec_VecN& positions, UInt iter)
     logger().printRunTimeIndent("Update velocity: ", [&]() { updateVelocity(substep); });
     logger().printRunTimeIndent("Compute viscosity: ", [&]() { computeViscosity(); });
     logger().printLog("Finished step of size " + NumberHelpers::formatToScientific(substep));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio(Vec_VecN& positions)
+{
+    m_NearNSearch.find_neighbors();
+    m_MinNeighborDistanceSqr.resize(positions.size());
+    Scheduler::parallel_for(static_cast<UInt>(positions.size()),
+                            [&](UInt p)
+                            {
+                                const auto& ppos = positions[p];
+                                auto min_d2      = std::numeric_limits<RealType>::max();
+                                for(auto q : m_NearNSearch->point_set(0).neighbors(0, p)) {
+                                    const auto& qpos = positions[q];
+                                    const auto d2    = glm::length2(qpos - ppos);
+                                    if(min_d2 > d2) {
+                                        min_d2 = d2;
+                                    }
+                                }
+                                m_MinNeighborDistanceSqr[p] = min_d2;
+                            });
+    m_MinDistanceRatio = RealType(sqrt(ParallelSTL::min<RealType>(m_MinNeighborDistanceSqr))) / m_SolverParams->particleRadius;
+    ////////////////////////////////////////////////////////////////////////////////
+    logger().printLog("Min distance ratio: " + std::to_string(m_MinDistanceRatio));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

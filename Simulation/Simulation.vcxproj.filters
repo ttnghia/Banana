@@ -57,18 +57,6 @@
     <ClInclude Include="ParticleSolvers\ParticleSolverData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\ParticleHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -124,9 +112,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimulationObjects\HairObjectGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h">
@@ -280,6 +265,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleTools\SPHBasedRelaxation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleTools\SPHBasedRelaxation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

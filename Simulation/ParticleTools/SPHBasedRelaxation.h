@@ -21,7 +21,12 @@
 
 #pragma once
 
-#include <ParticleTools/BlueNoiseRelaxation/BlueNoiseRelaxation.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
+#include <Banana/Utils/MathHelpers.h>
+#include <ParticleTools/ParticleHelpers.h>
+#include <SimulationObjects/BoundaryObject.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
 #include <ParticleSolvers/SPH/SPH_Data.h>
 
@@ -32,21 +37,36 @@ namespace Banana::ParticleTools
 using namespace Banana::ParticleSolvers;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class SPHBasedRelaxation : public BlueNoiseRelaxation<N, RealType>
+class SPHBasedRelaxation
 {
 public:
     SPHBasedRelaxation(const GlobalParameters& globalParams,
                        const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
-        BlueNoiseRelaxation(globalParams, solverParams, boundaryObjs) {}
+        m_GlobalParams(globalParams), m_SolverParams(solverParams), m_BoundaryObjects(boundaryObjs)
+    {
+        m_Logger = Logger::createLogger("SPHBasedRelaxation");
+        m_Logger->setLoglevel(m_GlobalParams.logLevel);
+        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams->particleRadius * RealType(2.0));
+        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams->particleRadius * RealType(4.0));
+    }
+
+    /**
+       @param positions: positions of the particles
+       @param threshold: stop if getMinDistance() < particleRadius * threshold
+       @param maxIters: max number of iterations
+       @return bool value indicating whether the relaxation has converged or not
+     */
+    bool relaxPositions(Vec_VecN& positions, RealType threshold = RealType(1.8), UInt maxIters = 1000u, UInt checkFrequency = 10u);
+    RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
 
 protected:
-    virtual String getName() const override { return String("SPHBasedRelaxation"); }
-    virtual void makeReady(Vec_VecN& positions) override { particleData().makeReady(positions); }
-    virtual void iterate(Vec_VecN& positions, UInt iter) override;
+    void makeReady(Vec_VecN& positions) override { particleData().makeReady(positions); }
+    void iterate(Vec_VecN& positions, UInt iter) override;
+    void computeMinDistanceRatio(Vec_VecN& positions);
     ////////////////////////////////////////////////////////////////////////////////
+    auto& logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
     auto& solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
-    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     moveParticles(RealType timestep);
@@ -95,10 +115,22 @@ protected:
     } m_Kernels;
 
     auto& kernels() { return m_Kernels; }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    const GlobalParameters&                                                  m_GlobalParams;
+    const SharedPtr<SimulationParameters<N, RealType>>&                      m_SolverParams;
+    const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
+    ////////////////////////////////////////////////////////////////////////////////
+    Vector<RealType> m_MinNeighborDistanceSqr;
+    RealType         m_MinDistanceRatio = RealType(0);
+
+    SharedPtr<Logger>                                      m_Logger      = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch<N, RealType>> m_NearNSearch = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch<N, RealType>> m_FarNSearch  = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana::ParticleTools
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.hpp>
+#include <ParticleTools/SPHBasedRelaxation.hpp>

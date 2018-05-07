@@ -158,7 +158,6 @@
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h" />
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
@@ -169,17 +168,15 @@
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SimulationObjects\SimulationObject.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.hpp" />
+    <ClInclude Include="ParticleTools\SPHBasedRelaxation.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="ParticleTools\ParticleHelpers.hpp" />
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.hpp" />
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="SimulationObjects\ParticleGenerator.h" />
-    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
+    <ClInclude Include="ParticleTools\SPHBasedRelaxation.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.hpp" />
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
