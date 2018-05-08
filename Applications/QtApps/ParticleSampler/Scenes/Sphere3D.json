@@ -1,0 +1,78 @@
+{
+    "GlobalParameters":
+    {
+        "Solver" : "MPM_3DSolver",
+        "FrameDuration" : 0.003333333333,
+        "StartFrame" : 1,
+        "FinalFrame" : 50,
+        "SaveFrameData" : false,
+        "SaveMemoryState" : false,
+        "FramePerState" : 10,
+        "DataPath" : "D:/Scratch/MPM3D_TwoSphere_APIC",
+        "FrameDataFolder" : "MPMData",
+        "MemoryStateDataFolder" : "MPMState",
+        "OptionalSavingData" : [ "object_index" ],
+        "LogLevel" : "Debug",
+        "PrintLogToFile" : true,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10
+    },
+    "SimulationParameters":
+    {
+        "SimulationDomainBox" :
+        {
+            "BoxMin" : [-1, -1, -2],
+            "BoxMax" : [1, 1, 2]
+        },
+        "NExpandCells" : 2,
+        "AdvectionSteps" : 2,
+        "PIC_FLIP_Ratio" : 0.9,
+        "ImplicitRatio" : 0,
+        "CGRelativeTolerance" : 1e-18,
+        "MaxCGIteration" : 1000,
+        "CellSize" : 0.05,
+        "RatioCellSizePRadius" : 4,
+        "CFLFactor" : 0.2,
+        "lambda" : 10,
+        "mu": 100,
+        "MaterialDensity" : 1
+    },
+    "ParticleGenerators":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereRight",
+            "Translation" : [0, 0, -1],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.1,
+            "InitialVelocity" : [0, 0, 10]
+        },
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereLeft",
+            "Translation" : [0, 0, 1],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.1,
+            "InitialVelocity" : [0, 0, -10]
+        }
+    ],
+    "VisualizationParameters":
+    {
+        "CapturePath" : "D:/Scratch/MPM3D_TwoSphere_APIC/Capture",
+        "Light" :
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [10, 20, -10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [0, -20, 0],
+                "Diffuse" : [1, 1, 1]
+            }
+        ]
+    }
+}

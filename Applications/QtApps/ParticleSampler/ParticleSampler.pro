@@ -28,11 +28,10 @@ include(../../../QtAppHelpers/QtAppHelpers.pri)
 include(../../../OpenGLHelpers/OpenGLHelpers.pri)
 include(../../../Simulation/Simulation.pri)
 
-TARGET = ParticleSimulation
+TARGET = ParticleSampler
 TEMPLATE = app
 CONFIG += console
 
-#QMAKE_LFLAGS += /VERBOSE
 #CONFIG += static
 
 #macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
@@ -47,16 +46,7 @@ RESOURCES += \
     Shader.qrc
 
 DISTFILES += \
-    Scenes/_Testing.json \
-    Scenes/AniMPM2D_2Cubes.json \
-    Scenes/FLIP3D_2DamBreak.json \
-    Scenes/FLIP3D_BallDrop.json \
-    Scenes/FLIP3D_RotationalBoxBoundary.json \
-    Scenes/MPM2D_2Spheres.json \
-    Scenes/MPM3D_2Spheres.json \
-    Scenes/MPM3D_2Toruses.json \
-    Scenes/MPM3D_TorusBallDrop.json \
-    Scenes/MSS3D_2Spheres.json \
-    Scenes/SPH2D_BallDrop.json \
-    Scenes/SPH3D_BallDrop.json \
+    Scenes/Sphere2D.json \
+    Scenes/Sphere3D.json \
+    Scenes/Torus3D.json \
     config.ini
