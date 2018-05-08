@@ -61,13 +61,8 @@ public:
     static constexpr Int dimension() noexcept { return N; }
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
-    using SolverRealType  = typename RealType;
-    using VecN            = VecX<N, RealType>;
-    using MatNxN          = MatXxX<N, RealType>;
-    using Vec_VecN        = Vec_VecX<N, RealType>;
-    using Vec_MatNxN      = Vec_MatXxX<N, RealType>;
-    using Vec_RealType    = Vector<RealType>;
-    using Vec_VecRealType = Vector<Vector<RealType>>;
+    using SolverRealType = typename RealType;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
