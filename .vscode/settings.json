@@ -27,6 +27,8 @@
         "xlocale": "cpp",
         "*.isph": "cpp",
         "variant": "cpp",
-        "*.cuh": "cpp"
+        "*.cuh": "cpp",
+        "adolcforward": "cpp",
+        "mprealsupport": "cpp"
     }
 }

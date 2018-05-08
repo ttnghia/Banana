@@ -24,8 +24,7 @@
 #include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
 #include <SimulationObjects/SimulationObject.h>
-//#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
-#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
+#include <ParticleTools/SPHBasedRelaxation.h>
 
 #include <unordered_set>
 
@@ -43,7 +42,7 @@ template<Int N, class RealType>
 class ParticleGenerator : public SimulationObject<N, RealType>
 {
 public:
-    ParticleGenerator() = delete;
+    ParticleGenerator()                                    = delete;
     ParticleGenerator(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +55,7 @@ public:
     auto& maxSamplingIters() { return m_MaxIters; }
     auto& activeFrames() { return m_ActiveFrames; }
     auto& constraintObjectID() { return m_ConstraintObjectID; }
-    bool  isActive(UInt currentFrame);
+    bool isActive(UInt currentFrame);
     ////////////////////////////////////////////////////////////////////////////////
     const auto& generatedPositions() const { return m_GeneratedPositions; }
     const auto& generatedVelocities() const { return m_GeneratedVelocities; }
@@ -68,8 +67,8 @@ public:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
     UInt generateParticles(const Vec_VecN& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs, UInt frame = 0u,
-                           VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
-                           PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
+                           VelocityGenerator&& velGenerator                                                                                                = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
+                           PostProcessFunc&& postProcess                                                                                                   = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
@@ -85,21 +84,21 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     Vec_VecN m_ObjParticles;
     VecN     m_v0                 = VecN(0);
-    UInt      m_StartFrame         = 0u;
-    UInt      m_MaxFrame           = 0u;
-    UInt      m_MaxNParticles      = std::numeric_limits<UInt>::max();
-    UInt      m_MaxIters           = 10u;
-    RealType  m_MinDistanceRatio   = RealType(2.0);
-    RealType  m_MinDistanceSqr     = RealType(0);
-    RealType  m_Jitter             = RealType(0);
-    RealType  m_ParticleRadius     = RealType(0);
-    String    m_ConstraintObjectID = String("");
+    UInt     m_StartFrame         = 0u;
+    UInt     m_MaxFrame           = 0u;
+    UInt     m_MaxNParticles      = std::numeric_limits<UInt>::max();
+    UInt     m_MaxIters           = 10u;
+    RealType m_MinDistanceRatio   = RealType(2.0);
+    RealType m_MinDistanceSqr     = RealType(0);
+    RealType m_Jitter             = RealType(0);
+    RealType m_ParticleRadius     = RealType(0);
+    String   m_ConstraintObjectID = String("");
 
     std::unordered_set<UInt> m_ActiveFrames;
 
     UInt                                     m_NGeneratedParticles = 0;
-    Vec_VecN                                m_GeneratedPositions;
-    Vec_VecN                                m_GeneratedVelocities;
+    Vec_VecN                                 m_GeneratedPositions;
+    Vec_VecN                                 m_GeneratedVelocities;
     SharedPtr<SimulationObject<N, RealType>> m_GeneratedConstraintObj;
 
     Grid<N, RealType>                   m_Grid;

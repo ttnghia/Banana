@@ -39,8 +39,12 @@ using namespace Banana::ParticleSolvers;
 template<Int N, class RealType>
 class SPHBasedRelaxation
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    __BNN_TYPE_ALIASING
+    ////////////////////////////////////////////////////////////////////////////////
 public:
-    SPHBasedRelaxation(const GlobalParameters& globalParams,
+    SPHBasedRelaxation(const GlobalParameters<RealType>& globalParams,
                        const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
         m_GlobalParams(globalParams), m_SolverParams(solverParams), m_BoundaryObjects(boundaryObjs)
@@ -52,20 +56,25 @@ public:
     }
 
     /**
+     * @brief Relax the particle positions
        @param positions: positions of the particles
        @param threshold: stop if getMinDistance() < particleRadius * threshold
        @param maxIters: max number of iterations
        @return bool value indicating whether the relaxation has converged or not
      */
     bool relaxPositions(Vec_VecN& positions, RealType threshold = RealType(1.8), UInt maxIters = 1000u, UInt checkFrequency = 10u);
+
+    /**
+     * @brief Get the min distance ratio of all particles to their neighbors
+     */
     RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
 
 protected:
-    void makeReady(Vec_VecN& positions) override { particleData().makeReady(positions); }
-    void iterate(Vec_VecN& positions, UInt iter) override;
+    void makeReady(Vec_VecN& positions) { particleData().makeReady(positions); }
+    void iterate(Vec_VecN& positions, UInt iter);
     void computeMinDistanceRatio(Vec_VecN& positions);
     ////////////////////////////////////////////////////////////////////////////////
-    auto& logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
+    auto& logger() { assert(m_Logger != nullptr); return *m_Logger; }
     auto& solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
@@ -117,7 +126,7 @@ protected:
     auto& kernels() { return m_Kernels; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    const GlobalParameters&                                                  m_GlobalParams;
+    const GlobalParameters<RealType>&                                        m_GlobalParams;
     const SharedPtr<SimulationParameters<N, RealType>>&                      m_SolverParams;
     const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
     ////////////////////////////////////////////////////////////////////////////////
