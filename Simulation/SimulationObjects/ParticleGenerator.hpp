@@ -48,7 +48,7 @@ void ParticleGenerator<N, RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects, RealType particleRadius)
+void ParticleGenerator<N, RealType >::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects)
 {
     if(m_bObjReady) {
         return;

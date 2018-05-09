@@ -40,7 +40,7 @@ void PIC_Solver<N, RealType>::generateParticles(const JParams& jParams)
     ParticleSolver<N, RealType>::generateParticles(jParams);
     if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
-            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
+            generator->buildObject(solverParams().particleRadius, m_BoundaryObjects);
             ////////////////////////////////////////////////////////////////////////////////
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {

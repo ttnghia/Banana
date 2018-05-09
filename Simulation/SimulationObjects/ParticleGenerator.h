@@ -62,7 +62,7 @@ public:
     auto        generatedConstraintObject() const { return m_GeneratedConstraintObj; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams) override;
-    virtual void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects, RealType particleRadius);
+    virtual void buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects = Vector<SharedPtr<BoundaryObject<N, Real>>>());
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>

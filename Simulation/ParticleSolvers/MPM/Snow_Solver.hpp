@@ -103,7 +103,7 @@ void Snow2DSolver::generateParticles(const JParams& jParams)
         Vec_Vec2r tmpPositions;
         Vec_Vec2r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
-            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
+            generator->buildObject(solverParams().particleRadius, m_BoundaryObjects);
             ////////////////////////////////////////////////////////////////////////////////
             tmpPositions.resize(0);
             tmpVelocities.resize(0);
