@@ -119,11 +119,11 @@ public:
         return std::make_shared<Logger>(loggerName, bDefaultLogPolicy, bPrint2Console, bWriteLog2File, true);
     }
 
-    static void  registerDataLogFile(const String& logFile) { __BNN_REQUIRE(!s_bInitialized); s_DataLogFiles.push_back(logFile); }
+    static void registerDataLogFile(const String& logFile) { __BNN_REQUIRE(!s_bInitialized); s_DataLogFiles.push_back(logFile); }
     static void initialize(bool bPrint2Console                         = true, bool bWriteLog2File = false);
     static void initialize(const String& dataPath, bool bPrint2Console = true, bool bWriteLog2File = false);
     static void shutdown();
-    static void  setDataPath(const String& dataPath) { s_DataPath = dataPath; }
+    static void setDataPath(const String& dataPath) { s_DataPath = dataPath; }
     static auto& mainLogger() noexcept { assert(s_MainLogger != nullptr); return *s_MainLogger; }
 
     static String getTotalRunTime();

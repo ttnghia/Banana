@@ -66,9 +66,11 @@ public:
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateParticles(const Vec_VecN& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs, UInt frame = 0u,
-                           VelocityGenerator&& velGenerator                                                                                                = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
-                           PostProcessFunc&& postProcess                                                                                                   = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
+    UInt generateParticles(const Vec_VecN& currentPositions,
+                           const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjs = Vector<SharedPtr<BoundaryObject<N, Real>>>(),
+                           UInt frame                                                     = 0u,
+                           VelocityGenerator&& velGenerator                               = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
+                           PostProcessFunc&& postProcess                                  = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>

@@ -36,24 +36,25 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     const auto& generatedHairParticleType() const { return m_GeneratedParticleTypes; }
     ////////////////////////////////////////////////////////////////////////////////
-	virtual void buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects = Vector<SharedPtr<BoundaryObject<N, Real>>>());
+    virtual void buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects = Vector<SharedPtr<BoundaryObject<N, Real>>>());
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateHair(const Vec_VecN& currentPositions, UInt frame = 0u,
+    UInt generateHair(const Vec_VecN&     currentPositions,
+                      UInt                frame        = 0u,
                       VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
-                      PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
+                      PostProcessFunc&&   postProcess  = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt buildSphereHairObjects(const Vec_VecN& currentPositions,
+    UInt buildSphereHairObjects(const Vec_VecN&     currentPositions,
                                 VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt buildPlaneHairObjects(const Vec_VecN& currentPositions,
+    UInt buildPlaneHairObjects(const Vec_VecN&     currentPositions,
                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt buildDiskHairObjects(const Vec_VecN& currentPositions,
+    UInt buildDiskHairObjects(const Vec_VecN&     currentPositions,
                               VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     UInt loadCYHairModel();
@@ -68,7 +69,7 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairObjectGenerator<N, RealType >::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects)
+void HairObjectGenerator<N, RealType>::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects)
 {
     if(m_bObjReady) {
         return;
@@ -129,8 +130,8 @@ void HairObjectGenerator<N, RealType >::buildObject(RealType particleRadius, con
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt HairObjectGenerator<N, RealType > ::buildSphereHairObjects(const Vec_VecN& currentPositions,
-                                                                VelocityGenerator&& velGenerator)
+UInt HairObjectGenerator<N, RealType>::buildSphereHairObjects(const Vec_VecN&     currentPositions,
+                                                              VelocityGenerator&& velGenerator)
 {
     bool bEmptyRegion = true;
     if(currentPositions.size() > 0) {
@@ -169,8 +170,8 @@ UInt HairObjectGenerator<N, RealType > ::buildSphereHairObjects(const Vec_VecN& 
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
          class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt HairObjectGenerator<N, RealType > ::generateHair(const Vec_VecN& currentPositions, UInt frame /*= 0u*/,
-                                                      VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
+UInt HairObjectGenerator<N, RealType>::generateHair(const Vec_VecN& currentPositions, UInt frame /*= 0u*/,
+                                                    VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {
     __BNN_REQUIRE(m_bObjReady);
     if(!isActive(frame)) {
