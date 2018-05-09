@@ -36,7 +36,7 @@ void OpenGLController::setupBasicGUI(Int width)
     ////////////////////////////////////////////////////////////////////////////////
     m_MainTab->setTabPosition(QTabWidget::South);
     m_MainTab->setTabShape(QTabWidget::Triangular);
-    m_MainTab->addTab(m_RenderControllers, "Render Controllers");
+    m_MainTab->addTab(m_RenderControllers, "Main Controllers");
     m_MainTab->addTab(m_LightEditor,       "Lights");
     ////////////////////////////////////////////////////////////////////////////////
     m_MainLayout->addWidget(m_MainTab);
@@ -53,7 +53,6 @@ void OpenGLController::connectBasicWidgets()
     connect(m_LightEditor, &PointLightEditor::lightsChanged, m_GLWidget,    &OpenGLWidget::updateLights);
     connect(m_GLWidget,    &OpenGLWidget::lightsObjChanged,  m_LightEditor, &PointLightEditor::setLightObject);
     ////////////////////////////////////////////////////////////////////////////////
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // background mode
@@ -90,7 +89,6 @@ void OpenGLController::connectBasicWidgets()
     connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorSize);
     connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorExposure);
     ////////////////////////////////////////////////////////////////////////////////
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // box
