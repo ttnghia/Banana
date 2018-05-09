@@ -62,6 +62,10 @@ void Controller::connectWidgets()
     connect(m_btnResetCamera,   &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
     connect(m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
+    connect(m_btnSaveObj,       &QPushButton::clicked, [&]() { m_ParticleSampler->saveParticles(ParticleOutputType::Obj, m_chkDoubleData->isChecked()); });
+    connect(m_btnSaveBgeo,      &QPushButton::clicked, [&]() { m_ParticleSampler->saveParticles(ParticleOutputType::Bgeo, m_chkDoubleData->isChecked()); });
+    connect(m_btnSaveBNN,       &QPushButton::clicked, [&]() { m_ParticleSampler->saveParticles(ParticleOutputType::Bnn, m_chkDoubleData->isChecked()); });
+    connect(m_btnSaveBinary,    &QPushButton::clicked, [&]() { m_ParticleSampler->saveParticles(ParticleOutputType::Binary, m_chkDoubleData->isChecked()); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -193,6 +197,7 @@ void Controller::setupButtons()
     m_btnClipViewPlane       = new QPushButton("Clip View");
     m_btnClipViewPlane->setCheckable(true);
 
+    m_chkDoubleData = new QCheckBox("Save data as double numbers");
     m_btnSaveObj    = new QPushButton("Save .obj");
     m_btnSaveBgeo   = new QPushButton("Sabe .bgeo");
     m_btnSaveBNN    = new QPushButton("Save .bnn");
@@ -208,10 +213,11 @@ void Controller::setupButtons()
     layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
     layoutButtons->addWidget(m_btnEditClipPlane,       2, 1, 1, 1);
     layoutButtons->addWidget(line,                     3, 0, 1, 2);
-    layoutButtons->addWidget(m_btnSaveObj,             4, 0, 1, 1);
-    layoutButtons->addWidget(m_btnSaveBgeo,            4, 1, 1, 1);
-    layoutButtons->addWidget(m_btnSaveBNN,             5, 0, 1, 1);
-    layoutButtons->addWidget(m_btnSaveBinary,          5, 1, 1, 1);
+    layoutButtons->addWidget(m_chkDoubleData,          4, 0, 1, 2);
+    layoutButtons->addWidget(m_btnSaveObj,             5, 0, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBgeo,            5, 1, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBNN,             6, 0, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBinary,          6, 1, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_MainLayout->addStretch();
     m_MainLayout->addLayout(layoutButtons);

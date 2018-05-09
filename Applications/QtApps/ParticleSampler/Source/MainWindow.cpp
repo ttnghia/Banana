@@ -130,7 +130,7 @@ void MainWindow::finishRelaxation()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::setupRenderWidgets()
 {
-    m_Controller = new Controller(m_RenderWidget, this);
+    m_Controller = new Controller(m_RenderWidget, m_Sampler, this);
 
     QHBoxLayout* mainLayout = new QHBoxLayout;
     mainLayout->addWidget(m_GLWidget);
@@ -226,21 +226,16 @@ void MainWindow::connectWidgets()
                 m_bExportImg = checked;
                 m_Sampler->enableExportImg(checked);
             });
-    connect(m_Sampler,                     &ParticleSampler::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
-    connect(m_Sampler,                     &ParticleSampler::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
+    connect(m_Sampler, &ParticleSampler::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
+    connect(m_Sampler, &ParticleSampler::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
     ////////////////////////////////////////////////////////////////////////////////
     // sampling status
-    connect(m_Sampler,                     &ParticleSampler::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
-    connect(m_Sampler,                     &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
-    connect(m_Sampler,                     &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
-    connect(m_Sampler,                     &ParticleSampler::iterationChanged,   this,           &MainWindow::updateStatusIteration);
-    connect(m_Sampler,                     &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
-    connect(m_Sampler,                     &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
-    connect(m_Sampler,                     &ParticleSampler::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
-    connect(m_Sampler,                     &ParticleSampler::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
-    ////////////////////////////////////////////////////////////////////////////////
-    connect(m_Controller->m_btnSaveObj,    &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Obj); });
-    connect(m_Controller->m_btnSaveBgeo,   &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Bgeo); });
-    connect(m_Controller->m_btnSaveBNN,    &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Bnn); });
-    connect(m_Controller->m_btnSaveBinary, &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Binary); });
+    connect(m_Sampler, &ParticleSampler::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
+    connect(m_Sampler, &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
+    connect(m_Sampler, &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
+    connect(m_Sampler, &ParticleSampler::iterationChanged,   this,           &MainWindow::updateStatusIteration);
+    connect(m_Sampler, &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
+    connect(m_Sampler, &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
+    connect(m_Sampler, &ParticleSampler::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
+    connect(m_Sampler, &ParticleSampler::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
 }

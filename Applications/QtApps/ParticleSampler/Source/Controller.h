@@ -30,6 +30,7 @@
 
 #include "Common.h"
 #include "RenderWidget.h"
+#include "ParticleSampler.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Controller : public OpenGLController
@@ -37,8 +38,8 @@ class Controller : public OpenGLController
     Q_OBJECT
     friend class MainWindow;
 public:
-    explicit Controller(RenderWidget* renderWidget, QWidget* parent = nullptr, int width = 300) :
-        OpenGLController(static_cast<OpenGLWidget*>(renderWidget), parent, width), m_RenderWidget(renderWidget)
+    explicit Controller(RenderWidget* renderWidget, ParticleSampler* particleSampler, QWidget* parent = nullptr, int width = 300) :
+        OpenGLController(static_cast<OpenGLWidget*>(renderWidget), parent, width), m_RenderWidget(renderWidget), m_ParticleSampler(particleSampler)
     {
         setupGUI();
         connectWidgets();
@@ -50,7 +51,8 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     // main objects
-    RenderWidget* m_RenderWidget = nullptr;
+    RenderWidget*    m_RenderWidget    = nullptr;
+    ParticleSampler* m_ParticleSampler = nullptr;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -96,6 +98,7 @@ private:
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;
 
+    QCheckBox*   m_chkDoubleData;
     QPushButton* m_btnSaveObj;
     QPushButton* m_btnSaveBgeo;
     QPushButton* m_btnSaveBinary;
