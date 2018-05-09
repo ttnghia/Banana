@@ -51,6 +51,12 @@ public slots:
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
 
+    void saveParticles(int outputType, bool bDouble       = false);
+    void saveObj(const QString& fileName, bool bDouble    = false);
+    void saveBgeo(const QString& fileName, bool bDouble   = false);
+    void saveBnn(const QString& fileName, bool bDouble    = false);
+    void saveBinary(const QString& fileName, bool bDouble = false);
+
 signals:
     void dimensionChanged();
     void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
@@ -68,7 +74,9 @@ private:
     UniquePtr<ParticleGeneratorInterface> m_Generator = std::make_unique<ParticleGeneratorInterface>();
     std::future<void>                     m_RelaxationFutureObj;
     QString                               m_Scene;
-    volatile bool                         m_bStop             = true;
-    volatile bool                         m_bWaitForSavingImg = false;
-    volatile bool                         m_bExportImg        = false;
+    QString                               m_LastSavedFile;
+
+    volatile bool m_bStop             = true;
+    volatile bool m_bWaitForSavingImg = false;
+    volatile bool m_bExportImg        = false;
 };

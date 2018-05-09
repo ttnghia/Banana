@@ -66,10 +66,24 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // simulation controllers
-    void setupSimulationControllers();
-    QComboBox*        m_cbSimulationScene;
-    QPushButton*      m_btnReloadScene;
+    // scene controller
+    void setupSceneControllers();
+    QComboBox*   m_cbScene;
+    QPushButton* m_btnReloadScene;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // sampling parameters controller
+    void setupSamplingParametersControllers();
+    EnhancedComboBox* m_cbMaxIterations;
+    EnhancedComboBox* m_cbCheckFrequency;
+    EnhancedComboBox* m_cbDeleteFrequency;
+    QLineEdit*        m_txtOverlapThreshold;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // capture controller
+    void setupCaptureControllers();
     QCheckBox*        m_chkEnableOutput;
     BrowsePathWidget* m_OutputPath;
     ////////////////////////////////////////////////////////////////////////////////
@@ -81,5 +95,10 @@ private:
     QPushButton* m_btnResetCamera;
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;
+
+    QPushButton* m_btnSaveObj;
+    QPushButton* m_btnSaveBgeo;
+    QPushButton* m_btnSaveBinary;
+    QPushButton* m_btnSaveBNN;
     ////////////////////////////////////////////////////////////////////////////////
 };

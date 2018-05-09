@@ -54,7 +54,7 @@ void MainWindow::showEvent(QShowEvent* ev)
         updateStatusMemoryUsage();
         updateStatusIteration(0);
 
-        if(m_Controller->m_cbSimulationScene->count() == 2) {
+        if(m_Controller->m_cbScene->count() == 2) {
             //            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
         } else {
             //            m_Controller->m_cbSimulationScene->setCurrentIndex(QtAppUtils::getDefaultSceneID());
@@ -122,7 +122,7 @@ void MainWindow::finishRelaxation()
 {
     m_Controller->m_btnStartStopRelaxation->setText(QString("Start"));
     updateStatusRelaxation("Relaxation Finished");
-    m_Controller->m_cbSimulationScene->setDisabled(false);
+    m_Controller->m_cbScene->setDisabled(false);
     m_Controller->m_btnReloadScene->setDisabled(false);
     m_BusyBar->reset();
 }
@@ -179,7 +179,7 @@ void MainWindow::connectWidgets()
     connect(m_Controller->m_btnReloadScene,   &QPushButton::clicked,
             [&]()
             {
-                QString sceneFile = m_Controller->m_cbSimulationScene->currentText();
+                QString sceneFile = m_Controller->m_cbScene->currentText();
 
                 if(sceneFile == "None") {
                     return;
@@ -188,7 +188,7 @@ void MainWindow::connectWidgets()
                 m_FrameNumber = 0;
             });
 
-    connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
+    connect(m_Controller->m_cbScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
             {
                 if(sceneFile == "None") {
                     return;
@@ -201,19 +201,19 @@ void MainWindow::connectWidgets()
 
     connect(m_Controller->m_btnStartStopRelaxation, &QPushButton::clicked, [&]()
             {
-                if(m_Controller->m_cbSimulationScene->currentText() == "None") {
+                if(m_Controller->m_cbScene->currentText() == "None") {
                     return;
                 }
                 bool isRunning = m_Sampler->isRunning();
 
                 if(!isRunning) {
                     m_Sampler->startRelaxation();
-                    m_Controller->m_cbSimulationScene->setDisabled(true);
+                    m_Controller->m_cbScene->setDisabled(true);
                     m_Controller->m_btnReloadScene->setDisabled(true);
                     updateStatusRelaxation("Running simulation...");
                 } else {
                     m_Sampler->stop();
-                    m_Controller->m_cbSimulationScene->setDisabled(false);
+                    m_Controller->m_cbScene->setDisabled(false);
                     m_Controller->m_btnReloadScene->setDisabled(false);
                     updateStatusRelaxation("Stopped");
                 }
@@ -226,17 +226,21 @@ void MainWindow::connectWidgets()
                 m_bExportImg = checked;
                 m_Sampler->enableExportImg(checked);
             });
-    //    connect(m_Sampler, &ParticleSampler::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
-    //    connect(m_Sampler, &ParticleSampler::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
+    connect(m_Sampler,                     &ParticleSampler::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
+    connect(m_Sampler,                     &ParticleSampler::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
     ////////////////////////////////////////////////////////////////////////////////
-    // sim status
-    //    connect(m_Sampler, &ParticleSampler::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
-    //    connect(m_Sampler, &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
-    //    connect(m_Sampler, &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
-    //    connect(m_Sampler, &ParticleSampler::iterationChanged,   this,           &MainWindow::updateStatusIteration);
-    //    connect(m_Sampler, &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
-    //    connect(m_Sampler, &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
-    //    connect(m_Sampler, &ParticleSampler::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
-    //    connect(m_Sampler, &ParticleSampler::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
+    // sampling status
+    connect(m_Sampler,                     &ParticleSampler::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
+    connect(m_Sampler,                     &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
+    connect(m_Sampler,                     &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
+    connect(m_Sampler,                     &ParticleSampler::iterationChanged,   this,           &MainWindow::updateStatusIteration);
+    connect(m_Sampler,                     &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
+    connect(m_Sampler,                     &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
+    connect(m_Sampler,                     &ParticleSampler::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
+    connect(m_Sampler,                     &ParticleSampler::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
     ////////////////////////////////////////////////////////////////////////////////
+    connect(m_Controller->m_btnSaveObj,    &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Obj); });
+    connect(m_Controller->m_btnSaveBgeo,   &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Bgeo); });
+    connect(m_Controller->m_btnSaveBNN,    &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Bnn); });
+    connect(m_Controller->m_btnSaveBinary, &QPushButton::clicked,                [&]() { m_Sampler->saveParticles(ParticleOutputType::Binary); });
 }

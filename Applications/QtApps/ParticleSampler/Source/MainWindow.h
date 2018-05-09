@@ -73,6 +73,6 @@ private:
     int  m_FrameNumber = 0;
     bool m_bExportImg  = false;
 
-    UniquePtr<ParticleSampler> m_Sampler         = std::make_unique<ParticleSampler>();
-    ClipPlaneEditor*           m_ClipPlaneEditor = new ClipPlaneEditor();
+    ParticleSampler* m_Sampler         = new ParticleSampler();
+    ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
 };

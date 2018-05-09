@@ -28,7 +28,9 @@ void Controller::setupGUI()
 {
     setupMaterialControllers();
     setupColorModeControllers();
-    setupSimulationControllers();
+    setupSceneControllers();
+    setupSamplingParametersControllers();
+    setupCaptureControllers();
     setupButtons();
 }
 
@@ -63,20 +65,60 @@ void Controller::connectWidgets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupSimulationControllers()
+void Controller::setupSceneControllers()
 {
-    m_cbSimulationScene = new QComboBox;
-    m_cbSimulationScene->addItem(QString("None"));
-    m_cbSimulationScene->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
+    m_cbScene = new QComboBox;
+    m_cbScene->addItem(QString("None"));
+    m_cbScene->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
     m_btnReloadScene = new QPushButton(" Reload ");
     QHBoxLayout* layoutScene = new QHBoxLayout;
-    layoutScene->addWidget(m_cbSimulationScene, 10);
+    layoutScene->addWidget(m_cbScene, 10);
     layoutScene->addStretch(1);
     layoutScene->addWidget(m_btnReloadScene, 10);
     QGroupBox* grScene = new QGroupBox;
     grScene->setTitle("Scene");
     grScene->setLayout(layoutScene);
     ////////////////////////////////////////////////////////////////////////////////
+    m_LayoutRenderControllers->addWidget(grScene);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupSamplingParametersControllers()
+{
+    m_cbMaxIterations   = new EnhancedComboBox;
+    m_cbCheckFrequency  = new EnhancedComboBox;
+    m_cbDeleteFrequency = new EnhancedComboBox;
+    for(int i = 1; i <= 10; ++i) {
+        m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(i * 1000));
+        m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
+        m_cbDeleteFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
+    }
+    m_cbMaxIterations->setCurrentIndex(9);
+    m_cbDeleteFrequency->setCurrentIndex(4);
+
+    m_txtOverlapThreshold = new QLineEdit;
+    m_txtOverlapThreshold->setText("1.8");
+
+    QGridLayout* layoutParameters = new QGridLayout;
+    layoutParameters->addWidget(new QLabel("Max. iters:    "), 0, 0, 1, 1);
+    layoutParameters->addLayout(m_cbMaxIterations->getLayout(), 0, 1, 1, 2);
+    layoutParameters->addWidget(new QLabel("Check frequency:    "), 1, 0, 1, 1);
+    layoutParameters->addLayout(m_cbCheckFrequency->getLayout(), 1, 1, 1, 2);
+    layoutParameters->addWidget(new QLabel("Delete frequency:    "), 2, 0, 1, 1);
+    layoutParameters->addLayout(m_cbDeleteFrequency->getLayout(), 2, 1, 1, 2);
+    layoutParameters->addWidget(new QLabel("Overlap threshold:    "), 3, 0, 1, 1);
+    layoutParameters->addWidget(m_txtOverlapThreshold,                3, 1, 1, 2);
+
+    QGroupBox* grParameters = new QGroupBox;
+    grParameters->setTitle("Sampling Parameters");
+    grParameters->setLayout(layoutParameters);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_LayoutRenderControllers->addWidget(grParameters);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupCaptureControllers()
+{
     m_OutputPath = new BrowsePathWidget("Browse");
     m_OutputPath->setPath(QtAppUtils::getDefaultCapturePath());
     m_chkEnableOutput = new QCheckBox("Export to Images");
@@ -87,7 +129,6 @@ void Controller::setupSimulationControllers()
     grpOutput->setTitle("Screenshot");
     grpOutput->setLayout(layoutOutput);
     ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grScene);
     m_LayoutRenderControllers->addWidget(grpOutput);
 }
 
@@ -133,10 +174,6 @@ void Controller::setupColorModeControllers()
     m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
     m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(ParticleColorMode::ObjectIndex));
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
     layoutColorCtrls->addLayout(layoutColorMode);
     ////////////////////////////////////////////////////////////////////////////////
@@ -155,12 +192,27 @@ void Controller::setupButtons()
     m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
     m_btnClipViewPlane       = new QPushButton("Clip View");
     m_btnClipViewPlane->setCheckable(true);
+
+    m_btnSaveObj    = new QPushButton("Save .obj");
+    m_btnSaveBgeo   = new QPushButton("Sabe .bgeo");
+    m_btnSaveBNN    = new QPushButton("Save .bnn");
+    m_btnSaveBinary = new QPushButton("Save binary");
+    ////////////////////////////////////////////////////////////////////////////////
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutButtons = new QGridLayout;
-    layoutButtons->addWidget(m_btnStartStopRelaxation, 0, 0, 1, 1);
-    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 1);
+    layoutButtons->addWidget(m_btnStartStopRelaxation, 0, 0, 1, 2);
+    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 2);
     layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
-    layoutButtons->addWidget(m_btnEditClipPlane,       3, 0, 1, 1);
+    layoutButtons->addWidget(m_btnEditClipPlane,       2, 1, 1, 1);
+    layoutButtons->addWidget(line,                     3, 0, 1, 2);
+    layoutButtons->addWidget(m_btnSaveObj,             4, 0, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBgeo,            4, 1, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBNN,             5, 0, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBinary,          5, 1, 1, 1);
+    ////////////////////////////////////////////////////////////////////////////////
     m_MainLayout->addStretch();
     m_MainLayout->addLayout(layoutButtons);
 }

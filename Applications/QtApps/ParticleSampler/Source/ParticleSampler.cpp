@@ -161,3 +161,42 @@ void ParticleSampler::enableExportImg(bool bEnable)
 {
     m_bExportImg = bEnable;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSampler::saveParticles(int outputType, bool bDouble /*= false*/)
+{
+    QString saveFile = QFileDialog::getSaveFileName(nullptr, QString("Save file"), m_LastSavedFile);
+    if(saveFile.trimmed().isEmpty()) {
+        return;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    m_LastSavedFile = saveFile;
+    switch(outputType) {
+        case static_cast<int>(ParticleOutputType::Obj):
+            saveObj(saveFile);
+            break;
+        case static_cast<int>(ParticleOutputType::Bgeo):
+            saveBgeo(saveFile);
+            break;
+        case static_cast<int>(ParticleOutputType::Bnn):;
+            saveBnn(saveFile);
+            break;
+        case static_cast<int>(ParticleOutputType::Binary):;
+            saveBinary(saveFile);
+            break;
+        default:
+            ;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSampler::saveObj(const QString& fileName, bool bDouble /*= false*/) {}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSampler::saveBgeo(const QString& fileName, bool bDouble /*= false*/) {}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSampler::saveBnn(const QString& fileName, bool bDouble /*= false*/) {}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSampler::saveBinary(const QString& fileName, bool bDouble /*= false*/) {}
