@@ -77,7 +77,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
     void setupButtons();
-    QPushButton* m_btnStartStopSimulation;
+    QPushButton* m_btnStartStopRelaxation;
     QPushButton* m_btnResetCamera;
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;

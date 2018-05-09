@@ -39,8 +39,8 @@ win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
 
 INCLUDEPATH += $$PWD/Include
 
-HEADERS = $$files(Source/*.h, true)
-SOURCES = $$files(Source/*.cpp, true)
+HEADERS += $$files(Source/*.h, true)
+SOURCES += $$files(Source/*.cpp, true)
 
 RESOURCES += \
     Shader.qrc

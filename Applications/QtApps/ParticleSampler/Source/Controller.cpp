@@ -150,14 +150,14 @@ void Controller::setupColorModeControllers()
 void Controller::setupButtons()
 {
     ////////////////////////////////////////////////////////////////////////////////
-    m_btnStartStopSimulation = new QPushButton("Start");
+    m_btnStartStopRelaxation = new QPushButton("Start");
     m_btnResetCamera         = new QPushButton("Reset Camera");
     m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
     m_btnClipViewPlane       = new QPushButton("Clip View");
     m_btnClipViewPlane->setCheckable(true);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutButtons = new QGridLayout;
-    layoutButtons->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
+    layoutButtons->addWidget(m_btnStartStopRelaxation, 0, 0, 1, 1);
     layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 1);
     layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
     layoutButtons->addWidget(m_btnEditClipPlane,       3, 0, 1, 1);

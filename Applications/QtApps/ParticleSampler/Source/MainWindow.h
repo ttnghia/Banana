@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "ParticleSampler.h"
 #include "RenderWidget.h"
 #include "Controller.h"
 #include "Common.h"
@@ -72,6 +73,6 @@ private:
     int  m_FrameNumber = 0;
     bool m_bExportImg  = false;
 
-    UniquePtr<Generator> m_Generator       = std::make_unique<Generator>();
-    ClipPlaneEditor*     m_ClipPlaneEditor = new ClipPlaneEditor();
+    UniquePtr<ParticleSampler> m_Sampler         = std::make_unique<ParticleSampler>();
+    ClipPlaneEditor*           m_ClipPlaneEditor = new ClipPlaneEditor();
 };

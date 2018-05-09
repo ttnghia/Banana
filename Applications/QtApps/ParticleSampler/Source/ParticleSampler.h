@@ -46,6 +46,7 @@ public:
     auto& getVizData() const { return m_VizData; }
 
 public slots:
+    void setRelaxationParameters(float threshold = 1.8f, UInt maxIters = 1000u, UInt checkFrequency = 10u);
     void doSampling();
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
@@ -64,7 +65,7 @@ signals:
 
 private:
     SharedPtr<VisualizationData>          m_VizData   = std::make_shared<VisualizationData>();
-    SharedPtr<ParticleGeneratorInterface> m_Generator = nullptr;
+    UniquePtr<ParticleGeneratorInterface> m_Generator = std::make_unique<ParticleGeneratorInterface>();
     std::future<void>                     m_RelaxationFutureObj;
     QString                               m_Scene;
     volatile bool                         m_bStop             = true;

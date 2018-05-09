@@ -29,7 +29,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
 {
-    m_RenderWidget = new RenderWidget(this, m_Generator->getVizData());
+    m_RenderWidget = new RenderWidget(this, m_Sampler->getVizData());
     ////////////////////////////////////////////////////////////////////////////////
     setupOpenglWidget(m_RenderWidget);
     setupRenderWidgets();
@@ -50,14 +50,14 @@ void MainWindow::showEvent(QShowEvent* ev)
 
     if(!showed) {
         showed = true;
-        Q_ASSERT(m_Generator != nullptr);
+        Q_ASSERT(m_Sampler != nullptr);
         updateStatusMemoryUsage();
         updateStatusIteration(0);
 
         if(m_Controller->m_cbSimulationScene->count() == 2) {
-            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
+            //            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
         } else {
-            m_Controller->m_cbSimulationScene->setCurrentIndex(QtAppUtils::getDefaultSceneID());
+            //            m_Controller->m_cbSimulationScene->setCurrentIndex(QtAppUtils::getDefaultSceneID());
         }
     }
 }
@@ -67,7 +67,7 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
 {
     switch(event->key()) {
         case Qt::Key_Space:
-            m_Controller->m_btnStartStopSimulation->click();
+            m_Controller->m_btnStartStopRelaxation->click();
             return true;
 
         case Qt::Key_X:
@@ -113,15 +113,15 @@ void MainWindow::finishIteration()
 
     if(m_bExportImg) {
         m_RenderWidget->exportScreenToImage(m_FrameNumber);
-        m_Generator->finishImgExport();
+        m_Sampler->finishImgExport();
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::finishRelaxation()
 {
-    m_Controller->m_btnStartStopSimulation->setText(QString("Start"));
-    updateStatusSimulation("Relaxation Finished");
+    m_Controller->m_btnStartStopRelaxation->setText(QString("Start"));
+    updateStatusRelaxation("Relaxation Finished");
     m_Controller->m_cbSimulationScene->setDisabled(false);
     m_Controller->m_btnReloadScene->setDisabled(false);
     m_BusyBar->reset();
@@ -184,7 +184,7 @@ void MainWindow::connectWidgets()
                 if(sceneFile == "None") {
                     return;
                 }
-                m_Generator->changeScene(sceneFile);
+                m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
             });
 
@@ -194,49 +194,49 @@ void MainWindow::connectWidgets()
                     return;
                 }
 
-                m_Generator->changeScene(sceneFile);
+                m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
                 updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
             });
 
-    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]()
+    connect(m_Controller->m_btnStartStopRelaxation, &QPushButton::clicked, [&]()
             {
                 if(m_Controller->m_cbSimulationScene->currentText() == "None") {
                     return;
                 }
-                bool isRunning = m_Generator->isRunning();
+                bool isRunning = m_Sampler->isRunning();
 
                 if(!isRunning) {
-                    m_Generator->startSimulation();
+                    m_Sampler->startRelaxation();
                     m_Controller->m_cbSimulationScene->setDisabled(true);
                     m_Controller->m_btnReloadScene->setDisabled(true);
-                    updateStatusSimulation("Running simulation...");
+                    updateStatusRelaxation("Running simulation...");
                 } else {
-                    m_Generator->stop();
+                    m_Sampler->stop();
                     m_Controller->m_cbSimulationScene->setDisabled(false);
                     m_Controller->m_btnReloadScene->setDisabled(false);
-                    updateStatusSimulation("Stopped");
+                    updateStatusRelaxation("Stopped");
                 }
-                m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
+                m_Controller->m_btnStartStopRelaxation->setText(!isRunning ? QString("Stop") : QString("Resume"));
                 m_BusyBar->setBusy(!isRunning);
             });
 
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked)
             {
                 m_bExportImg = checked;
-                m_Generator->enableExportImg(checked);
+                m_Sampler->enableExportImg(checked);
             });
-    connect(m_Generator, &Simulator::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
-    connect(m_Generator, &Simulator::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
+    //    connect(m_Sampler, &ParticleSampler::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
+    //    connect(m_Sampler, &ParticleSampler::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
     ////////////////////////////////////////////////////////////////////////////////
     // sim status
-    connect(m_Generator, &Simulator::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
-    connect(m_Generator, &Simulator::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
-    connect(m_Generator, &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
-    connect(m_Generator, &Simulator::iterationChanged,   this,           &MainWindow::updateStatusIteration);
-    connect(m_Generator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
-    connect(m_Generator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
-    connect(m_Generator, &Simulator::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
-    connect(m_Generator, &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
+    //    connect(m_Sampler, &ParticleSampler::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
+    //    connect(m_Sampler, &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
+    //    connect(m_Sampler, &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
+    //    connect(m_Sampler, &ParticleSampler::iterationChanged,   this,           &MainWindow::updateStatusIteration);
+    //    connect(m_Sampler, &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
+    //    connect(m_Sampler, &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
+    //    connect(m_Sampler, &ParticleSampler::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
+    //    connect(m_Sampler, &ParticleSampler::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
     ////////////////////////////////////////////////////////////////////////////////
 }

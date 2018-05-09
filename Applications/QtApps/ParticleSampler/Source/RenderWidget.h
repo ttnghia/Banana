@@ -67,7 +67,6 @@ private:
         GLuint VAO;
         GLint  v_Position;
         GLint  v_iColor;
-        GLint  v_fColor;
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
@@ -88,9 +87,12 @@ private:
         GLfloat pointRadius;
         GLfloat pointScale;
 
-        GLint pColorMode = ParticleColorMode::Ramp;
-
-        bool initialized = false;
+        GLint pColorMode  = ParticleColorMode::Ramp;
+        float vColorMin   = 0;
+        float vColorMax   = 1.0f;
+        Vec3f colorMinVal = DEFAULT_COLOR_DATA_MIN;
+        Vec3f colorMaxVal = DEFAULT_COLOR_DATA_MAX;
+        bool  initialized = false;
     } m_RDataParticle;
 
     void initRDataParticle();

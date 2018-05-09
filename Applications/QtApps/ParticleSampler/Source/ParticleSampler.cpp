@@ -45,15 +45,15 @@ void ParticleSampler::finishImgExport()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSampler::setRelaxationParameters(float threshold, UInt maxIters, UInt checkFrequency)
+{}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSampler::doSampling()
 {
-    auto frame = (m_Generator->getGlobalParams().startFrame <= 1) ?
-                 m_Generator->getGlobalParams().finishedFrame + 1 :
-                 MathHelpers::min(m_Generator->getGlobalParams().startFrame, m_Generator->getGlobalParams().finishedFrame + 1);
-    for(; frame <= m_Generator->getGlobalParams().finalFrame; ++frame) {
-        m_Generator->doFrameSimulation(frame);
+    for(Int frame = 0; frame < 1 /*finalFrame*/; ++frame) {
+        m_Generator->doFrameRelaxation(frame);
 
-        emit systemTimeChanged(m_Generator->getGlobalParams().evolvedTime(), frame);
         emit vizDataChanged();
         emit iterationFinished();
 
@@ -65,12 +65,11 @@ void ParticleSampler::doSampling()
         }
 
         if(m_bStop) {
-            m_Generator->getGlobalParams().startFrame = frame + 1;
             return;
         }
     }
 
-    m_Generator->finalizeSimulation();
+    m_Generator->finalizeRelaxation();
     m_Generator.reset();
     emit relaxationFinished();
 }
@@ -105,22 +104,19 @@ void ParticleSampler::changeScene(const QString& scene)
     nlohmann::json jParams = nlohmann::json::parse(inFile);
     inFile.close();
     ////////////////////////////////////////////////////////////////////////////////
-    m_Generator = std::make_shared<ParticleSolverInterface>();
-    m_Generator->createSolver(sceneFile.toStdString());
-    m_Generator->loadScene(sceneFile.toStdString());
+    m_Generator->createGenerator(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////
     m_VizData->resetData();
-    m_VizData->systemDimension = m_Generator->getSolverDimension();
+    m_VizData->systemDimension = m_Generator->getDimension();
     m_VizData->positions       = m_Generator->getParticlePositions();
-    m_VizData->velocities      = m_Generator->getParticleVelocities();
     m_VizData->objIndex        = m_Generator->getObjectIndex();
     ////////////////////////////////////////////////////////////////////////////////
-    memcpy(&m_VizData->boxMin, m_Generator->getBMin(), sizeof(float) * m_Generator->getSolverDimension());
-    memcpy(&m_VizData->boxMax, m_Generator->getBMax(), sizeof(float) * m_Generator->getSolverDimension());
+    memcpy(&m_VizData->boxMin, m_Generator->getBMin(), sizeof(float) * m_Generator->getDimension());
+    memcpy(&m_VizData->boxMax, m_Generator->getBMax(), sizeof(float) * m_Generator->getDimension());
     m_VizData->nObjects       = m_Generator->getNObjects();
     m_VizData->nParticles     = m_Generator->getNParticles();
     m_VizData->particleRadius = m_Generator->getParticleRadius();
-    for(Int i = 0; i < m_Generator->getSolverDimension(); ++i) {
+    for(Int i = 0; i < m_Generator->getDimension(); ++i) {
         m_VizData->boxMin[i] -= m_VizData->particleRadius;
         m_VizData->boxMax[i] += m_VizData->particleRadius;
     }
