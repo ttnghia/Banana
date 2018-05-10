@@ -88,7 +88,7 @@ protected:
     VecN     m_v0                 = VecN(0);
     UInt     m_StartFrame         = 0u;
     UInt     m_MaxFrame           = 0u;
-    UInt     m_MaxNParticles      = std::numeric_limits<UInt>::max();
+    UInt     m_MaxNParticles      = Huge<UInt>();
     UInt     m_MaxIters           = 10u;
     RealType m_MinDistanceRatio   = RealType(2.0);
     RealType m_MinDistanceSqr     = RealType(0);

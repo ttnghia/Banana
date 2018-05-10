@@ -44,13 +44,10 @@ class SPHBasedRelaxation
     __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 public:
-    SPHBasedRelaxation(const GlobalParameters<RealType>& globalParams,
-                       const SharedPtr<SimulationParameters<N, RealType>>& solverParams,
-                       const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
-        m_GlobalParams(globalParams), m_SolverParams(solverParams), m_BoundaryObjects(boundaryObjs)
+    SPHBasedRelaxation(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) : m_BoundaryObjects(boundaryObjs)
     {
         m_Logger = Logger::createLogger("SPHBasedRelaxation");
-        m_Logger->setLoglevel(m_GlobalParams.logLevel);
+        // m_Logger->setLoglevel(m_GlobalParams.logLevel);
         m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams->particleRadius * RealType(2.0));
         m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams->particleRadius * RealType(4.0));
     }
@@ -62,7 +59,7 @@ public:
        @param maxIters: max number of iterations
        @return bool value indicating whether the relaxation has converged or not
      */
-    bool relaxPositions(Vec_VecN& positions, RealType threshold = RealType(1.8), UInt maxIters = 1000u, UInt checkFrequency = 10u);
+    bool relaxPositions(VecN* positions, UInt nParticles, RealType threshold = RealType(1.8), UInt maxIters = 1000u, UInt checkFrequency = 10u, UInt deleteFrequency = 50u);
 
     /**
      * @brief Get the min distance ratio of all particles to their neighbors
@@ -90,31 +87,30 @@ protected:
     struct
     {
         UInt                              nParticles = 0u;
-        VecX<N + 1, RealType>*            positions  = nullptr;
-        Vector<VecX<N, RealType>>         velocities;
-        Vector<RealType>                  densities;
-        Vector<RealType>                  tmp_densities;
+        VecN*                             positions  = nullptr;
+        Vec_VecN                          velocities;
+        Vec_RealType                      densities;
+        Vec_RealType                      tmp_densities;
+        Vec_VecN                          accelerations;
+        Vec_VecN                          diffuseVelocity;
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
-        Vector<VecX<N, RealType>>         forces;
-        Vector<VecX<N, RealType>>         diffuseVelocity;
         ////////////////////////////////////////////////////////////////////////////////
         UInt getNParticles() const { return nParticles; }
-        void makeReady(Vec_VecN& positions_)
+        void makeReady(VecN* positions_, UInt nParticles_)
         {
-            nParticles = static_cast<UInt>(positions_.size());
-            positions  = positions_.data();
+            positions  = positions_;
+            nParticles = nParticles_;
             ////////////////////////////////////////////////////////////////////////////////
-            velocities.resize(nParticles, VecX<N, RealType>(0));
+            velocities.resize(nParticles, VecN(0));
             densities.resize(nParticles, 0);
             tmp_densities.resize(nParticles, 0);
             neighborInfo.resize(nParticles);
-            forces.resize(nParticles, VecX<N, RealType>(0));
-            diffuseVelocity.resize(nParticles, VecX<N, RealType>(0));
+            accelerations.resize(nParticles, VecN(0));
+            diffuseVelocity.resize(nParticles, VecN(0));
         }
     } m_SPHData;
 
     auto& particleData() { return m_SPHData; }
-    const auto& particleData() const { return m_SPHData; }
     ////////////////////////////////////////////////////////////////////////////////
     struct Kernels
     {
@@ -122,16 +118,14 @@ protected:
         PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
         PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
     } m_Kernels;
-
     auto& kernels() { return m_Kernels; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    const GlobalParameters<RealType>&                                        m_GlobalParams;
-    const SharedPtr<SimulationParameters<N, RealType>>&                      m_SolverParams;
+    SharedPtr<WCSPH_Parameters<N, RealType>>                                 m_SolverParams = std::make_shared<WCSPH_Parameters<N, RealType>>();
     const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
     ////////////////////////////////////////////////////////////////////////////////
-    Vector<RealType> m_MinNeighborDistanceSqr;
-    RealType         m_MinDistanceRatio = RealType(0);
+    Vec_RealType m_MinNeighborDistanceSqr;
+    RealType     m_MinDistanceRatio = RealType(0);
 
     SharedPtr<Logger>                                      m_Logger      = nullptr;
     UniquePtr<NeighborSearch::NeighborSearch<N, RealType>> m_NearNSearch = nullptr;

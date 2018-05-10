@@ -22,10 +22,10 @@ namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool SPHBasedRelaxation<N, RealType>::relaxPositions(Vec_VecN& positions, RealType threshold /* = RealType(1.8) */, UInt maxIters /* = 1000u */,
-                                                     UInt checkFrequency /* = 10u */)
+bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nParticles, RealType threshold /* = RealType(1.8) */, UInt maxIters /* = 1000u */,
+                                                     UInt checkFrequency /* = 10u */, UInt deleteFrequency /* = 50u */)
 {
-    makeReady(positions);
+    makeReady(positions, nParticles);
     for(UInt iter = 1; iter <= maxIters; ++iter) {
         iterate(positions, iter);
         if(iter > 1 && (iter % checkFrequency) == 0) {
