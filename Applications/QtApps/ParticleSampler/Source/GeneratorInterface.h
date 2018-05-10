@@ -41,6 +41,7 @@ public:
     ~ParticleGeneratorInterface() { Logger::shutdown(); }
     ////////////////////////////////////////////////////////////////////////////////
     void createGenerator(const String& sceneFile);
+    void setSamplingParameters(SamplingParameters params);
     void doFrameRelaxation(UInt frame);
     void finalizeRelaxation();
     ////////////////////////////////////////////////////////////////////////////////

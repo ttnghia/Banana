@@ -40,14 +40,13 @@ public:
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
-    void startRelaxation();
+    void startRelaxation(SamplingParameters params);
     void finishImgExport();
 
     auto& getVizData() const { return m_VizData; }
 
 public slots:
-    void setRelaxationParameters(float threshold = 1.8f, UInt maxIters = 1000u, UInt checkFrequency = 10u);
-    void doSampling();
+    void doSampling(SamplingParameters params);
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
 

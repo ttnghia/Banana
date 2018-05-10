@@ -102,15 +102,13 @@ void MainWindow::updateStatusNumParticles(UInt numParticles)
 
 void MainWindow::updateStatusIteration(UInt iter)
 {
-    m_lblStatusIteration->setText(QString("Iteration : #%1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(iter)))
-                                  );
+    m_lblStatusIteration->setText(QString("Iteration : #%1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(iter))));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::finishIteration()
 {
     ++m_FrameNumber;
-
     if(m_bExportImg) {
         m_RenderWidget->exportScreenToImage(m_FrameNumber);
         m_Sampler->finishImgExport();
@@ -180,7 +178,6 @@ void MainWindow::connectWidgets()
             [&]()
             {
                 QString sceneFile = m_Controller->m_cbScene->currentText();
-
                 if(sceneFile == "None") {
                     return;
                 }
@@ -207,7 +204,7 @@ void MainWindow::connectWidgets()
                 bool isRunning = m_Sampler->isRunning();
 
                 if(!isRunning) {
-                    m_Sampler->startRelaxation();
+                    m_Sampler->startRelaxation(m_Controller->getSamplingParams());
                     m_Controller->m_cbScene->setDisabled(true);
                     m_Controller->m_btnReloadScene->setDisabled(true);
                     updateStatusRelaxation("Running simulation...");

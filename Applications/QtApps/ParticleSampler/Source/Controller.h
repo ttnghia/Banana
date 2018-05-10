@@ -45,6 +45,7 @@ public:
         connectWidgets();
     }
 
+    SamplingParameters getSamplingParams();
 private:
     void setupGUI();
     void connectWidgets();

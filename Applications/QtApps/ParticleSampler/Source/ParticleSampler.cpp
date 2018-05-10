@@ -29,13 +29,13 @@
 #include <QDir>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::startRelaxation()
+void ParticleSampler::startRelaxation(SamplingParameters params)
 {
     m_bStop = false;
     if(m_RelaxationFutureObj.valid()) {
         m_RelaxationFutureObj.wait();
     }
-    m_RelaxationFutureObj = std::async(std::launch::async, [&] { doSampling(); });
+    m_RelaxationFutureObj = std::async(std::launch::async, [&] { doSampling(params); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -45,12 +45,9 @@ void ParticleSampler::finishImgExport()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::setRelaxationParameters(float threshold, UInt maxIters, UInt checkFrequency)
-{}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::doSampling()
+void ParticleSampler::doSampling(SamplingParameters params)
 {
+    m_Generator->setSamplingParameters(params);
     for(Int frame = 0; frame < 1 /*finalFrame*/; ++frame) {
         m_Generator->doFrameRelaxation(frame);
 
