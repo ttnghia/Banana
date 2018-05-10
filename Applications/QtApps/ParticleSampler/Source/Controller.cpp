@@ -39,9 +39,9 @@ void Controller::setupGUI()
 {
     setupMaterialControllers();
     setupColorModeControllers();
+    setupCaptureControllers();
     setupSceneControllers();
     setupSamplingParametersControllers();
-    setupCaptureControllers();
     setupButtons();
 }
 
@@ -132,22 +132,6 @@ void Controller::setupSamplingParametersControllers()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupCaptureControllers()
-{
-    m_OutputPath = new BrowsePathWidget("Browse");
-    m_OutputPath->setPath(QtAppUtils::getDefaultCapturePath());
-    m_chkEnableOutput = new QCheckBox("Export to Images");
-    QVBoxLayout* layoutOutput = new QVBoxLayout;
-    layoutOutput->addWidget(m_chkEnableOutput);
-    layoutOutput->addLayout(m_OutputPath->getLayout());
-    QGroupBox* grpOutput = new QGroupBox;
-    grpOutput->setTitle("Screenshot");
-    grpOutput->setLayout(layoutOutput);
-    ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grpOutput);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupMaterialControllers()
 {
     m_msParticleMaterial = new MaterialSelector;
@@ -199,10 +183,26 @@ void Controller::setupColorModeControllers()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupCaptureControllers()
+{
+    m_OutputPath = new BrowsePathWidget("Browse");
+    m_OutputPath->setPath(QtAppUtils::getDefaultCapturePath());
+    m_chkEnableOutput = new QCheckBox("Export to Images");
+    QVBoxLayout* layoutOutput = new QVBoxLayout;
+    layoutOutput->addWidget(m_chkEnableOutput);
+    layoutOutput->addLayout(m_OutputPath->getLayout());
+    QGroupBox* grpOutput = new QGroupBox;
+    grpOutput->setTitle("Screenshot");
+    grpOutput->setLayout(layoutOutput);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_LayoutRenderControllers->addWidget(grpOutput);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupButtons()
 {
     ////////////////////////////////////////////////////////////////////////////////
-    m_btnStartStopRelaxation = new QPushButton("Start");
+    m_btnStartStopRelaxation = new QPushButton("Start Relaxation");
     m_btnResetCamera         = new QPushButton("Reset Camera");
     m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
     m_btnClipViewPlane       = new QPushButton("Clip View");
