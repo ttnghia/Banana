@@ -33,6 +33,7 @@ void ParticleGeneratorInterface::createGenerator(const String& sceneFile)
     }
     auto jParams = JParams::parse(inputFile);
     __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
+    __BNN_REQUIRE(jParams.find("SimulationParameters") != jParams.end());
     __BNN_REQUIRE(jParams.find("ParticleGenerators") != jParams.end());
 
     String solverName;
@@ -56,6 +57,18 @@ void ParticleGeneratorInterface::createGenerator(const String& sceneFile)
     }
     __BNN_REQUIRE((m_Generators2D.size() > 0) ^ (m_Generators3D.size() > 0));
     ////////////////////////////////////////////////////////////////////////////////;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // read particle  radius
+    if(!JSONHelpers::readValue(jParams["SimulationParameters"], m_ParticleData.particleRadius, "ParticleRadius")) {
+        float cellSize;
+        float ratioCellSizeRadius;
+        __BNN_REQUIRE(JSONHelpers::readValue(jParams["SimulationParameters"], cellSize, "CellSize"));
+        __BNN_REQUIRE(JSONHelpers::readValue(jParams["SimulationParameters"], ratioCellSizeRadius, "RatioCellSizePRadius"));
+        m_ParticleData.particleRadius = cellSize / ratioCellSizeRadius;
+        __BNN_REQUIRE(m_ParticleData.particleRadius > 0);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // add particles without relaxation
