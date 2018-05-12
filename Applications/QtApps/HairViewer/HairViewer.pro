@@ -23,11 +23,6 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-include(../../../BananaCore/BananaCore.pri)
-include(../../../QtAppHelpers/QtAppHelpers.pri)
-include(../../../OpenGLHelpers/OpenGLHelpers.pri)
-#include(../../../Simulation/Simulation.pri)
-
 TARGET = HairViewer
 TEMPLATE = app
 CONFIG += console
@@ -35,29 +30,20 @@ CONFIG += console
 #QMAKE_LFLAGS += /VERBOSE
 #CONFIG += static
 
+BANANA_DIR = D:/Programming/Banana
+include($$BANANA_DIR/BananaCore/BananaCore.pri)
+include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
+include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
+include($$BANANA_DIR/Simulation/Simulation.pri)
+
 #macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
 win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
 
 INCLUDEPATH += $$PWD/Include
 
-HEADERS += \
-    Source/MainWindow.h \
-    Source/Common.h \
-    Source/RenderWidget.h \
-    Source/Controller.h \
-    Source/cyHairFile.h \
-    Source/Hair.h \
-    Source/HairModel.h
+HEADERS += $$files(Source/*.h, true)
+SOURCES += $$files(Source/*.cpp, true)
 
-SOURCES += \
-    Source/Main.cpp \
-    Source/MainWindow.cpp \
-    Source/RenderWidget.cpp \
-    Source/Controller.cpp \
-    Source/HairModel.cpp
-
-RESOURCES += \
-    Shader.qrc
-
-DISTFILES += \
-    config.ini
+DISTFILES += $$files(Scenes/*.json, true)
+DISTFILES += $$files(*.ini, true)
+RESOURCES += Shader.qrc

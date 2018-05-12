@@ -30,33 +30,20 @@ INCLUDEPATH += $$PWD/Include
 
 #LIBS += -lcuda -lcudart -loptix -loptixu -lsutil -L/usr/local/cuda-6.5/lib64 -L"C:/ProgramData/NVIDIA Corporation/OptiX SDK 4.1.0/lib64"
 
+BANANA_DIR = D:/Programming/Banana
+include($$BANANA_DIR/BananaCore/BananaCore.pri)
+include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
+include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
+include($$BANANA_DIR/Simulation/Simulation.pri)
+include($$BANANA_DIR/RayTracing/RayTracing.pri)
 
-include (../../../BananaCore/BananaCore.pri)
-include (../../../QtAppHelpers/QtAppHelpers.pri)
-include (../../../OpenGLHelpers/OpenGLHelpers.pri)
-include (../../../RayTracing/RayTracing.pri)
 
+HEADERS += $$files(Include/*.h, true)
+HEADERS += $$files(CUDA/*.cuh, true)
+HEADERS += $$files(CUDA/*.cu, true)
+SOURCES += $$files(Source/*.cpp, true)
 
-HEADERS += \
-    Include/Controller.h \
-    Include/MainWindow.h \
-    Include/RenderWidget.h \
-    Include/Common.h \
-    CUDA/Common.cuh \
-    CUDA/Helpers.cuh \
-    CUDA/IntersectionRefinement.cuh \
-    CUDA/Random.cuh \
-    CUDA/Diffuse.cu \
-    CUDA/Glass.cu \
-    CUDA/GradientBG.cu \
-    CUDA/ParallelogramIterative.cu \
-    CUDA/PathTraceCamera.cu \
-    CUDA/TriangleMesh.cu \
-    Include/TeapotRayTracer.h
+RESOURCES += Shader.qrc
 
-SOURCES += \
-    Source/Controller.cpp \
-    Source/Main.cpp \
-    Source/MainWindow.cpp \
-    Source/RenderWidget.cpp \
-    Source/TeapotRayTracer.cpp
+DISTFILES += $$files(Scenes/*.json, true)
+DISTFILES += $$files(*.ini, true)

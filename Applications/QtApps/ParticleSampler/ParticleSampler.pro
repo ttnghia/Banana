@@ -23,14 +23,16 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-include(../../../BananaCore/BananaCore.pri)
-include(../../../QtAppHelpers/QtAppHelpers.pri)
-include(../../../OpenGLHelpers/OpenGLHelpers.pri)
-include(../../../Simulation/Simulation.pri)
-
 TARGET = ParticleSampler
 TEMPLATE = app
 CONFIG += console
+
+BANANA_DIR = D:/Programming/Banana
+include($$BANANA_DIR/BananaCore/BananaCore.pri)
+include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
+include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
+include($$BANANA_DIR/Simulation/Simulation.pri)
+
 
 #CONFIG += static
 
@@ -42,11 +44,7 @@ INCLUDEPATH += $$PWD/Include
 HEADERS += $$files(Source/*.h, true)
 SOURCES += $$files(Source/*.cpp, true)
 
-RESOURCES += \
-    Shader.qrc
+DISTFILES += $$files(Scenes/*.json, true)
+DISTFILES += $$files(*.ini, true)
 
-DISTFILES += \
-    Scenes/Sphere2D.json \
-    Scenes/Sphere3D.json \
-    Scenes/Torus3D.json \
-    config.ini
+RESOURCES += Shader.qrc

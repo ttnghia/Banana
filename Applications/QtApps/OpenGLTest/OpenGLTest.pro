@@ -26,9 +26,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = OpenGLWidget
 TEMPLATE = app
 
-include (../../../BananaCore/BananaCore.pri)
-include (../../../QtAppHelpers/QtAppHelpers.pri)
-include (../../../OpenGLHelpers/OpenGLHelpers.pri)
+
+BANANA_DIR = D:/Programming/Banana
+
+include($$BANANA_DIR/BananaCore/BananaCore.pri)
+include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
+include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
 
 SOURCES +=\
     Main.cpp \

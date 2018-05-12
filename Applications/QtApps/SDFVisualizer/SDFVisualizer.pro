@@ -25,28 +25,16 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = SDFVisualizer
 TEMPLATE = app
+#CONFIG+= static
+
+BANANA_DIR = D:/Programming/Banana
+include($$BANANA_DIR/BananaCore/BananaCore.pri)
+include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
+include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
 
 INCLUDEPATH += $$PWD/Include
 
-include(../../../BananaCore/BananaCore.pri)
-include(../../../QtAppHelpers/QtAppHelpers.pri)
-include(../../../OpenGLHelpers/OpenGLHelpers.pri)
+HEADERS += $$files(Source/*.h, true)
+SOURCES += $$files(Source/*.cpp, true)
 
-HEADERS += \
-    Source/MainWindow.h \
-    Source/Common.h \
-    Source/RenderWidget.h \
-    Source/Controller.h \
-    Source/SDFGrid.h
-
-SOURCES += \
-    Source/Main.cpp \
-    Source/MainWindow.cpp \
-    Source/RenderWidget.cpp \
-    Source/Controller.cpp \
-    Source/SDFGrid.cpp
-
-RESOURCES += \
-    Shader.qrc
-
-CONFIG+= static
+RESOURCES += Shader.qrc

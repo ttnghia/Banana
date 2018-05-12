@@ -45,7 +45,7 @@ public:
     void loadScene(const String& sceneFile);
     void setSamplingParameters(SamplingParameters params);
     void doFrameRelaxation(UInt frame);
-    void finalizeRelaxation();
+    void finalizeRelaxation(UInt frame);
     ////////////////////////////////////////////////////////////////////////////////
     Int    getDimension()  const { return m_Dimension; }
     float* getBMin() { return &m_ParticleData.domainBMin[0]; }
@@ -81,4 +81,6 @@ private:
         Vector<Vec2<float>> positions2D;
         Vector<Vec3<float>> positions3D;
     } m_ParticleData;
+
+    SamplingParameters m_SamplingParams;
 };

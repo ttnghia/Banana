@@ -161,7 +161,6 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     m_ParticleData.nObjects   = 0;
     for(auto& generator : m_Generators2D) {
         generator->buildObject(m_ParticleData.particleRadius, m_BoundaryObjs2D);
-        ////////////////////////////////////////////////////////////////////////////////
         UInt nGen = generator->generateParticles(m_ParticleData.positions2D);
         if(nGen > 0) {
             auto& generatedPositions = generator->generatedPositions();
@@ -173,7 +172,6 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     }
     for(auto& generator : m_Generators3D) {
         generator->buildObject(m_ParticleData.particleRadius, m_BoundaryObjs3D);
-        ////////////////////////////////////////////////////////////////////////////////
         UInt nGen = generator->generateParticles(m_ParticleData.positions3D);
         if(nGen > 0) {
             auto& generatedPositions = generator->generatedPositions();
@@ -190,26 +188,80 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     m_ParticleData.positions   = (m_ParticleData.positions2D.size() > 0) ?
                                  reinterpret_cast<char*>(m_ParticleData.positions2D.data()) : reinterpret_cast<char*>(m_ParticleData.positions3D.data());
     ////////////////////////////////////////////////////////////////////////////////
+    m_Relax2D.reset();
+    m_Relax3D.reset();
+    if(m_Dimension == 2) {
+        m_Relax2D = std::make_unique<ParticleTools::SPHBasedRelaxation<2, float>>(m_BoundaryObjs2D);
+    } else {
+        m_Relax3D = std::make_unique<ParticleTools::SPHBasedRelaxation<3, float>>(m_BoundaryObjs3D);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleGeneratorInterface::setSamplingParameters(SamplingParameters params)
 {
-    //
+    m_SamplingParams = params;
+    if(m_Relax2D == nullptr && m_Relax3D == nullptr) {
+        return;
+    }
+    if(m_Dimension == 2) {
+        m_Relax2D->makeReady(m_ParticleData.positions2D.data(), m_ParticleData.nParticles);
+    } else {
+        m_Relax3D->makeReady(m_ParticleData.positions3D.data(), m_ParticleData.nParticles);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
 {
-    //    m_Generators2D != nullptr ?
-    //    m_Generators2D->doFrameRelaxation(frame) :
-    //    m_Generators3D->doFrameRelaxation(frame);
+    if(m_Dimension == 2) {
+        m_Relax2D->iterate(m_ParticleData.positions2D.data(), m_ParticleData.nParticles, frame);
+        if(frame > 1 && (frame % m_SamplingParams.checkFrequency) == 0) {
+            m_Relax2D->computeMinDistanceRatio();
+            m_Relax2D->logger().printLog("Iteration #" + std::to_string(frame) + ". Min distance ratio: " + std::to_string(m_Relax2D->getMinDistanceRatio()));
+            if(m_Relax2D->getMinDistanceRatio() > m_SamplingParams.overlapThreshold) {
+                m_Relax2D->logger().printLogPadding("Relaxation finished successfully.");
+                m_Relax2D->logger().printMemoryUsage();
+                m_Relax2D->logger().newLine();
+                return;
+            }
+        }
+        m_Relax2D->logger().printMemoryUsage();
+        m_Relax2D->logger().newLine();
+    } else {
+        m_Relax3D->iterate(m_ParticleData.positions3D.data(), m_ParticleData.nParticles, frame);
+        if(frame > 1 && (frame % m_SamplingParams.checkFrequency) == 0) {
+            m_Relax3D->computeMinDistanceRatio();
+            m_Relax3D->logger().printLog("Iteration #" + std::to_string(frame) + ". Min distance ratio: " + std::to_string(m_Relax3D->getMinDistanceRatio()));
+            if(m_Relax3D->getMinDistanceRatio() > m_SamplingParams.overlapThreshold) {
+                m_Relax3D->logger().printLogPadding("Relaxation finished successfully.");
+                m_Relax3D->logger().printMemoryUsage();
+                m_Relax3D->logger().newLine();
+                return;
+            }
+        }
+        m_Relax2D->logger().printMemoryUsage();
+        m_Relax2D->logger().newLine();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleGeneratorInterface::finalizeRelaxation()
+void ParticleGeneratorInterface::finalizeRelaxation(UInt frame)
 {
-    //    m_Generators2D != nullptr ?
-    //    m_Generators2D->finalizeRelaxation() :
-    //    m_Generators3D->finalizeRelaxation();
+    if(((frame - 1) % m_SamplingParams.checkFrequency) == 0) {
+        if(m_Dimension == 2) {
+            m_Relax2D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(m_SamplingParams.maxIters));
+        } else {
+            m_Relax3D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(m_SamplingParams.maxIters));
+        }
+    } else {
+        if(m_Dimension == 2) {
+            m_Relax2D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(m_SamplingParams.maxIters) +
+                                                ". Min distance ratio: " + std::to_string(m_Relax2D->getMinDistanceRatio()));
+        } else {
+            m_Relax3D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(m_SamplingParams.maxIters) +
+                                                ". Min distance ratio: " + std::to_string(m_Relax3D->getMinDistanceRatio()));
+        }
+    }
+    m_Relax3D->logger().newLine();
 }

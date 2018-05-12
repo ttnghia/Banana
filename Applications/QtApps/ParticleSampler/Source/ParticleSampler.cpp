@@ -48,7 +48,8 @@ void ParticleSampler::finishImgExport()
 void ParticleSampler::doSampling(SamplingParameters params)
 {
     m_Generator->setSamplingParameters(params);
-    for(Int frame = 1; frame <= params.maxIters; ++frame) {
+    Int frame = 1;
+    for(; frame <= params.maxIters; ++frame) {
         m_Generator->doFrameRelaxation(frame);
 
         emit vizDataChanged();
@@ -66,7 +67,7 @@ void ParticleSampler::doSampling(SamplingParameters params)
         }
     }
 
-    m_Generator->finalizeRelaxation();
+    m_Generator->finalizeRelaxation(frame);
     m_Generator.reset();
     emit relaxationFinished();
 }
