@@ -38,8 +38,8 @@ void ParticleGeneratorInterface::createGenerator(const String& sceneFile)
 
     String solverName;
     JSONHelpers::readValue(jParams["GlobalParameters"], solverName, "Solver");
-    __BNN_REQUIRE(solverName.find_first_of('2') > 0 || solverName.find_first_of('3') > 0);
-    m_Dimension = (solverName.find_first_of('2') > 0) ? 2 : 3;
+    __BNN_REQUIRE((solverName.find_first_of('2') != String::npos) ^ (solverName.find_first_of('3') != String::npos));
+    m_Dimension = (solverName.find_first_of('2') != String::npos) ? 2 : 3;
     ////////////////////////////////////////////////////////////////////////////////;
 
     ////////////////////////////////////////////////////////////////////////////////;
@@ -59,7 +59,29 @@ void ParticleGeneratorInterface::createGenerator(const String& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////;
 
     ////////////////////////////////////////////////////////////////////////////////
-    // read particle  radius
+    // read domain box
+    {
+        JParams jBoxParams = jParams["SimulationParameters"]["SimulationDomainBox"];
+        jBoxParams["GeometryType"] = String("Box");
+
+        if(m_Dimension == 2) {
+            Vec2f bMin, bMax;
+            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMin, "BoxMin"));
+            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMax, "BoxMax"));
+            memcpy(&m_ParticleData.domainBMin[0], &bMin[0], sizeof(float) * m_Dimension);
+            memcpy(&m_ParticleData.domainBMax[0], &bMax[0], sizeof(float) * m_Dimension);
+        } else {
+            Vec3f bMin, bMax;
+            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMin, "BoxMin"));
+            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMax, "BoxMax"));
+            memcpy(&m_ParticleData.domainBMin[0], &bMin[0], sizeof(float) * m_Dimension);
+            memcpy(&m_ParticleData.domainBMax[0], &bMax[0], sizeof(float) * m_Dimension);
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // read domain box and particle radius
     if(!JSONHelpers::readValue(jParams["SimulationParameters"], m_ParticleData.particleRadius, "ParticleRadius")) {
         float cellSize;
         float ratioCellSizeRadius;
@@ -95,7 +117,7 @@ void ParticleGeneratorInterface::createGenerator(const String& sceneFile)
         UInt nGen = generator->generateParticles(m_ParticleData.positions3D);
         if(nGen > 0) {
             auto& generatedPositions = generator->generatedPositions();
-            m_ParticleData.positions2D.insert(m_ParticleData.positions2D.end(), generatedPositions.begin(), generatedPositions.end());
+            m_ParticleData.positions3D.insert(m_ParticleData.positions3D.end(), generatedPositions.begin(), generatedPositions.end());
             m_ParticleData.objectIndex.insert(m_ParticleData.objectIndex.end(), generatedPositions.size(), m_ParticleData.nObjects);
             ++m_ParticleData.nObjects;
             m_Logger->printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
@@ -105,6 +127,8 @@ void ParticleGeneratorInterface::createGenerator(const String& sceneFile)
     __BNN_REQUIRE((m_ParticleData.positions2D.size() > 0) ^ (m_ParticleData.positions3D.size() > 0));
     m_ParticleData.nParticles += static_cast<UInt>(m_ParticleData.positions2D.size());
     m_ParticleData.nParticles += static_cast<UInt>(m_ParticleData.positions3D.size());
+    m_ParticleData.positions   = (m_ParticleData.positions2D.size() > 0) ?
+                                 reinterpret_cast<char*>(m_ParticleData.positions2D.data()) : reinterpret_cast<char*>(m_ParticleData.positions3D.data());
     ////////////////////////////////////////////////////////////////////////////////
 }
 

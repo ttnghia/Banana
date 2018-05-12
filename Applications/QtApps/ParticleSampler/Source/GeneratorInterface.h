@@ -64,8 +64,8 @@ private:
     struct ParticleData
     {
         float particleRadius;
-        float domainBMin[3];
-        float domainBMax[3];
+        float domainBMin[3] { -1, -1, -1 };
+        float domainBMax[3] { 1, 1, 1 };
         char* positions = nullptr;
 
         UInt16              nParticles = 0;
