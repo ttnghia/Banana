@@ -48,8 +48,8 @@ public:
     {
         m_Logger = Logger::createLogger("SPHBasedRelaxation");
         // m_Logger->setLoglevel(m_GlobalParams.logLevel);
-        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams->particleRadius * RealType(2.0));
-        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams->particleRadius * RealType(4.0));
+        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(2.0));
+        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(4.0));
     }
 
     /**
@@ -66,12 +66,13 @@ public:
      */
     RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
 
-protected:
-    void makeReady(Vec_VecN& positions) { particleData().makeReady(positions); }
-    void iterate(Vec_VecN& positions, UInt iter);
-    void computeMinDistanceRatio(Vec_VecN& positions);
-    ////////////////////////////////////////////////////////////////////////////////
+    void makeReady(VecN* positions, UInt nParticles) { particleData().makeReady(positions, nParticles); }
+    void iterate(VecN* positions, UInt nParticles, UInt iter);
     auto& logger() { assert(m_Logger != nullptr); return *m_Logger; }
+    void computeMinDistanceRatio();
+
+protected:
+    ////////////////////////////////////////////////////////////////////////////////
     auto& solverParams() { static auto ptrParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(m_SolverParams); return *ptrParams; }
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
