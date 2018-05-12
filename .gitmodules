@@ -52,3 +52,6 @@
 [submodule "Externals/tinyply"]
 	path = Externals/tinyply
 	url = https://github.com/ddiakopoulos/tinyply
+[submodule "Applications/QtApps/FluidRendering"]
+	path = Applications/QtApps/FluidRendering
+	url = https://github.com/ttnghia/RealTimeFluidRendering.git
