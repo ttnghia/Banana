@@ -120,4 +120,47 @@ inline QSize getDefaultWindowSize()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline Vec4f getDefaultClearColor(const Vec4f& fallBackColor = Vec4f(0.38f, 0.52f, 0.10f, 1.0f))
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() &&
+       config.hasParam("DefaultClearColorR") &&
+       config.hasParam("DefaultClearColorG") &&
+       config.hasParam("DefaultClearColorB")) {
+        return Vec4f(config.getFloatValue("DefaultClearColorR"),
+                     config.getFloatValue("DefaultClearColorG"),
+                     config.getFloatValue("DefaultClearColorB"),
+                     1.0f);
+    } else {
+        return fallBackColor;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline auto getDefaultCamera(const Vec3f& fallBackCamPosition = Vec3f(-5, 1, 0), const Vec3f& fallBackCamFocus = Vec3f(0))
+{
+    Vec3f camPosition = fallBackCamPosition;
+    Vec3f camFocus    = fallBackCamFocus;
+
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded()) {
+        if(config.hasParam("DefaultCameraPositionX") &&
+           config.hasParam("DefaultCameraPositionY") &&
+           config.hasParam("DefaultCameraPositionZ")) {
+            camPosition = Vec3f(config.getFloatValue("DefaultCameraPositionX"),
+                                config.getFloatValue("DefaultCameraPositionY"),
+                                config.getFloatValue("DefaultCameraPositionZ"));
+        }
+        if(config.hasParam("DefaultCameraFocusX") &&
+           config.hasParam("DefaultCameraFocusY") &&
+           config.hasParam("DefaultCameraFocusZ")) {
+            camFocus = Vec3f(config.getFloatValue("DefaultCameraFocusX"),
+                             config.getFloatValue("DefaultCameraFocusY"),
+                             config.getFloatValue("DefaultCameraFocusZ"));
+        }
+    }
+    return std::make_pair(camPosition, camFocus);;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

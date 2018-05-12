@@ -50,7 +50,7 @@ public:
     OpenGLWidget(QWidget* parent);
 
     const auto& getClearColor() const { return m_ClearColor; }
-    auto&       getCamera() const { return m_Camera; }
+    auto& getCamera() const { return m_Camera; }
 
     ////////////////////////////////////////////////////////////////////////////////
     // => QWidget interface
@@ -99,7 +99,7 @@ protected:
     bool m_bPrintDebug = false;
 #endif
     QSize       m_DefaultSize        = QtAppUtils::getDefaultWindowSize();
-    Vec3f       m_ClearColor         = Vec3f(0.38f, 0.52f, 0.10f);
+    Vec3f       m_ClearColor         = QtAppUtils::getDefaultClearColor();
     SpecialKey  m_SpecialKeyPressed  = SpecialKey::NoKey;
     MouseButton m_MouseButtonPressed = MouseButton::NoButton;
     QString     m_CapturePath        = QtAppUtils::getDefaultCapturePath();
@@ -123,6 +123,7 @@ public slots:
     void resetClearColor() { glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f); }
     void setViewFrustum(float fov, float nearZ, float farZ) { m_Camera->setFrustum(fov, nearZ, farZ); }
     void setCamera(const Vec3f& cameraPosition, const Vec3f& cameraFocus) { m_Camera->setCamera(cameraPosition, cameraFocus, Vec3f(0, 1, 0)); }
+    void setCamera(const std::pair<Vec3f, Vec3f>& cameraInfo) { m_Camera->setCamera(cameraInfo.first, cameraInfo.second, Vec3f(0, 1, 0)); }
     void resetCameraPosition() { m_Camera->reset(); }
     ////////////////////////////////////////////////////////////////////////////////
 
