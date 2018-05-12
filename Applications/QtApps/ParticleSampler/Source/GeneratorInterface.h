@@ -24,6 +24,8 @@
 #include <Banana/Utils/Logger.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <SimulationObjects/ParticleGenerator.h>
+#include <SimulationObjects/BoundaryObject.h>
+#include <ParticleTools/SPHBasedRelaxation.h>
 #include <ParticleTools/ParticleSerialization.h>
 #include <QMessageBox>
 #include "Common.h"
@@ -40,7 +42,7 @@ public:
 
     ~ParticleGeneratorInterface() { Logger::shutdown(); }
     ////////////////////////////////////////////////////////////////////////////////
-    void createGenerator(const String& sceneFile);
+    void loadScene(const String& sceneFile);
     void setSamplingParameters(SamplingParameters params);
     void doFrameRelaxation(UInt frame);
     void finalizeRelaxation();
@@ -57,20 +59,25 @@ public:
 
 private:
     Int                                                               m_Dimension = 2;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<2, float>>>    m_BoundaryObjs2D;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<3, float>>>    m_BoundaryObjs3D;
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<2, float>>> m_Generators2D;
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<3, float>>> m_Generators3D;
+    UniquePtr<ParticleTools::SPHBasedRelaxation<2, float>>            m_Relax2D;
+    UniquePtr<ParticleTools::SPHBasedRelaxation<3, float>>            m_Relax3D;
     SharedPtr<Logger>                                                 m_Logger = nullptr;
 
     struct ParticleData
     {
         float particleRadius;
-        float domainBMin[3] { -1, -1, -1 };
-        float domainBMax[3] { 1, 1, 1 };
         char* positions = nullptr;
+        Vec3f domainBMin;
+        Vec3f domainBMax;
 
-        UInt16              nParticles = 0;
-        UInt16              nObjects   = 0;
-        Vec_UInt16          objectIndex;
+        UInt16     nParticles = 0;
+        UInt16     nObjects   = 0;
+        Vec_UInt16 objectIndex;
+
         Vector<Vec2<float>> positions2D;
         Vector<Vec3<float>> positions3D;
     } m_ParticleData;

@@ -48,7 +48,7 @@ void ParticleSampler::finishImgExport()
 void ParticleSampler::doSampling(SamplingParameters params)
 {
     m_Generator->setSamplingParameters(params);
-    for(Int frame = 0; frame < 1 /*finalFrame*/; ++frame) {
+    for(Int frame = 1; frame <= params.maxIters; ++frame) {
         m_Generator->doFrameRelaxation(frame);
 
         emit vizDataChanged();
@@ -101,7 +101,7 @@ void ParticleSampler::changeScene(const QString& scene)
     nlohmann::json jParams = nlohmann::json::parse(inFile);
     inFile.close();
     ////////////////////////////////////////////////////////////////////////////////
-    m_Generator->createGenerator(sceneFile.toStdString());
+    m_Generator->loadScene(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////
     m_VizData->resetData();
     m_VizData->systemDimension = m_Generator->getDimension();
