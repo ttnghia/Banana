@@ -29,6 +29,7 @@
         "variant": "cpp",
         "*.cuh": "cpp",
         "adolcforward": "cpp",
-        "mprealsupport": "cpp"
+        "mprealsupport": "cpp",
+        "string": "cpp"
     }
 }
