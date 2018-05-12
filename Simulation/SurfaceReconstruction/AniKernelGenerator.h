@@ -35,15 +35,12 @@ template<Int N, class RealType>
 class AnisotropicKernelGenerator
 {
 public:
-    using VecN       = VecX<N, RealType>;
-    using MatNxN     = MatXxX<N, RealType>;
-    using Vec_VecN   = Vec_VecX<N, RealType>;
-    using Vec_MatNxN = Vec_MatXxX<N, RealType>;
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
     AnisotropicKernelGenerator(const Vec_VecN& particles,
                                RealType        particleRadius,
                                RealType        defaultSpraySize = RealType(0.75),
-                               RealType        kernelRatio      = RealType(4.0)) :
+                               RealType        kernelRatio      = RealType(8.0)) :
         AnisotropicKernelGenerator((static_cast<UInt>(particles.size())),
                                    particles.data(),
                                    particleRadius,
@@ -54,10 +51,10 @@ public:
                                const VecN* particles,
                                RealType    particleRadius,
                                RealType    defaultSpraySize = RealType(0.75),
-                               RealType    kernelRatio      = RealType(4.0));
+                               RealType    kernelRatio      = RealType(8.0));
     ////////////////////////////////////////////////////////////////////////////////
-    void        setParameters(RealType positionBlending = RealType(0.5), RealType axisRatio = RealType(4.0), UInt neighborThredhold = 25u);
-    void        computeAniKernels(Vec_VecN& kernelCenters, Vec_MatNxN& kernelMatrices);
+    void setParameters(RealType positionBlending = RealType(0.5), RealType axisRatio = RealType(8.0), UInt neighborThredhold = 25u);
+    void computeAniKernels(Vec_VecN& kernelCenters, Vec_MatNxN& kernelMatrices);
     void        computeAniKernels() { computeAniKernels(m_KernelCenters, m_KernelMatrices); }
     const auto& kernelCenters() const { return m_KernelCenters; }
     const auto& kernelMatrices() const { return m_KernelMatrices; }
@@ -69,7 +66,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     RealType m_PositionBlending  = RealType(0.5);
-    RealType m_AxisRatio         = RealType(4.0);
+    RealType m_AxisRatio         = RealType(8.0);
     UInt     m_NeighborThredhold = 25u;
     ////////////////////////////////////////////////////////////////////////////////
     RealType m_KernelRadius;

@@ -36,9 +36,9 @@ Banana::AnisotropicKernelGenerator<N, RealType>::AnisotropicKernelGenerator(UInt
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AnisotropicKernelGenerator<N, RealType >::setParameters(RealType positionBlending /*= RealType(0.5)*/,
-                                                             RealType axisRatio /*= RealType(4.0)*/,
-                                                             UInt     neighborThredhold /*= 25u*/)
+void AnisotropicKernelGenerator<N, RealType>::setParameters(RealType positionBlending /*= RealType(0.5)*/,
+                                                            RealType axisRatio /*= RealType(8.0)*/,
+                                                            UInt     neighborThredhold /*= 25u*/)
 {
     m_PositionBlending  = positionBlending;
     m_AxisRatio         = axisRatio;
@@ -47,55 +47,54 @@ void AnisotropicKernelGenerator<N, RealType >::setParameters(RealType positionBl
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AnisotropicKernelGenerator<N, RealType >::computeAniKernels(Vec_VecN&   kernelCenters,
-                                                                 Vec_MatNxN& kernelMatrices)
+void AnisotropicKernelGenerator<N, RealType>::computeAniKernels(Vec_VecN& kernelCenters, Vec_MatNxN& kernelMatrices)
 {
     kernelCenters.resize(m_nParticles);
     kernelMatrices.resize(m_nParticles);
-
     ////////////////////////////////////////////////////////////////////////////////
     m_NSearch->find_neighbors();
     const auto& d0 = m_NSearch->point_set(0);
     Scheduler::parallel_for(m_nParticles,
                             [&](UInt p)
                             {
-                                const auto& ppos = m_Particles[p];
-                                auto sumW        = RealType(1.0);
-                                auto pposWM      = ppos;
-                                auto C           = MatNxN(0);
-
+                                auto ppos   = m_Particles[p];
+                                auto sumW   = RealType(1.0);
+                                auto pposWM = ppos;
                                 for(auto q : d0.neighbors(0, p)) {
-                                    const auto& qpos = m_Particles[q];
-                                    const auto xpq   = qpos - ppos;
-                                    const auto d2    = glm::length2(xpq);
-                                    const auto wpq   = W2(d2);
-                                    sumW   += wpq;
-                                    pposWM += wpq * qpos;
-                                    C      += wpq * glm::outerProduct(xpq, xpq);
+                                    auto qpos = m_Particles[q];
+                                    auto wpq  = W(ppos, qpos);
+                                    sumW     += wpq;
+                                    pposWM   += wpq * qpos;
                                 }
+                                __BNN_TODO_MSG("Implement vec4 and simd");
 
-                                pposWM /= sumW; // => weighted mean of positions
-                                C      /= sumW; // => covariance matrix
-
+                                pposWM          /= sumW; // => weighted mean of positions
                                 kernelCenters[p] = MathHelpers::lerp(ppos, pposWM, m_PositionBlending);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 if(d0.n_neighbors(0, p) < m_NeighborThredhold) {
                                     kernelMatrices[p] = MatNxN(m_DefaultSpraySize);
                                     return;
                                 }
-
+                                ////////////////////////////////////////////////////////////////////////////////
+                                sumW   = RealType(1.0);
+                                auto C = MatNxN(0);
+                                for(auto q : d0.neighbors(0, p)) {
+                                    auto qpos = m_Particles[q];
+                                    auto xpq  = qpos - pposWM;
+                                    auto wpq  = W(xpq);
+                                    sumW     += wpq;
+                                    C        += wpq * glm::outerProduct(xpq, xpq);
+                                }
+                                C /= sumW;      // => covariance matrix
                                 ////////////////////////////////////////////////////////////////////////////////
                                 // compute kernel matrix
                                 VecN S;
                                 MatNxN U, V;
                                 QRSVD::svd(C, U, S, V);
-                                VecN sigmas = S;
-
                                 for(Int i = 1; i < N; ++i) {
-                                    sigmas[i] = MathHelpers::max(S[i], S[0] / m_AxisRatio);
+                                    S[i] = MathHelpers::max(S[i], S[0] / m_AxisRatio);
                                 }
-
-                                sigmas           *= std::cbrt(RealType(1.0) / glm::compMul(sigmas)); // scale so that det(covariance) == 1
-                                kernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
+                                S                *= std::cbrt(RealType(1.0) / glm::compMul(S)); // scale so that det(covariance) == 1
+                                kernelMatrices[p] = U * LinaHelpers::diagMatrix(S) * glm::transpose(V);
                             });
 }
