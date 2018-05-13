@@ -154,7 +154,7 @@ public:
     /**
        Multiply givens must be for same row and column
      **/
-    void operator *=(const GivensRotation<T>& A)
+    void operator*=(const GivensRotation<T>& A)
     {
         T new_c = c * A.c - s * A.s;
         T new_s = s * A.c + c * A.s;
@@ -165,7 +165,7 @@ public:
     /**
        Multiply givens must be for same row and column
      **/
-    GivensRotation<T> operator *(const GivensRotation<T>& A) const
+    GivensRotation<T> operator*(const GivensRotation<T>& A) const
     {
         GivensRotation<T> r(*this);
         r *= A;
@@ -388,6 +388,7 @@ void polar(const Mat2x2<T>& A, const Mat2x2<T>& R, const Mat2x2<T>& S_Sym)
 template<class T>
 void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensRotation<T>& V, T tol = T(64.0)* std::numeric_limits<T>::epsilon())
 {
+    (void)tol;
     Vec2<T>& sigma = const_cast<Vec2<T>&>(Sigma);
 
     Mat2x2<T> S_Sym;

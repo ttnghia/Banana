@@ -213,10 +213,6 @@ void Controller::setupHairRenderModeControllers()
     m_smHairRenderMode->setMapping(rdbVertexParticle,         static_cast<int>(HairRenderMode::VertexParticle));
     m_smHairRenderMode->setMapping(rdbLineWithVertexParticle, static_cast<int>(HairRenderMode::LineWithVertexParticle));
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutHairRenderCtrls = new QVBoxLayout;
     layoutHairRenderCtrls->addLayout(layoutHairRenderMode);
     ////////////////////////////////////////////////////////////////////////////////
@@ -253,10 +249,6 @@ void Controller::setupHairColorModeControllers()
     m_smHairColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(HairColorMode::ObjectIndex));
     m_smHairColorMode->setMapping(rdbColorVelMag,  static_cast<int>(HairColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     m_pkrColorDataMin = new ColorPicker;
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
@@ -274,7 +266,7 @@ void Controller::setupHairColorModeControllers()
     QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
     layoutColorCtrls->addLayout(layoutColorMode);
     layoutColorCtrls->addSpacing(5);
-    layoutColorCtrls->addWidget(line);
+    layoutColorCtrls->addWidget(QtAppUtils::getLineSeparator());
     layoutColorCtrls->addSpacing(5);
     layoutColorCtrls->addLayout(layoutColorData);
     ////////////////////////////////////////////////////////////////////////////////

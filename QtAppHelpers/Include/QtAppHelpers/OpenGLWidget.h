@@ -180,6 +180,7 @@ public slots:
     void setGridBackgroundColor(const Vec3f& color) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setBackgroundColor(color); }
     void setGridLineColor(const Vec3f& color) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setLineColor(color); }
     void setGridScales(const Vec2i& scales) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setScales(scales); }
+    void reloadSkyboxTextures() { m_SkyBoxRender->clearTextures(); m_SkyBoxRender->loadTextures(QtAppUtils::getTexturePath() + "/Sky/"); }
 protected:
     void initRDataSkyBox();
     void initRDataCheckerboardBackground() { m_CheckerboardRender = std::make_unique<CheckerboardBackgroundRender>(); }
@@ -202,6 +203,7 @@ public slots:
     void setFloorSize(int size) { m_FloorRender->scale(Vec3f(static_cast<float>(size))); }
     void setFloorTexScales(int scale) { m_FloorRender->scaleTexCoord(scale, scale); }
     void setFloorHeight(float height) { m_FloorRender->translate(Vec3f(0, height, 0)); }
+    void reloadFloorTextures() { m_FloorRender->clearTextures(); m_FloorRender->loadTextures(QtAppUtils::getTexturePath() + "/Floor/"); }
 protected:
     void initRDataFloor();
     void renderFloor() { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->render(); }

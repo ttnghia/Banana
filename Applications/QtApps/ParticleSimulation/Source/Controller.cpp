@@ -152,10 +152,6 @@ void Controller::setupColorModeControllers()
     m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(ParticleColorMode::ObjectIndex));
     m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(ParticleColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     m_pkrColorDataMin = new ColorPicker;
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
@@ -173,7 +169,7 @@ void Controller::setupColorModeControllers()
     QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
     layoutColorCtrls->addLayout(layoutColorMode);
     layoutColorCtrls->addSpacing(5);
-    layoutColorCtrls->addWidget(line);
+    layoutColorCtrls->addWidget(QtAppUtils::getLineSeparator());
     layoutColorCtrls->addSpacing(5);
     layoutColorCtrls->addLayout(layoutColorData);
     ////////////////////////////////////////////////////////////////////////////////

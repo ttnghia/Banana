@@ -214,16 +214,12 @@ void Controller::setupButtons()
     m_btnSaveBNN    = new QPushButton("Save .bnn");
     m_btnSaveBinary = new QPushButton("Save binary");
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutButtons = new QGridLayout;
     layoutButtons->addWidget(m_btnStartStopRelaxation, 0, 0, 1, 2);
     layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 2);
     layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
     layoutButtons->addWidget(m_btnEditClipPlane,       2, 1, 1, 1);
-    layoutButtons->addWidget(line,                     3, 0, 1, 2);
+    layoutButtons->addWidget(QtAppUtils::getLineSeparator(),                     3, 0, 1, 2);
     layoutButtons->addWidget(m_chkDoubleData,          4, 0, 1, 2);
     layoutButtons->addWidget(m_btnSaveObj,             5, 0, 1, 1);
     layoutButtons->addWidget(m_btnSaveBgeo,            5, 1, 1, 1);

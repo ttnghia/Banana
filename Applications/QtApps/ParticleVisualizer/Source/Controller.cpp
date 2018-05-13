@@ -280,14 +280,10 @@ void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
     wGrid->setMinimumHeight(25);
     wGrid->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutBackground = new QVBoxLayout;
     layoutBackground->addLayout(layoutBackgroundType);
     layoutBackground->addSpacing(5);
-    layoutBackground->addWidget(line);
+    layoutBackground->addWidget(QtAppUtils::getLineSeparator());
     layoutBackground->addSpacing(5);
     layoutBackground->addWidget(wSkyTex);
     layoutBackground->addWidget(m_pkrBackgroundColor);
@@ -326,14 +322,10 @@ void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
     m_sldFloorExposure->setRange(1, 100);
     m_sldFloorExposure->getSlider()->setValue(DEFAULT_FLOOR_EXPOSURE);
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutFloorCtr = new QVBoxLayout;
     layoutFloorCtr->addLayout(m_cbFloorTexture->getLayout());
     layoutFloorCtr->addSpacing(10);
-    layoutFloorCtr->addWidget(line);
+    layoutFloorCtr->addWidget(QtAppUtils::getLineSeparator());
     layoutFloorCtr->addLayout(m_sldFloorSize->getLayoutWithLabel("Size:"));
     layoutFloorCtr->addLayout(m_sldFloorExposure->getLayoutWithLabel("Exposure:"));
     ////////////////////////////////////////////////////////////////////////////////
@@ -425,10 +417,6 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(ParticleColorMode::ObjectIndex));
     m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(ParticleColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     m_pkrColorDataMin = new ColorPicker;
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
@@ -446,7 +434,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
     layoutColorCtrls->addLayout(layoutColorMode);
     layoutColorCtrls->addSpacing(5);
-    layoutColorCtrls->addWidget(line);
+    layoutColorCtrls->addWidget(QtAppUtils::getLineSeparator());
     layoutColorCtrls->addSpacing(5);
     layoutColorCtrls->addLayout(layoutColorData);
     ////////////////////////////////////////////////////////////////////////////////
@@ -475,13 +463,9 @@ void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
     QVBoxLayout* layoutMiscCtrls = new QVBoxLayout;
     QGroupBox*   grMiscCtrls     = new QGroupBox("MISC");
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     layoutMiscCtrls->addWidget(m_chkUseAniKernel);
     layoutMiscCtrls->addSpacing(5);
-    layoutMiscCtrls->addWidget(line);
+    layoutMiscCtrls->addWidget(QtAppUtils::getLineSeparator());
     layoutMiscCtrls->addSpacing(5);
     layoutMiscCtrls->addWidget(m_chkRenderBox);
     layoutMiscCtrls->addLayout(layoutBox);

@@ -117,14 +117,10 @@ void Controller::setupTextureControllers(QBoxLayout* ctrLayout)
     floorExposureLayout->addWidget(new QLabel("Exposure:"), 1);
     floorExposureLayout->addLayout(m_sldFloorExposure->getLayout(), 5);
 
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     QVBoxLayout* floorLayout = new QVBoxLayout;
     floorLayout->addLayout(m_cbFloorTexture->getLayout());
     floorLayout->addSpacing(10);
-    floorLayout->addWidget(line);
+    floorLayout->addWidget(QtAppUtils::getLineSeparator());
     floorLayout->addLayout(floorSizeLayout);
     floorLayout->addLayout(floorTexScaleLayout);
     floorLayout->addLayout(floorExposureLayout);

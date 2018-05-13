@@ -87,6 +87,7 @@ void OpenGLController::connectBasicWidgets()
     // floor
     connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_GLWidget, SLOT(setFloorTextureIndex(int)));
     connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorSize);
+    connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorTexScales);
     connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorExposure);
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -160,14 +161,10 @@ void OpenGLController::setupBackgroundControllers()
     wGrid->setMinimumHeight(25);
     wGrid->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutBackground = new QVBoxLayout;
     layoutBackground->addLayout(layoutBackgroundType);
     layoutBackground->addSpacing(5);
-    layoutBackground->addWidget(line);
+    layoutBackground->addWidget(QtAppUtils::getLineSeparator());
     layoutBackground->addSpacing(5);
     layoutBackground->addWidget(wSkyTex);
     layoutBackground->addWidget(m_pkrBackgroundColor);
@@ -224,14 +221,10 @@ void OpenGLController::setupFloorControllers()
     layoutFloorExposure->addWidget(new QLabel("Exposure:"), 1);
     layoutFloorExposure->addLayout(m_sldFloorExposure->getLayout(), 5);
     ////////////////////////////////////////////////////////////////////////////////
-    auto line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     auto floorLayout = new QVBoxLayout;
     floorLayout->addLayout(m_cbFloorTexture->getLayout());
     floorLayout->addSpacing(10);
-    floorLayout->addWidget(line);
+    floorLayout->addWidget(QtAppUtils::getLineSeparator());
     floorLayout->addLayout(layoutFloorSize);
     floorLayout->addLayout(layoutFloorExposure);
     ////////////////////////////////////////////////////////////////////////////////
@@ -266,14 +259,10 @@ void OpenGLController::setupBoxControllers()
     layoutBox->addWidget(new QLabel("Box color:"));
     layoutBox->addWidget(m_pkrBoxColor);
     ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutBoxCtrl = new QVBoxLayout;
     layoutBoxCtrl->addWidget(m_chkRenderBox);
     layoutBoxCtrl->addSpacing(5);
-    layoutBoxCtrl->addWidget(line);
+    layoutBoxCtrl->addWidget(QtAppUtils::getLineSeparator());
     layoutBoxCtrl->addSpacing(5);
     layoutBoxCtrl->addLayout(layoutBox);
     m_grBoxCtrl->setLayout(layoutBoxCtrl);
