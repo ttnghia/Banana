@@ -36,6 +36,10 @@ include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
 include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
 include($$BANANA_DIR/Simulation/Simulation.pri)
 
+win32 {
+    QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
+}
+
 #macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
 win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
 

@@ -19,7 +19,7 @@ CONFIG += c++14
 INCLUDEPATH += $$PWD
 
 win32 {
-    QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
+#    QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
     CONFIG(debug, debug|release) {
         message("Simulation -- Debug")
         LIBS += $$PWD/../Build/Debug/Simulation.lib
