@@ -4,7 +4,7 @@
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
-                "${workspaceFolder}"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
@@ -12,7 +12,7 @@
                 "path": [
                     "/usr/include",
                     "/usr/local/include",
-                    "${workspaceFolder}"
+                    "${workspaceFolder}/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
@@ -29,7 +29,7 @@
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
-                "${workspaceFolder}"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
@@ -37,7 +37,7 @@
                 "path": [
                     "/usr/include",
                     "/usr/local/include",
-                    "${workspaceFolder}"
+                    "${workspaceFolder}/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
@@ -48,27 +48,13 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}",
+                "${workspaceFolder}/**",
                 "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/include/*",
                 "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/atlmfc/include/*",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/um",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/ucrt",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/shared",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/winrt",
-                "D:/Programming/Banana/Externals/vdb-win",
-                "D:/Programming/Banana/Externals/json/single_include/nlohmann",
-                "D:/Programming/Banana/Externals/catch/single_include",
-                "D:/Programming/Banana/Externals/tinyply/source",
-                "D:/Programming/Banana/Externals/tinyobjloader",
-                "D:/Programming/Banana/Externals/spdlog/include",
-                "D:/Programming/Banana/Externals/glm",
-                "D:/Programming/Banana/Externals/tbb_win/include",
-                "D:/Programming/Banana/BananaCore",
-                "D:/Programming/Banana/MachineLearning",
-                "D:/Programming/Banana/OpenGLHelpers/Include",
-                "D:/Programming/Banana/QtAppHelpers/Include",
-                "D:/Programming/Banana/RayTracing/Include",
-                "D:/Programming/Banana/Simulation"
+                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/winrt"
             ],
             "defines": [
                 "_DEBUG",
@@ -78,27 +64,13 @@
             "intelliSenseMode": "msvc-x64",
             "browse": {
                 "path": [
-                    "${workspaceFolder}",
+                    "${workspaceFolder}/**",
                     "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/include/*",
                     "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/atlmfc/include/*",
                     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/um",
                     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/ucrt",
                     "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/shared",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/winrt",
-                    "D:/Programming/Banana/Externals/vdb-win",
-                    "D:/Programming/Banana/Externals/json/single_include/nlohmann",
-                    "D:/Programming/Banana/Externals/catch/single_include",
-                    "D:/Programming/Banana/Externals/tinyply/source",
-                    "D:/Programming/Banana/Externals/tinyobjloader",
-                    "D:/Programming/Banana/Externals/spdlog/include",
-                    "D:/Programming/Banana/Externals/glm",
-                    "D:/Programming/Banana/Externals/tbb_win/include",
-                    "D:/Programming/Banana/BananaCore",
-                    "D:/Programming/Banana/MachineLearning",
-                    "D:/Programming/Banana/OpenGLHelpers/Include",
-                    "D:/Programming/Banana/QtAppHelpers/Include",
-                    "D:/Programming/Banana/RayTracing/Include",
-                    "D:/Programming/Banana/Simulation"
+                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.16299.0/winrt"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
