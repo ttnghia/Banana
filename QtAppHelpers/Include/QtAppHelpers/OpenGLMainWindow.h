@@ -53,10 +53,10 @@ protected:
     void setupOpenglWidget(OpenGLWidget* glWidget);
 
     ////////////////////////////////////////////////////////////////////////////////
-    QLabel*       m_lblStatusFPS;
-    QLabel*       m_lblStatusCameraInfo;
-    OpenGLWidget* m_GLWidget;
-    bool          m_VSync;
+    QLabel*       m_lblStatusFPS        = nullptr;
+    QLabel*       m_lblStatusCameraInfo = nullptr;
+    OpenGLWidget* m_GLWidget            = nullptr;
+    bool          m_VSync               = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
