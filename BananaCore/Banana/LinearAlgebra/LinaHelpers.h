@@ -262,8 +262,8 @@ template<class RealType>
 Mat3x3<RealType> cofactor(const Mat3x3<RealType>& mat)
 {
     Mat2x2<RealType> result;
-    for(Int i = 0; i < N; ++i) {
-        for(Int j = 0; j < N; ++j) {
+    for(Int i = 0; i < 2; ++i) {
+        for(Int j = 0; j < 2; ++j) {
             result[i][j] = elementCofactor(mat, i, j);
         }
     }
