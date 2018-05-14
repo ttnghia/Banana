@@ -27,7 +27,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS = $$files(Banana/*.h, true)
-SOURCES = $$files(Banana/*.hpp, true)
+HEADERS += $$files(Banana/*.hpp, true)
 SOURCES += $$files(Banana/*.cpp, true)
 
 DISTFILES += \

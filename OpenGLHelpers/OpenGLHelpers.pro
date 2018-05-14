@@ -21,6 +21,8 @@
 
 include(../Banana.pri)
 
+QT += core gui widgets
+
 TARGET = OpenGLHelpers
 
 TEMPLATE = lib

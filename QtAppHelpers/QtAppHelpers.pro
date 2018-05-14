@@ -21,10 +21,14 @@
 
 include(../Banana.pri)
 
+QT += core gui widgets
+
 TARGET = QtAppHelpers
 
 TEMPLATE = lib
 CONFIG += staticlib
+
+include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
 
 HEADERS = $$files(include/*.h, true)
 SOURCES = $$files(Source/*.cpp, true)

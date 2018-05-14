@@ -27,7 +27,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS = $$files(*.h, true)
-SOURCES = $$files(*.hpp, true)
+HEADERS += $$files(*.hpp, true)
 SOURCES += $$files(*.cpp, true)
 
 DISTFILES += \
