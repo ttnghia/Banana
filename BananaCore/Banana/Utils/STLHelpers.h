@@ -71,108 +71,6 @@ struct VecHash
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Sorted
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline bool contain(const Vector<T>& vec, T item)
-{
-    return std::binary_search(vec.begin(), vec.end(), item);
-}
-
-template<class T, class IndexType>
-inline bool contain(const Vector<T>& vec, T item, IndexType& itemIndex)
-{
-    auto it = std::lower_bound(vec.begin(), vec.end(), item);
-    itemIndex = static_cast<IndexType>(std::distance(vec.begin(), it));
-
-    return (it != vec.end() && item == *it);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<typename T>
-inline void insertSorted(Vector<T>& vec, const T& item, typename Vector<T>::iterator& it)
-{
-    it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
-}
-
-template<typename T>
-inline auto insertSorted(Vector<T>& vec, const T& item)
-{
-    auto it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
-    return std::distance(vec.begin(), it);
-}
-
-template<typename T1, typename T2>
-inline void insertPairSorted(Vector<T1>& vec1, const T1& item1, Vector<T2>& vec2, const T2& item2)
-{
-    auto k = STLHelpers::Sorted::insertSorted(vec1, item1);
-    vec2.insert(vec2.begin() + k, item2);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<typename T>
-inline bool eraseIfExist(Vector<T>& vec, const T& item)
-{
-    auto it = std::lower_bound(vec.begin(), vec.end(), item);
-
-    if(it != vec.end() && item == *it) {   // has item
-        vec.erase(it);
-        return true;
-    }
-
-    return false;
-}
-
-template<typename T>
-inline bool eraseIfExist(Vector<T>& vec, const T& item, size_t& itemIndex)
-{
-    auto it = std::lower_bound(vec.begin(), vec.end(), item);
-    itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
-
-    if(it != vec.end() && item == *it) {   // has item
-        vec.erase(it);
-        return true;
-    }
-
-    return false;
-}
-
-template<class T>
-inline bool eraseUnorderedIfExist(Vector<T>& vec, const T& item)
-{
-    size_t k = 0;
-
-    if(STLHelpers::Sorted::contain(vec, item, k)) {
-        STLHelpers::eraseUnordered(vec, k);
-        return true;
-    }
-
-    return false;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement)
-{
-    size_t k = 0;
-
-    if(STLHelpers::Sorted::contain(vec, oldElement, k)) {
-        vec[k] = newElement;
-        return true;
-    }
-
-    return false;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}       // end namespace Sorted
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 template<class T>
 T maxAbs(const Vector<T>& vec)
 {
@@ -378,6 +276,109 @@ inline void trim(String& s)
     ltrim(s);
     rtrim(s);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Sorted
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+inline bool contain(const Vector<T>& vec, T item)
+{
+    return std::binary_search(vec.begin(), vec.end(), item);
+}
+
+template<class T, class IndexType>
+inline bool contain(const Vector<T>& vec, T item, IndexType& itemIndex)
+{
+    auto it = std::lower_bound(vec.begin(), vec.end(), item);
+    itemIndex = static_cast<IndexType>(std::distance(vec.begin(), it));
+
+    return (it != vec.end() && item == *it);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<typename T>
+inline void insertSorted(Vector<T>& vec, const T& item, typename Vector<T>::iterator& it)
+{
+    it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
+}
+
+template<typename T>
+inline auto insertSorted(Vector<T>& vec, const T& item)
+{
+    auto it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
+    return std::distance(vec.begin(), it);
+}
+
+template<typename T1, typename T2>
+inline void insertPairSorted(Vector<T1>& vec1, const T1& item1, Vector<T2>& vec2, const T2& item2)
+{
+    auto k = STLHelpers::Sorted::insertSorted(vec1, item1);
+    vec2.insert(vec2.begin() + k, item2);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<typename T>
+inline bool eraseIfExist(Vector<T>& vec, const T& item)
+{
+    auto it = std::lower_bound(vec.begin(), vec.end(), item);
+
+    if(it != vec.end() && item == *it) {   // has item
+        vec.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+template<typename T>
+inline bool eraseIfExist(Vector<T>& vec, const T& item, size_t& itemIndex)
+{
+    auto it = std::lower_bound(vec.begin(), vec.end(), item);
+    itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
+
+    if(it != vec.end() && item == *it) {   // has item
+        vec.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+template<class T>
+inline bool eraseUnorderedIfExist(Vector<T>& vec, const T& item)
+{
+    size_t k = 0;
+
+    if(STLHelpers::Sorted::contain(vec, item, k)) {
+        STLHelpers::eraseUnordered(vec, k);
+        return true;
+    }
+
+    return false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement)
+{
+    size_t k = 0;
+
+    if(STLHelpers::Sorted::contain(vec, oldElement, k)) {
+        vec[k] = newElement;
+        return true;
+    }
+
+    return false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}       // end namespace Sorted
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace STLHelpers
