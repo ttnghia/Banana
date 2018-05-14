@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <Banana/Grid/Grid.h>
 #include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
 #include <SimulationObjects/SimulationObject.h>
@@ -41,8 +42,12 @@ inline auto postProcessFunc = []() {};
 template<Int N, class RealType>
 class ParticleGenerator : public SimulationObject<N, RealType>
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    __BNN_TYPE_ALIASING
+    ////////////////////////////////////////////////////////////////////////////////
 public:
-    ParticleGenerator()                                    = delete;
+    ParticleGenerator() = delete;
     ParticleGenerator(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
 
     ////////////////////////////////////////////////////////////////////////////////

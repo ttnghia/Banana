@@ -32,6 +32,10 @@ namespace Banana::SimulationObjects
 template<Int N, class RealType>
 class ParticleRemover : public SimulationObject<N, RealType>
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // type aliasing
+    __BNN_TYPE_ALIASING
+    ////////////////////////////////////////////////////////////////////////////////
 public:
     ParticleRemover() = delete;
     ParticleRemover(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
@@ -40,8 +44,8 @@ public:
     auto& startFrame() { return m_StartFrame; }
     auto& maxFrame() { return m_MaxFrame; }
     auto& activeFrames() { return m_ActiveFrames; }
-    bool  isActive(UInt currentFrame);
-    void  findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecN& positions);
+    bool isActive(UInt currentFrame);
+    void findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecN& positions);
     bool  removingFinished(UInt currentFrame) { return currentFrame < m_StartFrame || currentFrame >= m_MaxFrame; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams) override;

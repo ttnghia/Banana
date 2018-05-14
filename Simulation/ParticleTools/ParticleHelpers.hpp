@@ -190,8 +190,8 @@ void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, cons
                             {
                                 VecX<N, RealType> vec;
                                 for(int j = 0; j < N; ++j) {
-                                    vec[j] = static_cast<VecX<N, RealType>::value_type>(compressedData[i * N + j]) * diff[j] /
-                                             static_cast<VecX<N, RealType>::value_type>(std::numeric_limits<UInt16>::max()) + dMin[j];
+                                    vec[j] = static_cast<typename VecX<N, RealType>::value_type>(compressedData[i * N + j]) * diff[j] /
+                                             static_cast<typename VecX<N, RealType>::value_type>(std::numeric_limits<UInt16>::max()) + dMin[j];
                                 }
                                 dvec[i] = vec;
                             });
@@ -220,7 +220,7 @@ void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nPar
 
     segmentSize = nParticles * N * sizeof(UInt16);
     __BNN_REQUIRE(segmentStart + segmentSize == buffer.size());
-    Vec_UInt16 compressedData(nParticles * N);
+    Vec_UInt16 compressedData(nParticles* N);
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
     VecX<N, RealType> dMin, dMax;
@@ -247,8 +247,8 @@ void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax,
                                 RealType* mdata = glm::value_ptr(mat);
 
                                 for(int j = 0; j < NN; ++j) {
-                                    mdata[j] = static_cast<VecX<N, RealType>::value_type>(compressedData[i * NN + j]) * diff /
-                                               static_cast<VecX<N, RealType>::value_type>(std::numeric_limits<UInt16>::max()) + dMin;
+                                    mdata[j] = static_cast<typename VecX<N, RealType>::value_type>(compressedData[i * NN + j]) * diff /
+                                               static_cast<typename VecX<N, RealType>::value_type>(std::numeric_limits<UInt16>::max()) + dMin;
                                 }
                                 dvec[i] = mat;
                             });
@@ -276,7 +276,7 @@ void decompress(Vector<MatXxX<N, RealType>>& dvec, const DataBuffer& buffer, UIn
 
     segmentSize = nParticles * N * N * sizeof(UInt16);
     __BNN_REQUIRE(segmentStart + segmentSize == buffer.size());
-    Vec_UInt16 compressedData(nParticles * N * N);
+    Vec_UInt16 compressedData(nParticles* N* N);
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
     RealType dMin = static_cast<RealType>(dMinf);

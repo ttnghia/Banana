@@ -48,7 +48,7 @@ void PoissonDiskSampler::sampleMesh(const UInt numVertices, const Vec3r* vertice
     m_cellSize = m_r / sqrt(3.0);
 
     // Init sampling
-    m_maxArea = Tiny<RealType>();
+    m_maxArea = Tiny<Real>();
     determineMinX(numVertices, vertices);
 
     determineTriangleAreas(numVertices, vertices, numFaces, faces);
@@ -73,8 +73,7 @@ void PoissonDiskSampler::sampleMesh(const UInt numVertices, const Vec3r* vertice
     const Real factor = 1.0 / m_cellSize;
 
         #pragma omp parallel for schedule(static)
-    for(Int i = 0; i < (Int)m_initialInfoVec.size(); i++)
-    {
+    for(Int i = 0; i < (Int)m_initialInfoVec.size(); i++) {
         const Vec3r& v        = m_initialInfoVec[i].pos;
         const Int    cellPos1 = PoissonDiskSampler::floor((v[0] - m_minVec[0]) * factor) + 1;
         const Int    cellPos2 = PoissonDiskSampler::floor((v[1] - m_minVec[1]) * factor) + 1;
@@ -90,8 +89,7 @@ void PoissonDiskSampler::sampleMesh(const UInt numVertices, const Vec3r* vertice
 
     // release data
     m_initialInfoVec.clear();
-    for(Int i = 0; i < m_phaseGroups.size(); i++)
-    {
+    for(Int i = 0; i < m_phaseGroups.size(); i++) {
         m_phaseGroups[i].clear();
     }
     m_phaseGroups.clear();
@@ -102,14 +100,13 @@ void PoissonDiskSampler::determineTriangleAreas(const UInt numVertices, const Ve
 {
     m_areas.resize(numFaces);
     Real totalArea  = 0.0;
-    Real tmpMaxArea = Tiny<RealType>();
+    Real tmpMaxArea = Tiny<Real>();
 
         #pragma omp parallel default(shared)
     {
         // Compute area of each triangle
                 #pragma omp for reduction(+:totalArea) schedule(static)
-        for(Int i = 0; i < (Int)numFaces; i++)
-        {
+        for(Int i = 0; i < (Int)numFaces; i++) {
             const Vec3r& a = vertices[faces[3 * i]];
             const Vec3r& b = vertices[faces[3 * i + 1]];
             const Vec3r& c = vertices[faces[3 * i + 2]];
@@ -136,8 +133,7 @@ void PoissonDiskSampler::generateInitialPointSet(const UInt numVertices, const V
     {
         // Generating the surface points
                 #pragma omp for schedule(static)
-        for(Int i = 0; i < (Int)m_initialInfoVec.size(); i++)
-        {
+        for(Int i = 0; i < (Int)m_initialInfoVec.size(); i++) {
             // Drawing random barycentric coordinates
             Real rn1 = sqrt(m_uniform_distribution1(m_generator));
             Real bc1 = 1.0 - rn1;
@@ -176,11 +172,11 @@ UInt PoissonDiskSampler::getAreaIndex(const Vector<Real>& areas, const Real tota
     // Stochastic acceptance version O(1)
     bool notaccepted = true;
     UInt index;
-    while(notaccepted)
-    {
+    while(notaccepted) {
         index = (Int)((Real)areas.size() * m_uniform_distribution1(m_generator));
-        if(m_uniform_distribution1(m_generator) < areas[index] / m_maxArea)
+        if(m_uniform_distribution1(m_generator) < areas[index] / m_maxArea) {
             notaccepted = false;
+        }
     }
     return index;
 }
@@ -204,11 +200,9 @@ void PoissonDiskSampler::parallelUniformSurfaceSampling(Vector<Vec3r>& samples)
         m_phaseGroups[index].push_back(cell);
     }
 
-    for(Int i = 1; i < (Int)m_initialInfoVec.size(); i++)
-    {
+    for(Int i = 1; i < (Int)m_initialInfoVec.size(); i++) {
         const Vec3i& cell = m_initialInfoVec[i].cP;
-        if(cell != m_initialInfoVec[i - 1].cP)
-        {
+        if(cell != m_initialInfoVec[i - 1].cP) {
             HashEntry& entry = hMap[cell];
             entry.startIndex = i;
             entry.samples.reserve(5);
@@ -217,31 +211,24 @@ void PoissonDiskSampler::parallelUniformSurfaceSampling(Vector<Vec3r>& samples)
         }
     }
     // Loop over number of tries to find a sample in a cell
-    for(Int k = 0; k < (Int)m_numTrials; k++)
-    {
+    for(Int k = 0; k < (Int)m_numTrials; k++) {
         // Loop over the 27 cell groups
-        for(Int pg = 0; pg < m_phaseGroups.size(); pg++)
-        {
+        for(Int pg = 0; pg < m_phaseGroups.size(); pg++) {
             const Vector<Vec3i>& cells = m_phaseGroups[pg];
             // Loop over the cells in each cell group
                         #pragma omp parallel for schedule(static)
-            for(Int i = 0; i < (Int)cells.size(); i++)
-            {
+            for(Int i = 0; i < (Int)cells.size(); i++) {
                 const auto entryIt = hMap.find(cells[i]);
                 // Check if cell exists
-                if(entryIt != hMap.end())
-                {
+                if(entryIt != hMap.end()) {
                     // Check if max Index is not exceeded
                     HashEntry& entry = entryIt->second;
-                    if(entry.startIndex + k < m_initialInfoVec.size())
-                    {
-                        if(m_initialInfoVec[entry.startIndex].cP == m_initialInfoVec[entry.startIndex + k].cP)
-                        {
+                    if(entry.startIndex + k < m_initialInfoVec.size()) {
+                        if(m_initialInfoVec[entry.startIndex].cP == m_initialInfoVec[entry.startIndex + k].cP) {
                             // choose kth point from cell
                             const InitialPointInfo& test = m_initialInfoVec[entry.startIndex + k];
                             // Assign sample
-                            if(!nbhConflict(hMap, test))
-                            {
+                            if(!nbhConflict(hMap, test)) {
                                 const Int index = entry.startIndex + k;
                                                                 #pragma omp critical
                                 {
@@ -263,36 +250,33 @@ bool PoissonDiskSampler::nbhConflict(const std::unordered_map<Vec3i, HashEntry, 
     Vec3i nbPos = iPI.cP;
 
     // check neighboring cells inside to outside
-    if(checkCell(hMap, nbPos, iPI))
+    if(checkCell(hMap, nbPos, iPI)) {
         return true;
-    for(Int level = 1; level < 3; level++)
-    {
-        for(Int ud = -level; ud < level + 1; ud += 2 * level)
-        {
-            for(Int i = -level + 1; i < level; i++)
-            {
-                for(Int j = -level + 1; j < level; j++)
-                {
+    }
+    for(Int level = 1; level < 3; level++) {
+        for(Int ud = -level; ud < level + 1; ud += 2 * level) {
+            for(Int i = -level + 1; i < level; i++) {
+                for(Int j = -level + 1; j < level; j++) {
                     nbPos = Vec3i(i, ud, j) + iPI.cP;
-                    if(checkCell(hMap, nbPos, iPI))
+                    if(checkCell(hMap, nbPos, iPI)) {
                         return true;
+                    }
                 }
             }
 
-            for(Int i = -level; i < level + 1; i++)
-            {
-                for(Int j = -level + 1; j < level; j++)
-                {
+            for(Int i = -level; i < level + 1; i++) {
+                for(Int j = -level + 1; j < level; j++) {
                     nbPos = Vec3i(j, i, ud) + iPI.cP;
-                    if(checkCell(hMap, nbPos, iPI))
+                    if(checkCell(hMap, nbPos, iPI)) {
                         return true;
+                    }
                 }
 
-                for(Int j = -level; j < level + 1; j++)
-                {
+                for(Int j = -level; j < level + 1; j++) {
                     nbPos = Vec3i(ud, i, j) + iPI.cP;
-                    if(checkCell(hMap, nbPos, iPI))
+                    if(checkCell(hMap, nbPos, iPI)) {
                         return true;
+                    }
                 }
             }
         }
@@ -304,36 +288,31 @@ bool PoissonDiskSampler::nbhConflict(const std::unordered_map<Vec3i, HashEntry, 
 bool PoissonDiskSampler::checkCell(const std::unordered_map<Vec3i, HashEntry, CellPosHasher>& hMap, const Vec3i& cell, const InitialPointInfo& iPI)
 {
     const auto nbEntryIt = hMap.find(cell);
-    if(nbEntryIt != hMap.end())
-    {
+    if(nbEntryIt != hMap.end()) {
         const HashEntry& nbEntry = nbEntryIt->second;
-        for(UInt i = 0; i < nbEntry.samples.size(); i++)
-        {
+        for(UInt i = 0; i < nbEntry.samples.size(); i++) {
             const InitialPointInfo& info = m_initialInfoVec[nbEntry.samples[i]];
             Real                    dist;
-            if(m_distanceNorm == 0 || iPI.ID == info.ID)
-            {
+            if(m_distanceNorm == 0 || iPI.ID == info.ID) {
                 dist = glm::length(iPI.pos - info.pos);
-            }
-            else if(m_distanceNorm == 1)
-            {
+            } else if(m_distanceNorm == 1) {
                 Vec3r v  = glm::normalize(info.pos - iPI.pos);
                 Real  c1 = glm::dot(m_faceNormals[iPI.ID], v);
                 Real  c2 = glm::dot(m_faceNormals[info.ID], v);
 
                 dist = glm::length(iPI.pos - info.pos);
-                if(fabs(c1 - c2) > 0.00001f)
+                if(fabs(c1 - c2) > 0.00001f) {
                     dist *= (asin(c1) - asin(c2)) / (c1 - c2);
-                else
+                } else {
                     dist /= (sqrt(1.0 - c1 * c1));
-            }
-            else
-            {
+                }
+            } else {
                 return true;
             }
 
-            if(dist < m_r)
+            if(dist < m_r) {
                 return true;
+            }
         }
     }
     return false;
@@ -344,8 +323,7 @@ void PoissonDiskSampler::determineMinX(const UInt numVertices, const Vec3r* vert
 {
     m_minVec = Vec3r(Huge<Real>());
 
-    for(Int i = 0; i < (Int)numVertices; i++)
-    {
+    for(Int i = 0; i < (Int)numVertices; i++) {
         const Vec3r& v = vertices[i];
         m_minVec[0] = std::min(m_minVec[0], v[0]);
         m_minVec[1] = std::min(m_minVec[1], v[1]);
@@ -356,10 +334,9 @@ void PoissonDiskSampler::determineMinX(const UInt numVertices, const Vec3r* vert
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PoissonDiskSampler::quickSort(Int left, Int right)
 {
-    if(left < right)
-    {
+    if(left < right) {
         Int index = partition(left, right);
-        quickSort(left, index - 1);
+        quickSort(left,  index - 1);
         quickSort(index, right);
     }
 }
@@ -374,16 +351,16 @@ Int PoissonDiskSampler::partition(Int left, Int right)
     InitialPointInfo tmpInfo;
     Vec3i            pivot = m_initialInfoVec[left + (right - left) / 2].cP;
 
-    while(i <= j)
-    {
-        while(compareCellID(m_initialInfoVec[i].cP, pivot))
+    while(i <= j) {
+        while(compareCellID(m_initialInfoVec[i].cP, pivot)) {
             i++;
+        }
 
-        while(compareCellID(pivot, m_initialInfoVec[j].cP))
+        while(compareCellID(pivot, m_initialInfoVec[j].cP)) {
             j--;
+        }
 
-        if(i <= j)
-        {
+        if(i <= j) {
             tmpInfo             = m_initialInfoVec[i];
             m_initialInfoVec[i] = m_initialInfoVec[j];
             m_initialInfoVec[j] = tmpInfo;
@@ -397,10 +374,9 @@ Int PoissonDiskSampler::partition(Int left, Int right)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool PoissonDiskSampler::compareCellID(Vec3i& a, Vec3i& b)
 {
-    for(UInt i = 0; i < 3; i++)
-    {
-        if(a[i] < b[i]) return true;
-        if(a[i] > b[i]) return false;
+    for(UInt i = 0; i < 3; i++) {
+        if(a[i] < b[i]) { return true; }
+        if(a[i] > b[i]) { return false; }
     }
 
     return false;
@@ -414,8 +390,7 @@ void PoissonDiskSampler::computeFaceNormals(const UInt numVertices, const Vec3r*
         #pragma omp parallel default(shared)
     {
                 #pragma omp for schedule(static)
-        for(Int i = 0; i < (Int)numFaces; i++)
-        {
+        for(Int i = 0; i < (Int)numFaces; i++) {
             // Get first three points of face
             const Vec3r& a = vertices[faces[3 * i]];
             const Vec3r& b = vertices[faces[3 * i + 1]];
