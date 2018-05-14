@@ -32,8 +32,8 @@
 #include <future>
 
 #ifdef __BANANA_WINDOWS__
-#include <filesystem>
-#include <windows.h>
+#  include <windows.h>
+#  include <filesystem>
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,7 +60,16 @@ inline void createFolder(const String& folderName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool fileExisted(const char* fileName)
 {
+#ifdef __BANANA_WINDOWS__
     return std::experimental::filesystem::exists(fileName);
+#else
+    if(FILE* file = fopen(fileName, "r")) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }
+#endif
 }
 
 inline bool fileExisted(const String& fileName)
@@ -142,7 +151,7 @@ inline Vec_String getFolderSizeInfo(const char* folderName, int level = 0)
         pclose(stream);
     }
 
-    return output;
+    return { output };
 #endif
 }
 
@@ -200,8 +209,8 @@ inline void copyFile(const char* srcFile, const char* dstFile)
     fopen_s(&src, srcFile, "r");
     fopen_s(&dst, dstFile, "w");
 #else
-    src = fopen(srcName, "r");
-    dst = fopen(dstName, "w");
+    dst = fopen(dstFile, "w");
+    src = fopen(srcFile, "r");
 #endif
     if(src == nullptr || dst == nullptr) {
         if(src != nullptr) { fclose(src); }
