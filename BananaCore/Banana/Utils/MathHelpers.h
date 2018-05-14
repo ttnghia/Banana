@@ -589,7 +589,7 @@ inline Vector vrand()
 {
     Vector tmp;
     for(Int i = 0; i < tmp.length(); ++i) {
-        tmp[i] = frand<Vector::value_type>();
+        tmp[i] = frand<typename Vector::value_type>();
     }
     return tmp;
 }
@@ -758,7 +758,7 @@ inline void quadratic_bspline_weights(T f, T& w0, T& w1, T& w2)
 template<class T>
 inline void cubic_interp_weights(T f, T& wneg1, T& w0, T& w1, T& w2)
 {
-    T f2(f * f), f3(f2 * f);
+    T f2(f* f), f3(f2 * f);
     wneg1 = -T(1.0 / 3.0) * f + T(1.0 / 2.0) * f2 - T(1.0 / 6.0) * f3;
     w0    = T(1.0) - f2 + T(1.0 / 2.0) * (f3 - f);
     w1    = f + T(1.0 / 2.0) * (f2 - f3);
