@@ -90,7 +90,11 @@ void OBJLoader::computeNormals(bool clockwise)
 bool OBJLoader::loadFromFileObj(const char* filename)
 {
     FILE* fp = 0;
+#ifdef __BANANA_WINDOWS__
     fopen_s(&fp, filename, "r");
+#else
+    fp = fopen(filename, "r");
+#endif
 
     if(!fp) {
         printf("Could not open obj file: %s\n", filename);

@@ -96,7 +96,7 @@ private:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BandMatrix<RealType >::resize(Int dim, Int n_u, Int n_l)
+void BandMatrix<RealType>::resize(Int dim, Int n_u, Int n_l)
 {
     assert(dim > 0);
     assert(n_u >= 0);
@@ -115,7 +115,7 @@ void BandMatrix<RealType >::resize(Int dim, Int n_u, Int n_l)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType& BandMatrix<RealType >::operator()(Int i, Int j)
+RealType& BandMatrix<RealType>::operator()(Int i, Int j)
 {
     Int k = j - i;               // what band is the entry
     assert((i >= 0) && (i < dim()) && (j >= 0) && (j < dim()));
@@ -129,7 +129,7 @@ RealType& BandMatrix<RealType >::operator()(Int i, Int j)
 }
 
 template<class RealType>
-RealType BandMatrix<RealType >::operator()(Int i, Int j) const
+RealType BandMatrix<RealType>::operator()(Int i, Int j) const
 {
     Int k = j - i;               // what band is the entry
     assert((i >= 0) && (i < dim()) && (j >= 0) && (j < dim()));
@@ -145,14 +145,14 @@ RealType BandMatrix<RealType >::operator()(Int i, Int j) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // second diag (used in LU decomposition), saved in m_lower
 template<class RealType>
-RealType BandMatrix<RealType >::saved_diag(Int i) const
+RealType BandMatrix<RealType>::saved_diag(Int i) const
 {
     assert((i >= 0) && (i < dim()));
     return m_Lower[0][i];
 }
 
 template<class RealType>
-RealType& BandMatrix<RealType >::saved_diag(Int i)
+RealType& BandMatrix<RealType>::saved_diag(Int i)
 {
     assert((i >= 0) && (i < dim()));
     return m_Lower[0][i];
@@ -161,7 +161,7 @@ RealType& BandMatrix<RealType >::saved_diag(Int i)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // LR-Decomposition of a band matrix
 template<class RealType>
-void BandMatrix<RealType >::lu_decompose()
+void BandMatrix<RealType>::lu_decompose()
 {
     Int      i_max, j_max;
     Int      j_min;
@@ -199,7 +199,7 @@ void BandMatrix<RealType >::lu_decompose()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // solves Ly=b
 template<class RealType>
-Vector<RealType> BandMatrix<RealType >::l_solve(const Vector<RealType>& b) const
+Vector<RealType> BandMatrix<RealType>::l_solve(const Vector<RealType>& b) const
 {
     assert(dim() == (Int)b.size());
     Vector<RealType> x(dim());
@@ -219,7 +219,7 @@ Vector<RealType> BandMatrix<RealType >::l_solve(const Vector<RealType>& b) const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // solves Rx=y
 template<class RealType>
-Vector<RealType> BandMatrix<RealType >::r_solve(const Vector<RealType>& b) const
+Vector<RealType> BandMatrix<RealType>::r_solve(const Vector<RealType>& b) const
 {
     assert(dim() == (Int)b.size());
     Vector<RealType> x(dim());
@@ -238,7 +238,7 @@ Vector<RealType> BandMatrix<RealType >::r_solve(const Vector<RealType>& b) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-Vector<RealType> BandMatrix<RealType >::lu_solve(const Vector<RealType>& b, bool is_lu_decomposed)
+Vector<RealType> BandMatrix<RealType>::lu_solve(const Vector<RealType>& b, bool is_lu_decomposed)
 {
     assert(dim() == (Int)b.size());
     Vector<RealType> x, y;
@@ -252,7 +252,7 @@ Vector<RealType> BandMatrix<RealType >::lu_solve(const Vector<RealType>& b, bool
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void CubicSpline<RealType >::setBoundary(BDType left, RealType leftValue, BDType right, RealType rightValue, bool bLinearExtrapolation /*= false*/)
+void CubicSpline<RealType>::setBoundary(BDType left, RealType leftValue, BDType right, RealType rightValue, bool bLinearExtrapolation /*= false*/)
 {
     assert(m_X.size() == 0);                  // setPoints() must not have happened yet
     m_Left                 = left;
@@ -264,7 +264,7 @@ void CubicSpline<RealType >::setBoundary(BDType left, RealType leftValue, BDType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<RealType>& Y, bool bCubicSpline /*= true*/)
+void CubicSpline<RealType>::setPoints(const Vector<RealType>& X, const Vector<RealType>& Y, bool bCubicSpline /*= true*/)
 {
     assert(X.size() == Y.size());
     assert(X.size() > 2);
@@ -357,13 +357,12 @@ void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<R
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType CubicSpline<RealType >::operator()(RealType x) const
+RealType CubicSpline<RealType>::operator()(RealType x) const
 {
     size_t n = m_X.size();
     // find the closest poInt m_X[idx] < x, idx=0 even if x<m_X[0]
-    Vector<RealType>::const_iterator it;
-    it = std::lower_bound(m_X.begin(), m_X.end(), x);
-    Int idx = MathHelpers::max(Int(it - m_X.begin()) - 1, 0);
+    auto it  = std::lower_bound(m_X.begin(), m_X.end(), x);
+    Int  idx = MathHelpers::max(Int(it - m_X.begin()) - 1, 0);
 
     RealType h = x - m_X[idx];
     RealType Interpol;
@@ -382,15 +381,14 @@ RealType CubicSpline<RealType >::operator()(RealType x) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType CubicSpline<RealType >::deriv(Int order, RealType x) const
+RealType CubicSpline<RealType>::deriv(Int order, RealType x) const
 {
     assert(order > 0);
 
     size_t n = m_X.size();
     // find the closest poInt m_X[idx] < x, idx=0 even if x<m_X[0]
-    Vector<RealType>::const_iterator it;
-    it = std::lower_bound(m_X.begin(), m_X.end(), x);
-    Int idx = MathHelpers::max(Int(it - m_X.begin()) - 1, 0);
+    auto it  = std::lower_bound(m_X.begin(), m_X.end(), x);
+    Int  idx = MathHelpers::max(Int(it - m_X.begin()) - 1, 0);
 
     RealType h = x - m_X[idx];
     RealType Interpol;

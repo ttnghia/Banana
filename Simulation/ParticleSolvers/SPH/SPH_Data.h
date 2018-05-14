@@ -86,6 +86,10 @@ struct WCSPH_Data : SimulationData<N, RealType>
 {
     struct ParticleData : ParticleSimulationData<N, RealType>
     {
+        ////////////////////////////////////////////////////////////////////////////////
+        // type aliasing
+        __BNN_TYPE_ALIASING
+        ////////////////////////////////////////////////////////////////////////////////
         Vec_RealType                 densities;
         Vec_RealType                 tmp_densities;
         Vec_VecN                     accelerations;

@@ -64,7 +64,6 @@ protected:
 
 public:
 
-
     Vec3f& getVertex(int i)
     {
         return vertices[i];     //< returns the i^th vertex
@@ -281,12 +280,12 @@ private:
                v[f[i].vertices[2]] * bc[2];
     }
 
-    static int  readLine(FILE* fp, int size, char* buffer);
+    static int readLine(FILE* fp, int size, char* buffer);
     static void readVertex(const char* buffer, Vec3f& v)
     {
         static float x, y, z;
         //        sscanf( buffer + 2, "%f %f %f", &v[0], &v[1], &v[2] );
-        sscanf_s(buffer + 2, "%f %f %f", &x, &y, &z);
+        __BNN_SSCAN(buffer + 2, "%f %f %f", &x, &y, &z);
         v[0] = (Real)x;
         v[1] = (Real)y;
         v[2] = (Real)z;

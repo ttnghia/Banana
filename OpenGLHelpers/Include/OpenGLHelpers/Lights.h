@@ -28,7 +28,11 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define MAX_NUM_LIGHTS 8
+#ifdef __BANANA_WINDOWS__
+#  define MAX_NUM_LIGHTS 8
+#else
+#  define MAX_NUM_LIGHTS 2
+#endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Lights : public OpenGLCallable
@@ -105,7 +109,7 @@ public:
     virtual const Vec4f& getLightDiffuse(int lightID  = 0) const override { assert(lightID < m_NumActiveLights); return m_Lights[lightID].diffuse; }
     virtual const Vec4f& getLightSpecular(int lightID = 0) const override { assert(lightID < m_NumActiveLights); return m_Lights[lightID].specular; }
 
-    virtual void   uploadDataToGPU() override;
+    virtual void uploadDataToGPU() override;
     virtual size_t getLightSize() const override { return 4 * sizeof(Vec4f); }
 
     // shadow map helpers
@@ -136,7 +140,7 @@ public:
     };
 
     virtual void setLight(const PointLightData& lightData, int lightID = 0) { assert(lightID < m_NumActiveLights); m_Lights[lightID] = lightData; }
-    const auto&  getLight(int lightID) const { assert(lightID < m_NumActiveLights); return m_Lights[lightID]; }
+    const auto& getLight(int lightID) const { assert(lightID < m_NumActiveLights); return m_Lights[lightID]; }
 
     void        setLightPosition(const Vec4f& position, int lightID = 0) { assert(lightID < m_NumActiveLights); m_Lights[lightID].position = position; }
     const auto& getLightPosition(int lightID = 0) const { assert(lightID < m_NumActiveLights); return m_Lights[lightID].position; }
@@ -149,7 +153,7 @@ public:
     virtual const Vec4f& getLightDiffuse(int lightID  = 0) const override { assert(lightID < m_NumActiveLights); return m_Lights[lightID].diffuse; }
     virtual const Vec4f& getLightSpecular(int lightID = 0) const override { assert(lightID < m_NumActiveLights); return m_Lights[lightID].specular; }
 
-    virtual void   uploadDataToGPU() override;
+    virtual void uploadDataToGPU() override;
     virtual size_t getLightSize() const override { return 4 * sizeof(Vec4f); }
 
     // shadow map helpers
@@ -199,7 +203,7 @@ public:
     virtual const Vec4f& getLightDiffuse(int lightID  = 0) const override { assert(lightID < m_NumActiveLights); return m_Lights[lightID].diffuse; }
     virtual const Vec4f& getLightSpecular(int lightID = 0) const override { assert(lightID < m_NumActiveLights); return m_Lights[lightID].specular; }
 
-    virtual void   uploadDataToGPU() override;
+    virtual void uploadDataToGPU() override;
     virtual size_t getLightSize() const override { return 5 * sizeof(Vec4f) + 2 * sizeof(GLfloat); }
 
     // shadow map helpers

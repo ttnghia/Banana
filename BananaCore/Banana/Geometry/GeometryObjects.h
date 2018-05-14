@@ -50,7 +50,7 @@ public:
     GeometryObject() = default;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
 
-    virtual String   name()                                                              = 0;
+    virtual String   name() = 0;
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const = 0;
 
     Vec2<RealType> gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside = true, RealType dxy = RealType(1e-4)) const;
@@ -72,8 +72,8 @@ public:
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
 
     virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f));
-protected:
 
+protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool     m_bTransformed = false;
     RealType m_UniformScale = RealType(1.0);
@@ -426,7 +426,7 @@ public:
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
     void addObject(const CSGData& obj) { m_Objects.push_back(obj); }
-    void addObject(const SharedPtr<GeometryObject>& obj, CSGOperations op = Union) { addObject({ obj, op }); }
+    void addObject(const SharedPtr<GeometryObject<N, RealType>>& obj, CSGOperations op = Union) { addObject({ obj, op }); }
     void setDeformOp(DomainDeformation deformOp) { m_DeformOp = deformOp; }
 
 protected:

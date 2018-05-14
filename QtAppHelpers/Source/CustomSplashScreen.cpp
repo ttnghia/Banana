@@ -39,7 +39,7 @@ CustomSplashScreen::CustomSplashScreen(const QPixmap& pixmap)
     splashFont.setStretch(125);
     setFont(splashFont);
 
-    setMessageRect(QRect::QRect(500, 450, 550, 40), Qt::AlignCenter);
+    setMessageRect(QRect(500, 450, 550, 40), Qt::AlignCenter);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

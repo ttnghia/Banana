@@ -67,7 +67,7 @@ void printToFile(const String& fileName, const Vector<T>& array, const String& a
 }
 
 template<class T>
-void printToFile(const String& fileName, const Vector<Vector<T> >& array, const String& arrayName, size_t maxPrint = 0, int precision = 5)
+void printToFile(const String& fileName, const Vector<Vector<T>>& array, const String& arrayName, size_t maxPrint = 0, int precision = 5)
 {
     size_t numPrint = maxPrint > 0 ? maxPrint : array.size();
 
@@ -136,7 +136,7 @@ void printToFile(const String& fileName, const Array<2, T>& array, const String&
     std::stringstream ss;
 
     for(size_t j = 0; j < numPrint_d1; ++j) {
-        logger.printAligned(NumberHelpers::formatWithCommas(j) + ": ");
+        fileContent.push_back(NumberHelpers::formatWithCommas(j) + ": ");
 
         ss.str("");
         for(size_t i = 0; i < numPrint_d0 - 1; ++i) {
@@ -217,7 +217,7 @@ void printToFile(const String& fileName, const Array<3, T>& array, const String&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array<2, Vector<T> >& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
+void print(const Array<2, Vector<T>>& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
     size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
     size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d1 : array.size()[1];
@@ -251,13 +251,12 @@ void print(const Array<2, Vector<T> >& array, const String& arrayName, size_t ma
         }
     }
 
-
     logger.newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void printToFile(const String& fileName, const Array<2, Vector<T> >& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
+void printToFile(const String& fileName, const Array<2, Vector<T>>& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
     size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
     size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.size()[1];
@@ -290,13 +289,12 @@ void printToFile(const String& fileName, const Array<2, Vector<T> >& array, cons
         }
     }
 
-
     FileHelpers::writeFile(fileContent, fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array<3, Vector<T> >& array, const String& arrayName,
+void print(const Array<3, Vector<T>>& array, const String& arrayName,
            size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0,
            int precision = 5)
 {
@@ -340,7 +338,7 @@ void print(const Array<3, Vector<T> >& array, const String& arrayName,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void printToFile(const String& fileName, const Array<3, Vector<T> >& array, const String& arrayName,
+void printToFile(const String& fileName, const Array<3, Vector<T>>& array, const String& arrayName,
                  size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0,
                  int precision = 5)
 {
