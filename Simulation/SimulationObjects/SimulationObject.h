@@ -23,6 +23,8 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
+#include <Banana/Utils/JSONHelpers.h>
+#include <Banana/Geometry/GeometryObjectFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::SimulationObjects
@@ -61,7 +63,7 @@ public:
     auto& isDynamic() { return m_bDynamics; }
     auto& geometry() { return m_GeometryObj; }
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void     parseParameters(const JParams& jParams);
+    virtual void parseParameters(const JParams& jParams);
     virtual RealType signedDistance(const VecN& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
     virtual VecN     gradSignedDistance(const VecN& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
     virtual bool     isInside(const VecN& ppos) const { return m_GeometryObj->isInside(ppos, true); }
