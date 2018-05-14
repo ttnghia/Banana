@@ -66,8 +66,10 @@ inline void throwIfFailed(HRESULT hr)
 
 #ifdef __BANANA_WINDOWS__
 #   define __BNN_SPRINT sprintf_s
+#   define __BNN_SSCAN  sscanf_s
 #else
 #   define __BNN_SPRINT sprintf
+#   define __BNN_SSCAN  sscanf
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -113,6 +115,7 @@ inline void throwIfFailed(HRESULT hr)
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __BANANA_WINDOWS__
 #ifdef QT_CORE_LIB
 #  define __BNN_COMPILER_MESSAGE(msg) \
     __pragma(message("\033[38;5;214m+++>" msg "\033[0m"))
@@ -132,7 +135,29 @@ inline void throwIfFailed(HRESULT hr)
 #  define __BNN_TODO_MSG(msg) \
     __pragma(message("+++>TODO: " msg " => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") "))
 #endif
+#else // __BANANA_WINDOWS__
+#ifdef QT_CORE_LIB
+#  define PRAGMA_MESSAGE(x) _Pragma(#x)
+#  define __BNN_COMPILER_MESSAGE(msg) \
+    PRAGMA_MESSAGE(message "\033[38;5;214m+++>" msg "\033[0m")
 
+#  define __BNN_TODO \
+    PRAGMA_MESSAGE(message "\033[38;5;214m+++>TODO: => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") \033[0m")
+
+#  define __BNN_TODO_MSG(msg) \
+    PRAGMA_MESSAGE(message "\033[38;5;214m+++>TODO: " msg " => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") \033[0m")
+#else
+#  define __BNN_COMPILER_MESSAGE(msg) \
+    PRAGMA_MESSAGE(message "+++>" msg)
+
+#  define __BNN_TODO \
+    PRAGMA_MESSAGE(message "+++>TODO: => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") ")
+
+#  define __BNN_TODO_MSG(msg) \
+    PRAGMA_MESSAGE(message "+++>TODO: " msg " => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") ")
+#endif
+
+#endif
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_PRINT_LINE                        \
     {                                           \
