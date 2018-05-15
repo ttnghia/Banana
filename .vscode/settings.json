@@ -30,6 +30,7 @@
         "*.cuh": "cpp",
         "adolcforward": "cpp",
         "mprealsupport": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "memory": "cpp"
     }
 }
