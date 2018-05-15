@@ -454,6 +454,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
 template<class T>
 void svd(const Mat2x2<T>& A, const Mat2x2<T>& U, const Vec2<T>& Sigma, const Mat2x2<T>& V, T tol = T(64.0)* std::numeric_limits<T>::epsilon())
 {
+    (void)tol;
     GivensRotation<T> gv(0, 1);
     GivensRotation<T> gu(0, 1);
     svd(A, gu, Sigma, gv);

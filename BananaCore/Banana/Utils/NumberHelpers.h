@@ -205,7 +205,7 @@ inline String byteToHex(const char* arrBytes, size_t arrSize, Int width /*= 2*/)
 template<class T>
 inline String byteToHex(const Vector<T>& vecBytes, Int width /*= 2*/)
 {
-    return byteToHex((const char*)vecBytes.data(), vecBytes.size() * sizeof(T));
+    return byteToHex((const char*)vecBytes.data(), vecBytes.size() * sizeof(T), width);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

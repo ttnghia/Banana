@@ -217,7 +217,6 @@ inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement
 template<class T>
 inline size_t replaceAll(Vector<T>& vec, const T& oldElement, const T& newElement)
 {
-    size_t k           = 0;
     size_t numReplaced = 0;
 
     for(size_t i = 0; i < vec.size(); ++i) {
