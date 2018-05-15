@@ -1,9 +1,6 @@
 [submodule "Externals/spdlog"]
 	path = Externals/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "Externals/amgcl"]
-	path = Externals/amgcl
-	url = https://github.com/ddemidov/amgcl.git
 [submodule "Externals/yocto-gl"]
 	path = Externals/yocto-gl
 	url = https://github.com/xelatihy/yocto-gl.git
