@@ -37,7 +37,7 @@ class OpenGLController : public QWidget
     friend class OpenGLMainWindow;
 public:
     explicit OpenGLController(OpenGLWidget* renderWidget, QWidget* parent, Int width = 350,
-                              bool bShowBackgroundControllers = true, bool bShowFloorControllers = true, bool bShowBoxControllers = true) :
+                              bool bShowBackgroundControllers                        = true, bool bShowFloorControllers = true, bool bShowBoxControllers = true) :
         QWidget(parent), m_GLWidget(renderWidget),
         m_bShowBackgroundControllers(bShowBackgroundControllers), m_bShowFloorControllers(bShowFloorControllers), m_bShowBoxControllers(bShowBoxControllers)
     {
@@ -76,7 +76,6 @@ protected:
     QGroupBox*        m_grBackgroundCtrl           = new QGroupBox("Background");
     ////////////////////////////////////////////////////////////////////////////////
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // floor
     void setupFloorControllers();
@@ -94,7 +93,7 @@ protected:
     bool         m_bShowBoxControllers = true;
     QCheckBox*   m_chkRenderBox        = new QCheckBox("Render box");
     ColorPicker* m_pkrBoxColor         = new ColorPicker;
-    QGroupBox*   m_grBoxCtrl           = new QGroupBox("Box");
+    QGroupBox*   m_grBoxCtrl           = new QGroupBox("Domain Box");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

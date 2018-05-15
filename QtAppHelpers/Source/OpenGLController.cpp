@@ -255,16 +255,10 @@ void OpenGLController::setupBoxControllers()
     m_pkrBoxColor->setMinimumHeight(20);
     m_pkrBoxColor->setColor(WireFrameBoxRender::getDefaultBoxColor());
     connect(m_chkRenderBox, &QCheckBox::toggled, m_pkrBoxColor, &ColorPicker::setEnabled);
-    QHBoxLayout* layoutBox = new QHBoxLayout;
-    layoutBox->addWidget(new QLabel("Box color:"));
-    layoutBox->addWidget(m_pkrBoxColor);
     ////////////////////////////////////////////////////////////////////////////////
-    QVBoxLayout* layoutBoxCtrl = new QVBoxLayout;
+    QHBoxLayout* layoutBoxCtrl = new QHBoxLayout;
     layoutBoxCtrl->addWidget(m_chkRenderBox);
-    layoutBoxCtrl->addSpacing(5);
-    layoutBoxCtrl->addWidget(QtAppUtils::getLineSeparator());
-    layoutBoxCtrl->addSpacing(5);
-    layoutBoxCtrl->addLayout(layoutBox);
+    layoutBoxCtrl->addWidget(m_pkrBoxColor);
     m_grBoxCtrl->setLayout(layoutBoxCtrl);
     m_LayoutRenderControllers->addWidget(m_grBoxCtrl);
 }
