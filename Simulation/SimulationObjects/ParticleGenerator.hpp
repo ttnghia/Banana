@@ -19,7 +19,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool ParticleGenerator<N, RealType >::isActive(UInt currentFrame)
+bool ParticleGenerator<N, RealType>::isActive(UInt currentFrame)
 {
     if(m_ActiveFrames.size() > 0 &&
        m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
@@ -33,7 +33,7 @@ bool ParticleGenerator<N, RealType >::isActive(UInt currentFrame)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::parseParameters(const JParams& jParams)
+void ParticleGenerator<N, RealType>::parseParameters(const JParams& jParams)
 {
     JSONHelpers::readVector(jParams, v0(), "InitialVelocity");
     JSONHelpers::readValue(jParams, minDistanceRatio(),   "MinParticleDistanceRatio");
@@ -48,9 +48,9 @@ void ParticleGenerator<N, RealType >::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects)
+void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects)
 {
-    if(m_bObjReady) {
+    if(this->m_bObjReady) {
         return;
     }
     m_ParticleRadius = particleRadius;
@@ -59,16 +59,16 @@ void ParticleGenerator<N, RealType >::buildObject(RealType particleRadius, const
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particles from cache, if existed
-    if(m_bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
-        ParticleSerialization::loadParticle(m_MeshFile, m_ObjParticles, m_ParticleRadius);
-        m_bObjReady = true;
+    if(this->m_bUseCache && !this->m_ParticleFile.empty() && FileHelpers::fileExisted(this->m_ParticleFile)) {
+        ParticleSerialization::loadParticle(this->m_MeshFile, m_ObjParticles, m_ParticleRadius);
+        this->m_bObjReady = true;
         return;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     RealType spacing = RealType(2.0) * m_ParticleRadius;
-    auto     boxMin  = m_GeometryObj->getAABBMin();
-    auto     boxMax  = m_GeometryObj->getAABBMax();
+    auto     boxMin  = this->m_GeometryObj->getAABBMin();
+    auto     boxMax  = this->m_GeometryObj->getAABBMax();
     auto     pGrid   = NumberHelpers::createGrid<UInt>(boxMin, boxMax, spacing);
     m_Grid.setGrid(boxMin, boxMax, RealType(4.0) * m_ParticleRadius);
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
@@ -84,7 +84,7 @@ void ParticleGenerator<N, RealType >::buildObject(RealType particleRadius, const
                                 }
                             }
 
-                            if(m_GeometryObj->signedDistance(ppos) < 0) {
+                            if(this->m_GeometryObj->signedDistance(ppos) < 0) {
                                 m_ObjParticles.push_back(ppos);
                             }
                         });
@@ -97,12 +97,12 @@ void ParticleGenerator<N, RealType >::buildObject(RealType particleRadius, const
     //relaxPositions(positions, particleRadius);
     //generateVelocities(positions, velocities);
 
-    m_bObjReady = true;
+    this->m_bObjReady = true;
 
     ////////////////////////////////////////////////////////////////////////////////
     // save particles from cache, if needed
-    if(m_bUseCache && !m_ParticleFile.empty()) {
-        ParticleSerialization::saveParticle(m_MeshFile, m_ObjParticles, m_ParticleRadius);
+    if(this->m_bUseCache && !this->m_ParticleFile.empty()) {
+        ParticleSerialization::saveParticle(this->m_MeshFile, m_ObjParticles, m_ParticleRadius);
     }
 }
 
@@ -110,11 +110,11 @@ void ParticleGenerator<N, RealType >::buildObject(RealType particleRadius, const
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
          class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecN& currentPositions,
-                                                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
-                                                        UInt frame /*= 0u*/, VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
+UInt ParticleGenerator<N, RealType>::generateParticles(const Vec_VecN& currentPositions,
+                                                       const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+                                                       UInt frame /*= 0u*/, VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {
-    __BNN_REQUIRE(m_bObjReady);
+    __BNN_REQUIRE((this->m_bObjReady));
     if(!isActive(frame)) {
         return 0u;
     }
@@ -122,7 +122,7 @@ UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecN& currentP
     m_GeneratedPositions.resize(0);
     m_GeneratedVelocities.resize(0);
     collectNeighborParticles(currentPositions);
-    auto nGen = m_bFullShapeObj ?
+    auto nGen = this->m_bFullShapeObj ?
                 addFullShapeParticles(currentPositions, boundaryObjs, velGenerator) :
                 addParticles(currentPositions, boundaryObjs, velGenerator);
 
@@ -135,9 +135,9 @@ UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecN& currentP
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt ParticleGenerator<N, RealType >::addFullShapeParticles(const Vec_VecN& currentPositions,
-                                                            const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
-                                                            VelocityGenerator&& velGenerator)
+UInt ParticleGenerator<N, RealType>::addFullShapeParticles(const Vec_VecN& currentPositions,
+                                                           const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+                                                           VelocityGenerator&& velGenerator)
 {
     bool bEmptyRegion = true;
     if(currentPositions.size() > 0) {
@@ -175,9 +175,9 @@ UInt ParticleGenerator<N, RealType >::addFullShapeParticles(const Vec_VecN& curr
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecN& currentPositions,
-                                                   const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
-                                                   VelocityGenerator&& velGenerator)
+UInt ParticleGenerator<N, RealType>::addParticles(const Vec_VecN& currentPositions,
+                                                  const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+                                                  VelocityGenerator&& velGenerator)
 
 {
     m_GeneratedPositions.reserve(m_GeneratedPositions.size() + m_ObjParticles.size());
@@ -231,7 +231,7 @@ UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecN& currentPositi
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecN>& positions, RealType particleRadius)
+void ParticleGenerator<N, RealType>::relaxPositions(Vector<VecN>& positions, RealType particleRadius)
 {
     __BNN_UNUSED(positions);
     __BNN_UNUSED(particleRadius);
@@ -258,7 +258,7 @@ void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecN>& positions, Re
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::collectNeighborParticles(const Vec_VecN& positions)
+void ParticleGenerator<N, RealType>::collectNeighborParticles(const Vec_VecN& positions)
 {
     for(auto& cell : m_ParticleIdxInCell.data()) {
         cell.resize(0);

@@ -19,7 +19,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool ParticleRemover<N, RealType >::isActive(UInt currentFrame)
+bool ParticleRemover<N, RealType>::isActive(UInt currentFrame)
 {
     if(m_ActiveFrames.size() > 0 && m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
         return false;
@@ -30,9 +30,9 @@ bool ParticleRemover<N, RealType >::isActive(UInt currentFrame)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleRemover<N, RealType >::findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecN& positions)
+void ParticleRemover<N, RealType>::findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecN& positions)
 {
-    __BNN_REQUIRE(m_bObjReady);
+    __BNN_REQUIRE((this->m_bObjReady));
     removeMarker.resize(positions.size());
     Scheduler::parallel_for(removeMarker.size(),
                             [&](size_t p)
@@ -43,7 +43,7 @@ void ParticleRemover<N, RealType >::findRemovingCandidate(Vec_Int8& removeMarker
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleRemover<N, RealType >::parseParameters(const JParams& jParams)
+void ParticleRemover<N, RealType>::parseParameters(const JParams& jParams)
 {
     JSONHelpers::readValue(jParams, startFrame(), "StartFrame");
     JSONHelpers::readValue(jParams, maxFrame(),   "MaxFrame");

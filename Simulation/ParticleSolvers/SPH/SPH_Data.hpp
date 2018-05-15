@@ -34,10 +34,10 @@ void WCSPH_Parameters<N, RealType>::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters<N, RealType>::makeReady();
-    defaultParticleMass = RealType(pow(RealType(2.0) * particleRadius, N)) * materialDensity * particleMassScale;
-    restDensitySqr      = materialDensity * materialDensity;
-    densityMin          = materialDensity / densityVariationRatio;
-    densityMax          = materialDensity * densityVariationRatio;
+    defaultParticleMass = RealType(pow(RealType(2.0) * this->particleRadius, N)) * materialDensity * particleMassScale;
+    restDensitySqr      = this->materialDensity * this->materialDensity;
+    densityMin          = this->materialDensity / densityVariationRatio;
+    densityMax          = this->materialDensity * densityVariationRatio;
 
     kernelRadius    = particleRadius * ratioKernelPRadius;
     kernelRadiusSqr = kernelRadius * kernelRadius;
@@ -136,7 +136,7 @@ void WCSPH_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
+void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN &newPositions, const Vec_VecN &newVelocities, const JParams &jParams)
 {
     __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
@@ -157,7 +157,7 @@ void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPosi
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& removeMarker)
+UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8 &removeMarker)
 {
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;

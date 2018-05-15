@@ -19,16 +19,16 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecN& PDPositions,
-                                                             RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
+UInt BoundaryObject<N, RealType>::generateBoundaryParticles(Vec_VecN& PDPositions,
+                                                            RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
 {
     Vec_VecN tmpPositions;
-    if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
-        ParticleSerialization::loadParticle(m_ParticleFile, tmpPositions, particleRadius);
+    if(bUseCache && !this->m_ParticleFile.empty() && FileHelpers::fileExisted(this->m_ParticleFile)) {
+        ParticleSerialization::loadParticle(this->m_ParticleFile, tmpPositions, particleRadius);
     } else {
         generateBoundaryParticles_Impl(tmpPositions, particleRadius, numBDLayers);
-        if(bUseCache && !m_ParticleFile.empty()) {
-            ParticleSerialization::saveParticle(m_ParticleFile, tmpPositions, particleRadius);
+        if(bUseCache && !this->m_ParticleFile.empty()) {
+            ParticleSerialization::saveParticle(this->m_ParticleFile, tmpPositions, particleRadius);
         }
     }
 
@@ -38,7 +38,7 @@ UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecN& PDPositio
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos)
+void BoundaryObject<N, RealType>::constrainToBoundary(VecN& ppos)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {
@@ -54,7 +54,7 @@ void BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos, VecN& pvel)
+bool BoundaryObject<N, RealType>::constrainToBoundary(VecN& ppos, VecN& pvel)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {
@@ -76,7 +76,7 @@ bool BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos, VecN& pvel)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
+void BoxBoundary<2, RealType>::generateBoundaryParticles_Impl(Vec_Vec2<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
 {
     RealType spacing = RealType(2.0) * particleRadius;
     PDPositions.resize(0);
@@ -89,9 +89,9 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec2r minLX = boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
-        Vec2r maxLX = boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
-        maxLX.x = boxMin().x;
+        Vec2r minLX = this->boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec2r maxLX = this->boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        maxLX.x = this->boxMin().x;
         Vec2i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
         for(Int x = 0; x < gridLX.x; ++x) {
             for(Int y = 0; y < gridLX.y + 1; ++y) {
@@ -105,9 +105,9 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec2r minUX = boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
-        Vec2r maxUX = boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
-        minUX.x = boxMax().x;
+        Vec2r minUX = this->boxMin() - Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec2r maxUX = this->boxMax() + Vec2r(spacing * RealType(numBDLayers * RealType(0.999)));
+        minUX.x = this->boxMax().x;
         Vec2i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
         for(Int x = 0; x < gridUX.x; ++x) {
             for(Int y = 0; y < gridUX.y + 1; ++y) {
@@ -121,11 +121,11 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec2r minLY = boxMin() - Vec2r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec2r minLY = this->boxMin() - Vec2r(spacing * RealType(numBDLayers) * RealType(0.999));
         Vec2r maxLY;
-        minLY.x = boxMin().x;
-        maxLY.x = boxMax().x;
-        maxLY.y = boxMin().y;
+        minLY.x = this->boxMin().x;
+        maxLY.x = this->boxMax().x;
+        maxLY.y = this->boxMin().y;
         Vec2i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
         for(Int x = 0; x < gridLY.x + 1; ++x) {
             for(Int y = 0; y < gridLY.y; ++y) {
@@ -140,10 +140,10 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
     // plane y > 0
     {
         Vec2r minUY;
-        Vec2r maxUY = boxMax() + Vec2r(spacing * RealType(numBDLayers) * RealType(0.999));
-        minUY.x = boxMin().x;
-        minUY.y = boxMax().y;
-        maxUY.x = boxMax().x;
+        Vec2r maxUY = this->boxMax() + Vec2r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minUY.x = this->boxMin().x;
+        minUY.y = this->boxMax().y;
+        maxUY.x = this->boxMax().x;
         Vec2i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
         for(Int x = 0; x < gridUY.x + 1; ++x) {
             for(Int y = 0; y < gridUY.y; ++y) {
@@ -157,7 +157,7 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
+void BoxBoundary<3, RealType>::generateBoundaryParticles_Impl(Vec_Vec3<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
 {
     RealType spacing = RealType(2.0) * particleRadius;
     PDPositions.resize(0);
@@ -170,9 +170,9 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec3r minLX = boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
-        Vec3r maxLX = boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
-        maxLX.x = boxMin().x;
+        Vec3r minLX = this->boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec3r maxLX = this->boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        maxLX.x = this->boxMin().x;
         Vec3i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
 
         for(Int x = 0; x < gridLX.x; ++x) {
@@ -189,9 +189,9 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec3r minUX = boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
-        Vec3r maxUX = boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
-        minUX.x = boxMax().x;
+        Vec3r minUX = this->boxMin() - Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        Vec3r maxUX = this->boxMax() + Vec3r(spacing * RealType(numBDLayers * RealType(0.999)));
+        minUX.x = this->boxMax().x;
         Vec3i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
 
         for(Int x = 0; x < gridUX.x; ++x) {
@@ -208,11 +208,11 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec3r minLY = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
-        Vec3r maxLY = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
-        minLY.x = boxMin().x;
-        maxLY.x = boxMax().x;
-        maxLY.y = boxMin().y;
+        Vec3r minLY = this->boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec3r maxLY = this->boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minLY.x = this->boxMin().x;
+        maxLY.x = this->boxMax().x;
+        maxLY.y = this->boxMin().y;
         Vec3i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
 
         for(Int x = 0; x < gridLY.x + 1; ++x) {
@@ -229,11 +229,11 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane y > 0
     {
-        Vec3r minUY = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
-        Vec3r maxUY = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
-        minUY.x = boxMin().x;
-        minUY.y = boxMax().y;
-        maxUY.x = boxMax().x;
+        Vec3r minUY = this->boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec3r maxUY = this->boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minUY.x = this->boxMin().x;
+        minUY.y = this->boxMax().y;
+        maxUY.x = this->boxMax().x;
         Vec3i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
 
         for(Int x = 0; x < gridUY.x + 1; ++x) {
@@ -250,13 +250,13 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     ////////////////////////////////////////////////////////////////////////////////
     // plane z < 0
     {
-        Vec3r minLZ = boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        Vec3r minLZ = this->boxMin() - Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
         Vec3r maxLZ;
-        minLZ.x = boxMin().x;
-        minLZ.y = boxMin().y;
-        maxLZ.x = boxMax().x;
-        maxLZ.y = boxMax().y;
-        maxLZ.z = boxMin().z;
+        minLZ.x = this->boxMin().x;
+        minLZ.y = this->boxMin().y;
+        maxLZ.x = this->boxMax().x;
+        maxLZ.y = this->boxMax().y;
+        maxLZ.z = this->boxMin().z;
         Vec3i gridLZ = NumberHelpers::createGrid<Int>(minLZ, maxLZ, spacing);
 
         for(Int x = 0; x < gridLZ.x + 1; ++x) {
@@ -274,12 +274,12 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType
     // plane z > 0
     {
         Vec3r minUZ;
-        Vec3r maxUZ = boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
-        minUZ.x = boxMin().x;
-        minUZ.y = boxMin().y;
-        minUZ.z = boxMax().z;
-        maxUZ.x = boxMax().x;
-        maxUZ.y = boxMax().y;
+        Vec3r maxUZ = this->boxMax() + Vec3r(spacing * RealType(numBDLayers) * RealType(0.999));
+        minUZ.x = this->boxMin().x;
+        minUZ.y = this->boxMin().y;
+        minUZ.z = this->boxMax().z;
+        maxUZ.x = this->boxMax().x;
+        maxUZ.y = this->boxMax().y;
         Vec3i gridUX = NumberHelpers::createGrid<Int>(minUZ, maxUZ, spacing);
 
         for(Int x = 0; x < gridUX.x + 1; ++x) {

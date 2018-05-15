@@ -44,17 +44,22 @@ namespace Banana::SimulationObjects
 template<Int N, class RealType>
 class BoundaryObject : public SimulationObject<N, RealType>
 {
+    __BNN_TYPE_ALIASING
 public:
     BoundaryObject() = delete;
-    BoundaryObject(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
+    BoundaryObject(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { this->parseParameters(jParams); }
     ////////////////////////////////////////////////////////////////////////////////
     auto& boundaryReflectionMultiplier() { return m_BoundaryReflectionMultiplier; }
     auto& reflectVelocityAtBoundary() { return m_bReflectVelocityAtBoundary; }
-    auto& isDynamic() { return m_bDynamics; }
+    auto& isDynamic() { return this->m_bDynamics; }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual RealType signedDistance(const VecN& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
-    virtual VecN    gradSignedDistance(const VecN& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
-    virtual bool     isInside(const VecN& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
+    virtual RealType signedDistance(const VecN& ppos) const override { return this->m_GeometryObj->signedDistance(ppos, false); }
+    virtual VecN    gradSignedDistance(const VecN& ppos, RealType dxyz = RealType(1e-4)) const override
+    {
+        return this->m_GeometryObj->gradSignedDistance(ppos, false, dxyz);
+    }
+
+    virtual bool     isInside(const VecN& ppos) const override { return this->m_GeometryObj->isInside(ppos, false); }
     ////////////////////////////////////////////////////////////////////////////////
     void constrainToBoundary(VecN& ppos);
     bool constrainToBoundary(VecN& ppos, VecN& pvel); // return true if pvel has been modified
@@ -75,11 +80,12 @@ protected:
 template<Int N, class RealType>
 class BoxBoundaryInterface : public BoundaryObject<N, RealType>
 {
+    __BNN_TYPE_ALIASING
     using BoxPtr = SharedPtr<GeometryObjects::BoxObject<N, RealType>>;
 public:
     BoxBoundaryInterface(const JParams& jParams) : BoundaryObject<N, RealType>(jParams)
     {
-        m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(m_GeometryObj);
+        m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(this->m_GeometryObj);
         __BNN_REQUIRE(m_Box != nullptr);
     }
 
