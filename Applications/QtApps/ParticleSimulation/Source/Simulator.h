@@ -36,18 +36,18 @@ class Simulator : public QObject
     Q_OBJECT
 public:
     Simulator() = default;
-    bool isRunning() { return !m_bStop; }
-    void stop();
-    void reset();
-    void startSimulation();
-    void finishImgExport();
-
     auto& getVizData() const { return m_VizData; }
+
+    bool isRunning() { return !m_bStop; }
+    void startSimulation();
+    void stop() { m_bStop = true; }
+    void reset() { m_bStop = true; changeScene(m_Scene); }
+    void finishImgExport() { m_bWaitForSavingImg = false; }
 
 public slots:
     void doSimulation();
     void changeScene(const QString& scene);
-    void enableExportImg(bool bEnable);
+    void enableExportImg(bool bEnable) { m_bExportImg = bEnable; }
 
 signals:
     void dimensionChanged();

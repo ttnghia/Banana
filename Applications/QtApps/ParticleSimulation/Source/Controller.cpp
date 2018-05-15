@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "Controller.h"
+#include <Banana/Utils/MathHelpers.h>
 #include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -52,12 +53,8 @@ void Controller::connectWidgets()
     connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
     connect(m_btnRndColor,        &QPushButton::clicked,              [&]()
             {
-                auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
-                auto colorMax = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
+                auto colorMin = MathHelpers::vrand<Vec3f>();
+                auto colorMax = MathHelpers::vrand<Vec3f>();
                 m_pkrColorDataMin->setColor(colorMin);
                 m_pkrColorDataMax->setColor(colorMax);
                 m_RenderWidget->setColorDataMin(colorMin);

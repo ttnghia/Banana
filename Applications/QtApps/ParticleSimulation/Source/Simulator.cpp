@@ -40,12 +40,6 @@ void Simulator::startSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Simulator::finishImgExport()
-{
-    m_bWaitForSavingImg = false;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Simulator::doSimulation()
 {
     auto frame = (m_ParticleSolver->getGlobalParams().startFrame <= 1) ?
@@ -74,18 +68,6 @@ void Simulator::doSimulation()
     m_ParticleSolver->finalizeSimulation();
     m_ParticleSolver.reset();
     emit simulationFinished();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Simulator::stop()
-{
-    m_bStop = true;
-}
-
-void Simulator::reset()
-{
-    m_bStop = true;
-    changeScene(m_Scene);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -160,10 +142,4 @@ void Simulator::changeScene(const QString& scene)
     emit vizDataChanged();
     emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime(), m_ParticleSolver->getGlobalParams().finishedFrame);
     emit numParticleChanged(m_ParticleSolver->getNParticles());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Simulator::enableExportImg(bool bEnable)
-{
-    m_bExportImg = bEnable;
 }
