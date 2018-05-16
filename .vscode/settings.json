@@ -31,6 +31,7 @@
         "adolcforward": "cpp",
         "mprealsupport": "cpp",
         "string": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "qtgui": "cpp"
     }
 }

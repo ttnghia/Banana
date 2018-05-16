@@ -36,10 +36,17 @@ class OpenGLController : public QWidget
     Q_OBJECT
     friend class OpenGLMainWindow;
 public:
-    explicit OpenGLController(OpenGLWidget* renderWidget, QWidget* parent, Int width = 350,
-                              bool bShowBackgroundControllers                        = true, bool bShowFloorControllers = true, bool bShowBoxControllers = true) :
-        QWidget(parent), m_GLWidget(renderWidget),
-        m_bShowBackgroundControllers(bShowBackgroundControllers), m_bShowFloorControllers(bShowFloorControllers), m_bShowBoxControllers(bShowBoxControllers)
+    explicit OpenGLController(OpenGLWidget* renderWidget,
+                              QWidget*      parent,
+                              Int           width                      = 350,
+                              bool          bShowBackgroundControllers = true,
+                              bool          bShowFloorControllers      = true,
+                              bool          bShowBoxControllers        = true) :
+        QWidget(parent),
+        m_GLWidget(renderWidget),
+        m_bShowBackgroundControllers(bShowBackgroundControllers),
+        m_bShowFloorControllers(bShowFloorControllers),
+        m_bShowBoxControllers(bShowBoxControllers)
     {
         __BNN_REQUIRE(m_GLWidget != nullptr);
         setupBasicGUI(width);
