@@ -166,7 +166,7 @@ void SPHBasedRelaxation<N, RealType>::collectNeighborDensities()
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& neighborIdx = fluidPointSet.neighbors(0, p);
                                 for(size_t i = 0; i < neighborIdx.size(); ++i) {
-                                    auto q = neighborIdx[i];
+                                    auto q              = neighborIdx[i];
                                     pNeighborInfo[i][N] = particleData().densities[q];
                                 }
                             });
@@ -227,7 +227,7 @@ void SPHBasedRelaxation<N, RealType>::normalizeDensity()
                                     const auto r        = Vec3r(qInfo);
                                     const auto q        = fluidNeighborList[i];
                                     const auto qdensity = m_SPHData.densities[q];
-                                    tmp += kernels().kernelCubicSpline.W(r) / qdensity;
+                                    tmp                += kernels().kernelCubicSpline.W(r) / qdensity;
                                 }
                                 if(solverParams().bDensityByBDParticle) {
                                     const auto& PDNeighborList = fluidPointSet.neighbors(1, p);
@@ -235,7 +235,7 @@ void SPHBasedRelaxation<N, RealType>::normalizeDensity()
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo = pNeighborInfo[i];
                                         const auto r      = Vec3r(qInfo);
-                                        tmp += kernels().kernelCubicSpline.W(r) / solverParams().materialDensity;
+                                        tmp              += kernels().kernelCubicSpline.W(r) / solverParams().materialDensity;
                                     }
                                 }
                                 pdensity = pdensity / (tmp * m_SPHData.defaultParticleMass);
@@ -323,7 +323,7 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                     const auto& qInfo   = pNeighborInfo[i];
                                     const auto r        = Vec3r(qInfo);
                                     const auto qdensity = qInfo.w;
-                                    diffVelFluid += (1.0_f / qdensity) * kernels().kernelCubicSpline.W(r) * (qvel - pvel);
+                                    diffVelFluid       += (1.0_f / qdensity) * kernels().kernelCubicSpline.W(r) * (qvel - pvel);
                                 }
                                 diffVelFluid *= solverParams().viscosityFluid;
                                 ////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                         const auto& qInfo   = pNeighborInfo[i];
                                         const auto r        = Vec3r(qInfo);
                                         const auto qdensity = qInfo.w;
-                                        diffVelBoundary -= (1.0_f / qdensity) * kernels().kernelCubicSpline.W(r) * pvel;
+                                        diffVelBoundary    -= (1.0_f / qdensity) * kernels().kernelCubicSpline.W(r) * pvel;
                                     }
                                 }
                                 diffVelBoundary *= solverParams().viscosityBoundary;

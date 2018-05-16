@@ -48,8 +48,8 @@ public:
     {
         m_Logger = Logger::createLogger("SPHBasedRelaxation");
         // m_Logger->setLoglevel(m_GlobalParams.logLevel);
-        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(2.0));
-        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(4.0));
+        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams()->particleRadius * RealType(2.0));
+        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams()->particleRadius * RealType(4.0));
     }
 
     /**
