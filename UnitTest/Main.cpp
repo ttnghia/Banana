@@ -7,7 +7,7 @@
 //                                    >  -  <
 //    ____________________________.""`-------`"".___________________________
 //    /                                                                      \
-//    \    This file is part of Banana - a graphics programming framework    /
+//    \     This file is part of Banana - a general programming framework    /
 //    /                    Created: 2017 by Nghia Truong                     \
 //    \                      <nghiatruong.vn@gmail.com>                      /
 //    /                      https://ttnghia.github.io                       \
