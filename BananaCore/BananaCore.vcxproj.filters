@@ -30,9 +30,6 @@
     <ClInclude Include="Banana\Data\ParameterManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Data\ParticleSystemData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Geometry\KdTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>

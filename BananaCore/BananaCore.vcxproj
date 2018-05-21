@@ -165,7 +165,6 @@
     <ClInclude Include="Banana\System\MemoryUsage.h" />
     <ClInclude Include="Banana\Utils\NumberHelpers.h" />
     <ClInclude Include="Banana\Data\ParameterManager.h" />
-    <ClInclude Include="Banana\Data\ParticleSystemData.h" />
     <ClInclude Include="Banana\Utils\STLHelpers.h" />
     <ClInclude Include="Banana\LinearAlgebra\LinaHelpers.h" />
     <ClInclude Include="Banana\Utils\Timer.h" />
