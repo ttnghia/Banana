@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <QT_DIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QT_DIR>
-    <QT_EXAMPLES_DIR>C:\Qt\Qt5.10.0\Examples\Qt-5.10.0</QT_EXAMPLES_DIR>
+    <QT_DIR>C:\Qt\Qt5.11.0\5.11.0\msvc2017_64</QT_DIR>
+    <QT_EXAMPLES_DIR>C:\Qt\Qt5.11.0\Examples\Qt-5.11.0</QT_EXAMPLES_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <IncludePath>$(QT_EXAMPLES_DIR)\widgets\painting\shared;$(IncludePath)</IncludePath>
