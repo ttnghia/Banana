@@ -21,24 +21,48 @@
 
 #pragma once
 
+#include <Banana/Utils/Timer.h>
+#include <optional>
+#include <iostream>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-TEST_CASE("Foo Bar")
+std::optional<std::string> toStr(int i)
 {
-    int sum = 0;
-    SECTION("Foo")
-    {
-        for(int i = 0; i < 20000000; ++i) {
-            sum += i;
-        }
-        printf("Sum: %d\n", sum);
+    if(i > 0) {
+        return String("Number: ") + std::to_string(i);
+    } else {
+        return std::nullopt;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+TEST_CASE("Test 1")
+{
+    std::cout << toStr(0).value_or("Zero!") << std::endl;
+    std::cout << toStr(1).value_or("Zero!") << std::endl;
+}
+
+TEST_CASE("Test 2")
+{
+    try {
+        std::cout << toStr(0).value() << std::endl;
+    } catch(std::exception& e) {
+        std::cout << e.what() << std::endl;
     }
 
-    SECTION("Bar")
-    {
-        int sum = 0;
-        for(int i = 0; i < 20000000; ++i) {
-            sum += i;
-        }
-        printf("Sum: %d\n", sum);
+    try {
+        std::cout << toStr(1).value() << std::endl;
+    } catch(std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+}
+
+TEST_CASE("Test 3")
+{
+    auto v0 = toStr(0);
+    if(v0.has_value()) {
+        std::cout << "Has value: " << v0.value() << std::endl;
+    } else {
+        std::cout << "No value." << std::endl;
     }
 }

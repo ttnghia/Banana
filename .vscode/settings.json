@@ -32,6 +32,7 @@
         "mprealsupport": "cpp",
         "string": "cpp",
         "memory": "cpp",
-        "qtgui": "cpp"
+        "qtgui": "cpp",
+        "optional": "cpp"
     }
 }
