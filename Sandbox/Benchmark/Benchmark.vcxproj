@@ -77,6 +77,10 @@
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\TestVec3AsVec4Operation.hpp" />
+    <ClInclude Include="Source\TestVec3AsVec4Union.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
