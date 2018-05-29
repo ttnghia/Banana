@@ -241,14 +241,14 @@ void MPM_Solver<N, RealType>::advanceFrame()
     substepCount = 0u;
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < frameDuration) {
-        logger().printRunTime("Sub-step time: ",
+        logger().printRunTime("Sub-step time",
                               [&]()
                               {
                                   if(finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
+                                      logger().printRunTimeIf("Advance scene", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
+                                  logger().printRunTime("CFL timestep", [&]() { substep = timestepCFL(); });
                                   auto remainingTime = frameDuration - frameTime;
                                   if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
@@ -256,10 +256,10 @@ void MPM_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Find particles' grid coordinate: ",
+                                  logger().printRunTime("Move particles", [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Find particles' grid coordinate",
                                                         [&]() { grid().collectIndexToCells(particleData().positions, particleData().gridCoordinate); });
-                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("}=> Advance velocity", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -288,7 +288,7 @@ void MPM_Solver<N, RealType>::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions: ",
+    logger().printRunTime("Sort data by particle positions",
                           [&]()
                           {
                               particleData().NSearch().z_sort();
@@ -309,20 +309,20 @@ void MPM_Solver<N, RealType>::sortParticles()
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
-    logger().printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
-    logger().printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
-    logger().printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
-    logger().printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
+    logger().printRunTime("{   Reset grid data", [&]() { gridData().resetGrid(); });
+    logger().printRunTimeIndent("Map particle masses to grid", [&]() { mapParticleMasses2Grid(); });
+    logger().printRunTimeIndentIf("Compute particle volumes", [&]() { return initParticleVolumes(); });
+    logger().printRunTimeIndent("Map particle velocities to grid", [&]() { mapParticleVelocities2Grid(timestep); });
 
     if(solverParams().implicitRatio < Tiny<RealType>()) {
-        logger().printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
+        logger().printRunTimeIndent("Velocity explicit integration", [&]() { explicitIntegration(timestep); });
     } else {
-        logger().printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
+        logger().printRunTimeIndent("Velocity implicit integration", [&]() { implicitIntegration(timestep); });
     }
 
-    logger().printRunTimeIndent("Constrain grid velocity: ",               [&]() { gridCollision(timestep); });
-    logger().printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
-    logger().printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleStates(timestep); });
+    logger().printRunTimeIndent("Constrain grid velocity",               [&]() { gridCollision(timestep); });
+    logger().printRunTimeIndent("Map grid velocities to particles",      [&]() { mapGridVelocities2Particles(timestep); });
+    logger().printRunTimeIndent("Update particle deformation gradients", [&]() { updateParticleStates(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

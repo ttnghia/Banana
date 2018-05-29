@@ -240,7 +240,7 @@ void Cloth_Solver<RealType>::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions: ",
+    logger().printRunTime("Sort data by particle positions",
                           [&]()
                           {
                               particleData().NSearch().z_sort();

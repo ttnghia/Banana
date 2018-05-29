@@ -110,7 +110,7 @@ bool PIC_Solver<N, RealType>::advanceScene()
     }
 
     if(bSDFRegenerated) {
-        logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { computeBoundarySDF(); });
+        logger().printRunTime("Re-computed SDF boundary for entire scene", [&]() { computeBoundarySDF(); });
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -280,14 +280,14 @@ void PIC_Solver<N, RealType>::advanceFrame()
     substepCount = 0u;
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < frameDuration) {
-        logger().printRunTime("Sub-step time: ",
+        logger().printRunTime("Sub-step time",
                               [&]()
                               {
                                   if(finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
+                                      logger().printRunTimeIf("Advance scene", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
+                                  logger().printRunTime("CFL timestep", [&]() { substep = timestepCFL(); });
                                   auto remainingTime = frameDuration - frameTime;
                                   if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
@@ -295,9 +295,9 @@ void PIC_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
-                                  logger().printRunTimeIf("Correct particle positions: ", [&]() { return correctParticlePositions(substep); });
-                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles", [&]() { moveParticles(substep); });
+                                  logger().printRunTimeIf("Correct particle positions", [&]() { return correctParticlePositions(substep); });
+                                  logger().printRunTime("}=> Advance velocity", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -324,7 +324,7 @@ void PIC_Solver<N, RealType>::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle position: ",
+    logger().printRunTime("Sort data by particle position",
                           [&]()
                           {
                               particleData().NSearch().z_sort();
@@ -339,11 +339,11 @@ void PIC_Solver<N, RealType>::sortParticles()
 template<Int N, class RealType>
 void PIC_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
-    logger().printRunTime("{   Advect grid velocity: ", [&]() { advectGridVelocity(timestep); });
-    logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
-    logger().printRunTimeIndent("}=> Pressure projection: ", [&]() { pressureProjection(timestep); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ", [&]() { constrainGridVelocity(); });
+    logger().printRunTime("{   Advect grid velocity", [&]() { advectGridVelocity(timestep); });
+    logger().printRunTimeIndentIf("Add gravity", [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection", [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { constrainGridVelocity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -391,7 +391,7 @@ bool PIC_Solver<N, RealType>::correctParticlePositions(RealType timestep)
     if(!solverParams().bCorrectPosition) {
         return false;
     }
-    logger().printRunTime("Find neighbors: ", [&]() { grid().collectIndexToCells(particleData().positions); });
+    logger().printRunTime("Find neighbors", [&]() { grid().collectIndexToCells(particleData().positions); });
     ////////////////////////////////////////////////////////////////////////////////
     const auto radius     = RealType(2.0) * solverParams().particleRadius / RealType(sqrt(N));
     const auto radius2    = radius * radius;
@@ -550,11 +550,11 @@ bool PIC_Solver<N, RealType>::addGravity(RealType timestep)
 template<Int N, class RealType>
 void PIC_Solver<N, RealType>::pressureProjection(RealType timestep)
 {
-    logger().printRunTimeIndent("{   Compute cell weights: ", [&]() { computeCellWeights(); });
-    logger().printRunTimeIndent("Compute liquid SDF: ", [&]() { computeFluidSDF(); }, 2);
-    logger().printRunTimeIndent("Compute pressure system: ", [&]() { computeSystem(timestep); }, 2);
-    logger().printRunTimeIndent("Solve linear system: ", [&]() { solveSystem(); }, 2);
-    logger().printRunTimeIndent("Update grid velocity: ", [&]() { updateProjectedVelocity(timestep); }, 2);
+    logger().printRunTimeIndent("{   Compute cell weights", [&]() { computeCellWeights(); });
+    logger().printRunTimeIndent("Compute liquid SDF", [&]() { computeFluidSDF(); }, 2);
+    logger().printRunTimeIndent("Compute pressure system", [&]() { computeSystem(timestep); }, 2);
+    logger().printRunTimeIndent("Solve linear system", [&]() { solveSystem(); }, 2);
+    logger().printRunTimeIndent("Update grid velocity", [&]() { updateProjectedVelocity(timestep); }, 2);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

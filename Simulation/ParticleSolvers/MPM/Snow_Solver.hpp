@@ -21,7 +21,7 @@
 
 void Snow2DSolver::makeReady()
 {
-    logger().printRunTime("Allocate solver memory: ",
+    logger().printRunTime("Allocate solver memory",
                           [&]()
                           {
                               solverParams().makeReady();
@@ -48,11 +48,11 @@ void Snow2DSolver::advanceFrame()
 {
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        logger().printRunTime("Sub-step time: ", subStepTimer,
+        logger().printRunTime("Sub-step time", subStepTimer,
                               [&]()
                               {
                                   if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", funcTimer,
+                                      logger().printRunTimeIf("Advance scene", funcTimer,
                                                               [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -64,11 +64,11 @@ void Snow2DSolver::advanceFrame()
                                       substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Find neighbors: ", funcTimer,
+                                  logger().printRunTime("Find neighbors", funcTimer,
                                                         [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });
-                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                  logger().printRunTime("====> Update particles total: ", funcTimer, [&]() { updateParticles(substep); });
-                                  //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  logger().printRunTime("====> Advance velocity total", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("====> Update particles total", funcTimer, [&]() { updateParticles(substep); });
+                                  //logger().printRunTime("Correct particle positions",   funcTimer, [&]() { correctPositions(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
 
                                   frameTime += substep;
@@ -146,7 +146,7 @@ bool Snow2DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 
     __BNN_TODO
     //if(bSDFRegenerated) {
-    //logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //logger().printRunTime("Re-computed SDF boundary for entire scene", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
     //}
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -248,29 +248,29 @@ void Snow2DSolver::advanceVelocity(Real timestep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
-    logger().printRunTime("Compute mass for grid nodes: ", funcTimer, [&]() { massToGrid(); });
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(timestep); });
-    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
+    logger().printRunTime("Reset grid data", funcTimer, [&]() { gridData().resetGrid(); });
+    logger().printRunTime("Compute mass for grid nodes", funcTimer, [&]() { massToGrid(); });
+    logger().printRunTime("Interpolate velocity from particles to grid", funcTimer, [&]() { velocityToGrid(timestep); });
+    logger().printRunTime("Constrain grid velocity", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
-    logger().printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
-    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
+    logger().printRunTime("Velocity explicit integration", funcTimer, [&]() { explicitVelocities(timestep); });
+    logger().printRunTime("Constrain grid velocity", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
     if(solverParams().implicitRatio > Tiny<RealType>()) {
-        logger().printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
+        logger().printRunTime("Velocity implicit integration", funcTimer, [&]() { implicitVelocities(timestep); });
     }
 
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(timestep); });
-    logger().printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
+    logger().printRunTime("Interpolate velocity from grid to particles", funcTimer, [&]() { velocityToParticles(timestep); });
+    logger().printRunTime("Constrain particle velocity", funcTimer, [&]() { constrainParticleVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::updateParticles(Real timestep)
 {
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
-    logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });
-    logger().printRunTime("Apply Plasticity: ", funcTimer, [&]() { applyPlasticity(); });
+    logger().printRunTime("Move particles", funcTimer, [&]() { updateParticlePositions(timestep); });
+    logger().printRunTime("Update particle gradients", funcTimer, [&]() { updateGradients(timestep); });
+    logger().printRunTime("Apply Plasticity", funcTimer, [&]() { applyPlasticity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -303,7 +303,7 @@ void Snow2DSolver::massToGrid()
                                             dx         = MathHelpers::cubic_bspline_grad(x_pos);
 
                                             //Final weight is dyadic product of weights in each dimension
-                                            Real weight = wx * wy;
+                                            Real weight                          = wx * wy;
                                             particleData().weights[p * 16 + idx] = weight;
 
                                             //Weight gradient is a vector of partial derivatives
@@ -351,7 +351,7 @@ void Snow2DSolver::massToGrid()
                                                       dx         = MathHelpers::cubic_bspline_grad(x_pos);
 
                                                       //Final weight is dyadic product of weights in each dimension
-                                                      Real weight = wx * wy * wz;
+                                                      Real weight                          = wx * wy * wz;
                                                       particleData().weights[p * 64 + idx] = weight;
 
                                                       //Weight gradient is a vector of partial derivatives
@@ -639,8 +639,8 @@ void Snow2DSolver::implicitVelocities(Real timestep)
                                     if(gridData().imp_active.data()[i]) {
                                         //Alright, so we'll handle each node's solve separately
                                         //First thing to do is update our vf guess
-                                        Real div   = glm::dot(gridData().Ep.data()[i], gridData().Ep.data()[i]);
-                                        Real alpha = gridData().rDotEr.data()[i] / div;
+                                        Real div                 = glm::dot(gridData().Ep.data()[i], gridData().Ep.data()[i]);
+                                        Real alpha               = gridData().rDotEr.data()[i] / div;
                                         gridData().err.data()[i] = alpha * gridData().p.data()[i];
                                         //If the error is small enough, we're done
                                         Real err = glm::length(gridData().err.data()[i]);
@@ -668,8 +668,8 @@ void Snow2DSolver::implicitVelocities(Real timestep)
                                 [&](size_t i)
                                 {
                                     if(gridData().imp_active.data()[i]) {
-                                        Real temp = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
-                                        Real beta = temp / gridData().rDotEr.data()[i];
+                                        Real temp                   = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
+                                        Real beta                   = temp / gridData().rDotEr.data()[i];
                                         gridData().rDotEr.data()[i] = temp;
                                         //Update p
                                         gridData().p.data()[i] *= beta;
@@ -758,7 +758,7 @@ void Snow2DSolver::velocityToParticles(Real timestep)
                                     Vec2r pic(0), flip = particleData().velocities[p];
                                     //Also keep track of velocity gradient
                                     Mat2x2r& grad = particleData().velocityGradients[p];
-                                    grad = Mat2x2r(0.0);
+                                    grad          = Mat2x2r(0.0);
 
                                     //VISUALIZATION PURPOSES ONLY:
                                     //Recompute density
@@ -800,7 +800,7 @@ void Snow2DSolver::velocityToParticles(Real timestep)
                                     Vec3r pic(0), flip = particleData().velocities[p];
                                     //Also keep track of velocity gradient
                                     Mat3x3r& grad = particleData().velocityGradients[p];
-                                    grad = Mat3x3r(0.0);
+                                    grad          = Mat3x3r(0.0);
 
                                     //VISUALIZATION PURPOSES ONLY:
                                     //Recompute density
@@ -927,7 +927,7 @@ void Snow2DSolver::updateGradients(Real timestep)
                             [&](UInt p)
                             {
                                 Mat2x2r velGrad = particleData().velocityGradients[p];
-                                velGrad *= timestep;
+                                velGrad        *= timestep;
                                 LinaHelpers::sumToDiag(velGrad, 1.0_f);
 
                                 particleData().velocityGradients[p] = velGrad;

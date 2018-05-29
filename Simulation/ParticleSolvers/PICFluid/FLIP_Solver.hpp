@@ -38,16 +38,16 @@ void FLIP_Solver<N, RealType>::allocateSolverMemory()
 template<Int N, class RealType>
 void FLIP_Solver<N, RealType>::advanceVelocity(Real timestep)
 {
-    logger().printRunTime("{   Map particles to grid: ", [&]() { mapParticles2Grid(); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ", [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Backup grid: ", [&]() { gridData().backupGridVelocity(); });
-    logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
-    logger().printRunTimeIndent("}=> Pressure projection: ", [&]() { pressureProjection(timestep); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ", [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Compute grid changes: ", [&]() { computeChangesGridVelocity(); });
-    logger().printRunTimeIndent("Map grid to particles: ", [&]() { mapGrid2Particles(); });
+    logger().printRunTime("{   Map particles to grid", [&]() { mapParticles2Grid(); });
+    logger().printRunTimeIndent("Extrapolate grid velocity", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Backup grid", [&]() { gridData().backupGridVelocity(); });
+    logger().printRunTimeIndentIf("Add gravity", [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection", [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Compute grid changes", [&]() { computeChangesGridVelocity(); });
+    logger().printRunTimeIndent("Map grid to particles", [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -139,7 +139,7 @@ void Peridynamics_Solver<N, RealType>::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions: ",
+    logger().printRunTime("Sort data by particle positions",
                           [&]()
                           {
                               particleData().NSearch().z_sort();

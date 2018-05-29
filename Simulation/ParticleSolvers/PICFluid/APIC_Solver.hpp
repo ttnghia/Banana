@@ -38,12 +38,12 @@ void APIC_Solver<N, RealType>::allocateSolverMemory()
 template<Int N, class RealType>
 void APIC_Solver<N, RealType>::advanceVelocity(Real timestep)
 {
-    logger().printRunTime("{   Map particles to grid: ", [&]() { mapParticles2Grid(); });
-    logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
-    logger().printRunTimeIndent("}=> Pressure projection: ", [&]() { pressureProjection(timestep); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ", [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Map grid to particles: ", [&]() { mapGrid2Particles(); });
+    logger().printRunTime("{   Map particles to grid", [&]() { mapParticles2Grid(); });
+    logger().printRunTimeIndentIf("Add gravity", [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection", [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Map grid to particles", [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

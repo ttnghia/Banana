@@ -199,7 +199,7 @@ void ParticleSolver<N, RealType>::doFrameSimulation(UInt frame)
 
     ////////////////////////////////////////////////////////////////////////////////
     const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
-                          String("(s) (~") + std::to_string(static_cast<int>(round(RealType(1.0) / globalParams().frameDuration))) + String(" fps). Run time: ");
+                          String("(s) (~") + std::to_string(static_cast<int>(round(RealType(1.0) / globalParams().frameDuration))) + String(" fps). Frame run time");
     logger().printRunTime(strMsg.c_str(),
                           [&]()
                           {

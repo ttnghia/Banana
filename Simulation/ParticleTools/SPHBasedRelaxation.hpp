@@ -57,16 +57,16 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::iterate(VecN* positions, UInt nParticles, UInt iter)
 {
     RealType substep;
-    logger().printRunTimeIndent("CFL timestep: ", [&]() { substep = timestepCFL(); });
-    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(substep); });
-    logger().printRunTimeIndent("Find neighbors: ", [&]() { m_FarNSearch->find_neighbors(); });
-    logger().printRunTimeIndent("Compute neighbor relative positions: ", [&]() { computeNeighborRelativePositions(); });
-    logger().printRunTimeIndent("Compute density: ", [&]() { computeDensity(); });
-    logger().printRunTimeIndent("Normalize density: ", [&]() { normalizeDensity(); });
-    logger().printRunTimeIndent("Collect neighbor densities: ", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces: ", [&]() { computeForces(); });
-    logger().printRunTimeIndent("Update velocity: ", [&]() { updateVelocity(substep); });
-    logger().printRunTimeIndent("Compute viscosity: ", [&]() { computeViscosity(); });
+    logger().printRunTimeIndent("CFL timestep", [&]() { substep = timestepCFL(); });
+    logger().printRunTimeIndent("Move particles", [&]() { moveParticles(substep); });
+    logger().printRunTimeIndent("Find neighbors", [&]() { m_FarNSearch->find_neighbors(); });
+    logger().printRunTimeIndent("Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
+    logger().printRunTimeIndent("Compute density", [&]() { computeDensity(); });
+    logger().printRunTimeIndent("Normalize density", [&]() { normalizeDensity(); });
+    logger().printRunTimeIndent("Collect neighbor densities", [&]() { collectNeighborDensities(); });
+    logger().printRunTimeIndent("Compute forces", [&]() { computeForces(); });
+    logger().printRunTimeIndent("Update velocity", [&]() { updateVelocity(substep); });
+    logger().printRunTimeIndent("Compute viscosity", [&]() { computeViscosity(); });
     logger().printLog("Finished step of size " + NumberHelpers::formatToScientific(substep));
 }
 

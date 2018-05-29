@@ -71,7 +71,7 @@ void WCSPH_Solver<N, RealType>::generateParticles(const JParams& jParams)
 
         __BNN_REQUIRE(particleData().boundaryParticles.size() > 0);
         particleData().addSearchParticles(particleData().boundaryParticles, false, false);
-        logger().printRunTime("Sort boundary particles: ",
+        logger().printRunTime("Sort boundary particles",
                               [&]()
                               {
                                   particleData().NSearch().z_sort();
@@ -120,13 +120,13 @@ bool WCSPH_Solver<N, RealType>::advanceScene()
     //for(auto& bdObj : m_BoundaryObjects) {
     //    if(bdObj->isDynamic()) {
     //        bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-    //        logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+    //        logger().printLog(String("Re-computed SDF for dynamic boundary object") + bdObj->nameID(), spdlog::level::debug);
     //        bSDFRegenerated = true;
     //    }
     //}
 
     //if(bSDFRegenerated) {
-    //    logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //    logger().printRunTime("Re-computed SDF boundary for entire scene", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
     //}
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -277,14 +277,14 @@ void WCSPH_Solver<N, RealType>::advanceFrame()
     substepCount = 0u;
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < frameDuration) {
-        logger().printRunTime("Sub-step time: ",
+        logger().printRunTime("Sub-step time",
                               [&]()
                               {
                                   if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
+                                      logger().printRunTimeIf("Advance scene", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
+                                  logger().printRunTime("CFL timestep", [&]() { substep = timestepCFL(); });
                                   auto remainingTime = frameDuration - frameTime;
                                   if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
@@ -292,9 +292,9 @@ void WCSPH_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Find neighbors: ", [&]() { particleData().NSearch().find_neighbors(); });
-                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles", [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Find neighbors", [&]() { particleData().NSearch().find_neighbors(); });
+                                  logger().printRunTime("}=> Advance velocity", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -321,7 +321,7 @@ void WCSPH_Solver<N, RealType>::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions: ",
+    logger().printRunTime("Sort data by particle positions",
                           [&]()
                           {
                               particleData().NSearch().z_sort();
@@ -337,13 +337,13 @@ void WCSPH_Solver<N, RealType>::sortParticles()
 template<Int N, class RealType>
 void WCSPH_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
-    logger().printRunTime("{   Compute neighbor relative positions: ", [&]() { computeNeighborRelativePositions(); });
-    logger().printRunTimeIndent("Compute density: ", [&]() { computeDensity(); });
-    logger().printRunTimeIndentIf("Normalize density: ", [&]() { return normalizeDensity(); });
-    logger().printRunTimeIndent("Collect neighbor densities: ", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces: ", [&]() { computeAccelerations(); });
-    logger().printRunTimeIndent("Update velocity: ", [&]() { updateVelocity(timestep); });
-    logger().printRunTimeIndent("Compute viscosity: ", [&]() { computeViscosity(); });
+    logger().printRunTime("{   Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
+    logger().printRunTimeIndent("Compute density", [&]() { computeDensity(); });
+    logger().printRunTimeIndentIf("Normalize density", [&]() { return normalizeDensity(); });
+    logger().printRunTimeIndent("Collect neighbor densities", [&]() { collectNeighborDensities(); });
+    logger().printRunTimeIndent("Compute forces", [&]() { computeAccelerations(); });
+    logger().printRunTimeIndent("Update velocity", [&]() { updateVelocity(timestep); });
+    logger().printRunTimeIndent("Compute viscosity", [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

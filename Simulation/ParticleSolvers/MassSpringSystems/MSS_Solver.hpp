@@ -249,14 +249,14 @@ void MSS_Solver<N, RealType>::advanceFrame()
     substepCount = 0u;
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < frameDuration) {
-        logger().printRunTime("Sub-step time: ",
+        logger().printRunTime("Sub-step time",
                               [&]()
                               {
                                   if(finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
+                                      logger().printRunTimeIf("Advance scene", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
+                                  logger().printRunTime("CFL timestep", [&]() { substep = timestepCFL(); });
                                   auto remainingTime = frameDuration - frameTime;
                                   if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
@@ -264,19 +264,19 @@ void MSS_Solver<N, RealType>::advanceFrame()
                                       substep = remainingTime * RealType(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTimeIf("Add gravity: ", [&]() { return addGravity(substep); });
+                                  logger().printRunTimeIf("Add gravity", [&]() { return addGravity(substep); });
                                   switch(solverParams().integrationScheme) {
                                       case IntegrationScheme::VelocityVerlet:
-                                          logger().printRunTime("}=> Time integration (Velocity-Verlet): ", [&]() { integration(substep); });
+                                          logger().printRunTime("}=> Time integration (Velocity-Verlet)", [&]() { integration(substep); });
                                           break;
                                       case IntegrationScheme::ExplicitEuler:
-                                          logger().printRunTime("}=> Time integration (Explicit-Euler): ", [&]() { integration(substep); });
+                                          logger().printRunTime("}=> Time integration (Explicit-Euler)", [&]() { integration(substep); });
                                           break;;
                                       case IntegrationScheme::ImplicitEuler:
-                                          logger().printRunTime("}=> Time integration (Implicit-Euler): ", [&]() { integration(substep); });
+                                          logger().printRunTime("}=> Time integration (Implicit-Euler)", [&]() { integration(substep); });
                                           break;
                                       case IntegrationScheme::NewmarkBeta:
-                                          logger().printRunTime("}=> Time integration (Implicit-Newmark-beta): ", [&]() { integration(substep); });
+                                          logger().printRunTime("}=> Time integration (Implicit-Newmark-beta)", [&]() { integration(substep); });
                                           break;
                                       default:
                                           ;
@@ -309,7 +309,7 @@ void MSS_Solver<N, RealType>::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions: ",
+    logger().printRunTime("Sort data by particle positions",
                           [&]()
                           {
                               particleData().NSearch().z_sort();
@@ -390,47 +390,47 @@ void MSS_Solver<N, RealType>::explicitVerletIntegration(RealType timestep)
 {
     RealType halfStep = timestep * RealType(0.5);
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("{   Compute explicit forces, stage-1: ", [&]() { computeExplicitForces(); });
+    logger().printRunTime("{   Compute explicit forces, stage-1", [&]() { computeExplicitForces(); });
     if(solverParams().bCollision) {
-        logger().printRunTimeIndent("Compute collision penalty forces, stage-1: ", [&]() { computeInternalCollisionPenaltyForces(); });
+        logger().printRunTimeIndent("Compute collision penalty forces, stage-1", [&]() { computeInternalCollisionPenaltyForces(); });
     }
-    logger().printRunTimeIndent("Update explicit velocities, stage-1: ", [&]() { updateExplicitVelocities(halfStep); });
+    logger().printRunTimeIndent("Update explicit velocities, stage-1", [&]() { updateExplicitVelocities(halfStep); });
 
-    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
-    logger().printRunTimeIndent("Compute explicit forces, stage-2: ", [&]() { computeExplicitForces(); });
+    logger().printRunTimeIndent("Move particles", [&]() { moveParticles(timestep); });
+    logger().printRunTimeIndent("Compute explicit forces, stage-2", [&]() { computeExplicitForces(); });
     if(solverParams().bCollision) {
-        logger().printRunTimeIndent("Find neighbors for collision detection, stage-2: ", [&]() { particleData().NSearch().find_neighbors(); });
-        logger().printRunTimeIndent("Compute collision penalty forces, stage-2: ", [&]() { computeInternalCollisionPenaltyForces(); });
+        logger().printRunTimeIndent("Find neighbors for collision detection, stage-2", [&]() { particleData().NSearch().find_neighbors(); });
+        logger().printRunTimeIndent("Compute collision penalty forces, stage-2", [&]() { computeInternalCollisionPenaltyForces(); });
     }
-    logger().printRunTimeIndent("Update explicit velocities, stage-2: ", [&]() { updateExplicitVelocities(halfStep); });
+    logger().printRunTimeIndent("Update explicit velocities, stage-2", [&]() { updateExplicitVelocities(halfStep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::explicitEulerIntegration(RealType timestep)
 {
-    logger().printRunTime("{   Move particles: ", [&]() { moveParticles(timestep); });
-    logger().printRunTimeIndent("Compute explicit forces: ", [&]() { computeExplicitForces(); });
+    logger().printRunTime("{   Move particles", [&]() { moveParticles(timestep); });
+    logger().printRunTimeIndent("Compute explicit forces", [&]() { computeExplicitForces(); });
     if(solverParams().bCollision) {
-        logger().printRunTimeIndent("Find neighbors for collision detection: ", [&]() { particleData().NSearch().find_neighbors(); });
-        logger().printRunTimeIndent("Compute collision penalty forces: ", [&]() { computeInternalCollisionPenaltyForces(); });
+        logger().printRunTimeIndent("Find neighbors for collision detection", [&]() { particleData().NSearch().find_neighbors(); });
+        logger().printRunTimeIndent("Compute collision penalty forces", [&]() { computeInternalCollisionPenaltyForces(); });
     }
-    logger().printRunTimeIndent("Update explicit velocities: ", [&]() { updateExplicitVelocities(timestep); });
+    logger().printRunTimeIndent("Update explicit velocities", [&]() { updateExplicitVelocities(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::implicitIntegration(RealType timestep)
 {
-    logger().printRunTime("{   Reset data: ", [&]() { resetImplicitIntegrationData(); });
+    logger().printRunTime("{   Reset data", [&]() { resetImplicitIntegrationData(); });
     if(solverParams().bCollision) {
-        logger().printRunTimeIndent("Find neighbors for collision detection: ", [&]() { particleData().NSearch().find_neighbors(); });
-        logger().printRunTimeIndent("Compute collision penalty forces: ", [&]() { computeInternalCollisionPenaltyForces(); });
+        logger().printRunTimeIndent("Find neighbors for collision detection", [&]() { particleData().NSearch().find_neighbors(); });
+        logger().printRunTimeIndent("Compute collision penalty forces", [&]() { computeInternalCollisionPenaltyForces(); });
     }
-    logger().printRunTimeIndent("Build implicit linear system: ", [&]() { buildImplicitLinearSystem(timestep); });
-    logger().printRunTimeIndent("Solve system: ", [&]() { solveImplicitLinearSystem(); });
-    logger().printRunTimeIndent("Update implicit velocities: ", [&]() { updateExplicitVelocities(timestep); });
-    logger().printRunTimeIndent("Move particles: ", [&]() { moveParticles(timestep); });
+    logger().printRunTimeIndent("Build implicit linear system", [&]() { buildImplicitLinearSystem(timestep); });
+    logger().printRunTimeIndent("Solve system", [&]() { solveImplicitLinearSystem(); });
+    logger().printRunTimeIndent("Update implicit velocities", [&]() { updateExplicitVelocities(timestep); });
+    logger().printRunTimeIndent("Move particles", [&]() { moveParticles(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+;

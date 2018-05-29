@@ -96,22 +96,22 @@ Int HairMPM_Solver<N, RealType>::saveFrameData()
 template<Int N, class RealType>
 void HairMPM_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
-    m_Logger->printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
-    m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
-    m_Logger->printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
-    m_Logger->printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
-    m_Logger->printRunTimeIndent("Damp velocity: ",                   [&]() { computeDamping(); });
+    m_Logger->printRunTime("{   Reset grid data", [&]() { gridData().resetGrid(); });
+    m_Logger->printRunTimeIndent("Map particle masses to grid", [&]() { mapParticleMasses2Grid(); });
+    m_Logger->printRunTimeIndentIf("Compute particle volumes", [&]() { return initParticleVolumes(); });
+    m_Logger->printRunTimeIndent("Map particle velocities to grid", [&]() { mapParticleVelocities2Grid(timestep); });
+    m_Logger->printRunTimeIndent("Damp velocity",                   [&]() { computeDamping(); });
 
     if(solverParams().implicitRatio < Tiny<RealType>()) {
-        m_Logger->printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
+        m_Logger->printRunTimeIndent("Velocity explicit integration", [&]() { explicitIntegration(timestep); });
     } else {
-        m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
+        m_Logger->printRunTimeIndent("Velocity implicit integration", [&]() { implicitIntegration(timestep); });
     }
 
-    m_Logger->printRunTimeIndent("Constrain grid velocity: ",          [&]() { gridCollision(timestep); });
-    m_Logger->printRunTimeIndent("Map grid velocities to particles: ", [&]() { mapGridVelocities2Particles(timestep); });
-    m_Logger->printRunTimeIndent("Update particle states: ",           [&]() { updateParticleStates(timestep); });
-    //m_Logger->printRunTimeIndent("Compute plasticity: ",               [&]() { computePlasticity(); });
+    m_Logger->printRunTimeIndent("Constrain grid velocity",          [&]() { gridCollision(timestep); });
+    m_Logger->printRunTimeIndent("Map grid velocities to particles", [&]() { mapGridVelocities2Particles(timestep); });
+    m_Logger->printRunTimeIndent("Update particle states",           [&]() { updateParticleStates(timestep); });
+    //m_Logger->printRunTimeIndent("Compute plasticity",               [&]() { computePlasticity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
