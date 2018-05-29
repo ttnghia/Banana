@@ -34,8 +34,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Benchmark", "Sandbox\Benchm
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "C++17", "Sandbox\C++17\C++17.vcxproj", "{B576A8F1-A341-4F93-A98D-74292A3B51D8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simd", "Sandbox\Simd\Simd.vcxproj", "{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -97,12 +95,6 @@ Global
 		{B576A8F1-A341-4F93-A98D-74292A3B51D8}.Release|x64.Build.0 = Release|x64
 		{B576A8F1-A341-4F93-A98D-74292A3B51D8}.ReleaseStaticBuild|x64.ActiveCfg = Release|x64
 		{B576A8F1-A341-4F93-A98D-74292A3B51D8}.ReleaseStaticBuild|x64.Build.0 = Release|x64
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}.Debug|x64.ActiveCfg = Debug|x64
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}.Debug|x64.Build.0 = Debug|x64
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}.Release|x64.ActiveCfg = Release|x64
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}.Release|x64.Build.0 = Release|x64
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}.ReleaseStaticBuild|x64.ActiveCfg = Release|x64
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A}.ReleaseStaticBuild|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,7 +109,6 @@ Global
 		{2E3CBD66-ECEE-42FC-B4D5-61AD7C4C0E51} = {B6E7CB10-66E0-4A1E-8ECD-21288DA8A3B1}
 		{75339C38-D05A-4774-8B1B-69A3F49393FF} = {3ECE78C2-2B6C-4CBE-98E6-B8E7161428A7}
 		{B576A8F1-A341-4F93-A98D-74292A3B51D8} = {3ECE78C2-2B6C-4CBE-98E6-B8E7161428A7}
-		{A627F4CF-E20D-4C00-B9AE-BAE7A095506A} = {3ECE78C2-2B6C-4CBE-98E6-B8E7161428A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {681C5D9B-4B1C-45DB-96F3-B3E73BD59190}
