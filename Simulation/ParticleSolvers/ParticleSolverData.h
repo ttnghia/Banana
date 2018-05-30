@@ -51,7 +51,7 @@ static const Real ParticleRadius                  = 2.0_f / 64.0_f / 4.0_f;
 
 static const Real BoundaryReflectionMultiplier = 1.0_f;
 
-static const UInt CGMaxIteration      = 10'000u;
+static const UInt CGMaxIteration      = 5'000u;
 static const Real CGRelativeTolerance = 1e-15_f;
 
 static const Real PIC_FLIP_Ratio = 0.97_f;
