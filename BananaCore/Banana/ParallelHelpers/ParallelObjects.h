@@ -87,7 +87,7 @@ class DotProduct
 {
 public:
     DotProduct(const Vector<VecX<N, RealType>>& vec1, const Vector<VecX<N, RealType>>& vec2) : m_Vec1(vec1), m_Vec2(vec2) {}
-    DotProduct(DotProduct<N, RealType>& pObj, tbb::split) : m_Vec1(pObj.m_Vec1), m_Vec2(pObj.m_Vec1) {}
+    DotProduct(DotProduct<N, RealType>& pObj, tbb::split) : m_Vec1(pObj.m_Vec1), m_Vec2(pObj.m_Vec2) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
