@@ -429,7 +429,7 @@ void MSS_Solver<N, RealType>::implicitIntegration(RealType timestep)
     }
     logger().printRunTimeIndent("Build implicit linear system", [&]() { buildImplicitLinearSystem(timestep); });
     logger().printRunTimeIndent("Solve system", [&]() { solveImplicitLinearSystem(); });
-    logger().printRunTimeIndent("Update implicit velocities", [&]() { updateExplicitVelocities(timestep); });
+    logger().printRunTimeIndent("Update implicit velocities", [&]() { updateImplicitVelocities(); });
     logger().printRunTimeIndent("Move particles", [&]() { moveParticles(timestep); });
 }
 
