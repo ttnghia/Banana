@@ -33,6 +33,7 @@
         "string": "cpp",
         "memory": "cpp",
         "qtgui": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "ostream": "cpp"
     }
 }
