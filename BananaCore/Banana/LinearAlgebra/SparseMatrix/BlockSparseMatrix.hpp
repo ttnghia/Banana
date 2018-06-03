@@ -208,6 +208,126 @@ void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int sh
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class MatrixType>
+void BlockSparseMatrix<MatrixType>::writeBinaryFile(const char* fileName) const
+{
+    FILE* fptr;
+#ifdef __BANANA_WINDOWS__
+    fopen_s(&fptr, fileName, "wb");
+#else
+    fptr = fopen(fileName, "wb");
+#endif
+    if(fptr == nullptr) {
+        printf("Cannot open file for writing!\n");
+        return;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // write matrix size and size of matrix element
+    {
+        fwrite(&m_Size,      sizeof(UInt), 1, fptr);
+        UInt elementSize = static_cast<UInt>(sizeof(MatrixType));
+        fwrite(&elementSize, sizeof(UInt), 1, fptr);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // write data, row by row
+    UInt rowSize;
+    for(UInt i = 0; i < m_Size; ++i) {
+        __BNN_REQUIRE(m_ColIndex[i].size() == m_ColValue[i].size());
+        rowSize = static_cast<UInt>(m_ColIndex[i].size());
+        fwrite(&rowSize,             sizeof(UInt),       1,       fptr);
+        fwrite(m_ColIndex[i].data(), sizeof(UInt),       rowSize, fptr);
+        fwrite(m_ColValue[i].data(), sizeof(MatrixType), rowSize, fptr);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // finalize
+    fclose(fptr);
+    printf("Matrix was written to file: %s\n", fileName);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class MatrixType>
+bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName)
+{
+    FILE* fptr;
+#ifdef _WIN32
+    fopen_s(&fptr, fileName, "rb");
+#else
+    fptr = fopen(fileName, "rb");
+#endif
+    if(fptr == nullptr) {
+        printf("Cannot open file for reading!\n");
+        return false;
+    }
+
+    clear();
+    ////////////////////////////////////////////////////////////////////////////////
+    // read matrix size and size of matrix element
+    UInt elementSize;
+    bool bConsistentSize = true;
+    {
+        UInt matrixSize;
+        fread(&matrixSize,  sizeof(UInt), 1, fptr);
+        fread(&elementSize, sizeof(UInt), 1, fptr);
+        resize(matrixSize);
+        if(elementSize != sizeof(MatrixType)) {
+            bConsistentSize = false;
+            if(elementSize > sizeof(MatrixType)) {
+                __BNN_REQUIRE(sizeof(double) * N * N == elementSize);
+                __BNN_REQUIRE(sizeof(float) * N * N == sizeof(MatrixType));
+            } else {
+                __BNN_REQUIRE(sizeof(float) * N * N == elementSize);
+                __BNN_REQUIRE(sizeof(double) * N * N == sizeof(MatrixType));
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // read data, row by row
+    UInt  rowSize;
+    char* buffer = new char[elementSize];
+    for(UInt i = 0; i < m_Size; ++i) {
+        fread(&rowSize,             sizeof(UInt), 1,       fptr);
+        m_ColIndex[i].resize(rowSize);
+        fread(m_ColIndex[i].data(), sizeof(UInt), rowSize, fptr);
+
+        m_ColValue[i].resize(rowSize);
+        if(bConsistentSize) {
+            fread(m_ColValue[i].data(), sizeof(MatrixType), rowSize, fptr);
+        } else {
+            for(UInt j = 0; j < rowSize; ++j) {
+                fread(buffer, elementSize, 1, fptr);
+                RealType* dst = glm::value_ptr(m_ColValue[i][j]);
+                if(elementSize > sizeof(MatrixType)) {
+                    double* src = reinterpret_cast<double*>(buffer);
+                    for(Int k = 0, k_end = N * N; k < k_end; ++k) {
+                        dst[k] = static_cast<float>(src[k]);
+                    }
+                } else {
+                    float* src = reinterpret_cast<float*>(buffer);
+                    for(Int k = 0, k_end = N * N; k < k_end; ++k) {
+                        dst[k] = static_cast<double>(src[k]);
+                    }
+                }
+            }
+        }
+    }
+    delete[] buffer;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // finalize
+    fclose(fptr);
+    printf("Matrix was loaded from file: %s\n", fileName);
+    return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix
 //
@@ -220,8 +340,8 @@ void FixedBlockSparseMatrix<MatrixType>::constructFromSparseMatrix(const BlockSp
         m_RowStart[i + 1] = m_RowStart[i] + static_cast<UInt>(matrix.getIndices(i).size());
     }
 
-    m_ColValue.resize(m_RowStart[m_Size] + 1);
-    m_ColIndex.resize(m_RowStart[m_Size] + 1);
+    m_ColValue.resize(m_RowStart[m_Size]);
+    m_ColIndex.resize(m_RowStart[m_Size]);
 
     Scheduler::parallel_for(matrix.size(),
                             [&](UInt i)

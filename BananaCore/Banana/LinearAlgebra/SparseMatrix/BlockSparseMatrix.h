@@ -27,6 +27,7 @@
 #include <Banana/ParallelHelpers/Scheduler.h>
 
 #include <iostream>
+#include <cstdio>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -71,6 +72,8 @@ public:
     void checkSymmetry(RealType threshold = RealType(1e-8)) const noexcept;
 
     void writeMatlabFile(const char* fileName, int showPercentage = -1) const;
+    void writeBinaryFile(const char* fileName) const;
+    bool loadFromBinaryFile(const char* fileName);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
