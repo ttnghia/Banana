@@ -169,7 +169,7 @@ struct SimulationParameters
 
     // two particle are overlapped if (length(ppos - qpos) < overlapThreshold),
     // they are resolved by moving apart by vrand<VecN>() * overlapResolution
-    RealType overlapThreshold = RealType(1e-6);
+    RealType overlapThreshold = RealType(1e-2);
     RealType overlapThresholdSqr;
 
     // two particle are colliding if (length(ppos - qpos) < collisionThreshold),
