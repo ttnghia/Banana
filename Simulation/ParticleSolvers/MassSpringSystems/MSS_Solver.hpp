@@ -528,7 +528,7 @@ auto MSS_Solver<N, RealType>::computeForceDerivative(UInt p, const VecN& xqp, Re
     auto pStiffness = particleData().springStiffness(p);
     auto pDamping   = particleData().springDamping(p);
     auto xqp_xqpT   = glm::outerProduct(xqp, xqp);
-    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);   // (MatNxN(1.0) * strain + xqp_xqpT);
+    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);     // (MatNxN(1.0) * strain + xqp_xqpT);
     auto FDv        = -pDamping * xqp_xqpT;;
     ////////////////////////////////////////////////////////////////////////////////
     return std::make_tuple(FDx, FDv);
@@ -580,13 +580,13 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                     auto [FDx, FDv] = computeForceDerivative(p, xqp, dist, strain);
                                     FDx            *= FDxCoeff;
                                     FDv            *= FDvCoeff;
-                                    auto FDxFdv     = FDx + FDv;
 
-                                    sumLHS -= FDxFdv;
-                                    sumRHS -= (FDx * vqp);
+                                    auto FDxFDv = FDx + FDv;
+                                    sumLHS     -= FDxFDv;
+                                    sumRHS     -= (FDx * vqp);
 
                                     if(particleData().activity[q] != static_cast<Int8>(Activity::Constrained)) {
-                                        particleData().matrix.addElement(p, q, FDxFdv);
+                                        particleData().matrix.addElement(p, q, FDxFDv);
                                     }
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
@@ -598,14 +598,13 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                 particleData().matrix.setElement(p, p, sumLHS);
                                 particleData().rhs[p] = sumRHS * RHSCoeff + forces * timestep;
                             });
-    // particleData().matrix.printDebug();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void MSS_Solver<N, RealType>::solveImplicitLinearSystem()
 {
-    bool success = solverData().pcgSolver.solve_precond(particleData().matrix, particleData().rhs, particleData().dvelocities);
+    bool success = solverData().pcgSolver.solve(particleData().matrix, particleData().rhs, particleData().dvelocities);
     logger().printLogIndent("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
                             ". Final residual: " + NumberHelpers::formatToScientific(solverData().pcgSolver.residual()), 2);
     if(!success) {
