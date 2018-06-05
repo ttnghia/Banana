@@ -1,0 +1,94 @@
+{
+    "GlobalParameters":
+    {
+        "Solver" : "HairMPM_2DSolver",
+        "FrameDuration" : 0.003333333333,
+        "StartFrame" : 1,
+        "FinalFrame" : 5,
+        "SaveFrameData" : false,
+        "SaveMemoryState" : false,
+        "FramePerState" : 10,
+        "DataPath" : "D:/Scratch/MPM2D_TwoSphere_APIC",
+        "FrameDataFolder" : "FLIPData",
+        "MemoryStateDataFolder" : "MPMState",
+        "OptionalSavingData" : [ "object_index" ],
+        "LogLevel" : "Debug",
+        "PrintLogToConsole" : true,
+        "PrintLogToFile" : false,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10
+    },
+    "SimulationParameters":
+    {
+        "SimulationDomainBox" :
+        {
+            "BoxMin" : [-2, -1],
+            "BoxMax" : [2, 1]
+        },
+        "NExpandCells" : 2,
+        "AdvectionSteps" : 2,
+        "PIC_FLIP_Ratio" : 0.9,
+        "ImplicitRatio" : 0,
+        "CGRelativeTolerance" : 1e-18,
+        "MaxCGIteration" : 1000,
+        "CellSize" : 0.05,
+        "RatioCellSizePRadius" : 4,
+        "CFLFactor" : 0.02,
+        "lambda" : 100,
+        "mu": 100,
+        "MaterialDensity" : 1,
+        "GravityType" : "Directional",
+        "GravityDirection" : [-1, -1]
+    },
+    "ParticleGeneratorsXXX":
+    [
+        {
+            "GeometryType" : "Box",
+            "UniqueName" : "Box",
+            "Translation" : [0.5, -0.5],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.0,
+            "InitialVelocity" : [0, 0]
+        }
+    ],
+    "ParticleGenerators":
+    [
+        {
+            "GeometryType" : "Box",
+            "UniqueName" : "SphereRight",
+            "Translation" : [-1, 0.1],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.0,
+            "InitialVelocity" : [10, 0]
+        },
+        {
+            "GeometryType" : "Box",
+            "UniqueName" : "SphereLeft",
+            "Translation" : [1, -0.1],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.0,
+            "InitialVelocity" : [-10, 0]
+        }
+    ],
+    "VisualizationParameters":
+    {
+        "CameraPosition" : [0, 0, 0.5],
+        "CameraFocus" : [0, 0, 0],
+        "CapturePath" : "D:/Scratch/MPM2D_TwoSphere_APIC/Capture",
+        "Light" :
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [10, 20, -10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [0, -20, 0],
+                "Diffuse" : [1, 1, 1]
+            }
+        ]
+    }
+}

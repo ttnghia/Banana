@@ -21,58 +21,52 @@
 
 #pragma once
 
-#include "RenderWidget.h"
-#include "Controller.h"
-#include "Simulator.h"
+#include <Banana/Setup.h>
+
+#include <QObject>
+#include <QStringList>
+#include <future>
+
 #include "Common.h"
-
-#include <QtAppHelpers/OpenGLMainWindow.h>
-#include <QtAppHelpers/BrowsePathWidget.h>
-#include <QtAppHelpers/OpenGLWidgetTestRender.h>
-#include <QtAppHelpers/ClipPlaneEditor.h>
-#include <QtAppHelpers/BusyBar.h>
-
-#include <QEvent>
-#include <memory>
+#include "ParticleSolverInterface.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MainWindow : public OpenGLMainWindow
+class Simulator : public QObject
 {
     Q_OBJECT
-
 public:
-    MainWindow(QWidget* parent = 0);
+    Simulator() = default;
+    auto& getVizData() const { return m_VizData; }
 
-protected:
-    virtual bool processKeyPressEvent(QKeyEvent* event) override;
-    virtual void showEvent(QShowEvent* ev);
+    bool isRunning() { return !m_bStop; }
+    void startSimulation();
+    void stop() { m_bStop = true; }
+    void reset() { m_bStop = true; changeScene(m_Scene); }
+    void finishImgExport() { m_bWaitForSavingImg = false; }
 
 public slots:
-    void updateWindowTitle(const QString& filePath);
-    void updateStatusSimulation(const QString& status);
-    void updateStatusMemoryUsage();
-    void updateStatusNumParticles(UInt numParticles);
-    void updateStatusSimulationTime(float time, UInt frame);
-    void finishFrame();
-    void finishSimulation();
+    void doSimulation();
+    void changeScene(const QString& scene);
+    void enableExportImg(bool bEnable) { m_bExportImg = bEnable; }
+
+signals:
+    void dimensionChanged();
+    void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
+    void cameraChanged();
+    void lightsChanged(const Vector<PointLights::PointLightData>& lightData);
+    void capturePathChanged(const QString& capturePath);
+    void simulationFinished();
+    void systemTimeChanged(float time, unsigned int frame);
+    void numParticleChanged(UInt numParticles);
+    void vizDataChanged();
+    void frameFinished();
 
 private:
-    void setupRenderWidgets();
-    void setupStatusBar();
-    void connectWidgets();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    Simulator*    m_Simulator             = nullptr;
-    RenderWidget* m_RenderWidget          = nullptr;
-    Controller*   m_Controller            = nullptr;
-    QLabel*       m_lblStatusNumParticles = nullptr;
-    QLabel*       m_lblStatusSimInfo      = nullptr;
-    QLabel*       m_lblStatusMemoryUsage  = nullptr;
-    QLabel*       m_lblStatusSimTime      = nullptr;
-    BusyBar*      m_BusyBar;
-
-    int  m_FrameNumber = 0;
-    bool m_bExportImg  = false;
-
-    ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
+    SharedPtr<VisualizationData>       m_VizData        = std::make_shared<VisualizationData>();
+    SharedPtr<ParticleSolverInterface> m_ParticleSolver = nullptr;
+    std::future<void>                  m_SimulationFutureObj;
+    QString                            m_Scene;
+    volatile bool                      m_bStop             = true;
+    volatile bool                      m_bWaitForSavingImg = false;
+    volatile bool                      m_bExportImg        = false;
 };

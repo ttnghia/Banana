@@ -1,87 +1,119 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \     This file is part of Banana - a general programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/ParallelHelpers/Scheduler.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
 #include "RenderWidget.h"
-#include <tbb/tbb.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-RenderWidget::RenderWidget(QWidget* parent) : OpenGLWidget(parent)
+RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData) : OpenGLWidget(parent), m_VizData(vizData)
 {
-    m_DefaultSize = QSize(1200, 1000);
-    setCamera(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_FOCUS);
-    initParticleDataObj();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<ParticleSystemData>& RenderWidget::getParticleDataObj() const
-{
-    return m_ParticleData;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setCamera(const Vec3f& cameraPosition, const Vec3f& cameraFocus)
-{
-    m_Camera->setCamera(cameraPosition, cameraFocus, Vec3f(0, 1, 0));
+    updateCamera();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initOpenGL()
 {
-    return;
-    initRDataSkyBox();
-    initRDataLight();
-    initRDataFloor();
-    initRDataBox();
     initRDataParticle();
-
-    updateParticleData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::resizeOpenGLWindow(int, int h)
+void RenderWidget::resizeOpenGLWindow(int, int height)
 {
-    m_RDataParticle.pointScale = static_cast<GLfloat>(h) / tanf(55.0 * 0.5 * M_PI / 180.0);
+    m_RDataParticle.pointScale = static_cast<GLfloat>(height) / tanf(55.0 * 0.5 * M_PI / 180.0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::renderOpenGL()
 {
-    return;
     renderParticles();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::updateParticleData()
+void RenderWidget::updateSolverDimension()
 {
-    return;
+    if(m_VizData->systemDimension == 3) {
+        m_Camera->setProjection(Camera::PerspectiveProjection);
+    } else {
+        m_Camera->setProjection(Camera::OrthographicProjection);
+        m_Camera->setOrthoBox(m_VizData->boxMin.x * 1.01f, m_VizData->boxMax.x * 1.01f, m_VizData->boxMin.y * 1.01f, m_VizData->boxMax.y * 1.01f);
+    }
+
+    makeCurrent();
+    initParticleVAO();
+    doneCurrent();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::updateVizData()
+{
     Q_ASSERT(m_RDataParticle.initialized);
     makeCurrent();
-
     ////////////////////////////////////////////////////////////////////////////////
-    // position buffer
-    m_RDataParticle.buffPosition->uploadDataAsync(m_ParticleData->getArray("Position")->data(), 0, m_ParticleData->getArray("Position")->size());
-    m_RDataParticle.buffColorScale->uploadDataAsync(m_ParticleData->getArray("ColorScale")->data(), 0, m_ParticleData->getArray("ColorScale")->size());
-
+    m_RDataParticle.buffPosition->uploadDataAsync(m_VizData->positions, 0, m_VizData->nParticles * m_VizData->systemDimension * sizeof(float));
+    ////////////////////////////////////////////////////////////////////////////////
+    // color data
+    if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
+       m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
+        if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
+            m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles * sizeof(Int16));
+            m_RDataParticle.vColorMin = 0;
+            m_RDataParticle.vColorMax = m_VizData->nObjects > 1u ? static_cast<float>(m_VizData->nObjects - 1) : 1.0f;
+        } else {
+            static Vec_Float velMag2;
+            velMag2.resize(m_VizData->nParticles);
+            if(m_VizData->systemDimension == 2) {
+                auto velPtr = reinterpret_cast<Vec2f*>(m_VizData->velocities);
+                __BNN_REQUIRE(velPtr != nullptr);
+                Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
+            } else {
+                auto velPtr = reinterpret_cast<Vec3f*>(m_VizData->velocities);
+                __BNN_REQUIRE(velPtr != nullptr);
+                Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
+            }
+            m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
+            m_RDataParticle.vColorMax = ParallelSTL::max(velMag2);
+            m_RDataParticle.buffColorData->uploadDataAsync(velMag2.data(), 0, velMag2.size() * sizeof(float));
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
-    m_RDataParticle.negativePointRadius  = m_ParticleData->getParticleRadius<GLfloat>() * m_NegativeParticleSizeScale;
-    m_RDataParticle.positivePointRadius  = m_ParticleData->getParticleRadius<GLfloat>() * m_PositveParticleSizeScale;
-    m_RDataParticle.numNegativeParticles = m_ParticleData->getUInt("NumNegative");
-    m_RDataParticle.numPositiveParticles = m_ParticleData->getUInt("NumPositive");
+    m_RDataParticle.nParticles  = m_VizData->nParticles;
+    m_RDataParticle.pointRadius = m_VizData->particleRadius;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setParticleColorMode(int colorMode)
+{
+    Q_ASSERT(colorMode < ParticleColorMode::NumColorMode);
+    Q_ASSERT(m_RDataParticle.initialized);
+    m_RDataParticle.pColorMode = colorMode;
+    ////////////////////////////////////////////////////////////////////////////////
+    if(colorMode == ParticleColorMode::ObjectIndex ||
+       colorMode == ParticleColorMode::VelocityMagnitude) {
+        updateVizData();
+        makeCurrent();
+        initParticleVAO();
+        doneCurrent();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -91,53 +123,65 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.shader->addVertexShaderFromResource(":/Shaders/particle.vs.glsl");
     m_RDataParticle.shader->addFragmentShaderFromResource(":/Shaders/particle.fs.glsl");
     m_RDataParticle.shader->link();
-
-    m_RDataParticle.v_Position   = m_RDataParticle.shader->getAtributeLocation("v_Position");
-    m_RDataParticle.v_ColorScale = m_RDataParticle.shader->getAtributeLocation("v_ColorScale");
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.v_Position = m_RDataParticle.shader->getAtributeLocation("v_Position");
+    m_RDataParticle.v_iColor   = m_RDataParticle.shader->getAtributeLocation("v_iColor");
+    m_RDataParticle.v_fColor   = m_RDataParticle.shader->getAtributeLocation("v_fColor");
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.ub_CamData  = m_RDataParticle.shader->getUniformBlockIndex("CameraData");
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
-
-    m_RDataParticle.u_PointRadius = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
-    m_RDataParticle.u_PointScale  = m_RDataParticle.shader->getUniformLocation("u_PointScale");
-
-    m_RDataParticle.u_ClipPlane = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.u_nParticles   = m_RDataParticle.shader->getUniformLocation("u_nParticles");
+    m_RDataParticle.u_PointRadius  = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
+    m_RDataParticle.u_PointScale   = m_RDataParticle.shader->getUniformLocation("u_PointScale");
+    m_RDataParticle.u_Dimension    = m_RDataParticle.shader->getUniformLocation("u_Dimension");
+    m_RDataParticle.u_ScreenHeight = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
+    m_RDataParticle.u_DomainHeight = m_RDataParticle.shader->getUniformLocation("u_DomainHeight");
+    m_RDataParticle.u_ColorMode    = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
+    m_RDataParticle.u_vColorMin    = m_RDataParticle.shader->getUniformLocation("u_vColorMin");
+    m_RDataParticle.u_vColorMax    = m_RDataParticle.shader->getUniformLocation("u_vColorMax");
+    m_RDataParticle.u_ColorMinVal  = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
+    m_RDataParticle.u_ColorMaxVal  = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
+    m_RDataParticle.u_ClipPlane    = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-
-    m_RDataParticle.buffColorScale = std::make_unique<OpenGLBuffer>();
-    m_RDataParticle.buffColorScale->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-
-    m_RDataParticle.negativeParticleMaterial = std::make_unique<Material>();
-    m_RDataParticle.negativeParticleMaterial->setMaterial(CUSTOM_PARTICLE_MATERIAL_INSIDE);
-    m_RDataParticle.negativeParticleMaterial->uploadDataToGPU();
-
-    m_RDataParticle.positiveParticleMaterial = std::make_unique<Material>();
-    m_RDataParticle.positiveParticleMaterial->setMaterial(CUSTOM_PARTICLE_MATERIAL_OUTSIDE);
-    m_RDataParticle.positiveParticleMaterial->uploadDataToGPU();
-
-    glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.buffColorData = std::make_unique<OpenGLBuffer>();
+    m_RDataParticle.buffColorData->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.material = std::make_unique<Material>();
+    m_RDataParticle.material->setMaterial(CUSTOM_PARTICLE_MATERIAL);
+    m_RDataParticle.material->uploadDataToGPU();
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.initialized = true;
-    initParticleVAOs();
+    initParticleVAO();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initParticleVAOs()
+void RenderWidget::initParticleVAO()
 {
     Q_ASSERT(m_RDataParticle.initialized);
+    glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
     glCall(glBindVertexArray(m_RDataParticle.VAO));
-
     glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffPosition->bind();
-    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
-
-    glCall(glEnableVertexAttribArray(m_RDataParticle.v_ColorScale));
-    m_RDataParticle.buffColorScale->bind();
-    glCall(glVertexAttribPointer(m_RDataParticle.v_ColorScale, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
-
+    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, m_VizData->systemDimension, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
+       m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
+        m_RDataParticle.buffColorData->bind();
+        if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
+            glCall(glEnableVertexAttribArray(m_RDataParticle.v_iColor));
+            glCall(glVertexAttribIPointer(m_RDataParticle.v_iColor, 1, GL_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+        } else {
+            glCall(glEnableVertexAttribArray(m_RDataParticle.v_fColor));
+            glCall(glVertexAttribPointer(m_RDataParticle.v_fColor, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
     glCall(glBindVertexArray(0));
 }
 
@@ -147,111 +191,44 @@ void RenderWidget::renderParticles()
     Q_ASSERT(m_RDataParticle.initialized);
 
     m_RDataParticle.shader->bind();
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_UBufferCamData->bindBufferBase();
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData, m_UBufferCamData->getBindingPoint());
-
     m_Lights->bindUniformBuffer();
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light, m_Lights->getBufferBindingPoint());
-
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale, m_RDataParticle.pointScale);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,  m_ClipPlane);
-
+    m_RDataParticle.material->bindUniformBuffer();
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData,  m_UBufferCamData->getBindingPoint());
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light,    m_Lights->getBufferBindingPoint());
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles,   m_RDataParticle.nParticles);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius,  m_RDataParticle.pointRadius);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,   m_RDataParticle.pointScale);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,    m_VizData->systemDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode,    m_RDataParticle.pColorMode);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,    m_ClipPlane);
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
+       m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin,   m_RDataParticle.vColorMin);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax,   m_RDataParticle.vColorMax);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
-
-    if(!m_RDataParticle.hideNegativeParticles) {
-        m_RDataParticle.negativeParticleMaterial->bindUniformBuffer();
-        m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.negativeParticleMaterial->getBufferBindingPoint());
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.negativePointRadius);
-        glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.numNegativeParticles));
-    }
-
-    if(!m_RDataParticle.hidePositveParticles) {
-        m_RDataParticle.positiveParticleMaterial->bindUniformBuffer();
-        m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.positiveParticleMaterial->getBufferBindingPoint());
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.positivePointRadius);
-        glCall(glDrawArrays(GL_POINTS, m_RDataParticle.numNegativeParticles, m_RDataParticle.numPositiveParticles));
-    }
+    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));
     glCall(glBindVertexArray(0));
     m_RDataParticle.shader->release();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initParticleDataObj()
-{
-    Q_ASSERT(m_ParticleData != nullptr);
-    m_ParticleData->addArray<GLfloat, 3>("Position");
-
-#if 1
-    const int     sizeXYZ = 20;
-    const GLfloat step    = 2.0 / static_cast<GLfloat>(sizeXYZ - 1);
-    m_ParticleData->setNumParticles(sizeXYZ * sizeXYZ * sizeXYZ);
-    m_ParticleData->setParticleRadius(0.5 * step);
-
-    GLfloat*      dataPtr    = reinterpret_cast<GLfloat*>(m_ParticleData->getArray("Position")->data());
-    int           p          = 0;
-    const GLfloat randomness = 0.0;
-
-    for(int i = 0; i < sizeXYZ; ++i) {
-        for(int j = 0; j < sizeXYZ; ++j) {
-            for(int k = 0; k < sizeXYZ; ++k) {
-                dataPtr[p++] = -1.0 + static_cast<GLfloat>(i) * step + ((float)rand() / RAND_MAX * 2 - 1) * m_ParticleData->getParticleRadius<float>() * randomness;
-                dataPtr[p++] = -1.0 + static_cast<GLfloat>(j) * step + ((float)rand() / RAND_MAX * 2 - 1) * m_ParticleData->getParticleRadius<float>() * randomness;
-                dataPtr[p++] = -1.0 + static_cast<GLfloat>(k) * step + ((float)rand() / RAND_MAX * 2 - 1) * m_ParticleData->getParticleRadius<float>() * randomness;
-            }
-        }
-    }
-#endif
-
-    unsigned int numTotal    = sizeXYZ * sizeXYZ * sizeXYZ;
-    unsigned int numNegative = sizeXYZ * sizeXYZ * sizeXYZ / 2;
-    unsigned int numPositive = numTotal - numNegative;
-    m_ParticleData->setUInt("NumNegative", numNegative);
-    m_ParticleData->setUInt("NumPositive", numPositive);
-    m_ParticleData->addArray<GLfloat, 1>("ColorScale", true, 1.0f);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setNegativeParticleMaterial(const Material::MaterialData& material)
+void RenderWidget::setParticleMaterial(const Material::MaterialData& material)
 {
     makeCurrent();
-    m_RDataParticle.negativeParticleMaterial->setMaterial(material);
-    m_RDataParticle.negativeParticleMaterial->uploadDataToGPU();
+    m_RDataParticle.material->setMaterial(material);
+    m_RDataParticle.material->uploadDataToGPU();
     doneCurrent();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setPositiveParticleMaterial(const Material::MaterialData& material)
-{
-    makeCurrent();
-    m_RDataParticle.positiveParticleMaterial->setMaterial(material);
-    m_RDataParticle.positiveParticleMaterial->uploadDataToGPU();
-    doneCurrent();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setNegativeParticleSize(int sizeScale)
-{
-    m_NegativeParticleSizeScale         = static_cast<GLfloat>(sizeScale) / 100.0f;
-    m_RDataParticle.negativePointRadius = m_ParticleData->getParticleRadius<GLfloat>() * m_NegativeParticleSizeScale;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setPositiveParticleSize(int sizeScale)
-{
-    m_PositveParticleSizeScale          = static_cast<GLfloat>(sizeScale) / 100.0f;
-    m_RDataParticle.positivePointRadius = m_ParticleData->getParticleRadius<GLfloat>() * m_PositveParticleSizeScale;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::hideNegativeParticles(bool bHide)
-{
-    m_RDataParticle.hideNegativeParticles = bHide;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::hidePositiveParticles(bool bHide)
-{
-    m_RDataParticle.hidePositveParticles = bHide;
 }

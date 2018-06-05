@@ -8,7 +8,7 @@
 #     ___________________________.""`-------`"".____________________________
 #    /                                                                      \
 #    \    This file is part of Banana - a graphics programming framework    /
-#    /                    Created: 2017 by Nghia Truong                     \
+#    /                    Created: 2018 by Nghia Truong                     \
 #    \                      <nghiatruong.vn@gmail.com>                      /
 #    /                      https://ttnghia.github.io                       \
 #    \                        All rights reserved.                          /
@@ -23,27 +23,33 @@ QT += core gui widgets
 
 TARGET = ParticleGenerator
 TEMPLATE = app
+CONFIG += console
 
-INCLUDEPATH += $$PWD/Source
+#QMAKE_LFLAGS += /VERBOSE
+#CONFIG += static
 
-include (D:/Programming/Banana/BananaCore/BananaCore.pri)
-include (D:/Programming/Banana/QtAppHelpers/QtAppHelpers.pri)
-include (D:/Programming/Banana/OpenGLHelpers/OpenGLHelpers.pri)
-include (D:/Programming/Banana/Simulation/Simulation.pri)
+BANANA_DIR = D:/Programming/Banana
+include($$BANANA_DIR/BananaCore/BananaCore.pri)
+include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
+include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
+include($$BANANA_DIR/Simulation/Simulation.pri)
 
-HEADERS += \
-    Source/MainWindow.h \
-    Source/Common.h \
-    Source/RenderWidget.h \
-    Source/Controller.h \
-    Source/SDFGrid.h
+win32 {
+    QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
 
-SOURCES += \
-    Source/Main.cpp \
-    Source/MainWindow.cpp \
-    Source/RenderWidget.cpp \
-    Source/Controller.cpp \
-    Source/SDFGrid.cpp
+    # For fast testing
+    QMAKE_LFLAGS += /DEBUG:FASTLINK
+}
 
-RESOURCES += \
-    Shader.qrc
+#macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
+win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
+
+INCLUDEPATH += $$PWD/Include
+
+HEADERS += $$files(Source/*.h, true)
+SOURCES += $$files(Source/*.cpp, true)
+
+RESOURCES += Shader.qrc
+
+DISTFILES += $$files(Scenes/*.json, true)
+DISTFILES += $$files(*.ini, true)

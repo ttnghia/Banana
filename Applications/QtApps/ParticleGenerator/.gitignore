@@ -1,6 +1,5 @@
-**/.vs
-**/*.db
-**/*.opendb
 Capture/*.*
 ParticleGenerator.pro.user
-Prebuild
+Binary/*
+Binary.zip
+Log/*

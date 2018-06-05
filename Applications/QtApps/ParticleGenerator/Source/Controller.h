@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \     This file is part of Banana - a general programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -33,15 +37,12 @@ class Controller : public OpenGLController
     Q_OBJECT
     friend class MainWindow;
 public:
-    explicit Controller(RenderWidget* renderWidget, QWidget* parent = nullptr) :
-        OpenGLController(static_cast<OpenGLWidget*>(renderWidget), parent), m_RenderWidget(renderWidget)
+    explicit Controller(RenderWidget* renderWidget, QWidget* parent = nullptr, int width = 300) :
+        OpenGLController(static_cast<OpenGLWidget*>(renderWidget), parent, width), m_RenderWidget(renderWidget)
     {
         setupGUI();
         connectWidgets();
     }
-
-signals:
-    void transformationChanged(const Vec3f& translation, const Vec4f& rotation, float uniformScale);
 
 private:
     void setupGUI();
@@ -52,33 +53,36 @@ private:
     RenderWidget* m_RenderWidget = nullptr;
     ////////////////////////////////////////////////////////////////////////////////
 
-    void setupColorControllers();
-    void setupGridResolutionControllers();
-    void setupParticleSizeControllers();
-    void setupParticleDisplayControllers();
-    void setupObjectTransformationControllers();
-    void setupSDFObjectControllers();
-    void setupButtons();
+    ////////////////////////////////////////////////////////////////////////////////
+    // material
+    void setupMaterialControllers();
+    MaterialSelector* m_msParticleMaterial;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    MaterialSelector* m_msNegativeParticleMaterial;
-    MaterialSelector* m_msPositiveParticleMaterial;
-    EnhancedComboBox* m_cbResolution;
-    QSlider*          m_slNegativeParticleSize;
-    QSlider*          m_slPositiveParticleSize;
-    QCheckBox*        m_chkHideNegativeParticles;
-    QCheckBox*        m_chkHidePositiveParticles;
-    QLineEdit*        m_txtTranslationX;
-    QLineEdit*        m_txtTranslationY;
-    QLineEdit*        m_txtTranslationZ;
-    QLineEdit*        m_txtRotationAxisX;
-    QLineEdit*        m_txtRotationAxisY;
-    QLineEdit*        m_txtRotationAxisZ;
-    QLineEdit*        m_txtRotationAngle;
-    QLineEdit*        m_txtUniformScale;
-    QPushButton*      m_btnApplyTransform;
-    EnhancedComboBox* m_cbSDFObject;
+    // color mode
+    void setupColorModeControllers();
+    QSignalMapper* m_smParticleColorMode;
+    ColorPicker*   m_pkrColorDataMin;
+    ColorPicker*   m_pkrColorDataMax;
+    QPushButton*   m_btnRndColor;
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // simulation controllers
+    void setupSimulationControllers();
+    QComboBox*        m_cbSimulationScene;
+    QPushButton*      m_btnReloadScene;
+    QCheckBox*        m_chkEnableOutput;
+    BrowsePathWidget* m_OutputPath;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // buttons
+    void setupButtons();
+    QPushButton* m_btnStartStopSimulation;
+    QPushButton* m_btnResetCamera;
+    QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;
-    QPushButton* m_btnEnableClipPlane;
+    ////////////////////////////////////////////////////////////////////////////////
 };

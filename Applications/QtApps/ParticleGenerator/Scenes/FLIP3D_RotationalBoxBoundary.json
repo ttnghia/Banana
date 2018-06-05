@@ -1,0 +1,79 @@
+{
+    "GlobalParameters":
+    {
+        "Solver" : "FLIP3D_Solver",
+        "FrameDuration" : 0.03333333333,
+        "FinalFrame" : 1000,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10,
+        "SaveFrameData" : true,
+        "DataPath" : "D:/SimData/FLIP",
+        "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
+        "LogLevel" : "Debug"
+    },
+    "SimulationParameters":
+    {
+        "SimulationDomainBox" :
+        {
+            "BoxMin" : [-1.5, -1.5, -1.5],
+            "BoxMax" : [ 1.5, 1.5, 1.5]
+        },
+        "CorrectPosition" : true,
+        "RepulsiveForceStiffness" : 100,
+        "PIC_FLIP_Ratio" : 0.97,
+        "CGRelativeTolerance" : 1e-15,
+        "MaxCGIteration" : 10000,
+        "CellSize" : 0.02,
+        "CFLFactor" : 0.5
+    },
+    "AdditionalBoundaryObjects":
+    [
+        {
+            "GeometryType" : "Box",
+            "UniqueName" : "BoxBoundary",
+            "CSGOperator" : "Intersection",
+            "BoxMin" : [-1, -0.5, -1],
+            "BoxMax" : [ 1, 0.5, 1],
+            "Animation" :
+            {
+                "Periodic" : true,
+                "StartFrame" : 50,
+                "CubicInterpolationRotation" : false,
+                "KeyFrames" :
+                [
+                    {
+                        "Frame" : 50,
+                        "RotationAxisAngle" : [1, 0, 0, 0]
+                    },
+                    {
+                        "Frame" : 150,
+                        "RotationAxisAngle" : [1, 0, 0, 180]
+                    },
+                    {
+                        "Frame" : 250,
+                        "RotationAxisAngle" : [1, 0, 0, 360]
+                    }
+                ]
+            }
+        }
+    ],
+    "ParticleGenerators":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereParticleGenerator",
+            "Translation" : [0.0, 0.0, 0.0],
+            "Scale" : 0.75
+        }
+    ],
+    "VisualizationParameters":
+    {
+        "CameraPosition" : [0, 0.7, 3.2],
+        "CameraFocus" : [0, 0.2, 0],
+        "Light" :
+        {
+            "Position" : [-10, 10, 0],
+            "Color" : [1, 1, 1]
+        }
+    }
+}

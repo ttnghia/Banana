@@ -1,218 +1,196 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \     This file is part of Banana - a general programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include "Common.h"
 #include "Controller.h"
+#include <Banana/Utils/MathHelpers.h>
+#include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupGUI()
 {
-    setupColorControllers();
-    setupGridResolutionControllers();
-    setupParticleSizeControllers();
-    setupParticleDisplayControllers();
-    setupObjectTransformationControllers();
-    setupSDFObjectControllers();
+    setupMaterialControllers();
+    setupColorModeControllers();
+    setupSimulationControllers();
     setupButtons();
 }
 
-void Controller::connectWidgets() {}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::connectWidgets()
+{
+    connect(m_smBackgroundMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int backgroundMode)
+            {
+                m_chkRenderBox->setChecked(backgroundMode == OpenGLWidget::BackgroundMode::SkyBox || backgroundMode == OpenGLWidget::BackgroundMode::Color);
+            });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // materials and particle color mode
+    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setParticleColorMode);
+    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
+            {
+                m_msParticleMaterial->getComboBox()->setEnabled(colorMode == ParticleColorMode::UniformMaterial);
+            });
+    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
+    connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
+    connect(m_btnRndColor,        &QPushButton::clicked,              [&]()
+            {
+                auto colorMin = MathHelpers::vrand<Vec3f>();
+                auto colorMax = MathHelpers::vrand<Vec3f>();
+                m_pkrColorDataMin->setColor(colorMin);
+                m_pkrColorDataMax->setColor(colorMax);
+                m_RenderWidget->setColorDataMin(colorMin);
+                m_RenderWidget->setColorDataMax(colorMax);
+            });
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // scene
+    connect(m_OutputPath, &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // buttons
+    connect(m_btnResetCamera,   &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
+    connect(m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
+    ////////////////////////////////////////////////////////////////////////////////
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupColorControllers()
+void Controller::setupSimulationControllers()
 {
-    m_msNegativeParticleMaterial = new MaterialSelector;
-    m_msNegativeParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL_INSIDE);
-    m_msNegativeParticleMaterial->setDefaultCustomMaterial(true);
+    m_cbSimulationScene = new QComboBox;
+    m_cbSimulationScene->addItem(QString("None"));
+    m_cbSimulationScene->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
+    m_btnReloadScene = new QPushButton(" Reload ");
+    QHBoxLayout* layoutScene = new QHBoxLayout;
+    layoutScene->addWidget(m_cbSimulationScene, 10);
+    layoutScene->addStretch(1);
+    layoutScene->addWidget(m_btnReloadScene, 10);
+    QGroupBox* grScene = new QGroupBox;
+    grScene->setTitle("Scene");
+    grScene->setLayout(layoutScene);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_OutputPath = new BrowsePathWidget("Browse");
+    m_OutputPath->setPath(QtAppUtils::getDefaultCapturePath());
+    m_chkEnableOutput = new QCheckBox("Export to Images");
+    QVBoxLayout* layoutOutput = new QVBoxLayout;
+    layoutOutput->addWidget(m_chkEnableOutput);
+    layoutOutput->addLayout(m_OutputPath->getLayout());
+    QGroupBox* grpOutput = new QGroupBox;
+    grpOutput->setTitle("Screenshot");
+    grpOutput->setLayout(layoutOutput);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_LayoutRenderControllers->addWidget(grScene);
+    m_LayoutRenderControllers->addWidget(grpOutput);
+}
 
-    m_msPositiveParticleMaterial = new MaterialSelector;
-    m_msPositiveParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL_OUTSIDE);
-    m_msPositiveParticleMaterial->setDefaultCustomMaterial(true);
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupMaterialControllers()
+{
+    m_msParticleMaterial = new MaterialSelector;
+    m_msParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL);
+    m_msParticleMaterial->setDefaultCustomMaterial(true);
+    m_msParticleMaterial->getComboBox()->setEnabled(false);
     QGridLayout* layoutMaterial = new QGridLayout;
-    layoutMaterial->setContentsMargins(5, 5, 5, 5);
-
-    int row = 0;
-    layoutMaterial->addWidget(new QLabel("Negative: "), row, 0, 1, 1);
-    layoutMaterial->addLayout(m_msNegativeParticleMaterial->getLayout(), row, 1, 1, 4);
-
-    ++row;
-    layoutMaterial->addWidget(new QLabel("Positive: "), row, 0, 1, 1);
-    layoutMaterial->addLayout(m_msPositiveParticleMaterial->getLayout(), row, 1, 1, 4);
-
-    QGroupBox* grMaterial = new QGroupBox;
-    grMaterial->setTitle("Materials");
+    layoutMaterial->addLayout(m_msParticleMaterial->getLayout(), 0, 0, 1, 2);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grMaterial = new QGroupBox("Material");
     grMaterial->setLayout(layoutMaterial);
     m_LayoutRenderControllers->addWidget(grMaterial);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupGridResolutionControllers()
+void Controller::setupColorModeControllers()
 {
-    m_cbResolution = new EnhancedComboBox;
-    m_cbResolution->getComboBox()->addItems(GridResolutions);
-    m_LayoutRenderControllers->addWidget(m_cbResolution->getGroupBox("Resolution"));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupParticleSizeControllers()
-{
-    m_slNegativeParticleSize = new QSlider(Qt::Horizontal);
-    m_slNegativeParticleSize->setRange(1, 120);
-    m_slNegativeParticleSize->setValue(70);
-
-    m_slPositiveParticleSize = new QSlider(Qt::Horizontal);
-    m_slPositiveParticleSize->setRange(1, 120);
-    m_slPositiveParticleSize->setValue(10);
-
-    QGridLayout* layoutParticleSize = new QGridLayout;
-    layoutParticleSize->setContentsMargins(5, 5, 5, 5);
-
-    int row = 0;
-    layoutParticleSize->addWidget(new QLabel("Negative: "), row, 0, 1, 1);
-    layoutParticleSize->addWidget(m_slNegativeParticleSize, row, 1, 1, 4);
-
-    ++row;
-    layoutParticleSize->addWidget(new QLabel("Positive: "), row, 0, 1, 1);
-    layoutParticleSize->addWidget(m_slPositiveParticleSize, row, 1, 1, 4);
-
-    QGroupBox* grParticleSize = new QGroupBox;
-    grParticleSize->setTitle("Particle Size");
-    grParticleSize->setLayout(layoutParticleSize);
-    m_LayoutRenderControllers->addWidget(grParticleSize);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupParticleDisplayControllers()
-{
-    m_chkHideNegativeParticles = new QCheckBox("Hide negative particles");
-    m_chkHidePositiveParticles = new QCheckBox("Hide positive particles");
-
-    QVBoxLayout* layoutParticleDisplay = new QVBoxLayout;
-    layoutParticleDisplay->addWidget(m_chkHideNegativeParticles);
-    layoutParticleDisplay->addWidget(m_chkHidePositiveParticles);
-
-    QGroupBox* grParticleDisplay = new QGroupBox;
-    grParticleDisplay->setTitle("Display");
-    grParticleDisplay->setLayout(layoutParticleDisplay);
-    m_LayoutRenderControllers->addWidget(grParticleDisplay);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupObjectTransformationControllers()
-{
-    m_txtTranslationX = new QLineEdit;
-    m_txtTranslationY = new QLineEdit;
-    m_txtTranslationZ = new QLineEdit;
-
-    m_txtRotationAxisX = new QLineEdit;
-    m_txtRotationAxisY = new QLineEdit;
-    m_txtRotationAxisZ = new QLineEdit;
-    m_txtRotationAngle = new QLineEdit;
-
-    m_txtUniformScale = new QLineEdit;
-
-    m_txtTranslationX->setText("0");
-    m_txtTranslationY->setText("0");
-    m_txtTranslationZ->setText("0");
-    m_txtRotationAxisX->setText("1");
-    m_txtRotationAxisY->setText("1");
-    m_txtRotationAxisZ->setText("1");
-    m_txtRotationAngle->setText("0");
-
-    m_txtUniformScale->setText("1");
-
     ////////////////////////////////////////////////////////////////////////////////
-    QHBoxLayout* loTranslation = new QHBoxLayout;
-    loTranslation->addWidget(m_txtTranslationX);
-    loTranslation->addWidget(m_txtTranslationY);
-    loTranslation->addWidget(m_txtTranslationZ);
-    QGroupBox* grTranslation = new QGroupBox;
-    grTranslation->setTitle("Translation");
-    grTranslation->setLayout(loTranslation);
-
-    QGridLayout* loRotation = new QGridLayout;
-    loRotation->addWidget(new QLabel("Axis: "), 0, 0, 1, 1);
-    loRotation->addWidget(m_txtRotationAxisX, 0, 1, 1, 1);
-    loRotation->addWidget(m_txtRotationAxisY, 0, 2, 1, 1);
-    loRotation->addWidget(m_txtRotationAxisZ, 0, 3,  1, 1);
-    loRotation->addWidget(new QLabel("Angle: "), 1, 0, 1, 1);
-    loRotation->addWidget(m_txtRotationAngle, 1, 1,  1, 1);
-    QGroupBox* grRotation = new QGroupBox;
-    grRotation->setTitle("Rotation");
-    grRotation->setLayout(loRotation);
-
-    QHBoxLayout* loScale = new QHBoxLayout;
-    loScale->addWidget(m_txtUniformScale);
-    QGroupBox* grScale = new QGroupBox;
-    grScale->setTitle("Uniform Scale");
-    grScale->setLayout(loScale);
-
+    QRadioButton* rdbColorRandom  = new QRadioButton("Random");
+    QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
+    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Material");
+    QRadioButton* rdbColorObjIdx  = new QRadioButton("Object Index");
+    QRadioButton* rdbColorVelMag  = new QRadioButton("Velocity Magnitude");
+    rdbColorRamp->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
-    m_btnApplyTransform = new QPushButton("Apply");
-    QHBoxLayout* loApplyButton = new QHBoxLayout;
-    loApplyButton->addStretch(1);
-    loApplyButton->addWidget(m_btnApplyTransform, 2);
-    loApplyButton->addStretch(1);
-
-    connect(m_btnApplyTransform, &QPushButton::clicked, this,
-            [&]()
-            {
-                Vec3f translation = Vec3f(m_txtTranslationX->text().toFloat(),
-                                          m_txtTranslationY->text().toFloat(),
-                                          m_txtTranslationZ->text().toFloat());
-                Vec4f rotation = Vec4f(m_txtRotationAxisX->text().toFloat(),
-                                       m_txtRotationAxisY->text().toFloat(),
-                                       m_txtRotationAxisZ->text().toFloat(),
-                                       m_txtRotationAngle->text().toFloat());
-                float scale = m_txtUniformScale->text().toFloat();
-
-                emit transformationChanged(translation, rotation, scale);
-            });
-
+    QGridLayout* layoutColorMode = new QGridLayout;
+    layoutColorMode->addWidget(rdbColorRandom,  0, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorRamp,    0, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorUniform, 1, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorObjIdx,  1, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorVelMag,  2, 0, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
-    QVBoxLayout* loTransformation = new QVBoxLayout;
-    loTransformation->addWidget(grTranslation);
-    loTransformation->addWidget(grRotation);
-    loTransformation->addWidget(grScale);
-    loTransformation->addLayout(loApplyButton);
-    QGroupBox* grTransformation = new QGroupBox;
-    grTransformation->setTitle("Transformation");
-    grTransformation->setLayout(loTransformation);
+    m_smParticleColorMode = new QSignalMapper(this);
+    connect(rdbColorRandom,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorRamp,    SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorObjIdx,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorVelMag,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
 
-    m_LayoutRenderControllers->addWidget(grTransformation);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupSDFObjectControllers()
-{
-    m_cbSDFObject = new EnhancedComboBox;
-    m_cbSDFObject->getComboBox()->addItems(SDFObjectNames);
-    m_LayoutRenderControllers->addWidget(m_cbSDFObject->getGroupBox("SDF Objects"));
+    m_smParticleColorMode->setMapping(rdbColorRandom,  static_cast<int>(ParticleColorMode::Random));
+    m_smParticleColorMode->setMapping(rdbColorRamp,    static_cast<int>(ParticleColorMode::Ramp));
+    m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
+    m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(ParticleColorMode::ObjectIndex));
+    m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(ParticleColorMode::VelocityMagnitude));
+    ////////////////////////////////////////////////////////////////////////////////
+    m_pkrColorDataMin = new ColorPicker;
+    m_pkrColorDataMax = new ColorPicker;
+    m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
+    m_pkrColorDataMax->setColor(DEFAULT_COLOR_DATA_MAX);
+    m_btnRndColor = new QPushButton("Rnd Color");
+    QHBoxLayout* layoutColorData = new QHBoxLayout;
+    layoutColorData->addWidget(new QLabel("Color min/max:"), 10);
+    layoutColorData->addStretch(1);
+    layoutColorData->addWidget(m_pkrColorDataMin, 10);
+    layoutColorData->addStretch(1);
+    layoutColorData->addWidget(m_pkrColorDataMax, 10);
+    layoutColorData->addStretch(1);
+    layoutColorData->addWidget(m_btnRndColor, 10);
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
+    layoutColorCtrls->addLayout(layoutColorMode);
+    layoutColorCtrls->addSpacing(5);
+    layoutColorCtrls->addWidget(QtAppUtils::getLineSeparator());
+    layoutColorCtrls->addSpacing(5);
+    layoutColorCtrls->addLayout(layoutColorData);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grColorMode = new QGroupBox;
+    grColorMode->setTitle("Particle Color");
+    grColorMode->setLayout(layoutColorCtrls);
+    m_LayoutRenderControllers->addWidget(grColorMode);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupButtons()
 {
-    m_btnEditClipPlane   = new QPushButton("Edit Clip Plane");
-    m_btnEnableClipPlane = new QPushButton("Clip View");
-    m_btnEnableClipPlane->setCheckable(true);
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_btnStartStopSimulation = new QPushButton("Start");
+    m_btnResetCamera         = new QPushButton("Reset Camera");
+    m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
+    m_btnClipViewPlane       = new QPushButton("Clip View");
+    m_btnClipViewPlane->setCheckable(true);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGridLayout* layoutButtons = new QGridLayout;
+    layoutButtons->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
+    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 1);
+    layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
+    layoutButtons->addWidget(m_btnEditClipPlane,       3, 0, 1, 1);
     m_MainLayout->addStretch();
-    m_MainLayout->addWidget(m_btnEditClipPlane);
-    m_MainLayout->addWidget(m_btnEnableClipPlane);
+    m_MainLayout->addLayout(layoutButtons);
 }

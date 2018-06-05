@@ -1,0 +1,77 @@
+{
+    "GlobalParameters":
+    {
+        "Solver" : "WCSPH_3DSolver",
+        "FrameDuration" : 0.003333333333,
+        "StartFrame" : 1,
+        "FinalFrame" : 1000,
+        "SaveFrameData" : false,
+        "SaveMemoryState" : false,
+        "FramePerState" : 10,
+        "DataPath" : "D:/SimData/Fluid/WCSPH",
+        "FrameDataFolder" : "SPHData",
+        "MemoryStateDataFolder" : "SPHState",
+        "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
+        "LogLevel" : "Debug",
+        "PrintLogToConsole" : true,
+        "PrintLogToFile" : false,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10
+    },
+    "SimulationParameters":
+    {
+        "SimulationDomainBox" :
+        {
+            "BoxMin" : [-1, -1, -1],
+            "BoxMax" : [ 1, 1, 1]
+        },
+        "NormalizeDensity" : true,
+        "DensityByBDParticle" : true,
+        "AddShortRangeRepulsiveForce" : false,
+        "PressureStiffness" : 50000,
+        "ShortRangeRepulsiveForceStiffness" : 5000,
+        "RatioNearKernelPRadius" : 1.5,
+        "ParticleRadius" : 0.005,
+        "ParticleMassScale" : 0.9,
+        "CFLFactor" : 0.1,
+        "ViscosityFluid" : 0.01,
+        "ReflectVelocityAtBoundary" : true,
+        "BoundaryReflectionMultiplier" : 0.1
+    },
+    "AdditionalBoundaryObjectsXXX":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereBoundary",
+            "CSGOperator" : "Intersection",
+            "Translation" : [0, 0, 0],
+            "Scale" : 1
+        }
+    ],
+    "ParticleGenerators":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereParticleGenerator",
+            "Translation" : [0.0, -0.2, 0],
+            "Scale" : 0.4
+        }
+    ],
+    "VisualizationParameters":
+    {
+        "CameraPosition" : [0, 0.7, 3.2],
+        "CameraFocus" : [0, -0.2, 0],
+        "CapturePath" : "D:/SimData/Fluid/WCSPH/Capture",
+        "Light" :
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [1, 1, 1]
+            },
+            {
+                "Position" : [10, -20, -10],
+                "Diffuse" : [1, 1, 1]
+            }
+        ]
+    }
+}
