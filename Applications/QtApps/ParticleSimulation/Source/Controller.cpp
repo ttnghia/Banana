@@ -44,10 +44,6 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setParticleColorMode);
-    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
-            {
-                m_msParticleMaterial->getComboBox()->setEnabled(colorMode == ParticleColorMode::UniformMaterial);
-            });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
     connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
     connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
@@ -99,8 +95,8 @@ void Controller::setupSimulationControllers()
     grpOutput->setTitle("Screenshot");
     grpOutput->setLayout(layoutOutput);
     ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grScene);
-    m_LayoutRenderControllers->addWidget(grpOutput);
+    m_LayoutMainControllers->addWidget(grScene);
+    m_LayoutMainControllers->addWidget(grpOutput);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,13 +105,12 @@ void Controller::setupMaterialControllers()
     m_msParticleMaterial = new MaterialSelector;
     m_msParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL);
     m_msParticleMaterial->setDefaultCustomMaterial(true);
-    m_msParticleMaterial->getComboBox()->setEnabled(false);
     QGridLayout* layoutMaterial = new QGridLayout;
     layoutMaterial->addLayout(m_msParticleMaterial->getLayout(), 0, 0, 1, 2);
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grMaterial = new QGroupBox("Material");
     grMaterial->setLayout(layoutMaterial);
-    m_LayoutRenderControllers->addWidget(grMaterial);
+    m_LayoutMainControllers->addWidget(grMaterial);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -124,7 +119,7 @@ void Controller::setupColorModeControllers()
     ////////////////////////////////////////////////////////////////////////////////
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
     QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
-    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Material");
+    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Color");
     QRadioButton* rdbColorObjIdx  = new QRadioButton("Object Index");
     QRadioButton* rdbColorVelMag  = new QRadioButton("Velocity Magnitude");
     rdbColorRamp->setChecked(true);
@@ -173,7 +168,7 @@ void Controller::setupColorModeControllers()
     QGroupBox* grColorMode = new QGroupBox;
     grColorMode->setTitle("Particle Color");
     grColorMode->setLayout(layoutColorCtrls);
-    m_LayoutRenderControllers->addWidget(grColorMode);
+    m_LayoutMainControllers->addWidget(grColorMode);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

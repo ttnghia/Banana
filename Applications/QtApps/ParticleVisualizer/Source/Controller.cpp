@@ -392,7 +392,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     ////////////////////////////////////////////////////////////////////////////////
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
     QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
-    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Material");
+    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Color");
     QRadioButton* rdbColorObjIdx  = new QRadioButton("Object Index");
     QRadioButton* rdbColorVelMag  = new QRadioButton("Velocity Magnitude");
     rdbColorRamp->setChecked(true);

@@ -31,7 +31,7 @@ void OpenGLController::setupBasicGUI(Int width)
     setupFloorControllers();
     setupBoxControllers();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RenderControllers->setLayout(m_LayoutRenderControllers);
+    m_RenderControllers->setLayout(m_LayoutMainControllers);
     m_LightEditor = new PointLightEditor(nullptr, this);
     ////////////////////////////////////////////////////////////////////////////////
     m_MainTab->setTabPosition(QTabWidget::South);
@@ -177,7 +177,7 @@ void OpenGLController::setupBackgroundControllers()
     connect(rdbBackgroundGrid,         &QRadioButton::toggled, wGrid,                &QWidget::setVisible);
     ////////////////////////////////////////////////////////////////////////////////
     m_grBackgroundCtrl->setLayout(layoutBackground);
-    m_LayoutRenderControllers->addWidget(m_grBackgroundCtrl);
+    m_LayoutMainControllers->addWidget(m_grBackgroundCtrl);
     ////////////////////////////////////////////////////////////////////////////////
     connect(rdbBackgroundSkyBox,       SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
     connect(rdbBackgroundColor,        SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
@@ -229,7 +229,7 @@ void OpenGLController::setupFloorControllers()
     floorLayout->addLayout(layoutFloorExposure);
     ////////////////////////////////////////////////////////////////////////////////
     m_grFloorCtrl->setLayout(floorLayout);
-    m_LayoutRenderControllers->addWidget(m_grFloorCtrl);
+    m_LayoutMainControllers->addWidget(m_grFloorCtrl);
     ////////////////////////////////////////////////////////////////////////////////
     loadFloorTextures();
 }
@@ -260,7 +260,7 @@ void OpenGLController::setupBoxControllers()
     layoutBoxCtrl->addWidget(m_chkRenderBox);
     layoutBoxCtrl->addWidget(m_pkrBoxColor);
     m_grBoxCtrl->setLayout(layoutBoxCtrl);
-    m_LayoutRenderControllers->addWidget(m_grBoxCtrl);
+    m_LayoutMainControllers->addWidget(m_grBoxCtrl);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
