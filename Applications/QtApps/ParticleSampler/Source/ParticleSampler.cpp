@@ -29,7 +29,7 @@
 #include <QDir>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::startRelaxation(SamplingParameters params)
+void ParticleSampler::startRelaxation(const ParticleTools::SPHRelaxationParameters<float>& params)
 {
     m_bStop = false;
     if(m_RelaxationFutureObj.valid()) {
@@ -45,9 +45,9 @@ void ParticleSampler::finishImgExport()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::doSampling(SamplingParameters params)
+void ParticleSampler::doSampling(const ParticleTools::SPHRelaxationParameters<float>& params)
 {
-    m_Generator->setSamplingParameters(params);
+    m_Generator->setRelaxationParameters(params);
     Int frame = 1;
     for(; frame <= params.maxIters; ++frame) {
         m_Generator->doFrameRelaxation(frame);

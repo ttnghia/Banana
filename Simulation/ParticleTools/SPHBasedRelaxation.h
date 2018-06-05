@@ -36,6 +36,20 @@ namespace Banana::ParticleTools
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using namespace Banana::ParticleSolvers;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+struct SPHRelaxationParameters
+{
+    UInt     maxIters                 = 0;
+    UInt     checkFrequency           = 0;
+    UInt     deleteFrequency          = 0;
+    RealType overlapThreshold         = RealType(1.8); // stop if getMinDistance() < particleRadius * threshold
+    RealType SPHPressureStiffness     = RealType(50000);
+    RealType SPHViscosity             = RealType(0.01);
+    RealType SPHNearKernelRadiusRatio = RealType(2.0);
+    RealType SPHNearPressureStiffness = RealType(50000);
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class SPHBasedRelaxation
 {
@@ -44,22 +58,22 @@ class SPHBasedRelaxation
     __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 public:
+    ////////////////////////////////////////////////////////////////////////////////
     SPHBasedRelaxation(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) : m_BoundaryObjects(boundaryObjs)
     {
         m_Logger = Logger::createLogger("SPHBasedRelaxation");
         // m_Logger->setLoglevel(m_GlobalParams.logLevel);
-        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams()->particleRadius * RealType(2.0));
-        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams()->particleRadius * RealType(4.0));
+        m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(2.0));
+        m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(solverParams().particleRadius * RealType(4.0));
     }
 
     /**
      * @brief Relax the particle positions
-       @param positions: positions of the particles
-       @param threshold: stop if getMinDistance() < particleRadius * threshold
-       @param maxIters: max number of iterations
+       @param positions: positions of particles
+       @param nParticles: number of particles
        @return bool value indicating whether the relaxation has converged or not
      */
-    bool relaxPositions(VecN* positions, UInt nParticles, RealType threshold = RealType(1.8), UInt maxIters = 1000u, UInt checkFrequency = 10u, UInt deleteFrequency = 50u);
+    bool relaxPositions(VecN* positions, UInt nParticles, const SPHRelaxationParameters<RealType>& relaxParams);
 
     /**
      * @brief Get the min distance ratio of all particles to their neighbors

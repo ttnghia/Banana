@@ -22,17 +22,16 @@ namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nParticles, RealType threshold /* = RealType(1.8) */, UInt maxIters /* = 1000u */,
-                                                     UInt checkFrequency /* = 10u */, UInt deleteFrequency /* = 50u */)
+bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nParticles, const SPHRelaxationParameters<RealType>& relaxParams)
 {
     makeReady(positions, nParticles);
     UInt iter = 1;
-    for(; iter <= maxIters; ++iter) {
+    for(; iter <= relaxParams.maxIters; ++iter) {
         iterate(positions, iter);
-        if(iter > 1 && (iter % checkFrequency) == 0) {
+        if(iter > 1 && (iter % relaxParams.checkFrequency) == 0) {
             computeMinDistanceRatio();
             logger().printLog("Iteration #" + std::to_string(iter) + ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
-            if(getMinDistanceRatio() > threshold) {
+            if(getMinDistanceRatio() > relaxParams.threshold) {
                 logger().printLogPadding("Relaxation finished successfully.");
                 logger().printMemoryUsage();
                 logger().newLine();
@@ -42,10 +41,10 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nPart
         logger().printMemoryUsage();
         logger().newLine();
     }
-    if(((iter - 1) % checkFrequency) == 0) {
-        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(maxIters));
+    if(((iter - 1) % relaxParams.checkFrequency) == 0) {
+        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(relaxParams.maxIters));
     } else {
-        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(maxIters) +
+        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(relaxParams.maxIters) +
                                  ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
     }
     logger().newLine();
@@ -179,7 +178,7 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
     auto computeDensity = [&](auto& density, const auto& neighborInfo)
                           {
                               for(const auto& qInfo : neighborInfo) {
-                                  const auto r = Vec3r(qInfo);
+                                  const auto r = VecN(qInfo);
                                   density += kernels().kernelCubicSpline.W(r);
                               }
                           };
@@ -224,7 +223,7 @@ void SPHBasedRelaxation<N, RealType>::normalizeDensity()
 
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto& qInfo   = pNeighborInfo[i];
-                                    const auto r        = Vec3r(qInfo);
+                                    const auto r        = VecN(qInfo);
                                     const auto q        = fluidNeighborList[i];
                                     const auto qdensity = m_SPHData.densities[q];
                                     tmp                += kernels().kernelCubicSpline.W(r) / qdensity;
@@ -234,11 +233,11 @@ void SPHBasedRelaxation<N, RealType>::normalizeDensity()
                                     assert(fluidNeighborList.size() + PDNeighborList.size() == pNeighborInfo.size());
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo = pNeighborInfo[i];
-                                        const auto r      = Vec3r(qInfo);
+                                        const auto r      = VecN(qInfo);
                                         tmp              += kernels().kernelCubicSpline.W(r) / solverParams().materialDensity;
                                     }
                                 }
-                                pdensity = pdensity / (tmp * m_SPHData.defaultParticleMass);
+                                pdensity = pdensity / (tmp * m_SolverParams->defaultParticleMass);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 m_SPHData.tmp_densities[p] = MathHelpers::clamp(pdensity,
                                                                                 solverParams().densityMin,
@@ -268,7 +267,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
     Scheduler::parallel_for(m_SPHData.nParticles,
                             [&](UInt p)
                             {
-                                Vec3r pforce(0);
+                                VecN pforce(0);
                                 const auto& pNeighborInfo = m_SPHData.neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
@@ -277,14 +276,14 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                 const auto pdensity  = m_SPHData.densities[p];
                                 const auto ppressure = particlePressure(pdensity);
                                 for(const auto& qInfo : pNeighborInfo) {
-                                    const auto r         = Vec3r(qInfo);
-                                    const auto qdensity  = qInfo.w;
+                                    const auto r         = VecN(qInfo);
+                                    const auto qdensity  = qInfo[N];
                                     const auto qpressure = particlePressure(qdensity);
                                     const auto fpressure = (ppressure + qpressure) * kernels().kernelSpiky.gradW(r);
                                     __BNN_TODO_MSG("add surface tension");
                                     pforce += fpressure;
                                 }
-                                m_SPHData.forces[p] = pforce * m_SPHData.mass(p);
+                                m_SPHData.accelerations[p] = pforce * m_SolverParams->defaultParticleMass;
                             });
 }
 
@@ -295,7 +294,7 @@ void SPHBasedRelaxation<N, RealType>::updateVelocity(RealType timestep)
     Scheduler::parallel_for(m_SPHData.velocities.size(),
                             [&](size_t p)
                             {
-                                m_SPHData.velocities[p] += m_SPHData.forces[p] * timestep;
+                                m_SPHData.velocities[p] += m_SPHData.accelerations[p] * timestep;
                             });
 }
 
@@ -316,29 +315,29 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                 const auto& pvel = m_SPHData.velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                Vec3r diffVelFluid            = Vec3r(0);
+                                VecN diffVelFluid             = VecN(0);
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto q        = fluidNeighborList[i];
                                     const auto& qvel    = m_SPHData.velocities[q];
                                     const auto& qInfo   = pNeighborInfo[i];
-                                    const auto r        = Vec3r(qInfo);
-                                    const auto qdensity = qInfo.w;
+                                    const auto r        = VecN(qInfo);
+                                    const auto qdensity = qInfo[N];
                                     diffVelFluid       += (1.0_f / qdensity) * kernels().kernelCubicSpline.W(r) * (qvel - pvel);
                                 }
                                 diffVelFluid *= solverParams().viscosityFluid;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                Vec3r diffVelBoundary = Vec3r(0);
+                                VecN diffVelBoundary = VecN(0);
                                 if(solverParams().bDensityByBDParticle) {
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo   = pNeighborInfo[i];
-                                        const auto r        = Vec3r(qInfo);
-                                        const auto qdensity = qInfo.w;
+                                        const auto r        = VecN(qInfo);
+                                        const auto qdensity = qInfo[N];
                                         diffVelBoundary    -= (1.0_f / qdensity) * kernels().kernelCubicSpline.W(r) * pvel;
                                     }
                                 }
                                 diffVelBoundary *= solverParams().viscosityBoundary;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                m_SPHData.diffuseVelocity[p] = (diffVelFluid + diffVelBoundary) * m_SPHData.mass(p);
+                                m_SPHData.diffuseVelocity[p] = (diffVelFluid + diffVelBoundary) * solverParams().defaultParticleMass;
                             });
     Scheduler::parallel_for(m_SPHData.velocities.size(), [&](size_t p) { m_SPHData.velocities[p] += m_SPHData.diffuseVelocity[p]; });
 }

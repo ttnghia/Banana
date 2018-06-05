@@ -40,13 +40,13 @@ public:
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
-    void startRelaxation(SamplingParameters params);
+    void startRelaxation(const ParticleTools::SPHRelaxationParameters<float>& params);
     void finishImgExport();
 
     auto& getVizData() const { return m_VizData; }
 
 public slots:
-    void doSampling(SamplingParameters params);
+    void doSampling(const ParticleTools::SPHRelaxationParameters<float>& params);
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
 

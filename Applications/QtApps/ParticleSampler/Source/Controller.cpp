@@ -24,14 +24,19 @@
 #include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-SamplingParameters Controller::getSamplingParams()
+const ParticleTools::SPHRelaxationParameters<float>& Controller::getSamplingParams()
 {
-    SamplingParameters params;
-    params.maxIters         = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
-    params.checkFrequency   = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
-    params.deleteFrequency  = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
-    params.overlapThreshold = static_cast<float>(std::stof(m_txtOverlapThreshold->text().toStdString()));
-    return params;
+    m_RelaxParams.maxIters         = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
+    m_RelaxParams.checkFrequency   = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
+    m_RelaxParams.deleteFrequency  = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
+    m_RelaxParams.overlapThreshold = std::stof(m_txtOverlapThreshold->text().toStdString());
+
+    m_RelaxParams.SPHPressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
+    m_RelaxParams.SPHViscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
+    m_RelaxParams.SPHNearKernelRadiusRatio = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
+    m_RelaxParams.SPHNearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
+
+    return m_RelaxParams;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -56,11 +61,7 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setParticleColorMode);
-    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int colorMode)
-            {
-                m_msParticleMaterial->getComboBox()->setEnabled(colorMode == ParticleColorMode::UniformMaterial);
-            });
-    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
+    connect(m_msParticleMaterial,  &MaterialSelector::materialChanged,                                m_RenderWidget, &RenderWidget::setParticleMaterial);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -94,15 +95,21 @@ void Controller::setupSceneControllers()
     grScene->setTitle("Scene");
     grScene->setLayout(layoutScene);
     ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grScene);
+    m_LayoutMainControllers->addWidget(grScene);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupSamplingParametersControllers()
 {
-    m_cbMaxIterations   = new EnhancedComboBox;
-    m_cbCheckFrequency  = new EnhancedComboBox;
-    m_cbDeleteFrequency = new EnhancedComboBox;
+    m_cbMaxIterations             = new EnhancedComboBox;
+    m_cbCheckFrequency            = new EnhancedComboBox;
+    m_cbDeleteFrequency           = new EnhancedComboBox;
+    m_txtOverlapThreshold         = new QLineEdit;
+    m_txtSPHPressureStiffness     = new QLineEdit;
+    m_txtSPHViscosity             = new QLineEdit;
+    m_txtSPHNearKernelRadiusRatio = new QLineEdit;
+    m_txtSPHNearPressureStiffness = new QLineEdit;
+    ////////////////////////////////////////////////////////////////////////////////
     for(int i = 1; i <= 10; ++i) {
         m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(i * 1000));
         m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
@@ -110,25 +117,39 @@ void Controller::setupSamplingParametersControllers()
     }
     m_cbMaxIterations->setCurrentIndex(9);
     m_cbDeleteFrequency->setCurrentIndex(4);
-
-    m_txtOverlapThreshold = new QLineEdit;
     m_txtOverlapThreshold->setText("1.8");
-
+    m_txtSPHPressureStiffness->setText("50000");
+    m_txtSPHViscosity->setText("0.01");
+    m_txtSPHNearKernelRadiusRatio->setText("2.0");
+    m_txtSPHNearPressureStiffness->setText("10000");
+    ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutParameters = new QGridLayout;
-    layoutParameters->addWidget(new QLabel("Max. iters:    "), 0, 0, 1, 1);
-    layoutParameters->addLayout(m_cbMaxIterations->getLayout(), 0, 1, 1, 2);
-    layoutParameters->addWidget(new QLabel("Check frequency:    "), 1, 0, 1, 1);
-    layoutParameters->addLayout(m_cbCheckFrequency->getLayout(), 1, 1, 1, 2);
-    layoutParameters->addWidget(new QLabel("Delete frequency:    "), 2, 0, 1, 1);
-    layoutParameters->addLayout(m_cbDeleteFrequency->getLayout(), 2, 1, 1, 2);
-    layoutParameters->addWidget(new QLabel("Overlap threshold:    "), 3, 0, 1, 1);
-    layoutParameters->addWidget(m_txtOverlapThreshold,                3, 1, 1, 2);
+    int          row              = 0;
+    layoutParameters->addWidget(new QLabel("Max. iters:    "), row, 0, 1, 1);
+    layoutParameters->addLayout(m_cbMaxIterations->getLayout(), row++, 1, 1, 2);
+    layoutParameters->addWidget(new QLabel("Check frequency:    "), row, 0, 1, 1);
+    layoutParameters->addLayout(m_cbCheckFrequency->getLayout(), row++, 1, 1, 2);
+    layoutParameters->addWidget(new QLabel("Delete frequency:    "), row, 0, 1, 1);
+    layoutParameters->addLayout(m_cbDeleteFrequency->getLayout(), row++, 1, 1, 2);
+    layoutParameters->addWidget(new QLabel("Overlap threshold:    "), row,   0, 1, 1);
+    layoutParameters->addWidget(m_txtOverlapThreshold,                row++, 1, 1, 2);
+
+    layoutParameters->addLayout(QtAppUtils::getLayoutSeparator(5), row++, 0, 1, 3);
+
+    layoutParameters->addWidget(new QLabel("Pressure stiffness:    "),       row,   0, 1, 2);
+    layoutParameters->addWidget(m_txtSPHPressureStiffness,                   row++, 2, 1, 1);
+    layoutParameters->addWidget(new QLabel("Viscosity:    "),                row,   0, 1, 2);
+    layoutParameters->addWidget(m_txtSPHViscosity,                           row++, 2, 1, 1);
+    layoutParameters->addWidget(new QLabel("Near kernel radius ratio:    "), row,   0, 1, 2);
+    layoutParameters->addWidget(m_txtSPHNearKernelRadiusRatio,               row++, 2, 1, 1);
+    layoutParameters->addWidget(new QLabel("Near pressure stiffness:    "),  row,   0, 1, 2);
+    layoutParameters->addWidget(m_txtSPHNearPressureStiffness,               row++, 2, 1, 1);
 
     QGroupBox* grParameters = new QGroupBox;
-    grParameters->setTitle("Sampling Parameters");
+    grParameters->setTitle("Relaxation Parameters");
     grParameters->setLayout(layoutParameters);
     ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grParameters);
+    m_LayoutMainControllers->addWidget(grParameters);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -137,13 +158,12 @@ void Controller::setupMaterialControllers()
     m_msParticleMaterial = new MaterialSelector;
     m_msParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL);
     m_msParticleMaterial->setDefaultCustomMaterial(true);
-    m_msParticleMaterial->getComboBox()->setEnabled(false);
     QGridLayout* layoutMaterial = new QGridLayout;
     layoutMaterial->addLayout(m_msParticleMaterial->getLayout(), 0, 0, 1, 2);
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grMaterial = new QGroupBox("Material");
     grMaterial->setLayout(layoutMaterial);
-    m_LayoutRenderControllers->addWidget(grMaterial);
+    m_LayoutMainControllers->addWidget(grMaterial);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -152,7 +172,7 @@ void Controller::setupColorModeControllers()
     ////////////////////////////////////////////////////////////////////////////////
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
     QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
-    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Material");
+    QRadioButton* rdbColorUniform = new QRadioButton("Uniform Color");
     QRadioButton* rdbColorObjIdx  = new QRadioButton("Object Index");
     rdbColorRamp->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +199,7 @@ void Controller::setupColorModeControllers()
     QGroupBox* grColorMode = new QGroupBox;
     grColorMode->setTitle("Particle Color");
     grColorMode->setLayout(layoutColorCtrls);
-    m_LayoutRenderControllers->addWidget(grColorMode);
+    m_LayoutMainControllers->addWidget(grColorMode);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -195,7 +215,7 @@ void Controller::setupCaptureControllers()
     grpOutput->setTitle("Screenshot");
     grpOutput->setLayout(layoutOutput);
     ////////////////////////////////////////////////////////////////////////////////
-    m_LayoutRenderControllers->addWidget(grpOutput);
+    m_LayoutMainControllers->addWidget(grpOutput);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -215,16 +235,16 @@ void Controller::setupButtons()
     m_btnSaveBinary = new QPushButton("Save binary");
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutButtons = new QGridLayout;
-    layoutButtons->addWidget(m_btnStartStopRelaxation, 0, 0, 1, 2);
-    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 2);
-    layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
-    layoutButtons->addWidget(m_btnEditClipPlane,       2, 1, 1, 1);
-    layoutButtons->addWidget(QtAppUtils::getLineSeparator(),                     3, 0, 1, 2);
-    layoutButtons->addWidget(m_chkDoubleData,          4, 0, 1, 2);
-    layoutButtons->addWidget(m_btnSaveObj,             5, 0, 1, 1);
-    layoutButtons->addWidget(m_btnSaveBgeo,            5, 1, 1, 1);
-    layoutButtons->addWidget(m_btnSaveBNN,             6, 0, 1, 1);
-    layoutButtons->addWidget(m_btnSaveBinary,          6, 1, 1, 1);
+    layoutButtons->addWidget(m_btnStartStopRelaxation,       0, 0, 1, 2);
+    layoutButtons->addWidget(m_btnResetCamera,               1, 0, 1, 2);
+    layoutButtons->addWidget(m_btnClipViewPlane,             2, 0, 1, 1);
+    layoutButtons->addWidget(m_btnEditClipPlane,             2, 1, 1, 1);
+    layoutButtons->addWidget(QtAppUtils::getLineSeparator(), 3, 0, 1, 2);
+    layoutButtons->addWidget(m_chkDoubleData,                4, 0, 1, 2);
+    layoutButtons->addWidget(m_btnSaveObj,                   5, 0, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBgeo,                  5, 1, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBNN,                   6, 0, 1, 1);
+    layoutButtons->addWidget(m_btnSaveBinary,                6, 1, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_MainLayout->addStretch();
     m_MainLayout->addLayout(layoutButtons);

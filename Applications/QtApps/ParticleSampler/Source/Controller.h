@@ -27,6 +27,7 @@
 #include <QtAppHelpers/BrowsePathWidget.h>
 #include <QtAppHelpers/MaterialSelector.h>
 #include <QtAppHelpers/OpenGLController.h>
+#include <ParticleTools/SPHBasedRelaxation.h>
 
 #include "Common.h"
 #include "RenderWidget.h"
@@ -45,8 +46,11 @@ public:
         connectWidgets();
     }
 
-    SamplingParameters getSamplingParams();
+    const ParticleTools::SPHRelaxationParameters<float>& getSamplingParams();
 private:
+    ParticleTools::SPHRelaxationParameters<float> m_RelaxParams;
+
+    ////////////////////////////////////////////////////////////////////////////////
     void setupGUI();
     void connectWidgets();
 
@@ -89,6 +93,10 @@ private:
     EnhancedComboBox* m_cbCheckFrequency;
     EnhancedComboBox* m_cbDeleteFrequency;
     QLineEdit*        m_txtOverlapThreshold;
+    QLineEdit*        m_txtSPHPressureStiffness;
+    QLineEdit*        m_txtSPHViscosity;
+    QLineEdit*        m_txtSPHNearKernelRadiusRatio;
+    QLineEdit*        m_txtSPHNearPressureStiffness;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

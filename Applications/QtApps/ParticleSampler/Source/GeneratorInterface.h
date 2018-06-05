@@ -27,6 +27,7 @@
 #include <SimulationObjects/BoundaryObject.h>
 #include <ParticleTools/SPHBasedRelaxation.h>
 #include <ParticleTools/ParticleSerialization.h>
+
 #include <QMessageBox>
 #include "Common.h"
 
@@ -43,7 +44,7 @@ public:
     ~ParticleGeneratorInterface() { Logger::shutdown(); }
     ////////////////////////////////////////////////////////////////////////////////
     void loadScene(const String& sceneFile);
-    void setSamplingParameters(SamplingParameters params);
+    void setRelaxationParameters(const ParticleTools::SPHRelaxationParameters<float>& params);
     void doFrameRelaxation(UInt frame);
     void finalizeRelaxation(UInt frame);
     ////////////////////////////////////////////////////////////////////////////////
@@ -82,5 +83,5 @@ private:
         Vector<Vec3<float>> positions3D;
     } m_ParticleData;
 
-    SamplingParameters m_SamplingParams;
+    ParticleTools::SPHRelaxationParameters<float> m_RelaxParams;
 };
