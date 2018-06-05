@@ -58,7 +58,6 @@ protected:
     virtual Int  saveFrameData() override;
     ////////////////////////////////////////////////////////////////////////////////
     virtual void advanceFrame() override;
-    virtual void sortParticles() override;
     ////////////////////////////////////////////////////////////////////////////////
     virtual RealType timestepCFL();
     virtual void     moveParticles(RealType timestep);

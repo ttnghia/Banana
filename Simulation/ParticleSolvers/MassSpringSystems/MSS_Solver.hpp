@@ -53,7 +53,6 @@ void MSS_Solver<N, RealType>::generateParticles(const JParams& jParams)
 
         ////////////////////////////////////////////////////////////////////////////////
         // sort particles and find neighbors
-        sortParticles();
         particleData().findNeighborsAndDistances_t0();
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -299,37 +298,6 @@ void MSS_Solver<N, RealType>::advanceFrame()
     ++finishedFrame;
     saveFrameData();
     saveMemoryState();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void MSS_Solver<N, RealType>::sortParticles()
-{
-    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
-        return;
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions",
-                          [&]()
-                          {
-                              particleData().NSearch().z_sort();
-                              auto const& d = particleData().NSearch().point_set(0);
-                              d.sort_field(&particleData().positions[0]);
-                              d.sort_field(&particleData().velocities[0]);
-                              d.sort_field(&particleData().objectIndex[0]);
-
-                              d.sort_field(&particleData().neighborIdx_t0[0]);
-                              d.sort_field(&particleData().neighborDistances_t0[0]);
-
-#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
-                              d.sort_field(&particleData().objectSpringStiffness[0]);
-#endif
-
-#ifndef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
-                              d.sort_field(&particleData().objectSpringHorizon[0]);
-#endif
-                          });
-    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
