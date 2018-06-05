@@ -36,6 +36,9 @@ include($$BANANA_DIR/Simulation/Simulation.pri)
 
 win32 {
     QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
+
+    # For fast testing
+    QMAKE_LFLAGS += /DEBUG:FASTLINK
 }
 
 #macx: ICON = $${PWD}/Resource/Icons/Bananas.icns

@@ -37,6 +37,9 @@ include($$BANANA_DIR/Simulation/Simulation.pri)
 #macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
 win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
 
+# For fast testing
+win32: QMAKE_LFLAGS += /DEBUG:FASTLINK
+
 INCLUDEPATH += $$PWD/Include
 
 HEADERS += $$files(Source/*.h, true)
