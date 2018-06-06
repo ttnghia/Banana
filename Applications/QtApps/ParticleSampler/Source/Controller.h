@@ -49,6 +49,8 @@ public:
     const ParticleTools::SPHRelaxationParameters<float>& getSamplingParams();
 private:
     ParticleTools::SPHRelaxationParameters<float> m_RelaxParams;
+    QWidget*                                      m_RelaxationControllers       = new QWidget;
+    QVBoxLayout*                                  m_LayoutRelaxationControllers = new QVBoxLayout;
 
     ////////////////////////////////////////////////////////////////////////////////
     void setupGUI();
@@ -92,11 +94,16 @@ private:
     EnhancedComboBox* m_cbMaxIterations;
     EnhancedComboBox* m_cbCheckFrequency;
     EnhancedComboBox* m_cbDeleteFrequency;
-    QLineEdit*        m_txtOverlapThreshold;
-    QLineEdit*        m_txtSPHPressureStiffness;
-    QLineEdit*        m_txtSPHViscosity;
-    QLineEdit*        m_txtSPHNearKernelRadiusRatio;
-    QLineEdit*        m_txtSPHNearPressureStiffness;
+    QLineEdit*        m_txtIntersectionThreshold;
+
+    QLineEdit* m_txtSPHCFLFactor;
+    QLineEdit* m_txtSPHMinTimestep;
+    QLineEdit* m_txtSPHMaxTimestep;
+    QLineEdit* m_txtSPHPressureStiffness;
+    QLineEdit* m_txtSPHViscosity;
+    QLineEdit* m_txtSPHNearKernelRadiusRatio;
+    QLineEdit* m_txtSPHNearPressureStiffness;
+    QCheckBox* m_chkNormalizeDensity;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
