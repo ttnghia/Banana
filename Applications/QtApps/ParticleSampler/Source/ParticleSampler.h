@@ -24,6 +24,8 @@
 #include "GeneratorInterface.h"
 
 #include <Banana/Setup.h>
+#include <ParticleTools/ParticleSerialization.h>
+#include <Partio.h>
 
 #include <QObject>
 #include <QStringList>
@@ -35,26 +37,22 @@
 class ParticleSampler : public QObject
 {
     Q_OBJECT
+
 public:
     ParticleSampler() = default;
+
+    auto& getVizData() const { return m_VizData; }
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
     void startRelaxation(const ParticleTools::SPHRelaxationParameters<float>& params);
     void finishImgExport();
 
-    auto& getVizData() const { return m_VizData; }
-
 public slots:
     void doSampling(const ParticleTools::SPHRelaxationParameters<float>& params);
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
-
-    void saveParticles(int outputType, bool bDouble       = false);
-    void saveObj(const QString& fileName, bool bDouble    = false);
-    void saveBgeo(const QString& fileName, bool bDouble   = false);
-    void saveBnn(const QString& fileName, bool bDouble    = false);
-    void saveBinary(const QString& fileName, bool bDouble = false);
+    void saveParticles(int outputType, bool bDouble = false);
 
 signals:
     void dimensionChanged();
@@ -69,6 +67,11 @@ signals:
     void iterationFinished();
 
 private:
+    void                          saveBgeo(const QString& fileName);
+    void                          saveObj(const QString& fileName);
+    template<class RealType> void saveBnn(const QString& fileName);
+    template<class RealType> void saveBinary(const QString& fileName);
+    ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<VisualizationData>          m_VizData   = std::make_shared<VisualizationData>();
     UniquePtr<ParticleGeneratorInterface> m_Generator = std::make_unique<ParticleGeneratorInterface>();
     std::future<void>                     m_RelaxationFutureObj;
