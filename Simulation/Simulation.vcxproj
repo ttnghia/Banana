@@ -153,6 +153,8 @@
     <ClInclude Include="ParticleSolvers\ParticleSolverData.h" />
     <ClInclude Include="ParticleSolvers\ParticleSolverData.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolverFactory.h" />
+    <ClInclude Include="ParticleSolvers\PICFluid\Smoke_Solver.h" />
+    <ClInclude Include="ParticleSolvers\PICFluid\Smoke_Solver.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\SPH_Data.h" />
     <ClInclude Include="ParticleSolvers\SPH\SPH_Data.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h" />
