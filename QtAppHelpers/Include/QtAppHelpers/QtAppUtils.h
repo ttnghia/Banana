@@ -180,5 +180,12 @@ inline QVBoxLayout* getLayoutSeparator(int spacing = 10)
     return layout;
 }
 
+inline QVBoxLayout* getLayoutSpacing(int spacing = 10)
+{
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->addSpacing(spacing);
+    return layout;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
