@@ -65,9 +65,9 @@ protected:
     RealType timestepCFL();
     void     moveParticles(RealType timestep);
     void     computeNeighborRelativePositions();
+    void     collectNeighborDensities();
     void     computeDensity();
     bool     normalizeDensity();
-    void     collectNeighborDensities();
     void     computeAccelerations();
     void     updateVelocity(RealType timestep);
     void     computeViscosity();

@@ -109,6 +109,7 @@ struct WCSPH_Data : SimulationData<N, RealType>
         PrecomputedKernel<N, RealType, Poly6Kernel> kernelPoly6;
         PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
         ////////////////////////////////////////////////////////////////////////////////
+        auto W_zero() const { return kernelPoly6.W_zero(); }
         auto W(const VecX<N, RealType>& r) const { return kernelPoly6.W(r); }
         auto gradW(const VecX<N, RealType>& r) const { return kernelSpiky.gradW(r); }
     };

@@ -338,12 +338,12 @@ template<Int N, class RealType>
 void WCSPH_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
     logger().printRunTime("{   Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
-    logger().printRunTimeIndent("Compute density", [&]() { computeDensity(); });
-    logger().printRunTimeIndentIf("Normalize density", [&]() { return normalizeDensity(); });
-    logger().printRunTimeIndent("Collect neighbor densities", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces", [&]() { computeAccelerations(); });
-    logger().printRunTimeIndent("Update velocity", [&]() { updateVelocity(timestep); });
-    logger().printRunTimeIndent("Compute viscosity", [&]() { computeViscosity(); });
+    logger().printRunTimeIndent("Compute density",                   [&]() { computeDensity(); });
+    logger().printRunTimeIndentIf("Normalize density",               [&]() { return normalizeDensity(); });
+    logger().printRunTimeIndent("Collect neighbor densities",        [&]() { collectNeighborDensities(); });
+    logger().printRunTimeIndent("Compute forces",                    [&]() { computeAccelerations(); });
+    logger().printRunTimeIndent("Update velocity",                   [&]() { updateVelocity(timestep); });
+    logger().printRunTimeIndent("Compute viscosity",                 [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -413,6 +413,26 @@ void WCSPH_Solver<N, RealType>::computeNeighborRelativePositions()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void WCSPH_Solver<N, RealType>::collectNeighborDensities()
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto& pNeighborInfo = particleData().neighborInfo[p];
+                                if(pNeighborInfo.size() == 0) {
+                                    return;
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                const auto& neighborIdx = particleData().neighborList(p);
+                                for(size_t i = 0; i < neighborIdx.size(); ++i) {
+                                    auto q              = neighborIdx[i];
+                                    pNeighborInfo[i][N] = particleData().densities[q];
+                                }
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void WCSPH_Solver<N, RealType>::computeDensity()
 {
     auto computeDensity = [&](auto& density, const auto& neighborInfo)
@@ -430,7 +450,7 @@ void WCSPH_Solver<N, RealType>::computeDensity()
                                 if(pNeighborInfo.size() == 0) {
                                     return;
                                 }
-                                auto pdensity = kernels().kernelPoly6.W_zero();
+                                auto pdensity = kernels().W_zero();
                                 computeDensity(pdensity, pNeighborInfo);
                                 pdensity *= particleData().mass(p);
                                 ////////////////////////////////////////////////////////////////////////////////
@@ -456,7 +476,7 @@ bool WCSPH_Solver<N, RealType>::normalizeDensity()
 
                                 const auto& fluidNeighborList = particleData().neighborList(p);
                                 auto pdensity                 = particleData().densities[p];
-                                auto tmp                      = kernels().kernelPoly6.W_zero() / pdensity;
+                                auto tmp                      = kernels().W_zero() / pdensity;
 
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto& qInfo   = pNeighborInfo[i];
@@ -478,29 +498,9 @@ bool WCSPH_Solver<N, RealType>::normalizeDensity()
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().tmp_densities[p] = MathHelpers::clamp(pdensity, solverParams().densityMin, solverParams().densityMax);
                             });
-    particleData().densities = particleData().tmp_densities;
+    std::swap(particleData().densities, particleData().tmp_densities);
     ////////////////////////////////////////////////////////////////////////////////
     return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::collectNeighborDensities()
-{
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                auto& pNeighborInfo = particleData().neighborInfo[p];
-                                if(pNeighborInfo.size() == 0) {
-                                    return;
-                                }
-                                ////////////////////////////////////////////////////////////////////////////////
-                                const auto& neighborIdx = particleData().neighborList(p);
-                                for(size_t i = 0; i < neighborIdx.size(); ++i) {
-                                    auto q              = neighborIdx[i];
-                                    pNeighborInfo[i][N] = particleData().densities[q];
-                                }
-                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -511,7 +511,7 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                             {
                                 auto error = RealType(MathHelpers::sqr(density / solverParams().materialDensity)) - RealType(1.0);
                                 error *= (solverParams().pressureStiffness / density / density);
-                                if(error > 0) {
+                                if(error > RealType(0)) {
                                     return error;
                                 } else if(!solverParams().bAttractivePressure) {
                                     return RealType(0);
@@ -541,7 +541,6 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                     particleData().accelerations[p] = pAcc;
                                     return;
                                 }
-
                                 const auto pdensity  = particleData().densities[p];
                                 const auto ppressure = particlePressure(pdensity);
                                 for(const auto& qInfo : pNeighborInfo) {
@@ -594,7 +593,7 @@ void WCSPH_Solver<N, RealType>::updateVelocity(RealType timestep)
 template<Int N, class RealType>
 void WCSPH_Solver<N, RealType>::computeViscosity()
 {
-    assert(particleData().getNParticles() == particleData().diffuseVelocities.size());
+    assert(particleData().getNParticles() == static_cast<UInt>(particleData().diffuseVelocities.size()));
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -603,7 +602,6 @@ void WCSPH_Solver<N, RealType>::computeViscosity()
                                     particleData().diffuseVelocities[p] = VecN(0);
                                     return;
                                 }
-
                                 const auto& pvel = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& fluidNeighborList = particleData().neighborList(p);
