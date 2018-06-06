@@ -26,5 +26,6 @@
 #include <catch.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- #include "TestVec3AsVec4Operation.hpp"
+//  #include "TestVec3AsVec4Operation.hpp"
 // #include "TestVec3AsVec4Union.hpp"
+#include "TestParallelExecution.hpp"
