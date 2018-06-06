@@ -54,7 +54,7 @@ void MainWindow::showEvent(QShowEvent* ev)
         updateStatusMemoryUsage();
         updateStatusIteration(0);
 
-        if(m_Controller->m_cbScene->count() == 2) {
+        if(m_Controller->m_cbScene->getComboBox()->count() == 2) {
             //            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
         } else {
             //            m_Controller->m_cbSimulationScene->setCurrentIndex(QtAppUtils::getDefaultSceneID());
@@ -177,7 +177,7 @@ void MainWindow::connectWidgets()
     connect(m_Controller->m_btnReloadScene,   &QPushButton::clicked,
             [&]()
             {
-                QString sceneFile = m_Controller->m_cbScene->currentText();
+                QString sceneFile = m_Controller->m_cbScene->getComboBox()->currentText();
                 if(sceneFile == "None") {
                     return;
                 }
@@ -185,7 +185,7 @@ void MainWindow::connectWidgets()
                 m_FrameNumber = 0;
             });
 
-    connect(m_Controller->m_cbScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
+    connect(m_Controller->m_cbScene->getComboBox(), &QComboBox::currentTextChanged, [&](const QString& sceneFile)
             {
                 if(sceneFile == "None") {
                     return;
@@ -198,7 +198,7 @@ void MainWindow::connectWidgets()
 
     connect(m_Controller->m_btnStartStopRelaxation, &QPushButton::clicked, [&]()
             {
-                if(m_Controller->m_cbScene->currentText() == "None") {
+                if(m_Controller->m_cbScene->getComboBox()->currentText() == "None") {
                     return;
                 }
                 bool isRunning = m_Sampler->isRunning();

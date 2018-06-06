@@ -157,12 +157,12 @@ void Controller::setupCaptureControllers()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupSceneControllers()
 {
-    m_cbScene = new QComboBox;
-    m_cbScene->addItem(QString("None"));
-    m_cbScene->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
+    m_cbScene = new EnhancedComboBox;
+    m_cbScene->getComboBox()->addItem(QString("None"));
+    m_cbScene->getComboBox()->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
     m_btnReloadScene = new QPushButton(" Reload ");
     QHBoxLayout* layoutScene = new QHBoxLayout;
-    layoutScene->addWidget(m_cbScene, 10);
+    layoutScene->addLayout(m_cbScene->getLayout(), 10);
     layoutScene->addStretch(1);
     layoutScene->addWidget(m_btnReloadScene, 10);
     QGroupBox* grScene = new QGroupBox;

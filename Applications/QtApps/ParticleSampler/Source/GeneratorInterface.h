@@ -53,6 +53,8 @@ public:
     float* getBMax() { return &m_ParticleData.domainBMax[0]; }
     ////////////////////////////////////////////////////////////////////////////////
     char* getParticlePositions() { return m_ParticleData.positions; }
+    Vec_Vec2f* getVPosition2D() { return &m_ParticleData.positions2D; }
+    Vec_Vec3f* getVPosition3D() { return &m_ParticleData.positions3D; }
     char* getObjectIndex() { return reinterpret_cast<char*>(m_ParticleData.objectIndex.data()); }
     UInt  getNObjects() const { return static_cast<UInt>(m_ParticleData.nObjects); }
     UInt  getNParticles()  const { return m_ParticleData.nParticles; }
@@ -79,8 +81,8 @@ private:
         UInt16     nObjects   = 0;
         Vec_UInt16 objectIndex;
 
-        Vector<Vec2<float>> positions2D;
-        Vector<Vec3<float>> positions3D;
+        Vec_Vec2f positions2D;
+        Vec_Vec3f positions3D;
     } m_ParticleData;
 
     ParticleTools::SPHRelaxationParameters<float> m_RelaxParams;

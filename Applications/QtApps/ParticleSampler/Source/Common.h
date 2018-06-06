@@ -57,10 +57,10 @@ struct ParticleOutputType
 {
     enum
     {
-        Obj    = 0,
-        Bgeo   = 1,
-        Bnn    = 2,
-        Binary = 3,
+        Obj = 0,
+        Bgeo,
+        Bnn,
+        Binary,
         NumOutputTypes
     };
 };
@@ -104,6 +104,12 @@ struct VisualizationData
     UInt  nObjects       = 1;
     UInt  nParticles     = 0;
     float particleRadius = 0;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle data for exporting
+    Vec_Vec2f* vPosition2D = nullptr;
+    Vec_Vec3f* vPosition3D = nullptr;
     ////////////////////////////////////////////////////////////////////////////////
 
     VisualizationData() { resetData(); }
