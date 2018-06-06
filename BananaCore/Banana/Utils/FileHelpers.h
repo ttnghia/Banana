@@ -259,7 +259,7 @@ inline bool writeFile(const Vector<String>& vecStr, const char* fileName)
     }
 
     for(auto& str : vecStr) {
-        file << str << std::endl;
+        file << str << "\n";
     }
 
     file.close();
@@ -336,7 +336,7 @@ inline bool appendToFile(const Vector<String>& vecStr, const char* fileName)
     }
 
     for(auto& str : vecStr) {
-        file << str << std::endl;
+        file << str << "\n";
     }
     file.close();
     return true;
