@@ -31,7 +31,6 @@ include($$BANANA_DIR/QtAppHelpers/QtAppHelpers.pri)
 include($$BANANA_DIR/OpenGLHelpers/OpenGLHelpers.pri)
 include($$BANANA_DIR/Simulation/Simulation.pri)
 
-
 #CONFIG += static
 
 #macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
@@ -41,6 +40,20 @@ win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
 win32: QMAKE_LFLAGS += /DEBUG:FASTLINK
 
 INCLUDEPATH += $$PWD/Include
+INCLUDEPATH += $$BANANA_DIR/Externals/PartioBuild/src/lib
+
+win32 {
+#    QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
+    CONFIG(debug, debug|release) {
+        LIBS += $$BANANA_DIR/Externals/PartioBuild/lib/Debug/partio.lib
+    }else {
+        static {
+            LIBS += $$BANANA_DIR/Externals/PartioBuild/lib/ReleaseStaticBuild/partio.lib
+        } else {
+            LIBS += $$BANANA_DIR/Externals/PartioBuild/lib/Release/partio.lib
+        }
+    }
+}
 
 HEADERS += $$files(Source/*.h, true)
 SOURCES += $$files(Source/*.cpp, true)
