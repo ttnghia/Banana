@@ -41,6 +41,8 @@
         "condition_variable": "cpp",
         "tuple": "cpp",
         "chrono": "cpp",
-        "execution": "cpp"
+        "execution": "cpp",
+        "functional": "cpp",
+        "xtr1common": "cpp"
     }
 }

@@ -24,10 +24,6 @@
 #include <Banana/Setup.h>
 #include <Banana/Data/DataIO.h>
 #include <Banana/Utils/Logger.h>
-#include <ParticleTools/ParticleHelpers.h>
-
-#include <map>
-#include <algorithm>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -157,17 +153,17 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for reading data
-    auto&       getFixedAttributes() { return m_FixedAttributes; }
+    auto& getFixedAttributes() { return m_FixedAttributes; }
     const auto& getFixedAttributes() const { return m_FixedAttributes; }
-    auto&       getParticleAttributes() { return m_ParticleAttributes; }
+    auto& getParticleAttributes() { return m_ParticleAttributes; }
     const auto& getParticleAttributes() const { return m_ParticleAttributes; }
 
     Int    getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
     String getFilePath(Int fileID) { return m_DataIO->getFilePath(fileID); }
-    bool   read(Int fileID, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
-    bool   read(const String& fileName, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
-    bool   readHeader(Int fileID, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
-    bool   readHeader(const String& fileName, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
+    bool read(Int fileID, const Vector<String>& readAttributes                   = {}, bool bStopIfFailed = true);
+    bool read(const String& fileName, const Vector<String>& readAttributes       = {}, bool bStopIfFailed = true);
+    bool readHeader(Int fileID, const Vector<String>& readAttributes             = {}, bool bStopIfFailed = true);
+    bool readHeader(const String& fileName, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
     size_t getBytesRead() const { return m_ByteRead; }
     UInt   getNParticles() const { return m_nParticles; }
 
@@ -215,9 +211,6 @@ public:
     template<Int N, class T> static void saveParticle(const String& fileName, const Vector<VecX<N, T>>& positions, T particleRadius, bool bCompress = true);
     template<Int N, class T> static bool loadParticle(const String& fileName, Vector<VecX<N, T>>& positions, T particleRadius);
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/ParticleSerialization.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

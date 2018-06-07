@@ -344,7 +344,7 @@ void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticle
 template<class RealType>
 void decompress(Vector<Vector<RealType>>& dvec, const Vector<RealType>& dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData)
 {
-    __BNN_REQUIRE(compressedData.size() = dMin.size() && compressedData.size() == dMax.size());
+    __BNN_REQUIRE(compressedData.size() == dMin.size() && compressedData.size() == dMax.size());
 
     dvec.resize(compressedData.size());
     Scheduler::parallel_for(dvec.size(), [&](size_t i) { decompress(dvec[i], dMin[i], dMax[i], compressedData[i]); });
@@ -476,62 +476,92 @@ UInt spawnComponent(UInt p, Int depth, UInt8 currentIdx, const Vec_VecUInt& conn
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template auto getAABB<2, Real>(const Vec_VecX<2, Real>& positions);
-template auto getAABB<3, Real>(const Vec_VecX<3, Real>& positions);
+#define __BNN_INSTANTIATE_GET_AABB_COMMON_VEC_DIM(type)                \
+    template auto getAABB<2, type>(const Vec_VecX<2, type>&positions); \
+    template auto getAABB<3, type>(const Vec_VecX<3, type>&positions); \
+    template auto getAABB<4, type>(const Vec_VecX<4, type>&positions);
+
+__BNN_INSTANTIATE_GET_AABB_COMMON_VEC_DIM(float);
+__BNN_INSTANTIATE_GET_AABB_COMMON_VEC_DIM(double);
+
 ////////////////////////////////////////////////////////////////////////////////
-template void compress<2, Real>(const Vec_VecX<2, Real>& dvec, VecX<2, Real>& dMin, VecX<2, Real>& dMax, Vec_UInt16& compressedData);
-template void compress<3, Real>(const Vec_VecX<3, Real>& dvec, VecX<3, Real>& dMin, VecX<3, Real>& dMax, Vec_UInt16& compressedData);
+#define __BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(type)                                                                                 \
+    template void compress<2, type>(const Vec_VecX<2, type>&dvec, VecX<2, type>&dMin, VecX<2, type>&dMax, Vec_UInt16 & compressedData); \
+    template void compress<3, type>(const Vec_VecX<3, type>&dvec, VecX<3, type>&dMin, VecX<3, type>&dMax, Vec_UInt16 & compressedData); \
+    template void compress<4, type>(const Vec_VecX<4, type>&dvec, VecX<4, type>&dMin, VecX<4, type>&dMax, Vec_UInt16 & compressedData); \
+    template void compress<2, type>(const Vec_VecX<2, type>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);               \
+    template void compress<3, type>(const Vec_VecX<3, type>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);               \
+    template void compress<4, type>(const Vec_VecX<4, type>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);               \
+    template void compress<2, type>(const Vector<MatXxX<2, type>>&dvec, type & dMin, type & dMax, Vec_UInt16 & compressedData);         \
+    template void compress<3, type>(const Vector<MatXxX<3, type>>&dvec, type & dMin, type & dMax, Vec_UInt16 & compressedData);         \
+    template void compress<4, type>(const Vector<MatXxX<4, type>>&dvec, type & dMin, type & dMax, Vec_UInt16 & compressedData);         \
+    template void compress<2, type>(const Vector<MatXxX<2, type>>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);         \
+    template void compress<3, type>(const Vector<MatXxX<3, type>>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);         \
+    template void compress<4, type>(const Vector<MatXxX<4, type>>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);
 
-template void compress<2, Real>(const Vec_VecX<2, Real>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<3, Real>(const Vec_VecX<3, Real>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-
-template void compress<2, Real>(const Vector<MatXxX<2, Real>>& dvec, Real& dMin, Real& dMax, Vec_UInt16& compressedData);
-template void compress<3, Real>(const Vector<MatXxX<3, Real>>& dvec, Real& dMin, Real& dMax, Vec_UInt16& compressedData);
-
-template void compress<2, Real>(const Vector<MatXxX<2, Real>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<3, Real>(const Vector<MatXxX<3, Real>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(float);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(double);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(Int);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(UInt);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(Int16);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(UInt16);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(Int64);
+__BNN_INSTANTIATE_COMPRESS_COMMON_VEC_DIM(UInt64);
 ////////////////////////////////////////////////////////////////////////////////
-template void compress<Real>(const Vector<Real>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<Int>(const Vector<Int>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<Int16>(const Vector<Int16>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<UInt>(const Vector<UInt>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<UInt16>(const Vector<UInt16>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
+#define __BNN_INSTANTIATE_COMPRESS(type)                                                                                                 \
+    template void compress<type>(const Vector<type>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);                        \
+    template void compress<type>(const Vector<type>&dvec, type & dMin, type & dMax, Vec_UInt16 & compressedData);                        \
+    template void compress<type>(const Vector<Vector<type>>&dvec, Vector<type>&dMin, Vector<type>&dMax, Vec_VecUInt16 & compressedData); \
+    template void compress<type>(const Vector<Vector<type>>&dvec, DataBuffer & buffer, bool bWriteVectorSize /*= true*/);
 
-template void compress<Real>(const Vector<Real>& dvec, Real& dMin, Real& dMax, Vec_UInt16& compressedData);
-template void compress<Real>(const Vector<Vector<Real>>& dvec, Vector<Real>& dMin, Vector<Real>& dMax, Vec_VecUInt16& compressedData);
+__BNN_INSTANTIATE_COMPRESS(float);
+__BNN_INSTANTIATE_COMPRESS(double);
+__BNN_INSTANTIATE_COMPRESS(Int);
+__BNN_INSTANTIATE_COMPRESS(UInt);
+__BNN_INSTANTIATE_COMPRESS(Int16);
+__BNN_INSTANTIATE_COMPRESS(UInt16);
+__BNN_INSTANTIATE_COMPRESS(Int64);
+__BNN_INSTANTIATE_COMPRESS(UInt64);
 
-template void compress<Real>(const Vector<Vector<Real>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<Int>(const Vector<Vector<Int>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<Int16>(const Vector<Vector<Int16>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<UInt>(const Vector<Vector<UInt>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
-template void compress<UInt16>(const Vector<Vector<UInt16>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/);
 ////////////////////////////////////////////////////////////////////////////////
-template void decompress<2, Real>(Vec_VecX<2, Real>& dvec, const VecX<2, Real>& dMin, const VecX<2, Real>& dMax, const Vec_UInt16& compressedData);
-template void decompress<3, Real>(Vec_VecX<3, Real>& dvec, const VecX<3, Real>& dMin, const VecX<3, Real>& dMax, const Vec_UInt16& compressedData);
+#define __BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(type)                                                                                            \
+    template void decompress<2, type>(Vec_VecX<2, type>&dvec, const VecX<2, type>&dMin, const VecX<2, type>&dMax, const Vec_UInt16& compressedData); \
+    template void decompress<3, type>(Vec_VecX<3, type>&dvec, const VecX<3, type>&dMin, const VecX<3, type>&dMax, const Vec_UInt16& compressedData); \
+    template void decompress<4, type>(Vec_VecX<4, type>&dvec, const VecX<4, type>&dMin, const VecX<4, type>&dMax, const Vec_UInt16& compressedData); \
+    template void decompress<2, type>(Vec_VecX<2, type>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);                                    \
+    template void decompress<3, type>(Vec_VecX<3, type>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);                                    \
+    template void decompress<4, type>(Vec_VecX<4, type>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);                                    \
+    template void decompress<2, type>(Vector<MatXxX<2, type>>&dvec, type dMin, type dMax, const Vec_UInt16& compressedData);                         \
+    template void decompress<3, type>(Vector<MatXxX<3, type>>&dvec, type dMin, type dMax, const Vec_UInt16& compressedData);                         \
+    template void decompress<4, type>(Vector<MatXxX<4, type>>&dvec, type dMin, type dMax, const Vec_UInt16& compressedData);                         \
+    template void decompress<2, type>(Vector<MatXxX<2, type>>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);                              \
+    template void decompress<3, type>(Vector<MatXxX<3, type>>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);                              \
+    template void decompress<4, type>(Vector<MatXxX<4, type>>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
 
-template void decompress<2, Real>(Vec_VecX<2, Real>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<3, Real>(Vec_VecX<3, Real>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-
-template void decompress<2, Real>(Vector<MatXxX<2, Real>>& dvec, Real dMin, Real dMax, const Vec_UInt16& compressedData);
-template void decompress<3, Real>(Vector<MatXxX<3, Real>>& dvec, Real dMin, Real dMax, const Vec_UInt16& compressedData);
-
-template void decompress<2, Real>(Vector<MatXxX<2, Real>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<3, Real>(Vector<MatXxX<3, Real>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(float);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(double);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(Int);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(UInt);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(Int16);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(UInt16);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(Int64);
+__BNN_INSTANTIATE_DECOMPRESS_COMMON_VEC_DIM(UInt64);
 ////////////////////////////////////////////////////////////////////////////////
-template void decompress<Real>(Vector<Real>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<Int>(Vector<Int>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<UInt>(Vector<UInt>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<Int16>(Vector<Int16>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<UInt16>(Vector<UInt16>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
+#define __BNN_INSTANTIATE_DECOMPRESS(type)                                                                                                            \
+    template void decompress<type>(Vector<type>&dvec, type dMin, type dMax, const Vec_UInt16& compressedData);                                        \
+    template void decompress<type>(Vector<type>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);                                             \
+    template void decompress<type>(Vector<Vector<type>>&dvec, const Vector<type>&dMin, const Vector<type>&dMax, const Vec_VecUInt16& compressedData); \
+    template void decompress<type>(Vector<Vector<type>>&dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
 
-template void decompress<Real>(Vector<Real>& dvec, Real dMin, Real dMax, const Vec_UInt16& compressedData);
-template void decompress<Real>(Vector<Vector<Real>>& dvec, const Vector<Real> dMin, const Vector<Real>& dMax, const Vec_VecUInt16& compressedData);
+__BNN_INSTANTIATE_DECOMPRESS(float);
+__BNN_INSTANTIATE_DECOMPRESS(double);
+__BNN_INSTANTIATE_DECOMPRESS(Int);
+__BNN_INSTANTIATE_DECOMPRESS(UInt);
+__BNN_INSTANTIATE_DECOMPRESS(Int16);
+__BNN_INSTANTIATE_DECOMPRESS(UInt16);
+__BNN_INSTANTIATE_DECOMPRESS(Int64);
+__BNN_INSTANTIATE_DECOMPRESS(UInt64);
 
-template void decompress<Real>(Vector<Vector<Real>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<Int>(Vector<Vector<Int>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<Int16>(Vector<Vector<Int16>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<UInt>(Vector<Vector<UInt>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
-template void decompress<UInt16>(Vector<Vector<UInt16>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana::ParticleHelpers

@@ -78,9 +78,6 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleTools\ParticleSerialization.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
