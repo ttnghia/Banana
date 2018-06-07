@@ -75,7 +75,7 @@ public:
         m_Logger = Logger::createLogger("SPHBasedRelaxation");
     }
 
-    bool setParameters(const SPHRelaxationParameters<RealType>& relaxParams) { m_RelaxationParams = relaxParams; }
+    void setParameters(const SPHRelaxationParameters<RealType>& relaxParams) { m_RelaxationParams = relaxParams; }
 
     /**
      * @brief Relax the particle positions
@@ -169,6 +169,3 @@ protected:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana::ParticleTools
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/SPHBasedRelaxation.hpp>

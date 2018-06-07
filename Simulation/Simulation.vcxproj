@@ -170,7 +170,6 @@
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SimulationObjects\SimulationObject.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
-    <ClInclude Include="ParticleTools\SPHBasedRelaxation.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="ParticleTools\ParticleHelpers.hpp" />
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
@@ -186,6 +185,7 @@
     <ClCompile Include="ParticleSolvers\ParticleSolvers.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
+    <ClCompile Include="ParticleTools\SPHBasedRelaxation.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />
