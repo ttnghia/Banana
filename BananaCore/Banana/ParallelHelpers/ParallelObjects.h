@@ -300,7 +300,11 @@ template<Int N, class RealType>
 class MinMaxElements
 {
 public:
-    MinMaxElements(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec) {}
+    MinMaxElements(const Vector<VecX<N, RealType>>& vec) : m_Vector(vec)
+    {
+        if(vec.size() > 0) { m_ResultMax = vec[0]; }
+    }
+
     MinMaxElements(MinMaxElements<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
@@ -327,7 +331,7 @@ public:
 
 private:
     VecX<N, RealType>                m_ResultMin = VecX<N, RealType>(std::numeric_limits<RealType>::max());
-    VecX<N, RealType>                m_ResultMax = VecX<N, RealType>(-std::numeric_limits<RealType>::max());
+    VecX<N, RealType>                m_ResultMax = VecX<N, RealType>(0);
     const Vector<VecX<N, RealType>>& m_Vector;
 };
 
@@ -337,7 +341,11 @@ template<class RealType>
 class MinMaxElements<0, RealType>
 {
 public:
-    MinMaxElements(const RealType* vec) : m_Vector(vec) {}
+    MinMaxElements(const RealType* vec) : m_Vector(vec)
+    {
+        m_ResultMax = vec[0];
+    }
+
     MinMaxElements(MinMaxElements<0, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
@@ -359,7 +367,7 @@ public:
 
 private:
     RealType m_ResultMin = std::numeric_limits<RealType>::max();
-    RealType m_ResultMax = -std::numeric_limits<RealType>::max();
+    RealType m_ResultMax = 0;
 
     const RealType* m_Vector;
 };
@@ -369,7 +377,11 @@ template<class RealType>
 class MinMaxElements<1, RealType>
 {
 public:
-    MinMaxElements(const Vector<RealType>& vec) : m_Vector(vec) {}
+    MinMaxElements(const Vector<RealType>& vec) : m_Vector(vec)
+    {
+        if(vec.size() > 0) { m_ResultMax = vec[0]; }
+    }
+
     MinMaxElements(MinMaxElements<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
@@ -391,7 +403,7 @@ public:
 
 private:
     RealType m_ResultMin = std::numeric_limits<RealType>::max();
-    RealType m_ResultMax = -std::numeric_limits<RealType>::max();
+    RealType m_ResultMax = 0;
 
     const Vector<RealType>& m_Vector;
 };
