@@ -50,7 +50,7 @@ void ParticleSampler::doSampling()
     m_Generator->updateRelaxParameters();
     Int frame = 1;
     for(; frame <= getRelaxParams()->maxIters; ++frame) {
-        m_Generator->doFrameRelaxation(frame);
+        bool bConverged = m_Generator->doFrameRelaxation(frame);
 
         emit vizDataChanged();
         emit iterationFinished();
@@ -62,12 +62,13 @@ void ParticleSampler::doSampling()
             }
         }
 
-        if(m_bStop) {
+        if(bConverged || m_bStop) {
+            emit relaxationFinished();
             return;
         }
     }
 
-    m_Generator->finalizeRelaxation(frame);
+    m_Generator->reportFailed(frame);
     m_Generator.reset();
     emit relaxationFinished();
 }

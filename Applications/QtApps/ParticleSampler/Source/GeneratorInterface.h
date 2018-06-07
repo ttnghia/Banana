@@ -45,8 +45,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     void loadScene(const String& sceneFile);
     void updateRelaxParameters();
-    void doFrameRelaxation(UInt frame);
-    void finalizeRelaxation(UInt frame);
+    bool doFrameRelaxation(UInt frame);
+    void reportFailed(UInt frame);
     ////////////////////////////////////////////////////////////////////////////////
     Int    getDimension()  const { return m_Dimension; }
     float* getBMin() { return &m_ParticleData.domainBMin[0]; }

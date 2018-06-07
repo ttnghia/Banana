@@ -181,13 +181,17 @@ void Controller::setupSamplingParametersControllers()
     m_cbDeleteFrequency        = new EnhancedComboBox;
     m_txtIntersectionThreshold = new QLineEdit;
 
+    m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(100));
+    m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(1));
+    m_cbDeleteFrequency->getComboBox()->addItem(QString("%1").arg(1));
     for(int i = 1; i <= 10; ++i) {
         m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(i * 1000));
         m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
         m_cbDeleteFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
     }
-    m_cbMaxIterations->setCurrentIndex(9);
-    m_cbDeleteFrequency->setCurrentIndex(4);
+    m_cbCheckFrequency->setCurrentIndex(1);
+    m_cbMaxIterations->setCurrentIndex(10);
+    m_cbDeleteFrequency->setCurrentIndex(5);
     m_txtIntersectionThreshold->setText("1.8");
 
     QGridLayout* layoutStopCriteria = new QGridLayout;

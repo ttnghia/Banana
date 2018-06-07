@@ -207,18 +207,17 @@ void ParticleGeneratorInterface::updateRelaxParameters()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
+bool ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
 {
     if(m_Dimension == 2) {
         m_Relax2D->iterate(m_ParticleData.positions2D.data(), m_ParticleData.nParticles, frame);
         if(frame > 1 && (frame % getRelaxParams()->checkFrequency) == 0) {
             m_Relax2D->computeMinDistanceRatio();
-            m_Relax2D->logger().printLog("Iteration #" + std::to_string(frame) + ". Min distance ratio: " + std::to_string(m_Relax2D->getMinDistanceRatio()));
             if(m_Relax2D->getMinDistanceRatio() > getRelaxParams()->overlapThreshold) {
                 m_Relax2D->logger().printLogPadding("Relaxation finished successfully.");
                 m_Relax2D->logger().printMemoryUsage();
                 m_Relax2D->logger().newLine();
-                return;
+                return true;
             }
         }
         m_Relax2D->logger().printMemoryUsage();
@@ -227,46 +226,44 @@ void ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
         m_Relax3D->iterate(m_ParticleData.positions3D.data(), m_ParticleData.nParticles, frame);
         if(frame > 1 && (frame % getRelaxParams()->checkFrequency) == 0) {
             m_Relax3D->computeMinDistanceRatio();
-            m_Relax3D->logger().printLog("Iteration #" + std::to_string(frame) + ". Min distance ratio: " + std::to_string(m_Relax3D->getMinDistanceRatio()));
             if(m_Relax3D->getMinDistanceRatio() > getRelaxParams()->overlapThreshold) {
                 m_Relax3D->logger().printLogPadding("Relaxation finished successfully.");
                 m_Relax3D->logger().printMemoryUsage();
                 m_Relax3D->logger().newLine();
-                return;
+                return true;
             }
         }
-        m_Relax2D->logger().printMemoryUsage();
-        m_Relax2D->logger().newLine();
+        m_Relax3D->logger().printMemoryUsage();
+        m_Relax3D->logger().newLine();
     }
+
+    return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleGeneratorInterface::finalizeRelaxation(UInt frame)
+void ParticleGeneratorInterface::reportFailed(UInt frame)
 {
     if(((frame - 1) % getRelaxParams()->checkFrequency) == 0) {
         if(m_Dimension == 2) {
-            m_Relax2D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(getRelaxParams()->maxIters));
+            m_Relax2D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + Formatters::toString(getRelaxParams()->maxIters));
+            m_Relax2D->logger().newLine();
         } else {
-            m_Relax3D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(getRelaxParams()->maxIters));
+            m_Relax3D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + Formatters::toString(getRelaxParams()->maxIters));
+            m_Relax3D->logger().newLine();
         }
     } else {
         if(m_Dimension == 2) {
-            m_Relax2D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(getRelaxParams()->maxIters) +
-                                                ". Min distance ratio: " + std::to_string(m_Relax2D->getMinDistanceRatio()));
+            m_Relax2D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + Formatters::toString(getRelaxParams()->maxIters));
+            m_Relax2D->logger().newLine();
         } else {
-            m_Relax3D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(getRelaxParams()->maxIters) +
-                                                ". Min distance ratio: " + std::to_string(m_Relax3D->getMinDistanceRatio()));
+            m_Relax3D->logger().printLogPadding("Relaxation failed after reaching maxIters = " + Formatters::toString(getRelaxParams()->maxIters));
+            m_Relax3D->logger().newLine();
         }
     }
-    m_Relax3D->logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 const SharedPtr<ParticleTools::SPHRelaxationParameters<float>>& ParticleGeneratorInterface::getRelaxParams()
 {
-    if(m_Dimension == 2) {
-        return m_Relax2D->relaxParams();
-    } else {
-        return m_Relax3D->relaxParams();
-    }
+    return m_Dimension == 2 ? m_Relax2D->relaxParams() : m_Relax3D->relaxParams();
 }
