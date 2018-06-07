@@ -22,7 +22,7 @@
 #pragma once
 
 #include <Banana/Utils/Logger.h>
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 #include <SimulationObjects/ParticleGenerator.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <ParticleTools/SPHBasedRelaxation.h>

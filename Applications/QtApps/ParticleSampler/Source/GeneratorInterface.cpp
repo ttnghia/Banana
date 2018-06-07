@@ -167,7 +167,7 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
             m_ParticleData.positions2D.insert(m_ParticleData.positions2D.end(), generatedPositions.begin(), generatedPositions.end());
             m_ParticleData.objectIndex.insert(m_ParticleData.objectIndex.end(), generatedPositions.size(), m_ParticleData.nObjects);
             ++m_ParticleData.nObjects;
-            m_Logger->printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+            m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
         }
     }
     for(auto& generator : m_Generators3D) {
@@ -178,7 +178,7 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
             m_ParticleData.positions3D.insert(m_ParticleData.positions3D.end(), generatedPositions.begin(), generatedPositions.end());
             m_ParticleData.objectIndex.insert(m_ParticleData.objectIndex.end(), generatedPositions.size(), m_ParticleData.nObjects);
             ++m_ParticleData.nObjects;
-            m_Logger->printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+            m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
         }
     }
 

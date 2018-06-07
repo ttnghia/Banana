@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 #include <QMouseEvent>
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 #include <Banana/System/MemoryUsage.h>
 #include <QtAppHelpers/QtAppUtils.h>
 
@@ -92,17 +92,17 @@ void MainWindow::updateStatusRelaxation(const QString& status)
 
 void MainWindow::updateStatusMemoryUsage()
 {
-    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
+    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(Formatters::toString(getCurrentRSS() / 1048576.0))));
 }
 
 void MainWindow::updateStatusNumParticles(UInt numParticles)
 {
-    m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(numParticles))));
+    m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(Formatters::toString(numParticles))));
 }
 
 void MainWindow::updateStatusIteration(UInt iter)
 {
-    m_lblStatusIteration->setText(QString("Iteration : #%1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(iter))));
+    m_lblStatusIteration->setText(QString("Iteration : #%1").arg(QString::fromStdString(Formatters::toString(iter))));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -190,7 +190,6 @@ void MainWindow::connectWidgets()
                 if(sceneFile == "None") {
                     return;
                 }
-
                 m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
                 updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
@@ -207,7 +206,7 @@ void MainWindow::connectWidgets()
                     m_Sampler->startRelaxation(m_Controller->getSamplingParams());
                     m_Controller->m_cbScene->setDisabled(true);
                     m_Controller->m_btnReloadScene->setDisabled(true);
-                    updateStatusRelaxation("Running simulation...");
+                    updateStatusRelaxation("Running Relaxation...");
                 } else {
                     m_Sampler->stop();
                     m_Controller->m_cbScene->setDisabled(false);
