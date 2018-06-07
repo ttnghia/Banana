@@ -470,8 +470,33 @@ inline VecX<N, T> clamp(const VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, 
     for(Int d = 0; d < N; ++d) {
         result[d] = clamp(x[d], a[d], b[d]);
     }
-
     return result;
+}
+
+template<Int N, class T>
+inline VecX<N, T> clamp(const VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, T>& b, T margin)
+{
+    VecX<N, T> result;
+    for(Int d = 0; d < N; ++d) {
+        result[d] = clamp(x[d], a[d] + margin, b[d] - margin);
+    }
+    return result;
+}
+
+template<Int N, class T>
+inline void clampInPlace(VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, T>& b)
+{
+    for(Int d = 0; d < N; ++d) {
+        x[d] = clamp(x[d], a[d], b[d]);
+    }
+}
+
+template<Int N, class T>
+inline void clampInPlace(VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, T>& b, T margin)
+{
+    for(Int d = 0; d < N; ++d) {
+        x[d] = clamp(x[d], a[d] + margin, b[d] - margin);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -758,7 +783,7 @@ inline void quadratic_bspline_weights(T f, T& w0, T& w1, T& w2)
 template<class T>
 inline void cubic_interp_weights(T f, T& wneg1, T& w0, T& w1, T& w2)
 {
-    T f2(f* f), f3(f2 * f);
+    T f2(f * f), f3(f2 * f);
     wneg1 = -T(1.0 / 3.0) * f + T(1.0 / 2.0) * f2 - T(1.0 / 6.0) * f3;
     w0    = T(1.0) - f2 + T(1.0 / 2.0) * (f3 - f);
     w1    = f + T(1.0 / 2.0) * (f2 - f3);
