@@ -138,6 +138,7 @@
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp" />
     <ClInclude Include="Banana\ParallelHelpers\AtomicOperations.h" />
     <ClInclude Include="Banana\Utils\CommandLineParser.h" />
+    <ClInclude Include="Banana\Utils\Formatters.h" />
     <ClInclude Include="Banana\Utils\JSONHelpers.h" />
     <ClInclude Include="Banana\Utils\AppConfigReader.h" />
     <ClInclude Include="Banana\Array\ArrayHelpers.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
+    <ClCompile Include="Banana\Utils\Formatters.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
