@@ -41,8 +41,8 @@ void Peridynamics_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& 
 {
     MSS_Parameters<N, RealType>::printParams(logger);
     logger->printLog(String("Peridynamics parameters:"));
-    logger->printLogIndent(String("Default stretch threshold: ") + NumberHelpers::formatToScientific(defaultStretchThreshold));
-    logger->printLogIndent(String("Stretch threshold deviation ratio: ") + NumberHelpers::formatToScientific(stretchThresholdDeviationRatio));
+    logger->printLogIndent(String("Default stretch threshold: ") + Formatters::toSciString(defaultStretchThreshold));
+    logger->printLogIndent(String("Stretch threshold deviation ratio: ") + Formatters::toSciString(stretchThresholdDeviationRatio));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }

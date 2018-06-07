@@ -50,7 +50,7 @@ void Cloth_Parameters<RealType>::printParams(const SharedPtr<Logger>& logger)
     logger.printLogIndent(String("Has self-collision: ") + (bHasSelfCollision ? String("Yes") : String("No")));
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    logger->printLogIndentIf(bUseBendingForces, String("Default bending stiffness: ") + NumberHelpers::formatToScientific(defaultSpringStiffness));
+    logger->printLogIndentIf(bUseBendingForces, String("Default bending stiffness: ") + Formatters::toSciString(defaultSpringStiffness));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }

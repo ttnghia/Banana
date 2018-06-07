@@ -72,7 +72,7 @@ void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
     logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
-    logger->printLogIndent(String("Damping constant: ") + NumberHelpers::formatToScientific(KDamping));
+    logger->printLogIndent(String("Damping constant: ") + Formatters::toSciString(KDamping));
     logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
     ////////////////////////////////////////////////////////////////////////////////
 

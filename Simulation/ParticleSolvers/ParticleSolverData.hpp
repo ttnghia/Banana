@@ -80,7 +80,7 @@ void GlobalParameters<RealType>::printParams(Logger& logger)
 
     ////////////////////////////////////////////////////////////////////////////////
     // frame and time parameters
-    logger.printLogIndent(String("Frame duration: ") + NumberHelpers::formatToScientific(frameDuration) +
+    logger.printLogIndent(String("Frame duration: ") + Formatters::toSciString(frameDuration) +
                           String(" (~") + std::to_string(static_cast<int>(round(1.0_f / frameDuration))) + String(" fps)"));
     logger.printLogIndent(String("Start frame: ") + std::to_string(startFrame));
     logger.printLogIndent(String("Final frame: ") + std::to_string(finalFrame));
@@ -270,8 +270,8 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
 {
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
-    logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
-                           String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
+    logger->printLogIndent(String("Timestep min: ") + Formatters::toSciString(minTimestep) +
+                           String(" | max: ") + Formatters::toSciString(maxTimestep));
     logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
     logger->newLine();
     ////////////////////////////////////////////////////////////////////////////////
@@ -280,10 +280,10 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
     // domain size
     auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
     auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
-    logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
-                           (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(domainGrid) : String("")));
-    logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
-                           (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(movingGrid) : String("")));
+    logger->printLogIndent(String("Domain box: ") + Formatters::toString(domainBMin) + " -> " + Formatters::toString(domainBMax) +
+                           (bUseGrid ? String(" | Resolution: ") + Formatters::toString(domainGrid) : String("")));
+    logger->printLogIndent(String("Moving box: ") + Formatters::toString(movingBMin) + " -> " + Formatters::toString(movingBMax) +
+                           (bUseGrid ? String(" | Resolution: ") + Formatters::toString(movingGrid) : String("")));
     logger->newLine();
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -293,8 +293,8 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
         logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
         logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
         logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
-        logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
-                               String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
+        logger->printLogIndent(String("Number of cells: ") + Formatters::toString(glm::compMul(domainGrid)) +
+                               String(" | nodes: ") + Formatters::toString(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
         logger->newLine();
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -303,10 +303,10 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
     // particle parameters
     logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
     logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
-    logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+    logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + Formatters::toSciString(repulsiveForceStiffness));
     logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
     logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
-    logger->printLogIndent(String("Overlap threshold (if applicable): ") + NumberHelpers::formatToScientific(overlapThreshold) +
+    logger->printLogIndent(String("Overlap threshold (if applicable): ") + Formatters::toSciString(overlapThreshold) +
                            String(", which is ") + std::to_string(overlapThreshold / particleRadius) + String(" particle radius"));
     logger->printLogIndent(String("Collision threshold (if applicable): ") + std::to_string(collisionThreshold) +
                            String(", which is ") + std::to_string(collisionThreshold / particleRadius) + String(" particle radius"));
@@ -327,19 +327,19 @@ void SimulationParameters<N, RealType>::printParams(const SharedPtr<Logger>& log
     switch(gravityType) {
         case GravityType::Earth:
             logger->printLogIndent(String("Gravity: Earth"));
-            logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
+            logger->printLogIndent(String("Gravity direction: ") + Formatters::toString(gravityDirection));
             break;
         case GravityType::Directional:
             logger->printLogIndent(String("Gravity: Directional"));
-            logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
+            logger->printLogIndent(String("Gravity direction: ") + Formatters::toString(gravityDirection));
             break;
         case GravityType::ToCenter:
             logger->printLogIndent(String("Gravity: ToCenter"));
-            logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
+            logger->printLogIndent(String("Gravity center: ") + Formatters::toString(gravityCenter));
             break;
         case GravityType::FromCenter:
             logger->printLogIndent(String("Gravity: FromCenter"));
-            logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
+            logger->printLogIndent(String("Gravity center: ") + Formatters::toString(gravityCenter));
             break;
         default:;
     }

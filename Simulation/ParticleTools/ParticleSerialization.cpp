@@ -93,7 +93,7 @@ void ParticleSerialization::flushAsync(const String& fileName)
     if(m_Logger != nullptr) {
         buildAttrNameList();
         String str = String("Saving file: "); str += fileName;
-        str += String(" ("); str += NumberHelpers::formatWithCommas(static_cast<double>(computeBufferSize()) / 1048576.0); str += String(" MBs)");
+        str += String(" ("); str += Formatters::toString(static_cast<double>(computeBufferSize()) / 1048576.0); str += String(" MBs)");
         m_Logger->printLog(str);
         str = String("File data: "); str += m_AttributeNameList;
         m_Logger->printLogIndent(str);
@@ -249,7 +249,7 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     ipf.close();
     if(m_Logger != nullptr) {
         String str = String("Read file: "); str += fileName;
-        str += String(" ("); str += NumberHelpers::formatWithCommas(static_cast<double>(m_ByteRead) / 1048576.0); str += String(" MBs)");
+        str += String(" ("); str += Formatters::toString(static_cast<double>(m_ByteRead) / 1048576.0); str += String(" MBs)");
         m_Logger->printLog(str);
     }
     return true;

@@ -255,12 +255,12 @@ void HairMPM_Solver<N, RealType>::computeLagrangianForces()
                                         //if(p < 30) {
                                         //    printf("%u-%u,  %f,  d = %15.10f, d0=%15.10f,   f=%s\n", p, q, d / particleData().neighborDistances_t0[p][j] - 1.0_f,
                                         //           d, particleData().neighborDistances_t0[p][j],
-                                        //           NumberHelpers::toString(f, 10).c_str());
+                                        //           Formatters::toString(f, 10).c_str());
                                         //    fflush(stdout);
                                         //}
                                     }
                                     //if(p < 30) {
-                                    //    printf("%u,  f=%s\n", p, NumberHelpers::toString(f, 10).c_str());
+                                    //    printf("%u,  f=%s\n", p, Formatters::toString(f, 10).c_str());
                                     //    fflush(stdout);
                                     //}
 
@@ -414,8 +414,8 @@ void HairMPM_Solver<N, RealType>::updateParticleStates(RealType timestep)
 
                                     //if(p < 30) {
                                     //    printf("deformgrad1: %s, update: %s\n",
-                                    //           NumberHelpers::toString(deformGrad[1],                                              10).c_str(),
-                                    //           NumberHelpers::toString(particleData().predictPositionGradients[p] * deformGrad[1], 10).c_str());
+                                    //           Formatters::toString(deformGrad[1],                                              10).c_str(),
+                                    //           Formatters::toString(particleData().predictPositionGradients[p] * deformGrad[1], 10).c_str());
                                     //    fflush(stdout);
                                     //}
                                     deformGrad[1]                = particleData().predictPositionGradients[p] * deformGrad[1];

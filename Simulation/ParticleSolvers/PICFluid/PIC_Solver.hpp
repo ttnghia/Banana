@@ -45,7 +45,7 @@ void PIC_Solver<N, RealType>::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+                logger().printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
             }
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
@@ -79,7 +79,7 @@ bool PIC_Solver<N, RealType>::advanceScene()
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects, globalParams().finishedFrame);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLogIndent(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+                logger().printLogIndent(String("Generated ") + Formatters::toString(nGen) + String(" particles by ") + generator->nameID());
             }
             bSceneChanged |= (nGen > 0);
         }
@@ -89,7 +89,7 @@ bool PIC_Solver<N, RealType>::advanceScene()
         if(remover->isActive(globalParams().finishedFrame)) {
             remover->findRemovingCandidate(particleData().removeMarker, particleData().positions);
             UInt nRemoved = particleData().removeParticles(particleData().removeMarker);
-            logger().printLogIndentIf(nRemoved > 0, String("Removed ") + NumberHelpers::formatWithCommas(nRemoved) + String(" particles by ") + remover->nameID());
+            logger().printLogIndentIf(nRemoved > 0, String("Removed ") + Formatters::toString(nRemoved) + String(" particles by ") + remover->nameID());
             bSceneChanged |= (nRemoved > 0);
         }
     }
@@ -301,10 +301,10 @@ void PIC_Solver<N, RealType>::advanceFrame()
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
-                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
-                                                    " of size " + NumberHelpers::formatToScientific(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / frameDuration * 100.0) +
-                                                    "% of the frame, to " + NumberHelpers::formatWithCommas(100.0 * frameTime / frameDuration) +
+                                  logger().printLog("Finished step " + Formatters::toString(substepCount) +
+                                                    " of size " + Formatters::toSciString(substep) +
+                                                    "(" + Formatters::toString(substep / frameDuration * 100.0) +
+                                                    "% of the frame, to " + Formatters::toString(100.0 * frameTime / frameDuration) +
                                                     "% of the frame)");
                               });
         logger().newLine();
@@ -926,8 +926,8 @@ template<Int N, class RealType>
 void PIC_Solver<N, RealType>::solveSystem()
 {
     bool success = solverData().pcgSolver.solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
-    logger().printLogIndent("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
-                            ". Final residual: " + NumberHelpers::formatToScientific(solverData().pcgSolver.residual()), 2);
+    logger().printLogIndent("Conjugate Gradient iterations: " + Formatters::toString(solverData().pcgSolver.iterations()) +
+                            ". Final residual: " + Formatters::toSciString(solverData().pcgSolver.residual()), 2);
     if(!success) {
         logger().printErrorIndent("Pressure projection failed to solved!", 2);
         if(solverParams().bExitIfPressureProjectionFailed) {

@@ -57,14 +57,14 @@ void HairMPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logge
         logger->printLogIndent(String("Hair stretch processing method: projection"));
     } else {
         logger->printLogIndent(String("Hair stretch processing method: spring forces"));
-        logger->printLogIndent(String("Spring constant: ") + NumberHelpers::formatToScientific(KSpring), 2);
+        logger->printLogIndent(String("Spring constant: ") + Formatters::toSciString(KSpring), 2);
     }
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // anisotropic parameters
-    logger->printLogIndent(String("Normal friction: ") + NumberHelpers::formatToScientific(normalFriction));
-    logger->printLogIndent(String("Tangential friction: ") + NumberHelpers::formatToScientific(tangentialFriction));
+    logger->printLogIndent(String("Normal friction: ") + Formatters::toSciString(normalFriction));
+    logger->printLogIndent(String("Tangential friction: ") + Formatters::toSciString(tangentialFriction));
     ////////////////////////////////////////////////////////////////////////////////
 
     logger->newLine();

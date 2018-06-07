@@ -75,7 +75,7 @@ void SPHBasedRelaxation<N, RealType>::iterate(VecN* positions, UInt nParticles, 
     logger().printRunTimeIndent("Compute forces",                      [&]() { computeForces(); });
     logger().printRunTimeIndent("Update velocity",                     [&]() { updateVelocity(substep); });
     logger().printRunTimeIndent("Compute viscosity",                   [&]() { computeViscosity(); });
-    logger().printLog("Finished step of size " + NumberHelpers::formatToScientific(substep));
+    logger().printLog("Finished step of size " + Formatters::toSciString(substep));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

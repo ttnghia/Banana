@@ -22,7 +22,7 @@
 #pragma once
 #define NOMINMAX
 
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
@@ -248,8 +248,8 @@ void advect()
                                     {
                                         auto& x       = positions[i];
                                         const auto& v = enright_velocity_field(x);
-                                        x[0] += timestep * v[0];
-                                        x[1] += timestep * v[1];
+                                        x[0]         += timestep * v[0];
+                                        x[1]         += timestep * v[1];
                                         if constexpr(DIM == 3) {
                                             x[2] += timestep * v[1];
                                         }
@@ -324,7 +324,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         auto t0 = Clock::now();
         nsearch.find_neighbors();
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-        std::cout << "Before z_sort: neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
+        std::cout << "Before z_sort: neighborhood search took " << Formatters::toString(runTime) << "ms" << std::endl << std::endl;
 #ifdef TEST_BRUTE_FORCE
         REQUIRE(compare_with_bruteforce_search(nsearch));
 #endif
@@ -336,18 +336,18 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     //Vector<Vector<UInt> > neighbors3;
     //nsearch.find_neighbors(1, 2, neighbors3);
 
-    std::cout << "#Points                                = " << NumberHelpers::formatWithCommas(positions.size()) << std::endl;
+    std::cout << "#Points                                = " << Formatters::toString(positions.size()) << std::endl;
     std::cout << "Search radius                          = " << radius << std::endl;
     std::cout << "Min x                                  = " << min_x << std::endl;
     std::cout << "Max x                                  = " << max_x << std::endl;
     std::cout << "Average number of neighbors            = " << compute_average_number_of_neighbors(nsearch) << std::endl;
-    std::cout << "Average index distance prior to z-sort = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
+    std::cout << "Average index distance prior to z-sort = " << Formatters::toString(compute_average_distance(nsearch)) << std::endl;
 
     {
         auto t0 = Clock::now();
         nsearch.z_sort();
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-        std::cout << "z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
+        std::cout << "z_sort took " << Formatters::toString(runTime) << "ms" << std::endl << std::endl;
     }
 
     for(auto i = 0u; i < nsearch.n_point_sets(); ++i) {
@@ -359,7 +359,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         auto t0 = Clock::now();
         nsearch.find_neighbors();
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-        std::cout << "After z_sort: neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
+        std::cout << "After z_sort: neighborhood search took " << Formatters::toString(runTime) << "ms" << std::endl << std::endl;
 #ifdef TEST_BRUTE_FORCE
         REQUIRE(compare_with_bruteforce_search(nsearch));
         //compare_single_query_with_bruteforce_search(nsearch);
@@ -380,12 +380,12 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         grid.getNeighborList(positions, neighborsByCell, radius2, cellSpan);
         //getFinalNeighborList(neighborsByCell, neighborsByCellFinal);
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-        std::cout << "Using Grid to find neighborhood took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
+        std::cout << "Using Grid to find neighborhood took " << Formatters::toString(runTime) << "ms" << std::endl;
         REQUIRE(compare_with_grid_search(nsearch, neighborsByCell));
     }
 #endif
 
-    std::cout << "Average index distance after z-sort    = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
+    std::cout << "Average index distance after z-sort    = " << Formatters::toString(compute_average_distance(nsearch)) << std::endl;
 
     std::cout << "Moving points:" << std::endl;
     for(size_t i = 0; i < N_enright_steps; ++i) {
@@ -408,8 +408,8 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             auto t0 = Clock::now();
             nsearch.find_neighbors();
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
-            std::cout << "Average index distance = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
+            std::cout << "Neighborhood search took " << Formatters::toString(runTime) << "ms" << std::endl;
+            std::cout << "Average index distance = " << Formatters::toString(compute_average_distance(nsearch)) << std::endl;
 #ifdef TEST_BRUTE_FORCE
             REQUIRE(compare_with_bruteforce_search(nsearch));
             //compare_single_query_with_bruteforce_search(nsearch);
@@ -423,7 +423,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             Int cellSpan = Int(ceil(radius / grid.getCellSize()));
             grid.getNeighborList(positions, neighborsByCell, radius2, cellSpan);
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Using Grid to find neighborhood took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
+            std::cout << "Using Grid to find neighborhood took " << Formatters::toString(runTime) << "ms" << std::endl;
             REQUIRE(compare_with_grid_search(nsearch, neighborsByCell));
         }
 #endif
@@ -434,15 +434,15 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             auto        t0 = Clock::now();
             d.sort_field(positions.data());
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Sort field took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
+            std::cout << "Sort field took " << Formatters::toString(runTime) << "ms" << std::endl;
         }
 
         {
             auto t0 = Clock::now();
             nsearch.find_neighbors();
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Neighborhood search after z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
-            std::cout << "Average index distance = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
+            std::cout << "Neighborhood search after z_sort took " << Formatters::toString(runTime) << "ms" << std::endl;
+            std::cout << "Average index distance = " << Formatters::toString(compute_average_distance(nsearch)) << std::endl;
         }
 
 #ifdef TEST_GRID
@@ -452,7 +452,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             Int cellSpan = Int(ceil(radius / grid.getCellSize()));
             grid.getNeighborList(positions, neighborsByCell, radius2, cellSpan);
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Using Grid to find neighborhood after z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
+            std::cout << "Using Grid to find neighborhood after z_sort took " << Formatters::toString(runTime) << "ms" << std::endl;
         }
 #endif
     }

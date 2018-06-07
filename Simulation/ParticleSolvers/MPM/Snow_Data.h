@@ -103,12 +103,12 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 	virtual void printParams(const SharedPtr<Logger>& logger) override
 	{
 		logger->printLog("MPM-3D simulation parameters:");
-		logger->printLogIndent("Maximum timestep: " + NumberHelpers::formatToScientific(maxTimestep));
+		logger->printLogIndent("Maximum timestep: " + Formatters::toSciString(maxTimestep));
 		logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
 		logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-		logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + String(" -> ") + NumberHelpers::toString(domainBMax));
-		logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + String(" -> ") + NumberHelpers::toString(movingBMax));
+		logger->printLogIndent("Domain box: " + Formatters::toString(domainBMin) + String(" -> ") + Formatters::toString(domainBMax));
+		logger->printLogIndent("Moving box: " + Formatters::toString(movingBMin) + String(" -> ") + Formatters::toString(movingBMax));
 		logger->printLogIndent("Cell size: " + std::to_string(cellSize));
 		Vec2ui numDomainCells(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
 							  static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)));
@@ -116,12 +116,12 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 							  static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)));
 		logger->printLogIndent("Number of cells: " + std::to_string(numDomainCells[0] * numDomainCells[1]));
 		logger->printLogIndent("Number of nodes: " + std::to_string((numDomainCells[0] + 1u) * (numDomainCells[1] + 1u)));
-		logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(numDomainCells));
-		logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(numMovingCells));
+		logger->printLogIndent("Grid resolution: " + Formatters::toString(numDomainCells));
+		logger->printLogIndent("Moving grid resolution: " + Formatters::toString(numMovingCells));
 
 		logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryReflectionMultiplier));
-		logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
-		logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
+		logger->printLogIndent("ConjugateGradient solver tolerance: " + Formatters::toSciString(CGRelativeTolerance));
+		logger->printLogIndent("Max CG iterations: " + Formatters::toSciString(maxCGIteration));
 
 		logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
 		logger->newLine();

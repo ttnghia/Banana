@@ -28,7 +28,7 @@
 #include <iomanip>
 #include <functional>
 
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -66,7 +66,7 @@ public:
             tock();
         }
         m_StrBuilder.str("");
-        m_StrBuilder << NumberHelpers::formatWithCommas(m_ElapsedTime);
+        m_StrBuilder << Formatters::toString(m_ElapsedTime);
         m_StrBuilder << "ms";
         return m_StrBuilder.str();
     }
@@ -80,7 +80,7 @@ public:
         m_StrBuilder.str("");
         m_StrBuilder << caption;
         m_StrBuilder << ": ";
-        m_StrBuilder << NumberHelpers::formatWithCommas(m_ElapsedTime);
+        m_StrBuilder << Formatters::toString(m_ElapsedTime);
         m_StrBuilder << "ms";
 
         return m_StrBuilder.str();

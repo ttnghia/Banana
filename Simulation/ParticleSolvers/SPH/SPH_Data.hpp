@@ -52,15 +52,15 @@ void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 {
     logger->printLog("SPH simulation parameters:");
     SimulationParameters<N, RealType>::printParams(logger);
-    logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
+    logger->printLogIndent("Pressure stiffness: " + Formatters::toString(pressureStiffness));
     logger->printLogIndent("Use attractive pressure: " + (bAttractivePressure ? std::string("Yes") : std::string("No")));
     logger->printLogIndentIf(bAttractivePressure, "Attractive pressure ratio: " + std::to_string(attractivePressureRatio));
     logger->printLogIndent("Add short range repulsive force: " + (bAddShortRangeRepulsiveForce ? std::string("Yes") : std::string("No")));
     logger->printLogIndentIf(bAddShortRangeRepulsiveForce, "Short range repulsive force stiffness: " +
-                             NumberHelpers::formatWithCommas(shortRangeRepulsiveForceStiffness));
+                             Formatters::toString(shortRangeRepulsiveForceStiffness));
     logger->newLine();
-    logger->printLogIndent("Viscosity fluid-fluid: " + NumberHelpers::formatToScientific(viscosityFluid, 2));
-    logger->printLogIndent("Viscosity fluid-boundary: " + NumberHelpers::formatToScientific(viscosityBoundary, 2));
+    logger->printLogIndent("Viscosity fluid-fluid: " + Formatters::toSciString2(viscosityFluid));
+    logger->printLogIndent("Viscosity fluid-boundary: " + Formatters::toSciString2(viscosityBoundary));
     logger->newLine();
     logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
 #ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
@@ -136,7 +136,7 @@ void WCSPH_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN &newPositions, const Vec_VecN &newVelocities, const JParams &jParams)
+void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
 {
     __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
@@ -157,7 +157,7 @@ void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN &newPosi
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8 &removeMarker)
+UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;

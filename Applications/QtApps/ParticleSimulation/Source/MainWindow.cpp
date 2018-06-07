@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 #include <QMouseEvent>
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 #include <Banana/System/MemoryUsage.h>
 #include <QtAppHelpers/QtAppUtils.h>
 
@@ -93,19 +93,19 @@ void MainWindow::updateStatusSimulation(const QString& status)
 
 void MainWindow::updateStatusMemoryUsage()
 {
-    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
+    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(Formatters::toString(getCurrentRSS() / 1048576.0))));
 }
 
 void MainWindow::updateStatusNumParticles(UInt numParticles)
 {
-    m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(numParticles))));
+    m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(Formatters::toString(numParticles))));
 }
 
 void MainWindow::updateStatusSimulationTime(float time, UInt frame)
 {
     m_lblStatusSimTime->setText(QString("System time: %1 (s) | Frames: %2")
-                                    .arg(QString::fromStdString(NumberHelpers::formatWithCommas(time, 5)))
-                                    .arg(QString::fromStdString(NumberHelpers::formatWithCommas(frame)))
+                                    .arg(QString::fromStdString(Formatters::toString5(time)))
+                                    .arg(QString::fromStdString(Formatters::toString(frame)))
                                 );
 }
 

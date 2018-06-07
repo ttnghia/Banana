@@ -21,7 +21,7 @@
 
 #include <Banana/Utils/Logger.h>
 #include <Banana/Utils/FileHelpers.h>
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -294,9 +294,9 @@ void Logger::printMemoryUsage()
     String str;
     str.reserve(256);
     str += String("Memory usage: ");
-    str += NumberHelpers::formatWithCommas(static_cast<double>(getCurrentRSS()) / 1048576.0);
+    str += Formatters::toString(static_cast<double>(getCurrentRSS()) / 1048576.0);
     str += String(" MB(s). Peak: ");
-    str += NumberHelpers::formatWithCommas(static_cast<double>(getPeakRSS()) / 1048576.0) + " MB(s).";
+    str += Formatters::toString(static_cast<double>(getPeakRSS()) / 1048576.0) + " MB(s).";
 
     printLog(str);
 }

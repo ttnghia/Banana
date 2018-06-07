@@ -103,16 +103,16 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
-    logger->printLogIndent(String("Spring stiffness: ") + NumberHelpers::formatToScientific(defaultSpringStiffness));
+    logger->printLogIndent(String("Spring stiffness: ") + Formatters::toSciString(defaultSpringStiffness));
 #else
-    logger->printLogIndent(String("Default spring stiffness: ") + NumberHelpers::formatToScientific(defaultSpringStiffness));
+    logger->printLogIndent(String("Default spring stiffness: ") + Formatters::toSciString(defaultSpringStiffness));
 #endif
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
-    logger->printLogIndent(String("Spring horizon: ") + NumberHelpers::toString(defaultSpringHorizon, 2) +
-                           String(", which is ") + NumberHelpers::toString(defaultSpringHorizon / particleRadius, 2) + String(" particle radius"));
+    logger->printLogIndent(String("Spring horizon: ") + Formatters::toString(defaultSpringHorizon) +
+                           String(", which is ") + Formatters::toString(defaultSpringHorizon / particleRadius) + String(" particle radius"));
 #else
-    logger->printLogIndent(String("Default horizon: ") + NumberHelpers::toString(defaultSpringHorizon, 2) +
-                           String(", which is ") + NumberHelpers::toString(defaultSpringHorizon / particleRadius, 2) + String(" particle radius"));
+    logger->printLogIndent(String("Default horizon: ") + Formatters::toString(defaultSpringHorizon) +
+                           String(", which is ") + Formatters::toString(defaultSpringHorizon / particleRadius) + String(" particle radius"));
 #endif
 #ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
     logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
@@ -122,7 +122,7 @@ void MSS_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     logger->printLogIndent(String("Default particle mass: ") + std::to_string(defaultParticleMass));
 #endif
     ////////////////////////////////////////////////////////////////////////////////
-    logger->printLogIndent(String("Damping stiffness ratio: ") + NumberHelpers::formatToScientific(dampingStiffnessRatio));
+    logger->printLogIndent(String("Damping stiffness ratio: ") + Formatters::toSciString(dampingStiffnessRatio));
     logger->printLogIndent(String("Exit if Conjugate Gradient failed: ") + (bExitIfCGFailed ? String("Yes") : String("No")));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();

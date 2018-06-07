@@ -44,7 +44,7 @@ void WCSPH_Solver<N, RealType>::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+                logger().printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
             }
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
@@ -66,7 +66,7 @@ void WCSPH_Solver<N, RealType>::generateParticles(const JParams& jParams)
         __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
         for(auto& bdObj : m_BoundaryObjects) {
             UInt nGen = bdObj->generateBoundaryParticles(particleData().boundaryParticles, RealType(0.85) * solverParams().particleRadius);
-            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" boundary particles by ") + bdObj->nameID());
+            logger().printLogIf(nGen > 0, String("Generated ") + Formatters::toString(nGen) + String(" boundary particles by ") + bdObj->nameID());
         }
 
         __BNN_REQUIRE(particleData().boundaryParticles.size() > 0);
@@ -96,7 +96,7 @@ bool WCSPH_Solver<N, RealType>::advanceScene()
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects, globalParams().finishedFrame);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLogIndent(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+                logger().printLogIndent(String("Generated ") + Formatters::toString(nGen) + String(" particles by ") + generator->nameID());
             }
             bSceneChanged |= (nGen > 0);
         }
@@ -106,7 +106,7 @@ bool WCSPH_Solver<N, RealType>::advanceScene()
         if(remover->isActive(globalParams().finishedFrame)) {
             remover->findRemovingCandidate(particleData().removeMarker, particleData().positions);
             UInt nRemoved = particleData().removeParticles(particleData().removeMarker);
-            logger().printLogIndentIf(nRemoved > 0, String("Removed ") + NumberHelpers::formatWithCommas(nRemoved) + String(" particles by ") + remover->nameID());
+            logger().printLogIndentIf(nRemoved > 0, String("Removed ") + Formatters::toString(nRemoved) + String(" particles by ") + remover->nameID());
             bSceneChanged |= (nRemoved > 0);
         }
     }
@@ -298,10 +298,10 @@ void WCSPH_Solver<N, RealType>::advanceFrame()
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
-                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
-                                                    " of size " + NumberHelpers::formatToScientific(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / frameDuration * 100.0) +
-                                                    "% of the frame, to " + NumberHelpers::formatWithCommas(100.0 * frameTime / frameDuration) +
+                                  logger().printLog("Finished step " + Formatters::toString(substepCount) +
+                                                    " of size " + Formatters::toSciString(substep) +
+                                                    "(" + Formatters::toString(substep / frameDuration * 100.0) +
+                                                    "% of the frame, to " + Formatters::toString(100.0 * frameTime / frameDuration) +
                                                     "% of the frame)");
                               });
         logger().newLine();

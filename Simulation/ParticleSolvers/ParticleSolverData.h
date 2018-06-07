@@ -25,7 +25,7 @@
 #include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
 #include <Banana/Utils/MathHelpers.h>
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 #include <Banana/Utils/STLHelpers.h>
 #include <Banana/Utils/Logger.h>
 

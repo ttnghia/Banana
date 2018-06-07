@@ -132,7 +132,7 @@ void runTest(Int testID)
     while(!bRead) {
         bRead = (bReadAll ? particleReader.read(testID) : particleReader.read(testID, readAttrNames));
     }
-    logger->printLog("Read NParticles: " + NumberHelpers::formatWithCommas(particleReader.getNParticles()));
+    logger->printLog("Read NParticles: " + Formatters::toString(particleReader.getNParticles()));
 
     for(auto& kv : particleReader.getFixedAttributes()) {
         logger->printLog("Fixed Attr: " + kv.first);
@@ -157,24 +157,24 @@ void runTest(Int testID)
     if(bReadAttrs[0]) {
         REQUIRE(particleReader.getFixedAttribute(attrNames[0], readDataFloat));
         errorf = fabs(readDataFloat - dataFloat);
-        logger->printLog("Read float, err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read float, err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
 
         REQUIRE(particleReader.getFixedAttribute(attrNames[0], &readDataFloat));
         errorf = fabs(readDataFloat - dataFloat);
-        logger->printLog("Read float using pointer, err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read float using pointer, err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
     }
 
     if(bReadAttrs[1]) {
         REQUIRE(particleReader.getFixedAttribute(attrNames[1], readDataVec3f));
         errorf = glm::length(readDataVec3f - dataVec3f);
-        logger->printLog("Read Vec3f, err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read Vec3f, err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
 
         REQUIRE(particleReader.getFixedAttribute(attrNames[1], (float*)glm::value_ptr(readDataVec3f)));
         errorf = glm::length(readDataVec3f - dataVec3f);
-        logger->printLog("Read Vec3f, err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read Vec3f, err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
     }
 
@@ -184,7 +184,7 @@ void runTest(Int testID)
         for(size_t i = 0; i < DATA_SIZE; ++i) {
             errorf = MathHelpers::max(errorf, glm::length(readDataVecVec3f1[i] - dataVecVec3f1[i]));
         }
-        logger->printLog("Read VecVec3f1 (uncompressed real), max err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read VecVec3f1 (uncompressed real), max err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
     }
 
@@ -194,7 +194,7 @@ void runTest(Int testID)
         for(size_t i = 0; i < DATA_SIZE; ++i) {
             errorf = MathHelpers::max(errorf, glm::length(readDataVecVec3f2[i] - dataVecVec3f2[i]));
         }
-        logger->printLog("Read VecVec3f2 (compressed real), max err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read VecVec3f2 (compressed real), max err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < ERROR_THRESTHOLD);
     }
 
@@ -204,7 +204,7 @@ void runTest(Int testID)
         for(size_t i = 0; i < DATA_SIZE; ++i) {
             errord = MathHelpers::max(errord, glm::length(readDataVecVec3d1[i] - dataVecVec3d1[i]));
         }
-        logger->printLog("Read VecVec3d1 (compressed real), max err = " + NumberHelpers::formatToScientific(errord));
+        logger->printLog("Read VecVec3d1 (compressed real), max err = " + Formatters::toSciString(errord));
         REQUIRE(errord < ERROR_THRESTHOLD);
     }
 
@@ -214,7 +214,7 @@ void runTest(Int testID)
         for(size_t i = 0; i < DATA_SIZE; ++i) {
             errord = MathHelpers::max(errord, glm::length(readDataVecVec3d2[i] - dataVecVec3d2[i]));
         }
-        logger->printLog("Read VecVec3d2 (uncompressed real), max err = " + NumberHelpers::formatToScientific(errord));
+        logger->printLog("Read VecVec3d2 (uncompressed real), max err = " + Formatters::toSciString(errord));
         REQUIRE(errord < Tiny<RealType>());
     }
 
@@ -224,7 +224,7 @@ void runTest(Int testID)
         for(size_t i = 0; i < DATA_SIZE; ++i) {
             errorf = MathHelpers::max(errorf, glm::length(readDataVecFloat[i] - dataVecFloat[i]));
         }
-        logger->printLog("Read VecFloat (compressed real), max err = " + NumberHelpers::formatToScientific(errorf));
+        logger->printLog("Read VecFloat (compressed real), max err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < ERROR_THRESTHOLD);
     }
 
@@ -237,7 +237,7 @@ void runTest(Int testID)
                 errorui = MathHelpers::max(errorui, dataVecVecUInt[i][j] - readDataVecVecUInt[i][j]);
             }
         }
-        logger->printLog("Read VecVecUInt, max err = " + NumberHelpers::formatToScientific(errorui));
+        logger->printLog("Read VecVecUInt, max err = " + Formatters::toSciString(errorui));
         REQUIRE(errorui == 0);
     }
 

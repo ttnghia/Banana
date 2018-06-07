@@ -194,11 +194,11 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType>::doFrameSimulation(UInt frame)
 {
     logger().newLine();
-    logger().printAligned(String("Frame ") + NumberHelpers::formatWithCommas(frame), '=');
+    logger().printAligned(String("Frame ") + Formatters::toString(frame), '=');
     logger().newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
-    const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
+    const String strMsg = String("Frame finished. Frame duration: ") + Formatters::toSciString(globalParams().frameDuration) +
                           String("(s) (~") + std::to_string(static_cast<int>(round(RealType(1.0) / globalParams().frameDuration))) + String(" fps). Frame run time");
     logger().printRunTime(strMsg.c_str(),
                           [&]()
@@ -218,7 +218,7 @@ void ParticleSolver<N, RealType>::finalizeSimulation()
 {
     logger().newLine();
     logger().printAligned(String("Simulation finished"), '+');
-    logger().printLog(String("Total frames: ") + NumberHelpers::formatWithCommas(globalParams().finishedFrame - globalParams().startFrame + 1) +
+    logger().printLog(String("Total frames: ") + Formatters::toString(globalParams().finishedFrame - globalParams().startFrame + 1) +
                       String(" (Save frame data: ") + (globalParams().bSaveFrameData ? String("Yes") : String("No")) +
                       String(" | Save state: ") + (globalParams().bSaveMemoryState ? String("Yes") : String("No")) +
                       (globalParams().bSaveMemoryState ? String(" (") + std::to_string(globalParams().framePerState) + String(" frames/state)") : String("")) +
@@ -359,8 +359,8 @@ template<Int N, class RealType>
 void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
 {
     if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepSize")) {
-        String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
-                         String(" | SubStepSize: ") + NumberHelpers::formatToScientific(globalParams().frameSubstep, 10);
+        String dataStr = String("SystemTime: ") + Formatters::toSciString10(globalParams().evolvedTime()) +
+                         String(" | SubStepSize: ") + Formatters::toSciString10(globalParams().frameSubstep);
         dataLogger("SubStepSize").printLog(dataStr);
     }
 
@@ -376,8 +376,8 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
                                 });
         RealType kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(tmp) * RealType(0.5);
 #endif
-        String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
-                         String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
+        String dataStr = String("SystemTime: ") + Formatters::toSciString10(globalParams().evolvedTime()) +
+                         String(" | SystemKineticEnergy: ") + Formatters::toSciString10(kineticEnergy);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);
     }
 }

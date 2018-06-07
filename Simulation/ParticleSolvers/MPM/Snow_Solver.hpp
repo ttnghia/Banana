@@ -73,9 +73,9 @@ void Snow2DSolver::advanceFrame()
 
                                   frameTime += substep;
                                   ++substepCount;
-                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
+                                  logger().printLog("Finished step " + Formatters::toString(substepCount) + " of size " + Formatters::toSciString<Real>(substep) +
+                                                    "(" + Formatters::toString(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                    Formatters::toString(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
                               });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ void Snow2DSolver::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
             particleData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
+            logger().printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
         }
         sortParticles();
     }
@@ -132,7 +132,7 @@ bool Snow2DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
             UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
             particleData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            logger().printLogIf(nGen > 0, String("Generated ") + Formatters::toString(nGen) + String(" new particles by ") + generator->nameID());
             nNewParticles += nGen;
         }
     }
