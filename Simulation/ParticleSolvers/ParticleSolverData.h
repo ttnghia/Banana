@@ -22,19 +22,10 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
-#include <Banana/Utils/MathHelpers.h>
-#include <Banana/Utils/Formatters.h>
-#include <Banana/Utils/STLHelpers.h>
 #include <Banana/Utils/Logger.h>
-
-#include <ParticleSolvers/Macros.h>
 #include <SimulationObjects/SimulationObject.h>
-
-#include <string>
-#include <numeric>
-#include <random>
+#include <ParticleSolvers/Macros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolverDefaultParameters

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
+
 #include <vector>
 #include <map>
 #include <algorithm>

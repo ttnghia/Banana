@@ -23,32 +23,16 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Utils/Logger.h>
-#include <Banana/Utils/FileHelpers.h>
-#include <Banana/Utils/MathHelpers.h>
-#include <Banana/Utils/Timer.h>
-#include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Data/DataPrinter.h>
-
-#include <Banana/ParallelHelpers/AtomicOperations.h>
-#include <Banana/ParallelHelpers/ParallelSTL.h>
-#include <Banana/LinearAlgebra/LinaHelpers.h>
-
-#include <ParticleTools/ParticleSerialization.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 
 #include <SimulationObjects/BoundaryObject.h>
 #include <SimulationObjects/ParticleGenerator.h>
 #include <SimulationObjects/ParticleRemover.h>
 
+#include <ParticleTools/ParticleSerialization.h>
 #include <ParticleSolvers/Macros.h>
 
 #include <tbb/tbb.h>
 #include <json.hpp>
-
-#include <memory>
-#include <fstream>
-#include <sstream>
-#include <functional>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
