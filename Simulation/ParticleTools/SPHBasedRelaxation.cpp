@@ -35,7 +35,7 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nPart
         if((iter % relaxParams()->checkFrequency) == 0) {
             computeMinDistanceRatio();
             logger().printLog("Iteration #" + std::to_string(iter) + ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
-            if(getMinDistanceRatio() > relaxParams()->overlapThreshold) {
+            if(getMinDistanceRatio() > relaxParams()->intersectThreshold) {
                 logger().printLogPadding("Relaxation finished successfully.");
                 logger().printMemoryUsage();
                 logger().newLine();
@@ -71,6 +71,7 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::iterate(VecN* positions, UInt nParticles, UInt iter)
 {
     RealType substep;
+    logger().printLog("Iteration #" + Formatters::toString(iter));
     logger().printRunTimeIndent("CFL timestep",                        [&]() { substep = timestepCFL(); });
     logger().printRunTimeIndent("Move particles",                      [&]() { moveParticles(substep); });
     logger().printRunTimeIndent("Find neighbors",                      [&]() { m_FarNSearch->find_neighbors(); });
@@ -109,7 +110,7 @@ void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio()
                             });
     m_MinDistanceRatio = RealType(sqrt(ParallelSTL::min<RealType>(m_MinNeighborDistanceSqr))) / relaxParams()->particleRadius;
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printLog("Min distance ratio: " + std::to_string(m_MinDistanceRatio));
+    logger().printLog("Min distance ratio: " + std::to_string(m_MinDistanceRatio) + " (required: " + Formatters::toString(relaxParams()->intersectThreshold) + ")");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
