@@ -30,12 +30,12 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nPart
 {
     makeReady(positions, nParticles);
     UInt iter = 1;
-    for(; iter <= relaxParams().maxIters; ++iter) {
+    for(; iter <= relaxParams()->maxIters; ++iter) {
         iterate(positions, nParticles, iter);
-        if((iter % relaxParams().checkFrequency) == 0) {
+        if((iter % relaxParams()->checkFrequency) == 0) {
             computeMinDistanceRatio();
             logger().printLog("Iteration #" + std::to_string(iter) + ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
-            if(getMinDistanceRatio() > relaxParams().overlapThreshold) {
+            if(getMinDistanceRatio() > relaxParams()->overlapThreshold) {
                 logger().printLogPadding("Relaxation finished successfully.");
                 logger().printMemoryUsage();
                 logger().newLine();
@@ -45,10 +45,10 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions(VecN* positions, UInt nPart
         logger().printMemoryUsage();
         logger().newLine();
     }
-    if(((iter - 1) % relaxParams().checkFrequency) == 0) {
-        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(relaxParams().maxIters));
+    if(((iter - 1) % relaxParams()->checkFrequency) == 0) {
+        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(relaxParams()->maxIters));
     } else {
-        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(relaxParams().maxIters) +
+        logger().printLogPadding("Relaxation failed after reaching maxIters = " + std::to_string(relaxParams()->maxIters) +
                                  ". Min distance ratio: " + std::to_string(m_MinDistanceRatio));
     }
     logger().newLine();
@@ -60,11 +60,10 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::makeReady(VecN* positions, UInt nParticles)
 {
     particleData().makeReady(positions, nParticles, m_RelaxationParams);
-    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams().particleRadius * RealType(2.0));
-    m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams().particleRadius * RealType(4.0));
-
-    // m_NearNSearch->add_point_set(positions, nParticles);
-    // m_FarNSearch->add_point_set(positions, nParticles);
+    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->particleRadius * RealType(2.0));
+    m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->particleRadius * RealType(4.0));
+    m_NearNSearch->add_point_set(reinterpret_cast<RealType*>(positions), nParticles);
+    m_FarNSearch->add_point_set(reinterpret_cast<RealType*>(positions), nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -108,7 +107,7 @@ void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio()
                                 }
                                 m_MinNeighborDistanceSqr[p] = min_d2;
                             });
-    m_MinDistanceRatio = RealType(sqrt(ParallelSTL::min<RealType>(m_MinNeighborDistanceSqr))) / relaxParams().particleRadius;
+    m_MinDistanceRatio = RealType(sqrt(ParallelSTL::min<RealType>(m_MinNeighborDistanceSqr))) / relaxParams()->particleRadius;
     ////////////////////////////////////////////////////////////////////////////////
     logger().printLog("Min distance ratio: " + std::to_string(m_MinDistanceRatio));
 }
@@ -118,8 +117,8 @@ template<Int N, class RealType>
 RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
 {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
-    RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? relaxParams().CFLFactor * (RealType(2.0) * relaxParams().particleRadius / maxVel) : Huge<RealType>();
-    return MathHelpers::clamp(CFLTimeStep, relaxParams().minTimestep, relaxParams().maxTimestep);
+    RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? relaxParams()->CFLFactor * (RealType(2.0) * relaxParams()->particleRadius / maxVel) : Huge<RealType>();
+    return MathHelpers::clamp(CFLTimeStep, relaxParams()->minTimestep, relaxParams()->maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -204,7 +203,7 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
                                 }
                                 auto pdensity = kernels().W_zero();
                                 computeDensity(pdensity, pNeighborInfo);
-                                pdensity *= relaxParams().particleMass;
+                                pdensity *= relaxParams()->particleMass;
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().densities[p] = MathHelpers::clamp(pdensity, RealType(1e1), RealType(1e5));
                             });
@@ -214,7 +213,7 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
 template<Int N, class RealType>
 bool SPHBasedRelaxation<N, RealType>::normalizeDensity()
 {
-    if(!relaxParams().bNormalizeDensity) {
+    if(!relaxParams()->bNormalizeDensity) {
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +237,7 @@ bool SPHBasedRelaxation<N, RealType>::normalizeDensity()
                                     const auto qdensity = particleData().densities[q];
                                     tmp                += kernels().W(r) / qdensity;
                                 }
-                                pdensity = pdensity / (tmp * relaxParams().particleMass);
+                                pdensity = pdensity / (tmp * relaxParams()->particleMass);
                                 ////////////////////////////////////////////////////////////////////////////////
                                 particleData().tmp_densities[p] = MathHelpers::clamp(pdensity, RealType(1e1), RealType(1e5));
                             });
@@ -253,7 +252,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
     auto particlePressure = [&](auto density)
                             {
                                 auto error = RealType(MathHelpers::pow7(density / 1000.0)) - RealType(1.0);
-                                error *= (relaxParams().pressureStiffness / density / density);
+                                error *= (relaxParams()->pressureStiffness / density / density);
                                 if(error > RealType(0)) {
                                     return error;
                                 } else {
@@ -263,13 +262,13 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
     auto shortRangeRepulsiveAcceleration = [&](const auto& r)
                                            {
                                                const auto d2 = glm::length2(r);
-                                               const auto w  = MathHelpers::smooth_kernel(d2, relaxParams().nearKernelRadiusSqr);
+                                               const auto w  = MathHelpers::smooth_kernel(d2, relaxParams()->nearKernelRadiusSqr);
                                                if(w < MEpsilon<RealType>()) {
                                                    return VecN(0);
-                                               } else if(d2 > relaxParams().overlapThresholdSqr) {
-                                                   return -relaxParams().nearPressureStiffness * w / RealType(sqrt(d2)) * r;
+                                               } else if(d2 > relaxParams()->overlapThresholdSqr) {
+                                                   return -relaxParams()->nearPressureStiffness * w / RealType(sqrt(d2)) * r;
                                                } else {
-                                                   return relaxParams().nearPressureStiffness * MathHelpers::vrand11<VecN>();
+                                                   return relaxParams()->nearPressureStiffness * MathHelpers::vrand11<VecN>();
                                                }
                                            };
     ////////////////////////////////////////////////////////////////////////////////
@@ -292,7 +291,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                     const auto fpressure = (ppressure + qpressure) * kernels().gradW(r) + shortRangeRepulsiveAcceleration(r);
                                     pforce              += fpressure;
                                 }
-                                particleData().accelerations[p] = pforce * relaxParams().particleMass;
+                                particleData().accelerations[p] = pforce * relaxParams()->particleMass;
                             });
 }
 
@@ -328,8 +327,8 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                     const auto qdensity = qInfo[N];
                                     diffVelFluid       += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
                                 }
-                                diffVelFluid                     *= relaxParams().viscosity;
-                                particleData().diffuseVelocity[p] = diffVelFluid * relaxParams().particleMass;
+                                diffVelFluid                     *= relaxParams()->viscosity;
+                                particleData().diffuseVelocity[p] = diffVelFluid * relaxParams()->particleMass;
                             });
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
 }

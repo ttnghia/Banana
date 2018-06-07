@@ -75,7 +75,7 @@ public:
         m_Logger = Logger::createLogger("SPHBasedRelaxation");
     }
 
-    void setParameters(const SPHRelaxationParameters<RealType>& relaxParams) { m_RelaxationParams = relaxParams; }
+    auto& relaxParams() { return m_RelaxationParams; }
 
     /**
      * @brief Relax the particle positions
@@ -96,8 +96,6 @@ public:
     void computeMinDistanceRatio();
 
 protected:
-    ////////////////////////////////////////////////////////////////////////////////
-    auto& relaxParams() { return m_RelaxationParams; }
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     moveParticles(RealType timestep);
@@ -121,13 +119,13 @@ protected:
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
         ////////////////////////////////////////////////////////////////////////////////
         UInt getNParticles() const { return nParticles; }
-        void makeReady(VecN* positions_, UInt nParticles_,  SPHRelaxationParameters<RealType>& relaxParams)
+        void makeReady(VecN* positions_, UInt nParticles_,  const SharedPtr<SPHRelaxationParameters<RealType>>& relaxParams)
         {
-            relaxParams.particleMass        = RealType(pow(RealType(2.0) * relaxParams.particleRadius, N));
-            relaxParams.nearKernelRadius   *= relaxParams.particleRadius;
-            relaxParams.nearKernelRadiusSqr = relaxParams.nearKernelRadius * relaxParams.nearKernelRadius;
-            relaxParams.overlapThreshold   *= relaxParams.particleRadius;
-            relaxParams.overlapThresholdSqr = relaxParams.overlapThreshold * relaxParams.overlapThreshold;
+            relaxParams->particleMass        = RealType(pow(RealType(2.0) * relaxParams->particleRadius, N));
+            relaxParams->nearKernelRadius   *= relaxParams->particleRadius;
+            relaxParams->nearKernelRadiusSqr = relaxParams->nearKernelRadius * relaxParams->nearKernelRadius;
+            relaxParams->overlapThreshold   *= relaxParams->particleRadius;
+            relaxParams->overlapThresholdSqr = relaxParams->overlapThreshold * relaxParams->overlapThreshold;
             ////////////////////////////////////////////////////////////////////////////////
             positions  = positions_;
             nParticles = nParticles_;
@@ -142,6 +140,7 @@ protected:
     } m_SPHData;
 
     auto& particleData() { return m_SPHData; }
+    const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
     ////////////////////////////////////////////////////////////////////////////////
     struct Kernels
     {
@@ -157,10 +156,8 @@ protected:
     auto& kernels() { return m_Kernels; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    SPHRelaxationParameters<RealType>                                        m_RelaxationParams;
-    const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
-    ////////////////////////////////////////////////////////////////////////////////
-    RealType m_MinDistanceRatio = RealType(0);
+    RealType                                     m_MinDistanceRatio = RealType(0);
+    SharedPtr<SPHRelaxationParameters<RealType>> m_RelaxationParams = std::make_shared<SPHRelaxationParameters<RealType>>();
 
     SharedPtr<Logger>                                      m_Logger      = nullptr;
     UniquePtr<NeighborSearch::NeighborSearch<N, RealType>> m_NearNSearch = nullptr;
