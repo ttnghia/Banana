@@ -83,9 +83,46 @@ String toString(T value)
 }
 
 template<class T>
+String toString7(T value)
+{
+    return Formatter<FormatType::CommaSeparated, 7, true>::format(value);
+}
+
+template<class T>
+String toString5(T value)
+{
+    return Formatter<FormatType::CommaSeparated, 5, true>::format(value);
+}
+
+template<class T>
+String toString10(T value)
+{
+    return Formatter<FormatType::CommaSeparated, 10, true>::format(value);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 String toSciString(T value)
 {
     return Formatter<FormatType::Scientific, 5, true>::format(value);
+}
+
+template<class T>
+String toSciString2(T value)
+{
+    return Formatter<FormatType::Scientific, 2, true>::format(value);
+}
+
+template<class T>
+String toSciString7(T value)
+{
+    return Formatter<FormatType::Scientific, 7, true>::format(value);
+}
+
+template<class T>
+String toSciString10(T value)
+{
+    return Formatter<FormatType::Scientific, 10, true>::format(value);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
