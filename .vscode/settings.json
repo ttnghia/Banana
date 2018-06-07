@@ -37,6 +37,8 @@
         "ostream": "cpp",
         "xlocmon": "cpp",
         "xlocnum": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "condition_variable": "cpp",
+        "tuple": "cpp"
     }
 }
