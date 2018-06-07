@@ -34,6 +34,9 @@
         "memory": "cpp",
         "qtgui": "cpp",
         "optional": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "sstream": "cpp"
     }
 }
