@@ -22,9 +22,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Array/Array.h>
-#include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Geometry/GeometryObjectFactory.h>
+#include <Banana/Geometry/GeometryObjects.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::SimulationObjects
@@ -39,19 +37,8 @@ public:
     __BNN_TYPE_ALIASING
     using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType>>;
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationObject() = delete;
-    SimulationObject(const JParams& jParams, bool bCSGObj = false) : m_jParams(jParams)
-    {
-        if(bCSGObj) {
-            m_GeometryObj = GeometryObjectFactory::createGeometry<N, RealType>("CSGObject");
-        } else {
-            String geometryType;
-            __BNN_REQUIRE(JSONHelpers::readValue(jParams, geometryType, "GeometryType"));
-            m_GeometryObj = GeometryObjectFactory::createGeometry<N, RealType>(geometryType);
-        }
-        __BNN_REQUIRE(m_GeometryObj != nullptr);
-        parseParameters(jParams);
-    }
+    SimulationObject()                                    = delete;
+    SimulationObject(const JParams& jParams, bool bCSGObj = false);
 
     ////////////////////////////////////////////////////////////////////////////////
     auto& jParams() { return m_jParams; }
@@ -76,7 +63,7 @@ public:
 protected:
     JParams     m_jParams;
     GeometryPtr m_GeometryObj   = nullptr;
-    String      m_NameID        = String(String("Object_") + std::to_string(NumberHelpers::generateRandomInt<Int>()));
+    String      m_NameID        = String("NoName");
     String      m_MeshFile      = String("");
     String      m_ParticleFile  = String("");
     bool        m_bDynamics     = false;
@@ -86,8 +73,6 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool m_bObjReady = false;
 };
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <SimulationObjects/SimulationObject.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::SimulationObjects

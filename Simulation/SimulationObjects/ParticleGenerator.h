@@ -22,11 +22,8 @@
 #pragma once
 
 #include <Banana/Grid/Grid.h>
-#include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <SimulationObjects/SimulationObject.h>
-#include <ParticleTools/SPHBasedRelaxation.h>
-
+#include <SimulationObjects/BoundaryObject.h>
 #include <unordered_set>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,7 +44,7 @@ class ParticleGenerator : public SimulationObject<N, RealType>
     __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 public:
-    ParticleGenerator() = delete;
+    ParticleGenerator()                                    = delete;
     ParticleGenerator(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -112,9 +109,6 @@ protected:
     Array<N, Vec_UInt>                  m_ParticleIdxInCell;
     Array<N, ParallelObjects::SpinLock> m_Lock;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <SimulationObjects/ParticleGenerator.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::SimulationObjects

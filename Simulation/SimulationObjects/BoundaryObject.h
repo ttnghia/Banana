@@ -46,7 +46,7 @@ class BoundaryObject : public SimulationObject<N, RealType>
 {
     __BNN_TYPE_ALIASING
 public:
-    BoundaryObject() = delete;
+    BoundaryObject()                                    = delete;
     BoundaryObject(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { this->parseParameters(jParams); }
     ////////////////////////////////////////////////////////////////////////////////
     auto& boundaryReflectionMultiplier() { return m_BoundaryReflectionMultiplier; }
@@ -118,9 +118,6 @@ public:
     BoxBoundary(const JParams& jParams) : BoxBoundaryInterface<3, RealType>(jParams) {}
     virtual void generateBoundaryParticles_Impl(Vec_Vec3<RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2) override;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <SimulationObjects/BoundaryObject.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::SimulationObjects

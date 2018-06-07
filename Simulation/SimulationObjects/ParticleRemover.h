@@ -21,9 +21,8 @@
 
 #pragma once
 
-#include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/ParallelHelpers/Scheduler.h>
 #include <SimulationObjects/SimulationObject.h>
+#include <unordered_set>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::SimulationObjects
@@ -37,7 +36,7 @@ class ParticleRemover : public SimulationObject<N, RealType>
     __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 public:
-    ParticleRemover() = delete;
+    ParticleRemover()                                    = delete;
     ParticleRemover(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -56,9 +55,6 @@ protected:
 
     std::unordered_set<UInt> m_ActiveFrames;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <SimulationObjects/ParticleRemover.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::SimulationObjects

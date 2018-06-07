@@ -146,16 +146,12 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
     <ClInclude Include="SimulationObjects\HairObjectGenerator.h" />
-    <ClInclude Include="SimulationObjects\ParticleGenerator.hpp" />
     <ClInclude Include="SimulationObjects\ParticleRemover.h" />
-    <ClInclude Include="SimulationObjects\ParticleRemover.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
-    <ClInclude Include="SimulationObjects\SimulationObject.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObject.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="SimulationObjects\ParticleGenerator.h" />
     <ClInclude Include="ParticleTools\SPHBasedRelaxation.h" />
@@ -181,6 +177,10 @@
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\SPHBasedRelaxation.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
+    <ClCompile Include="SimulationObjects\BoundaryObject.cpp" />
+    <ClCompile Include="SimulationObjects\ParticleGenerator.cpp" />
+    <ClCompile Include="SimulationObjects\ParticleRemover.cpp" />
+    <ClCompile Include="SimulationObjects\SimulationObject.cpp" />
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />
   </ItemGroup>
