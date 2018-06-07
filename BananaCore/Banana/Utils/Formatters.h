@@ -49,13 +49,13 @@ class Formatter
 public:
     Formatter() = delete;
 
-    static void init();
-
     template<class T> static String        format(T x);
     template<Int N, class T> static String format(const VecX<N, T>& vec);
     template<Int N, class T> static String format(const MatXxX<N, T>& mat, bool breakLine = false);
 
 private:
+    static void init();
+    ////////////////////////////////////////////////////////////////////////////////
     struct Numpunct : public std::numpunct<char>
     {
 protected:
