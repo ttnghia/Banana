@@ -213,7 +213,7 @@ bool ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
         m_Relax2D->iterate(m_ParticleData.positions2D.data(), m_ParticleData.nParticles, frame);
         if(frame > 1 && (frame % getRelaxParams()->checkFrequency) == 0) {
             m_Relax2D->computeMinDistanceRatio();
-            if(m_Relax2D->getMinDistanceRatio() > getRelaxParams()->overlapThreshold) {
+            if(m_Relax2D->getMinDistanceRatio() > getRelaxParams()->intersectThreshold) {
                 m_Relax2D->logger().printLogPadding("Relaxation finished successfully.");
                 m_Relax2D->logger().printMemoryUsage();
                 m_Relax2D->logger().newLine();
@@ -226,7 +226,7 @@ bool ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
         m_Relax3D->iterate(m_ParticleData.positions3D.data(), m_ParticleData.nParticles, frame);
         if(frame > 1 && (frame % getRelaxParams()->checkFrequency) == 0) {
             m_Relax3D->computeMinDistanceRatio();
-            if(m_Relax3D->getMinDistanceRatio() > getRelaxParams()->overlapThreshold) {
+            if(m_Relax3D->getMinDistanceRatio() > getRelaxParams()->intersectThreshold) {
                 m_Relax3D->logger().printLogPadding("Relaxation finished successfully.");
                 m_Relax3D->logger().printMemoryUsage();
                 m_Relax3D->logger().newLine();
