@@ -60,9 +60,6 @@
     <ClInclude Include="ParticleTools\ParticleHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleTools\ParticleHelpers.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>

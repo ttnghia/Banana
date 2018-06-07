@@ -39,6 +39,8 @@
         "xlocnum": "cpp",
         "sstream": "cpp",
         "condition_variable": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "chrono": "cpp",
+        "execution": "cpp"
     }
 }

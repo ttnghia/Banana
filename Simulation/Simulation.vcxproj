@@ -154,7 +154,6 @@
     <ClInclude Include="SimulationObjects\SimulationObject.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
-    <ClInclude Include="ParticleTools\ParticleHelpers.hpp" />
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.hpp" />
