@@ -39,7 +39,7 @@ INCLUDEPATH += $$PWD/../Externals/tinyply/source
 CONFIG(debug, debug|release) {
     message("Debug")
     win32 {
-         QMAKE_CXXFLAGS += /DEBUG /INCREMENTAL:NO /Zi /D "_DEBUG"
+         QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG"
     }
     macx {
         QMAKE_CXXFLAGS += -g
