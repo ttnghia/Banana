@@ -78,6 +78,7 @@
     <ClCompile Include="Source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\TestNumberFormatter.hpp" />
     <ClInclude Include="Source\TestParallelExecution.hpp" />
     <ClInclude Include="Source\TestVec3AsVec4Operation.hpp" />
     <ClInclude Include="Source\TestVec3AsVec4Union.hpp" />
