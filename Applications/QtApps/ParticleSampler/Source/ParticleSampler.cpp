@@ -29,13 +29,13 @@
 #include <QDir>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::startRelaxation(const ParticleTools::SPHRelaxationParameters<float>& params)
+void ParticleSampler::startRelaxation()
 {
     m_bStop = false;
     if(m_RelaxationFutureObj.valid()) {
         m_RelaxationFutureObj.wait();
     }
-    m_RelaxationFutureObj = std::async(std::launch::async, [&] { doSampling(params); });
+    m_RelaxationFutureObj = std::async(std::launch::async, [&] { doSampling(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -45,11 +45,11 @@ void ParticleSampler::finishImgExport()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSampler::doSampling(const ParticleTools::SPHRelaxationParameters<float>& params)
+void ParticleSampler::doSampling()
 {
-    m_Generator->setRelaxationParameters(params);
+    m_Generator->updateRelaxParameters();
     Int frame = 1;
-    for(; frame <= params.maxIters; ++frame) {
+    for(; frame <= getRelaxParams()->maxIters; ++frame) {
         m_Generator->doFrameRelaxation(frame);
 
         emit vizDataChanged();

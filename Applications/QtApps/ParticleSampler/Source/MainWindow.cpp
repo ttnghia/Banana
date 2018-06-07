@@ -203,7 +203,8 @@ void MainWindow::connectWidgets()
                 bool isRunning = m_Sampler->isRunning();
 
                 if(!isRunning) {
-                    m_Sampler->startRelaxation(m_Controller->getSamplingParams());
+                    m_Controller->updateRelaxParams();
+                    m_Sampler->startRelaxation();
                     m_Controller->m_cbScene->setDisabled(true);
                     m_Controller->m_btnReloadScene->setDisabled(true);
                     updateStatusRelaxation("Running Relaxation...");

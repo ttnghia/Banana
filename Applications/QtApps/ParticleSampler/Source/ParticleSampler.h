@@ -41,15 +41,16 @@ class ParticleSampler : public QObject
 public:
     ParticleSampler() = default;
 
-    auto& getVizData() const { return m_VizData; }
+    const auto& getVizData() const { return m_VizData; }
+    const auto& getRelaxParams() const { return m_Generator->getRelaxParams(); }
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
-    void startRelaxation(const ParticleTools::SPHRelaxationParameters<float>& params);
+    void startRelaxation();
     void finishImgExport();
 
 public slots:
-    void doSampling(const ParticleTools::SPHRelaxationParameters<float>& params);
+    void doSampling();
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
     void saveParticles(int outputType, bool bDouble = false);

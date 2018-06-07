@@ -46,11 +46,11 @@ public:
         connectWidgets();
     }
 
-    const ParticleTools::SPHRelaxationParameters<float>& getSamplingParams();
+    void updateRelaxParams();
+
 private:
-    ParticleTools::SPHRelaxationParameters<float> m_RelaxParams;
-    QWidget*                                      m_RelaxationControllers       = new QWidget;
-    QVBoxLayout*                                  m_LayoutRelaxationControllers = new QVBoxLayout;
+    QWidget*     m_RelaxationControllers       = new QWidget;
+    QVBoxLayout* m_LayoutRelaxationControllers = new QVBoxLayout;
 
     ////////////////////////////////////////////////////////////////////////////////
     void setupGUI();

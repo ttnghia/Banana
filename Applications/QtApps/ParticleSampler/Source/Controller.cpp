@@ -24,19 +24,20 @@
 #include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const ParticleTools::SPHRelaxationParameters<float>& Controller::getSamplingParams()
+void Controller::updateRelaxParams()
 {
-    m_RelaxParams.maxIters           = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
-    m_RelaxParams.checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
-    m_RelaxParams.deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
-    m_RelaxParams.intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
+    const auto& relaxParams = m_ParticleSampler->getRelaxParams();
+    relaxParams->particleRadius = m_ParticleSampler->getVizData()->particleRadius;
 
-    m_RelaxParams.pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
-    m_RelaxParams.viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
-    m_RelaxParams.nearKernelRadius      = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
-    m_RelaxParams.nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
+    relaxParams->maxIters           = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
+    relaxParams->checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
+    relaxParams->deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
+    relaxParams->intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
 
-    return m_RelaxParams;
+    relaxParams->pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
+    relaxParams->viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
+    relaxParams->nearKernelRadius      = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
+    relaxParams->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

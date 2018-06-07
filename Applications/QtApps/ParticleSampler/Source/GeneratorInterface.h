@@ -44,7 +44,7 @@ public:
     ~ParticleGeneratorInterface() { Logger::shutdown(); }
     ////////////////////////////////////////////////////////////////////////////////
     void loadScene(const String& sceneFile);
-    void setRelaxationParameters(const ParticleTools::SPHRelaxationParameters<float>& params);
+    void updateRelaxParameters();
     void doFrameRelaxation(UInt frame);
     void finalizeRelaxation(UInt frame);
     ////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,9 @@ public:
     char* getObjectIndex() { return reinterpret_cast<char*>(m_ParticleData.objectIndex.data()); }
     UInt  getNObjects() const { return static_cast<UInt>(m_ParticleData.nObjects); }
     UInt  getNParticles()  const { return m_ParticleData.nParticles; }
+    ////////////////////////////////////////////////////////////////////////////////
     float getParticleRadius() const { return m_ParticleData.particleRadius; }
+    const SharedPtr<ParticleTools::SPHRelaxationParameters<float>>& getRelaxParams();
 
 private:
     Int                                                               m_Dimension = 2;
