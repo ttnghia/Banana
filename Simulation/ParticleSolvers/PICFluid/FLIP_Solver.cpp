@@ -18,33 +18,45 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/PICFluid/FLIP_Solver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType>::allocateSolverMemory()
+void FLIP_Solver<N, RealType>::allocateSolverMemory()
 {
     m_PICParams    = std::make_shared<PIC_Parameters<N, RealType>>();
     m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_PICParams);
 
-    m_AFLIPData  = std::make_shared<AFLIP_Data<N, RealType>>();
-    m_FLIPData   = std::static_pointer_cast<FLIP_Data<N, RealType>>(m_AFLIPData);
-    m_PICData    = std::static_pointer_cast<PIC_Data<N, RealType>>(m_AFLIPData);
-    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_AFLIPData);
+    m_FLIPData   = std::make_shared<FLIP_Data<N, RealType>>();
+    m_PICData    = std::static_pointer_cast<PIC_Data<N, RealType>>(m_FLIPData);
+    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_FLIPData);
 
-    m_AFLIPData->initialize();
+    m_FLIPData->initialize();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType>::advanceVelocity(Real timestep)
+void FLIP_Solver<N, RealType>::advanceVelocity(Real timestep)
 {
-    FLIP_Solver<N, RealType>::advanceVelocity(timestep);
+    logger().printRunTime("{   Map particles to grid", [&]() { mapParticles2Grid(); });
+    logger().printRunTimeIndent("Extrapolate grid velocity", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Backup grid", [&]() { gridData().backupGridVelocity(); });
+    logger().printRunTimeIndentIf("Add gravity", [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection", [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Compute grid changes", [&]() { computeChangesGridVelocity(); });
+    logger().printRunTimeIndent("Map grid to particles", [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType>::mapParticles2Grid()
+void FLIP_Solver<N, RealType>::mapParticles2Grid()
 {
     for(Int d = 0; d < N; ++d) {
         gridData().velocities[d].assign(0);
@@ -57,7 +69,6 @@ void AFLIP_Solver<N, RealType>::mapParticles2Grid()
                             {
                                 const auto& ppos   = particleData().positions[p];
                                 const auto& pvel   = particleData().velocities[p];
-                                const auto& pC     = particleData().C[p];
                                 const auto gridPos = grid().getGridCoordinate(ppos);
 
                                 std::array<VecX<N, Int>, 8> indices;
@@ -68,7 +79,7 @@ void AFLIP_Solver<N, RealType>::mapParticles2Grid()
                                     ArrayHelpers::getCoordinatesAndWeights(gridPos - extra, gridData().velocities[d].vsize(), indices, weights);
                                     for(Int i = 0; i < 8; ++i) {
                                         auto gpos     = grid().getWorldCoordinate(VecN(indices[i]) + extra);
-                                        auto momentum = weights[i] * (pvel[d] + glm::dot(pC[d], gpos - ppos));
+                                        auto momentum = weights[i] * pvel[d];
                                         AtomicOperations::atomicAdd(gridData().velocities[d](indices[i]), momentum);
                                         AtomicOperations::atomicAdd(gridData().tmpVels[d](indices[i]),    weights[i]); // store weight into tmpVels
                                     }
@@ -90,51 +101,51 @@ void AFLIP_Solver<N, RealType>::mapParticles2Grid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AFLIP_Solver<N, RealType>::mapGrid2Particles()
+void FLIP_Solver<N, RealType>::mapGrid2Particles()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
                                 const auto& ppos = particleData().positions[p];
                                 const auto& pvel = particleData().velocities[p];
-                                const auto& pC   = particleData().C[p];
 
                                 const auto gridPos  = grid().getGridCoordinate(ppos);
                                 const auto gridVel  = getVelocityFromGrid(gridPos);
                                 const auto dGridVel = getVelocityChangesFromGrid(gridPos);
-                                const auto gridC    = getAffineMatrixFromGrid(gridPos);
-                                const auto dGridC   = getAffineMatrixChangesFromGrid(gridPos);
 
                                 particleData().velocities[p] = MathHelpers::lerp(gridVel, pvel + dGridVel, solverParams().PIC_FLIP_ratio);
-                                particleData().C[p]          = MathHelpers::lerp(gridC, pC + dGridC, solverParams().PIC_FLIP_ratio);
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-MatXxX<N, RealType> AFLIP_Solver<N, RealType>::getAffineMatrixFromGrid(const VecN& gridPos)
+void FLIP_Solver<N, RealType>::computeChangesGridVelocity()
 {
-    MatXxX<N, RealType> C;
     for(Int d = 0; d < N; ++d) {
-        auto extra = VecN(0.5);
-        extra[d] = 0;
-        C[d]     = ArrayHelpers::interpolateGradientValue(gridPos - extra, gridData().velocities[d], grid().getCellSize());
+        Scheduler::parallel_for(gridData().velocities[d].dataSize(), [&](size_t i)
+                                {
+                                    gridData().dVels[d].data()[i] = gridData().velocities[d].data()[i] - gridData().oldVels[d].data()[i];
+                                });
     }
-    return C;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-MatXxX<N, RealType> AFLIP_Solver<N, RealType>::getAffineMatrixChangesFromGrid(const VecN& gridPos)
+VecX<N, RealType> FLIP_Solver<N, RealType>::getVelocityChangesFromGrid(const VecX<N, RealType>& gridPos)
 {
-    MatXxX<N, RealType> C;
+    VecN vchanged;
     for(Int d = 0; d < N; ++d) {
         auto extra = VecN(0.5);
-        extra[d] = 0;
-        C[d]     = ArrayHelpers::interpolateGradientValue(gridPos - extra, gridData().dVels[d], grid().getCellSize());
+        extra[d]    = 0;
+        vchanged[d] = ArrayHelpers::interpolateValueLinear(gridPos - extra, gridData().dVels[d]);
     }
-    return C;
+    return vchanged;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class FLIP_Solver<2, Real>;
+template class FLIP_Solver<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

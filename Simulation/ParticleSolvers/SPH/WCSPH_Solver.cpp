@@ -18,6 +18,9 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/SPH/WCSPH_Solver.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
@@ -338,12 +341,12 @@ template<Int N, class RealType>
 void WCSPH_Solver<N, RealType>::advanceVelocity(RealType timestep)
 {
     logger().printRunTime("{   Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
-    logger().printRunTimeIndent("Compute density",                   [&]() { computeDensity(); });
-    logger().printRunTimeIndentIf("Normalize density",               [&]() { return normalizeDensity(); });
-    logger().printRunTimeIndent("Collect neighbor densities",        [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces",                    [&]() { computeAccelerations(); });
-    logger().printRunTimeIndent("Update velocity",                   [&]() { updateVelocity(timestep); });
-    logger().printRunTimeIndent("Compute viscosity",                 [&]() { computeViscosity(); });
+    logger().printRunTimeIndent("Compute density", [&]() { computeDensity(); });
+    logger().printRunTimeIndentIf("Normalize density", [&]() { return normalizeDensity(); });
+    logger().printRunTimeIndent("Collect neighbor densities", [&]() { collectNeighborDensities(); });
+    logger().printRunTimeIndent("Compute forces", [&]() { computeAccelerations(); });
+    logger().printRunTimeIndent("Update velocity", [&]() { updateVelocity(timestep); });
+    logger().printRunTimeIndent("Compute viscosity", [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -632,5 +635,10 @@ void WCSPH_Solver<N, RealType>::computeViscosity()
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocities[p]; });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class WCSPH_Solver<2, Real>;
+template class WCSPH_Solver<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana::ParticleSolvers

@@ -117,16 +117,7 @@
     <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH_Solver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\SPH\SPH_Data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\SPH\SPH_Data.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\ParticleSolverData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimulationObjects\SimulationObject.hpp">
@@ -138,34 +129,16 @@
     <ClInclude Include="SimulationObjects\ParticleRemover.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\ParticleSolver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPM_Data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPM_Data.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPM_Solver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\HairMPM_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\HairMPM_Solver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\HairMPM_Data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\HairMPM_Data.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Cloth_Solver.h">
@@ -204,19 +177,10 @@
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Solver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\APIC_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\APIC_Data.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\APIC_Solver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\APIC_Solver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Data.h">
@@ -225,37 +189,19 @@
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\FLIP_Solver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\NarrowBandFLIP_Solver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\NarrowBandFLIP_Solver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\PIC_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\PIC_Data.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\PIC_Solver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\PIC_Solver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Data.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MassSpringSystems\Peridynamics_Solver.h">
@@ -284,9 +230,6 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -296,10 +239,52 @@
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\ParticleSolvers.cpp">
+    <ClCompile Include="ParticleTools\SPHBasedRelaxation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleTools\SPHBasedRelaxation.cpp">
+    <ClCompile Include="ParticleSolvers\ParticleSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\ParticleSolverData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\SPH\WCSPH_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\SPH\SPH_Data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\PIC_Data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\PIC_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\FLIP_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\APIC_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\AFLIP_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM_Data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\HairMPM_Data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\HairMPM_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MassSpringSystems\MSS_Data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MassSpringSystems\MSS_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

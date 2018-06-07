@@ -18,6 +18,10 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/MPM/MPM_Solver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -320,8 +324,8 @@ void MPM_Solver<N, RealType>::advanceVelocity(RealType timestep)
         logger().printRunTimeIndent("Velocity implicit integration", [&]() { implicitIntegration(timestep); });
     }
 
-    logger().printRunTimeIndent("Constrain grid velocity",               [&]() { gridCollision(timestep); });
-    logger().printRunTimeIndent("Map grid velocities to particles",      [&]() { mapGridVelocities2Particles(timestep); });
+    logger().printRunTimeIndent("Constrain grid velocity", [&]() { gridCollision(timestep); });
+    logger().printRunTimeIndent("Map grid velocities to particles", [&]() { mapGridVelocities2Particles(timestep); });
     logger().printRunTimeIndent("Update particle deformation gradients", [&]() { updateParticleStates(timestep); });
 }
 
@@ -368,7 +372,8 @@ void MPM_Solver<N, RealType>::moveParticles(RealType timestep)
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::mapParticleMasses2Grid()
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for<UInt>(particleData().getNParticles(),
                                       [&](UInt p)
                                       {
@@ -586,7 +591,8 @@ void MPM_Solver<N, RealType>::mapParticleVelocities2GridFLIP(RealType timestep)
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::mapParticleVelocities2GridAPIC(RealType timestep)
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -656,7 +662,8 @@ void MPM_Solver<N, RealType>::mapParticleVelocities2GridAPIC(RealType timestep)
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::explicitIntegration(RealType timestep)
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -1058,7 +1065,8 @@ void MPM_Solver<N, RealType>::mapGridVelocities2Particles(RealType timestep)
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesFLIP(RealType timestep)
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -1131,7 +1139,8 @@ void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesFLIP(RealType timestep)
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesAPIC(RealType timestep)
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -1200,7 +1209,8 @@ void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesAPIC(RealType timestep)
 template<Int N, class RealType>
 void MPM_Solver<N, RealType>::mapGridVelocities2ParticlesAFLIP(RealType timestep)
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -1320,5 +1330,14 @@ void MPM_Solver<N, RealType>::updateParticleStates(RealType timestep)
                             });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class MPM_Solver<2, Real>;
+template class MPM_Solver<3, Real>;
+
+template class MPM_Objective<2, Real>;
+template class MPM_Objective<3, Real>;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

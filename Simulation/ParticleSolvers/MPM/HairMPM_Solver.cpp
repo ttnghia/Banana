@@ -18,6 +18,10 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/MPM/HairMPM_Solver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -164,7 +168,8 @@ void HairMPM_Solver<N, RealType>::explicitIntegration(RealType timestep)
 {
     computeLagrangianForces();
 
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -238,7 +243,8 @@ void HairMPM_Solver<N, RealType>::explicitIntegration(RealType timestep)
 template<Int N, class RealType>
 void HairMPM_Solver<N, RealType>::computeLagrangianForces()
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -288,7 +294,8 @@ void HairMPM_Solver<N, RealType>::computeLagrangianForces()
 template<Int N, class RealType>
 void HairMPM_Solver<N, RealType>::mapGridVelocities2ParticlesAPIC(RealType timestep)
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -360,7 +367,8 @@ void HairMPM_Solver<N, RealType>::predictGridNodePositions(RealType timestep)
 template<Int N, class RealType>
 void HairMPM_Solver<N, RealType>::predictParticlePositions()
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -474,7 +482,8 @@ void HairMPM_Solver<N, RealType>::computeDamping()
 template<Int N, class RealType>
 void HairMPM_Solver<N, RealType>::computePlasticity()
 {
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -525,5 +534,10 @@ void HairMPM_Solver<N, RealType>::computePlasticity()
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class HairMPM_Solver<2, Real>;
+template class HairMPM_Solver<2, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

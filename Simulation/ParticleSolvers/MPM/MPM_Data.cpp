@@ -18,6 +18,10 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/MPM/MPM_Data.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -37,10 +41,10 @@ void MPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    JSONHelpers::readValue(jParams, YoungsModulus,   "YoungsModulus");
-    JSONHelpers::readValue(jParams, PoissonsRatio,   "PoissonsRatio");
-    JSONHelpers::readValue(jParams, mu,              "mu");
-    JSONHelpers::readValue(jParams, lambda,          "lambda");
+    JSONHelpers::readValue(jParams, YoungsModulus, "YoungsModulus");
+    JSONHelpers::readValue(jParams, PoissonsRatio, "PoissonsRatio");
+    JSONHelpers::readValue(jParams, mu,            "mu");
+    JSONHelpers::readValue(jParams, lambda,        "lambda");
     ////////////////////////////////////////////////////////////////////////////////
 }
 
@@ -146,7 +150,7 @@ void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecN& newPo
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
     objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<UInt16>(nObjects));
-    ++nObjects;         // increase the number of objects
+    ++nObjects;             // increase the number of objects
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -234,5 +238,13 @@ void MPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, Re
     particleData->defaultParticleMass = simParams->defaultParticleMass;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template struct MPM_Parameters<2, Real>;
+template struct MPM_Parameters<3, Real>;
+
+template struct MPM_Data<2, Real>;
+template struct MPM_Data<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

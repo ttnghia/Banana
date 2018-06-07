@@ -17,6 +17,10 @@
 //                                  ___)( )(___
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/ParticleSolverData.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -99,7 +103,7 @@ void GlobalParameters<RealType>::printParams(Logger& logger)
         String str; for(const auto& s : SaveDataList) {
             str += s; str += String(", ");
         }
-        str.erase(str.find_last_of(","), str.size());                     // remove last ',' character
+        str.erase(str.find_last_of(","), str.size());                             // remove last ',' character
         logger.printLogIndent(String("Save data: ") + str, 2);
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +260,8 @@ void SimulationParameters<N, RealType>::makeReady()
     }
 
     if(gravityType == GravityType::Earth) {
-        if constexpr(N == 2) {
+        if constexpr(N == 2)
+        {
             gravityDirection = Gravity2D;
         } else {
             gravityDirection = Gravity3D;
@@ -412,12 +417,22 @@ void ParticleSimulationData<N, RealType>::findNeighborsAndDistances_t0()
                                 neighborDistances_t0[p].resize(0);
                                 neighborDistances_t0[p].reserve(points.n_neighbors(0, p));
                                 const auto& ppos = positions[p];
-                                for(auto q:  neighborIdx_t0[p]) {
+                                for(auto q : neighborIdx_t0[p]) {
                                     const auto& qpos = positions[q];
                                     neighborDistances_t0[p].push_back(glm::length(ppos - qpos));
                                 }
                             });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template struct GlobalParameters<Real>;
+
+template struct SimulationParameters<2, Real>;
+template struct SimulationParameters<3, Real>;
+
+template struct ParticleSimulationData<2, Real>;
+template struct ParticleSimulationData<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

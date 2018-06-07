@@ -18,6 +18,10 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/MassSpringSystems/MSS_Solver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -496,7 +500,7 @@ auto MSS_Solver<N, RealType>::computeForceDerivative(UInt p, const VecN& xqp, Re
     auto pStiffness = particleData().springStiffness(p);
     auto pDamping   = particleData().springDamping(p);
     auto xqp_xqpT   = glm::outerProduct(xqp, xqp);
-    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);     // (MatNxN(1.0) * strain + xqp_xqpT);
+    auto FDx        = -(pStiffness / dist) * LinaHelpers::getDiagSum(xqp_xqpT, strain);  // (MatNxN(1.0) * strain + xqp_xqpT);
     auto FDv        = -pDamping * xqp_xqpT;;
     ////////////////////////////////////////////////////////////////////////////////
     return std::make_tuple(FDx, FDv);
@@ -545,9 +549,9 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                     const auto vqp  = qvel - pvel;
                                     damping        += glm::dot(xqp, vqp) * xqp;
                                     ////////////////////////////////////////////////////////////////////////////////
-                                    auto [FDx, FDv] = computeForceDerivative(p, xqp, dist, strain);
-                                    FDx            *= FDxCoeff;
-                                    FDv            *= FDvCoeff;
+                                    auto[FDx, FDv] = computeForceDerivative(p, xqp, dist, strain);
+                                    FDx           *= FDxCoeff;
+                                    FDv           *= FDvCoeff;
 
                                     auto FDxFDv = FDx + FDv;
                                     sumLHS     -= FDxFDv;
@@ -630,5 +634,10 @@ void MSS_Solver<N, RealType>::computeInternalCollisionPenaltyForces()
                             });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class MSS_Solver<2, Real>;
+template class MSS_Solver<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

@@ -17,6 +17,10 @@
 //                                  ___)( )(___
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/ParticleSolver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -330,7 +334,7 @@ bool ParticleSolver<N, RealType>::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Save the frame data for dynamic objects
 template<Int N, class RealType>
-Int Banana::ParticleSolvers::ParticleSolver<N, RealType>::saveFrameData()
+Int ParticleSolver<N, RealType>::saveFrameData()
 {
     if(m_DynamicObjects.size() == 0) {
         return -1;
@@ -356,7 +360,7 @@ Int Banana::ParticleSolvers::ParticleSolver<N, RealType>::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Save the frame data for dynamic objects
 template<Int N, class RealType>
-void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
+void ParticleSolver<N, RealType>::logSubstepData()
 {
     if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepSize")) {
         String dataStr = String("SystemTime: ") + Formatters::toSciString10(globalParams().evolvedTime()) +
@@ -370,7 +374,7 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
 #else
         static Vec_VecN tmp;
         tmp.resize(generalParticleData().getNParticles());
-        Scheduler::parallel_for(generalParticleData().getNParticles(), [&] (UInt p)
+        Scheduler::parallel_for(generalParticleData().getNParticles(), [&](UInt p)
                                 {
                                     tmp[p] = generalParticleData().velocities[p] * generalParticleData().mass(p);
                                 });
@@ -382,5 +386,11 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class ParticleSolver<2, Real>;
+template class ParticleSolver<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

@@ -18,6 +18,10 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <ParticleSolvers/PICFluid/PIC_Solver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -401,7 +405,8 @@ bool PIC_Solver<N, RealType>::correctParticlePositions(RealType timestep)
     const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
     ////////////////////////////////////////////////////////////////////////////////
     particleData().tmp_positions.resize(particleData().positions.size());
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -507,10 +512,10 @@ void PIC_Solver<N, RealType>::advectGridVelocity(RealType timestep)
         Scheduler::parallel_for(gridData().velocities[d].vsize(),
                                 [&](auto... idx)
                                 {
-                                    auto extra                     = VecN(0.5);
-                                    extra[d]                       = 0;
-                                    auto gu                        = trace_rk2_grid(VecN(idx...) + extra, -timestep);
-                                    gridData().tmpVels[d] (idx...) = getVelocityFromGrid(gu, d);
+                                    auto extra                    = VecN(0.5);
+                                    extra[d]                      = 0;
+                                    auto gu                       = trace_rk2_grid(VecN(idx...) + extra, -timestep);
+                                    gridData().tmpVels[d](idx...) = getVelocityFromGrid(gu, d);
                                 });
         gridData().velocities[d].copyDataFrom(gridData().tmpVels[d]);
     }
@@ -578,7 +583,7 @@ void PIC_Solver<N, RealType>::computeCellWeights()
                                     }
 
                                     if(valid_index_v) {
-                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i,     j),
+                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i, j),
                                                                                                           boundarySDF(i + 1, j));
                                         gridData().weights[1](i, j) = MathHelpers::clamp01(tmp);
                                     }
@@ -592,7 +597,7 @@ void PIC_Solver<N, RealType>::computeCellWeights()
                                     bool valid_index_w = gridData().weights[2].isValidIndex(i, j, k);
 
                                     if(valid_index_u) {
-                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i, j,     k),
+                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i, j, k),
                                                                                                           boundarySDF(i, j + 1, k),
                                                                                                           boundarySDF(i, j,     k + 1),
                                                                                                           boundarySDF(i, j + 1, k + 1));
@@ -600,7 +605,7 @@ void PIC_Solver<N, RealType>::computeCellWeights()
                                     }
 
                                     if(valid_index_v) {
-                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i,     j, k),
+                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i, j, k),
                                                                                                           boundarySDF(i,     j, k + 1),
                                                                                                           boundarySDF(i + 1, j, k),
                                                                                                           boundarySDF(i + 1, j, k + 1));
@@ -608,7 +613,7 @@ void PIC_Solver<N, RealType>::computeCellWeights()
                                     }
 
                                     if(valid_index_w) {
-                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i,     j,     k),
+                                        const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(boundarySDF(i, j, k),
                                                                                                           boundarySDF(i,     j + 1, k),
                                                                                                           boundarySDF(i + 1, j,     k),
                                                                                                           boundarySDF(i + 1, j + 1, k));
@@ -627,7 +632,8 @@ void PIC_Solver<N, RealType>::computeFluidSDF()
     auto&       fluidSDFLock = gridData().fluidSDFLock;
     ////////////////////////////////////////////////////////////////////////////////
     fluidSDF.assign(grid().getCellSize() * RealType(3.0));
-    if constexpr(N == 2) {
+    if constexpr(N == 2)
+    {
         Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -682,7 +688,7 @@ void PIC_Solver<N, RealType>::computeFluidSDF()
                                 [&](Int i, Int j)
                                 {
                                     if(fluidSDF(i, j) < grid().getHalfCellSize()) {
-                                        const auto phiValSolid = RealType(0.25) * (boundarySDF(i,     j) +
+                                        const auto phiValSolid = RealType(0.25) * (boundarySDF(i, j) +
                                                                                    boundarySDF(i + 1, j) +
                                                                                    boundarySDF(i,     j + 1) +
                                                                                    boundarySDF(i + 1, j + 1));
@@ -1179,8 +1185,8 @@ VecX<N, RealType> PIC_Solver<N, RealType>::trace_rk2(const VecN& ppos, RealType 
 {
     auto gridPos = grid().getGridCoordinate(ppos);
     auto pvel    = getVelocityFromGrid(gridPos);
-    gridPos = grid().getGridCoordinate(ppos + RealType(0.5) * timestep * pvel); // advance to half way
-    pvel    = getVelocityFromGrid(gridPos);                                     // get velocity at mid point
+    gridPos = grid().getGridCoordinate(ppos + RealType(0.5) * timestep * pvel);  // advance to half way
+    pvel    = getVelocityFromGrid(gridPos);                                      // get velocity at mid point
     ////////////////////////////////////////////////////////////////////////////////
     return ppos + timestep * pvel;
 }
@@ -1190,8 +1196,8 @@ template<Int N, class RealType>
 VecX<N, RealType> PIC_Solver<N, RealType>::trace_rk2_grid(const VecN& gridPos, RealType timestep)
 {
     auto gvel       = getVelocityFromGrid(gridPos) * grid().getInvCellSize();
-    auto newGridPos = gridPos + RealType(0.5) * timestep * gvel;          // advance to half way
-    gvel = getVelocityFromGrid(newGridPos) * grid().getInvCellSize();     // get velocity at mid point
+    auto newGridPos = gridPos + RealType(0.5) * timestep * gvel;              // advance to half way
+    gvel = getVelocityFromGrid(newGridPos) * grid().getInvCellSize();         // get velocity at mid point
     ////////////////////////////////////////////////////////////////////////////////
     return gridPos + timestep * gvel;
 }
@@ -1212,5 +1218,10 @@ void PIC_Solver<N, RealType>::computeBoundarySDF()
                             });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class PIC_Solver<2, Real>;
+template class PIC_Solver<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers
