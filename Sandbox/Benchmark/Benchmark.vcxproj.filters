@@ -35,5 +35,8 @@
     <ClInclude Include="Source\TestNumberFormatter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\TestStringConcatenation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

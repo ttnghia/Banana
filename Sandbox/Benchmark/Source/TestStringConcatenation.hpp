@@ -19,15 +19,41 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#define CATCH_CONFIG_MAIN
-#define CATCH_CONFIG_EXPERIMENTAL_REDIRECT
-#define CATCH_CONFIG_CONSOLE_WIDTH 120
+#pragma once
 
-#include <catch.hpp>
+#include <Banana/Utils/Timer.h>
+#include <Banana/Utils/Formatters.h>
+
+using namespace Banana;
+
+#define ARRAY_SIZE (10'000'000)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//  #include "TestVec3AsVec4Operation.hpp"
-// #include "TestVec3AsVec4Union.hpp"
-// #include "TestParallelExecution.hpp"
-// #include "TestNumberFormatter.hpp"
-#include "TestStringConcatenation.hpp"
+TEST_CASE("Test + operator")
+{
+    ScopeTimer timer("Test addition operator");
+    ////////////////////////////////////////////////////////////////////////////////
+    String s;
+    for(int i = 0; i < ARRAY_SIZE; ++i) {
+        s = String("This is a stringgggggggggggggggggggg 1") +
+            String("This is a stringgggggggggggggggggggg 2") +
+            String("This is a stringgggggggggggggggggggg 3") +
+            String("This is a stringgggggggggggggggggggg 4") +
+            String("This is a stringgggggggggggggggggggg 5");
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+TEST_CASE("Test += operator")
+{
+    ScopeTimer timer("Test addition operator");
+    ////////////////////////////////////////////////////////////////////////////////
+    String s;
+    for(int i = 0; i < ARRAY_SIZE; ++i) {
+        s += ("This is a stringgggggggggggggggggggg 1");
+        s += ("This is a stringgggggggggggggggggggg 2");
+        s += ("This is a stringgggggggggggggggggggg 3");
+        s += ("This is a stringgggggggggggggggggggg 4");
+        s += ("This is a stringgggggggggggggggggggg 5");
+    }
+}
