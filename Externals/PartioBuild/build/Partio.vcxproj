@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="ReleaseStaticBuild|x64">
+      <Configuration>ReleaseStaticBuild</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{43F20304-1BF2-4B81-8F04-1C6F025F6E5A}</ProjectGuid>
+    <RootNamespace>Partio</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <PlatformToolset>v141</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Properties\BananaDebug.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Properties\BananaRelease.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <Import Project="..\..\..\Properties\BananaRelease.props" />
+    <Import Project="..\..\..\Properties\BananaStaticBuild.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>partio</TargetName>
+    <OutDir>$(SolutionDir)..\lib\$(Configuration)\</OutDir>
+    <IncludePath>$(ProjectDir)..\src\lib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>partio</TargetName>
+    <OutDir>$(SolutionDir)..\lib\$(Configuration)\</OutDir>
+    <IncludePath>$(ProjectDir)..\src\lib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <TargetName>partio</TargetName>
+    <OutDir>$(SolutionDir)..\lib\$(Configuration)\</OutDir>
+    <IncludePath>$(ProjectDir)..\src\lib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES ;PARTIO_WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES ;PARTIO_WIN32;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES ;PARTIO_WIN32;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\lib\core\KdTree.h" />
+    <ClInclude Include="..\src\lib\core\Mutex.h" />
+    <ClInclude Include="..\src\lib\core\ParticleCaching.h" />
+    <ClInclude Include="..\src\lib\core\ParticleHeaders.h" />
+    <ClInclude Include="..\src\lib\core\ParticleSimple.h" />
+    <ClInclude Include="..\src\lib\core\ParticleSimpleInterleave.h" />
+    <ClInclude Include="..\src\lib\io\half2float.h" />
+    <ClInclude Include="..\src\lib\io\PartioEndian.h" />
+    <ClInclude Include="..\src\lib\io\pdb.h" />
+    <ClInclude Include="..\src\lib\io\readers.h" />
+    <ClInclude Include="..\src\lib\io\ZIP.h" />
+    <ClInclude Include="..\src\lib\Partio.h" />
+    <ClInclude Include="..\src\lib\PartioAttribute.h" />
+    <ClInclude Include="..\src\lib\PartioIterator.h" />
+    <ClInclude Include="..\src\lib\PartioVec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\lib\core\Particle.cpp" />
+    <ClCompile Include="..\src\lib\core\ParticleCaching.cpp" />
+    <ClCompile Include="..\src\lib\core\ParticleHeaders.cpp" />
+    <ClCompile Include="..\src\lib\core\ParticleSimple.cpp" />
+    <ClCompile Include="..\src\lib\core\ParticleSimpleInterleave.cpp" />
+    <ClCompile Include="..\src\lib\io\BGEO.cpp" />
+    <ClCompile Include="..\src\lib\io\BIN.cpp" />
+    <ClCompile Include="..\src\lib\io\GEO.cpp" />
+    <ClCompile Include="..\src\lib\io\MC.cpp" />
+    <ClCompile Include="..\src\lib\io\ParticleIO.cpp" />
+    <ClCompile Include="..\src\lib\io\PDA.cpp" />
+    <ClCompile Include="..\src\lib\io\PDB.cpp" />
+    <ClCompile Include="..\src\lib\io\PDC.cpp" />
+    <ClCompile Include="..\src\lib\io\PRT.cpp" />
+    <ClCompile Include="..\src\lib\io\PTC.cpp" />
+    <ClCompile Include="..\src\lib\io\PTS.cpp" />
+    <ClCompile Include="..\src\lib\io\RIB.cpp" />
+    <ClCompile Include="..\src\lib\io\ZIP.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
