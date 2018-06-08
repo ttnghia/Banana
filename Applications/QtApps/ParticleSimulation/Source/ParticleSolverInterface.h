@@ -47,8 +47,8 @@ public:
     float getParticleRadius() const;
 
 private:
-    SharedPtr<ParticleSolver<2, Real>> m_Solver2D = nullptr;
-    SharedPtr<ParticleSolver<3, Real>> m_Solver3D = nullptr;
+    SharedPtr<ParticleSolver<2, float>> m_Solver2D = nullptr;
+    SharedPtr<ParticleSolver<3, float>> m_Solver3D = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,8 +60,8 @@ inline void ParticleSolverInterface::createSolver(const String& sceneFile)
 {
     m_Solver2D.reset();
     m_Solver3D.reset();
-    m_Solver2D = ParticleSolverFactory2D::createSolverFromJSon(sceneFile);
-    m_Solver3D = ParticleSolverFactory3D::createSolverFromJSon(sceneFile);
+    m_Solver2D = ParticleSolverFactory<2, float>::createSolverFromJSon(sceneFile);
+    m_Solver3D = ParticleSolverFactory<3, float>::createSolverFromJSon(sceneFile);
     if(m_Solver2D == nullptr && m_Solver3D == nullptr) {
         QMessageBox::critical(nullptr, QString("Error"), QString("The solver in scene file '%1' is not supported!").arg(QString::fromStdString(sceneFile)));
     }
