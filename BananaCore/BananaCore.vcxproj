@@ -173,6 +173,7 @@
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
     <ClCompile Include="Banana\Grid\Grid.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\ImplicitQRSVD.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.cpp" />

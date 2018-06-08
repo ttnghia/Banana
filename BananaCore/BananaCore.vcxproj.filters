@@ -239,5 +239,8 @@
     <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\ImplicitQRSVD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
