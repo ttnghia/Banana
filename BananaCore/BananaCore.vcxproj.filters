@@ -236,5 +236,8 @@
     <ClCompile Include="Banana\Utils\Formatters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Banana\Array\ArrayHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

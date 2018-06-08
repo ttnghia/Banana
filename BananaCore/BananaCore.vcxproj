@@ -172,6 +172,7 @@
     <ClInclude Include="Banana\Setup.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Banana\Array\ArrayHelpers.cpp" />
     <ClCompile Include="Banana\CompileMessage.cpp" />
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
