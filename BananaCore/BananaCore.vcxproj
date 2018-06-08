@@ -112,7 +112,6 @@
     <ClInclude Include="Banana\Array\SparseArray3.h" />
     <ClInclude Include="Banana\Data\DataBuffer.h" />
     <ClInclude Include="Banana\Geometry\GeometryObjects.h" />
-    <ClInclude Include="Banana\Geometry\GeometryObjects.hpp" />
     <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h" />
     <ClInclude Include="Banana\Geometry\OBJLoader.h" />
     <ClInclude Include="Banana\Grid\Grid.h" />
@@ -174,6 +173,8 @@
   <ItemGroup>
     <ClCompile Include="Banana\Array\ArrayHelpers.cpp" />
     <ClCompile Include="Banana\CompileMessage.cpp" />
+    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp" />
+    <ClCompile Include="Banana\Geometry\GeometryObjects.cpp" />
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />

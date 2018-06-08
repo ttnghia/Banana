@@ -22,17 +22,9 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Animation/Animation.h>
-#include <Banana/Utils/MathHelpers.h>
-#include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Grid/Grid.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Array/ArrayHelpers.h>
-#include <Banana/Geometry/MeshLoader.h>
-
-#include <glm/gtx/euler_angles.hpp>
-
-#include <Banana/Geometry/OBJLoader.h>
+#include <Banana/Animation/Animation.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::GeometryObjects
@@ -50,11 +42,10 @@ public:
     GeometryObject() = default;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
 
-    virtual String   name() = 0;
+    virtual String   name()                                                              = 0;
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const = 0;
 
-    Vec2<RealType> gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside = true, RealType dxy = RealType(1e-4)) const;
-    Vec3<RealType> gradSignedDistance(const Vec3<RealType>& ppos, bool bNegativeInside = true, RealType dxyz = RealType(1e-4)) const;
+    VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true, RealType dx = RealType(1e-4)) const;
     bool           isInside(const VecX<N, RealType>& ppos, bool bNegativeInside = true) const { return signedDistance(ppos, bNegativeInside) < 0; }
 
     void setTranslation(const VecX<N, RealType>& translation);
@@ -161,8 +152,8 @@ public:
     void setRadiusRatio(RealType ratio) { __BNN_REQUIRE(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
 
 protected:
-    const RealType m_OuterRadius = RealType(0.75);
-    RealType       m_InnerRadius = RealType(0.25);
+    RealType m_OuterRadius = RealType(0.75);
+    RealType m_InnerRadius = RealType(0.25);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,8 +167,8 @@ public:
     void setRadiusRatio(RealType ratio) { __BNN_REQUIRE(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
 
 protected:
-    const RealType m_OuterRadius = RealType(0.75);
-    RealType       m_InnerRadius = RealType(0.25);
+    RealType m_OuterRadius = RealType(0.75);
+    RealType m_InnerRadius = RealType(0.25);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -306,7 +297,7 @@ public:
     virtual String   name() override { return String("TriangularPrismObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
-    void setWidthHeightRatio(RealType ratio) { return m_Width = ratio; }
+    void setWidthHeightRatio(RealType ratio) { m_Width = ratio; }
 protected:
     RealType m_Width = RealType(0.5);
 };
@@ -318,7 +309,7 @@ class HexagonalPrismObject : public GeometryObject<N, RealType>
 public:
     virtual String   name() override { return String("HexagonalPrismObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-    void             setWidthHeightRatio(RealType ratio) { return m_Width = ratio; }
+    void             setWidthHeightRatio(RealType ratio) { m_Width = ratio; }
 
 protected:
     RealType m_Width = RealType(0.5);
@@ -441,6 +432,3 @@ protected:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::GeometryObjects
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Geometry/GeometryObjects.hpp>

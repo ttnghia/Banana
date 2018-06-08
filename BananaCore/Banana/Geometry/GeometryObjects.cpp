@@ -18,6 +18,13 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <Banana/Array/ArrayHelpers.h>
+#include <Banana/Geometry/MeshLoader.h>
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Geometry/GeometryObjects.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::GeometryObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -26,59 +33,55 @@ namespace Banana::GeometryObjects
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Vec2<RealType> GeometryObject<N, RealType>::gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside /*= true*/, RealType dxy /*= RealType(1e-4)*/) const
+VecX<N, RealType> GeometryObject<N, RealType>::gradSignedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside /*= true*/, RealType dx /*= RealType(1e-4)*/) const
 {
-    __BNN_REQUIRE_MSG(N == 2, "Array dimension != 2");
+    if constexpr(N == 2)
+    {
+        RealType v00 = signedDistance(Vec2<RealType>(ppos[0] - dx, ppos[1] - dx), bNegativeInside);
+        RealType v01 = signedDistance(Vec2<RealType>(ppos[0] - dx, ppos[1] + dx), bNegativeInside);
+        RealType v10 = signedDistance(Vec2<RealType>(ppos[0] + dx, ppos[1] - dx), bNegativeInside);
+        RealType v11 = signedDistance(Vec2<RealType>(ppos[0] + dx, ppos[1] + dx), bNegativeInside);
 
-    RealType v00 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] - dxy), bNegativeInside);
-    RealType v01 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] + dxy), bNegativeInside);
-    RealType v10 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] - dxy), bNegativeInside);
-    RealType v11 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] + dxy), bNegativeInside);
+        RealType ddy0 = v01 - v00;
+        RealType ddy1 = v11 - v10;
 
-    RealType ddy0 = v01 - v00;
-    RealType ddy1 = v11 - v10;
+        RealType ddx0 = v10 - v00;
+        RealType ddx1 = v11 - v01;
 
-    RealType ddx0 = v10 - v00;
-    RealType ddx1 = v11 - v01;
+        return (Vec2<RealType>(ddx0, ddy0) + Vec2<RealType>(ddx1, ddy1)) * RealType(0.5);
+    } else {
+        __BNN_REQUIRE_MSG(N == 3, "Array dimension != 2,3");
 
-    return (Vec2<RealType>(ddx0, ddy0) + Vec2<RealType>(ddx1, ddy1)) * RealType(0.5);
-}
+        RealType v000 = signedDistance(Vec3<RealType>(ppos[0] - dx, ppos[1] - dx, ppos[2] - dx), bNegativeInside);
+        RealType v001 = signedDistance(Vec3<RealType>(ppos[0] - dx, ppos[1] - dx, ppos[2] + dx), bNegativeInside);
+        RealType v010 = signedDistance(Vec3<RealType>(ppos[0] - dx, ppos[1] + dx, ppos[2] - dx), bNegativeInside);
+        RealType v011 = signedDistance(Vec3<RealType>(ppos[0] - dx, ppos[1] + dx, ppos[2] + dx), bNegativeInside);
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-Vec3<RealType> GeometryObject<N, RealType>::gradSignedDistance(const Vec3<RealType>& ppos, bool bNegativeInside /*= true*/, RealType dxyz /*= RealType(1e-4)*/) const
-{
-    __BNN_REQUIRE_MSG(N == 3, "Array dimension != 3");
+        RealType v100 = signedDistance(Vec3<RealType>(ppos[0] + dx, ppos[1] - dx, ppos[2] - dx), bNegativeInside);
+        RealType v101 = signedDistance(Vec3<RealType>(ppos[0] + dx, ppos[1] - dx, ppos[2] + dx), bNegativeInside);
+        RealType v110 = signedDistance(Vec3<RealType>(ppos[0] + dx, ppos[1] + dx, ppos[2] - dx), bNegativeInside);
+        RealType v111 = signedDistance(Vec3<RealType>(ppos[0] + dx, ppos[1] + dx, ppos[2] + dx), bNegativeInside);
 
-    RealType v000 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz), bNegativeInside);
-    RealType v001 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz), bNegativeInside);
-    RealType v010 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] - dxyz), bNegativeInside);
-    RealType v011 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] + dxyz), bNegativeInside);
+        RealType ddx00 = v100 - v000;
+        RealType ddx10 = v110 - v010;
+        RealType ddx01 = v101 - v001;
+        RealType ddx11 = v111 - v011;
 
-    RealType v100 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] - dxyz), bNegativeInside);
-    RealType v101 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] + dxyz), bNegativeInside);
-    RealType v110 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] - dxyz), bNegativeInside);
-    RealType v111 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] + dxyz), bNegativeInside);
+        RealType ddy00 = v010 - v000;
+        RealType ddy10 = v110 - v100;
+        RealType ddy01 = v011 - v001;
+        RealType ddy11 = v111 - v101;
 
-    RealType ddx00 = v100 - v000;
-    RealType ddx10 = v110 - v010;
-    RealType ddx01 = v101 - v001;
-    RealType ddx11 = v111 - v011;
+        RealType ddz00 = v001 - v000;
+        RealType ddz10 = v101 - v100;
+        RealType ddz01 = v011 - v010;
+        RealType ddz11 = v111 - v110;
 
-    RealType ddy00 = v010 - v000;
-    RealType ddy10 = v110 - v100;
-    RealType ddy01 = v011 - v001;
-    RealType ddy11 = v111 - v101;
-
-    RealType ddz00 = v001 - v000;
-    RealType ddz10 = v101 - v100;
-    RealType ddz01 = v011 - v010;
-    RealType ddz11 = v111 - v110;
-
-    return (Vec3<RealType>(ddx00, ddy00, ddz00) +
-            Vec3<RealType>(ddx01, ddy01, ddz01) +
-            Vec3<RealType>(ddx10, ddy10, ddz10) +
-            Vec3<RealType>(ddx11, ddy11, ddz11)) * RealType(0.25);
+        return (Vec3<RealType>(ddx00, ddy00, ddz00) +
+                Vec3<RealType>(ddx01, ddy01, ddz01) +
+                Vec3<RealType>(ddx10, ddy10, ddz10) +
+                Vec3<RealType>(ddx11, ddy11, ddz11)) * RealType(0.25);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -142,12 +145,12 @@ bool GeometryObject<N, RealType>::updateTransformation(UInt frame /*= 0*/, RealT
 template<Int N, class RealType>
 VecX<N, RealType> GeometryObject<N, RealType>::getVelocityAt(const VecX<N, RealType>& ppos) const
 {
-    if(std::abs(m_CurrentTime - m_LastTime) < MEpsilon) {
+    if(std::abs(m_CurrentTime - m_LastTime) < MEpsilon<RealType>()) {
         return VecX<N, RealType>(0);
     }
     auto currentCenter = transform(VecX<N, RealType>(0));
     auto pC            = ppos - currentCenter;
-    auto lastPC        = m_LastTransformationMatrix * invTransform(pC);
+    auto lastPC        = VecX<N, RealType>(m_LastTransformationMatrix * VecX<N + 1, RealType>(invTransform(pC), 1.0));
 
     return (pC - lastPC) / (m_CurrentTime - m_LastTime);
 }
@@ -190,7 +193,7 @@ RealType BoxObject<N, RealType>::signedDistance(const VecX<N, RealType>& ppos0, 
         for(Int d = 0; d < N; ++d) {
             mind = MathHelpers::min(mind, ppos[d] - m_BoxMin[d], m_BoxMax[d] - ppos[d]);
         }
-        mind = -mind; // negative because inside
+        mind = -mind;         // negative because inside
     } else {
         VecX<N, RealType> cp;
         for(Int d = 0; d < N; ++d) {
@@ -389,7 +392,7 @@ RealType ConeObject<N, RealType>::signedDistance(const VecX<N, RealType>& ppos0,
 {
     __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto     ppos  = invTransform(ppos0);
-    RealType theta = std::atan(m_Radius); // radius / h, where h = 1
+    RealType theta = std::atan(m_Radius);     // radius / h, where h = 1
     RealType d1    = MathHelpers::norm2(ppos[0], ppos[2]) * cos(theta) - std::abs(ppos[1]) * sin(theta);
     RealType dist  = this->m_UniformScale * MathHelpers::max(d1, ppos[1] - RealType(1.0), -ppos[1]);
     return bNegativeInside ? dist : -dist;
@@ -463,8 +466,8 @@ template<Int N, class RealType>
 RealType CapsuleObject<N, RealType>::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
-    VecX<N, RealType> a(0); // end point a
-    VecX<N, RealType> b(0); // end point b
+    VecX<N, RealType> a(0);     // end point a
+    VecX<N, RealType> b(0);     // end point b
     a[2] = RealType(1.0) - m_Radius;
     b[2] = RealType(-1.0) + m_Radius;
 
@@ -639,7 +642,7 @@ Int orientation(RealType x1, RealType y1, RealType x2, RealType y2, RealType& tw
     } else if(x1 < x2) {
         return -1;
     } else {
-        return 0;            // only true when x1==x2 and y1==y2
+        return 0;                    // only true when x1==x2 and y1==y2
     }
 }
 
@@ -676,7 +679,7 @@ bool point_in_triangle_2d(RealType x0, RealType y0,
     }
 
     RealType sum = a + b + c;
-    __BNN_REQUIRE(sum != 0);                             // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
+    __BNN_REQUIRE(sum != 0);                                 // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
     a /= sum;
     b /= sum;
     c /= sum;
@@ -692,7 +695,7 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3<RealType>& verti
     __BNN_REQUIRE(ni > 0 && nj > 0 && nk > 0);
 
     SDF.resize(ni, nj, nk);
-    SDF.assign(RealType(ni + nj + nk) * cellSize);               // upper bound on distance
+    SDF.assign(RealType(ni + nj + nk) * cellSize);                   // upper bound on distance
     Array3ui closest_tri(ni, nj, nk, 0xffffffff);
 
     // intersection_count(i,j,k) is # of tri intersections in (i-1,i]x{j}x{k}
@@ -754,7 +757,7 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3<RealType>& verti
                 }
             }
         }
-    }         // end loop face
+    }             // end loop face
 
     // and now we fill in the rest of the distances with fast sweeping
     for(UInt pass = 0; pass < 2; ++pass) {
@@ -778,8 +781,8 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3<RealType>& verti
                                           for(UInt i = 0; i < ni; ++i) {
                                               total_count += intersectionCount(i, j, k);
 
-                                              if(total_count & 1) {                     // if parity of intersections so far is odd,
-                                                  SDF(i, j, k) = -SDF(i, j, k);         // we are inside the mesh
+                                              if(total_count & 1) {             // if parity of intersections so far is odd,
+                                                  SDF(i, j, k) = -SDF(i, j, k); // we are inside the mesh
                                               }
                                           }
                                       }
@@ -935,5 +938,64 @@ VecX<N, RealType> CSGObject<N, RealType>::cheapBend(const VecX<N, RealType>& ppo
     return VecX<N, RealType>(0);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class GeometryObject<2, Real>;
+template class GeometryObject<3, Real>;
+
+template class BoxObject<2, Real>;
+template class BoxObject<3, Real>;
+
+template class SphereObject<2, Real>;
+template class SphereObject<3, Real>;
+
+template class TorusObject<2, Real>;
+template class TorusObject<3, Real>;
+
+template class Torus28Object<2, Real>;
+template class Torus28Object<3, Real>;
+
+template class Torus2InfObject<2, Real>;
+template class Torus2InfObject<3, Real>;
+
+template class Torus88Object<2, Real>;
+template class Torus88Object<3, Real>;
+
+template class TorusInfInfObject<2, Real>;
+template class TorusInfInfObject<3, Real>;
+
+template class CylinderObject<2, Real>;
+template class CylinderObject<3, Real>;
+
+template class ConeObject<2, Real>;
+template class ConeObject<3, Real>;
+
+template class PlaneObject<2, Real>;
+template class PlaneObject<3, Real>;
+
+template class TriangleObject<2, Real>;
+template class TriangleObject<3, Real>;
+
+template class HexagonObject<2, Real>;
+template class HexagonObject<3, Real>;
+
+template class TriangularPrismObject<2, Real>;
+template class TriangularPrismObject<3, Real>;
+
+template class HexagonalPrismObject<2, Real>;
+template class HexagonalPrismObject<3, Real>;
+
+template class CapsuleObject<2, Real>;
+template class CapsuleObject<3, Real>;
+
+template class EllipsoidObject<2, Real>;
+template class EllipsoidObject<3, Real>;
+
+template class TriMeshObject<2, Real>;
+template class TriMeshObject<3, Real>;
+
+template class CSGObject<2, Real>;
+template class CSGObject<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::GeometryObjects

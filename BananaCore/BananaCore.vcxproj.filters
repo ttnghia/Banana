@@ -192,9 +192,6 @@
     <ClInclude Include="Banana\ParallelHelpers\AtomicOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Geometry\GeometryObjects.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Grid\Grid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -237,6 +234,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\Array\ArrayHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\Geometry\GeometryObjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
