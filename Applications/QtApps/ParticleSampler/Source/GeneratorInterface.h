@@ -22,11 +22,9 @@
 #pragma once
 
 #include <Banana/Utils/Logger.h>
-#include <Banana/Utils/Formatters.h>
 #include <SimulationObjects/ParticleGenerator.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <ParticleTools/SPHBasedRelaxation.h>
-#include <ParticleTools/ParticleSerialization.h>
 
 #include <QMessageBox>
 #include "Common.h"

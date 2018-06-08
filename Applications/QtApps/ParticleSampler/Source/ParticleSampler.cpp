@@ -23,6 +23,7 @@
 
 #include <Banana/Utils/JSONHelpers.h>
 #include <QtAppHelpers/QtAppUtils.h>
+#include <ParticleTools/ParticleSerialization.h>
 
 #include <fstream>
 #include <QDebug>

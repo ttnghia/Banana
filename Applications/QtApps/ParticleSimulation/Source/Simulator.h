@@ -24,7 +24,6 @@
 #include <Banana/Setup.h>
 
 #include <QObject>
-#include <QStringList>
 #include <future>
 
 #include "Common.h"

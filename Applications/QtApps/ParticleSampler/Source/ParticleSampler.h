@@ -21,16 +21,14 @@
 
 #pragma once
 
-#include "GeneratorInterface.h"
-
 #include <Banana/Setup.h>
-#include <ParticleTools/ParticleSerialization.h>
 #include <Partio.h>
 
 #include <QObject>
 #include <QStringList>
 #include <future>
 
+#include "GeneratorInterface.h"
 #include "Common.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
