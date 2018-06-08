@@ -51,6 +51,8 @@ private:
     // values corresponding to indices
     Vec_Vec<MatrixType> m_ColValue;
 
+    MatrixType m_Zero = MatrixType(0);
+
 public:
     explicit BlockSparseMatrix(UInt size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
@@ -63,10 +65,9 @@ public:
     template<class IndexType> const auto& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
     template<class IndexType> const auto& operator()(IndexType i, IndexType j) const;
-
-    template<class IndexType> void setElement(IndexType i, IndexType j, const MatrixType& newValue);
-    template<class IndexType> void addElement(IndexType i, IndexType j, const MatrixType& incrementValue);
-    template<class IndexType> void eraseElement(IndexType i, IndexType j);
+    template<class IndexType> void        setElement(IndexType i, IndexType j, const MatrixType& newValue);
+    template<class IndexType> void        addElement(IndexType i, IndexType j, const MatrixType& incrementValue);
+    template<class IndexType> void        eraseElement(IndexType i, IndexType j);
 
     void printDebug() const noexcept;
     void checkSymmetry(RealType threshold = RealType(1e-8)) const noexcept;

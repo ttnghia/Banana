@@ -237,6 +237,18 @@ void FixedSparseMatrix<RealType>::multiply(const FixedSparseMatrix<RealType>& ma
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template struct SparseMatrix<Real>;
+
+#define __BNN_INSTANTIATE_SPARSE_MATRIX_FUNCS(type)                                          \
+    template Real SparseMatrix<Real >::operator()(type i, type j) const;                     \
+    template void SparseMatrix<Real>::setElement<type>(type i, type j, Real newValue);       \
+    template void SparseMatrix<Real>::addElement<type>(type i, type j, Real incrementValue); \
+    template void SparseMatrix<Real>::eraseElement<type>(type i, type j);
+
+__BNN_INSTANTIATE_SPARSE_MATRIX_FUNCS(Int);
+__BNN_INSTANTIATE_SPARSE_MATRIX_FUNCS(UInt);
+__BNN_INSTANTIATE_SPARSE_MATRIX_FUNCS(Int64);
+__BNN_INSTANTIATE_SPARSE_MATRIX_FUNCS(UInt64);
+
 template struct FixedSparseMatrix<Real>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

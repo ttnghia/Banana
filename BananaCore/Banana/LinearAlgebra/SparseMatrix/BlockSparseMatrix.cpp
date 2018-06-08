@@ -63,7 +63,7 @@ const auto& BlockSparseMatrix<MatrixType>::operator()(IndexType i, IndexType j) 
     if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
         return m_ColValue[i][k];
     } else {
-        return MatrixType(0);
+        return m_Zero;
     }
 }
 
@@ -380,6 +380,23 @@ void FixedBlockSparseMatrix<MatrixType>::multiply(const FixedBlockSparseMatrix<M
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template class BlockSparseMatrix<Mat2x2f>;
 template class BlockSparseMatrix<Mat3x3f>;
+
+#define __BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(matrixType, indexType)                                                          \
+    template const auto& BlockSparseMatrix<matrixType >::operator()(indexType i, indexType j) const;                                \
+    template void BlockSparseMatrix<matrixType>::setElement<indexType>(indexType i, indexType j, const matrixType& newValue);       \
+    template void BlockSparseMatrix<matrixType>::addElement<indexType>(indexType i, indexType j, const matrixType& incrementValue); \
+    template void BlockSparseMatrix<matrixType>::eraseElement<indexType>(indexType i, indexType j);
+
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat2x2f, Int);
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat2x2f, UInt);
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat2x2f, Int64);
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat2x2f, UInt64);
+
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat3x3f, Int);
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat3x3f, UInt);
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat3x3f, Int64);
+__BNN_INSTANTIATE_BLOCK_SPARSE_MATRIX_FUNCS(Mat3x3f, UInt64);
+
 template class FixedBlockSparseMatrix<Mat2x2f>;
 template class FixedBlockSparseMatrix<Mat3x3f>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

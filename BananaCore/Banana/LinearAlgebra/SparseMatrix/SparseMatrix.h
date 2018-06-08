@@ -54,10 +54,9 @@ public:
     void clear();
 
     template<class IndexType> RealType operator()(IndexType i, IndexType j) const;
-
-    template<class IndexType> void setElement(IndexType i, IndexType j, RealType newValue);
-    template<class IndexType> void addElement(IndexType i, IndexType j, RealType incrementValue);
-    template<class IndexType> void eraseElement(IndexType i, IndexType j);
+    template<class IndexType> void     setElement(IndexType i, IndexType j, RealType newValue);
+    template<class IndexType> void     addElement(IndexType i, IndexType j, RealType incrementValue);
+    template<class IndexType> void     eraseElement(IndexType i, IndexType j);
 
     void printDebug(UInt maxRows          = 0) const noexcept;
     void checkSymmetry(RealType threshold = RealType(1e-8)) const noexcept;
