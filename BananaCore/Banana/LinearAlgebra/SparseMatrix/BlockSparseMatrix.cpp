@@ -18,6 +18,11 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.h>
+#include <fstream>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -136,7 +141,7 @@ void BlockSparseMatrix<MatrixType>::checkSymmetry(RealType threshold /* = RealTy
                                     if(STLHelpers::Sorted::contain(m_ColIndex[i], j)) {
                                         auto errM    = (*this)(i, j) - (*this)(j, i);
                                         RealType err = 0;
-                                        for(Int l = 0; l < N; ++l) {
+                                        for(Int l = 0; l < MatrixType::length(); ++l) {
                                             err += glm::length2(errM[l]);
                                         }
                                         err = sqrt(err);
@@ -276,6 +281,7 @@ bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName)
         resize(matrixSize);
         if(elementSize != sizeof(MatrixType)) {
             bConsistentSize = false;
+            Int N = MatrixType::length();
             if(elementSize > sizeof(MatrixType)) {
                 __BNN_REQUIRE(sizeof(double) * N * N == elementSize);
                 __BNN_REQUIRE(sizeof(float) * N * N == sizeof(MatrixType));
@@ -303,15 +309,16 @@ bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName)
             for(UInt j = 0; j < rowSize; ++j) {
                 fread(buffer, elementSize, 1, fptr);
                 RealType* dst = glm::value_ptr(m_ColValue[i][j]);
+                Int       N   = MatrixType::length();
                 if(elementSize > sizeof(MatrixType)) {
                     double* src = reinterpret_cast<double*>(buffer);
                     for(Int k = 0, k_end = N * N; k < k_end; ++k) {
-                        dst[k] = static_cast<float>(src[k]);
+                        dst[k] = static_cast<RealType>(src[k]);
                     }
                 } else {
                     float* src = reinterpret_cast<float*>(buffer);
                     for(Int k = 0, k_end = N * N; k < k_end; ++k) {
-                        dst[k] = static_cast<double>(src[k]);
+                        dst[k] = static_cast<RealType>(src[k]);
                     }
                 }
             }
@@ -369,5 +376,12 @@ void FixedBlockSparseMatrix<MatrixType>::multiply(const FixedBlockSparseMatrix<M
                             });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class BlockSparseMatrix<Mat2x2f>;
+template class BlockSparseMatrix<Mat3x3f>;
+template class FixedBlockSparseMatrix<Mat2x2f>;
+template class FixedBlockSparseMatrix<Mat3x3f>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

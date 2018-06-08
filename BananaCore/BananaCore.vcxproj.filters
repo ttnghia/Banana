@@ -192,18 +192,6 @@
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Utils\Formatters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -237,6 +225,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\Grid\Grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

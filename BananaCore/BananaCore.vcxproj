@@ -117,8 +117,6 @@
     <ClInclude Include="Banana\Grid\Grid.h" />
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h" />
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.hpp" />
-    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.Test.hpp" />
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
@@ -143,9 +141,7 @@
     <ClInclude Include="Banana\LinearAlgebra\_LinearAlgebra.Test.hpp" />
     <ClInclude Include="Banana\Utils\Logger.h" />
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h" />
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h" />
-    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h" />
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h" />
     <ClInclude Include="Banana\ParallelHelpers\ParallelBLAS.h" />
@@ -177,6 +173,10 @@
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
     <ClCompile Include="Banana\Grid\Grid.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp" />
     <ClCompile Include="Banana\Utils\Formatters.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>

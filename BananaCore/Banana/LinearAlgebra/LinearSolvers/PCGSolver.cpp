@@ -18,6 +18,10 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -195,7 +199,7 @@ bool PCGSolver<RealType>::solve_precond(const SparseMatrix<RealType>& matrix, co
         RealType rho_new = ParallelBLAS::dotProduct<RealType>(z, r);
         RealType beta    = rho_new / rho;
         ParallelBLAS::addScaled<RealType, RealType>(beta, s, z);
-        s.swap(z);                 // s=beta*s+z
+        s.swap(z);                         // s=beta*s+z
         rho = rho_new;
     }
 
@@ -333,12 +337,12 @@ void PCGSolver<RealType>::formPreconditioner_MICC0L0(const SparseMatrix<RealType
 
     for(UInt k = 0, kEnd = matrix.nRows; k < kEnd; ++k) {
         if(m_ICCPrecond.aDiag[k] < std::numeric_limits<RealType>::min()) {
-            continue;                            // null row/column
+            continue;                                        // null row/column
         }
 
         // figure out the final L(k,k) entry
         if(m_ICCPrecond.invDiag[k] < minDiagonalRatio * m_ICCPrecond.aDiag[k]) {
-            m_ICCPrecond.invDiag[k] = RealType(1.0) / sqrt(m_ICCPrecond.aDiag[k]);                         // drop to Gauss-Seidel here if the pivot looks dangerously small
+            m_ICCPrecond.invDiag[k] = RealType(1.0) / sqrt(m_ICCPrecond.aDiag[k]);                                     // drop to Gauss-Seidel here if the pivot looks dangerously small
         } else {
             m_ICCPrecond.invDiag[k] = RealType(1.0) / sqrt(m_ICCPrecond.invDiag[k]);
         }
@@ -350,7 +354,7 @@ void PCGSolver<RealType>::formPreconditioner_MICC0L0(const SparseMatrix<RealType
 
         // incompletely eliminate L(:,k) from future columns, modifying diagonals
         for(UInt p = m_ICCPrecond.colStart[k], pEnd = m_ICCPrecond.colStart[k + 1]; p < pEnd; ++p) {
-            UInt     j          = m_ICCPrecond.colIndex[p];    // work on column j
+            UInt     j          = m_ICCPrecond.colIndex[p];       // work on column j
             RealType multiplier = m_ICCPrecond.colValue[p];
             RealType missing    = 0;
             UInt     a          = m_ICCPrecond.colStart[k];
@@ -439,12 +443,12 @@ void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatri
 
     for(UInt k = 0, kEnd = matrix.nRows; k < kEnd; ++k) {
         if(m_ICCPrecond.aDiag[k] < std::numeric_limits<RealType>::min()) {
-            continue;                            // null row/column
+            continue;                                        // null row/column
         }
 
         // figure out the final L(k,k) entry
         if(m_ICCPrecond.invDiag[k] < minDiagonalRatio * m_ICCPrecond.aDiag[k]) {
-            m_ICCPrecond.invDiag[k] = RealType(1.0) / sqrt(m_ICCPrecond.aDiag[k]);                            // drop to Gauss-Seidel here if the pivot looks dangerously small
+            m_ICCPrecond.invDiag[k] = RealType(1.0) / sqrt(m_ICCPrecond.aDiag[k]);                                        // drop to Gauss-Seidel here if the pivot looks dangerously small
         } else {
             m_ICCPrecond.invDiag[k] = RealType(1.0) / sqrt(m_ICCPrecond.invDiag[k]);
         }
@@ -455,7 +459,7 @@ void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatri
         }
 
         for(UInt p = m_ICCPrecond.colStart[k], pEnd = m_ICCPrecond.colStart[k + 1]; p < pEnd; ++p) {
-            UInt     j          = m_ICCPrecond.colIndex[p];    // work on column j
+            UInt     j          = m_ICCPrecond.colIndex[p];       // work on column j
             RealType multiplier = m_ICCPrecond.colValue[p];
 
             m_ICCPrecond.invDiag[j] -= multiplier * m_ICCPrecond.colValue[p];
@@ -480,5 +484,10 @@ void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatri
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template struct SparseColumnLowerFactor<Real>;
+template class PCGSolver<Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
