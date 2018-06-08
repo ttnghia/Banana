@@ -147,8 +147,7 @@ private:
 
     void resize_keys(UInt n)
     {
-        if constexpr(N == 2)
-        {
+        if constexpr(N == 2) {
             m_keys.resize(n, {
                     std::numeric_limits<int>::lowest(),
                     std::numeric_limits<int>::lowest()
