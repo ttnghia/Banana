@@ -22,17 +22,12 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/System/MemoryUsage.h>
 #include <Banana/Utils/Timer.h>
 
 #include <spdlog/spdlog.h>
 
 #include <chrono>
 #include <map>
-#include <string>
-#include <iostream>
-#include <memory>
-#include <csignal>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana

@@ -22,6 +22,9 @@
 #include <Banana/Utils/Logger.h>
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/Formatters.h>
+#include <Banana/System/MemoryUsage.h>
+
+#include <csignal>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
