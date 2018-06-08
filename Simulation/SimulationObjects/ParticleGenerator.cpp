@@ -20,6 +20,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Utils/JSONHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <ParticleTools/ParticleSerialization.h>
 #include <SimulationObjects/ParticleGenerator.h>
 
