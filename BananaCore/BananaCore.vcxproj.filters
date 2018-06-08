@@ -36,9 +36,6 @@
     <ClInclude Include="Banana\Geometry\MeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Grid\GridHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -192,9 +189,6 @@
     <ClInclude Include="Banana\ParallelHelpers\AtomicOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Grid\Grid.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -240,6 +234,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\Grid\Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

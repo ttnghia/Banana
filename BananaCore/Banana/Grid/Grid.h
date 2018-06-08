@@ -23,10 +23,7 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Utils/MathHelpers.h>
-#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
-
 #include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -224,12 +221,10 @@ public:
     void collectIndexToCells(const Vector<VecX<N, RealType>>& positions);
     void collectIndexToCells(const Vector<VecX<N, RealType>>& positions, Vector<VecX<N, Int>>& particleCellIdx);
     void collectIndexToCells(const Vector<VecX<N, RealType>>& positions, Vector<VecX<N, RealType>>& particleCellPos);
-    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, Int cellSpan                                = 1);
-    void getNeighborList(const Vec2<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan                                                   = 1);
-    void getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan                                                   = 1);
-    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan                   = 1);
-    void getNeighborList(const Vec_Vec2<RealType>& positions, const Vec2<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
-    void getNeighborList(const Vec_Vec3<RealType>& positions, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
+    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, Int cellSpan                                      = 1);
+    void getNeighborList(const VecX<N, RealType>& ppos, Vec_UInt& neighborList, Int cellSpan                                                      = 1);
+    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan                         = 1);
+    void getNeighborList(const Vec_VecX<N, RealType>& positions, const VecX<N, RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
     void sortData(Vector<VecX<N, RealType>>& data);
 
     const Vec_UInt& getParticleIdxSortedByCell();
@@ -266,6 +261,3 @@ using Grid3r = Grid<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Grid/Grid.hpp>

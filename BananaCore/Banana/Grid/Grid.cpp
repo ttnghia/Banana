@@ -18,6 +18,12 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <Banana/Grid/Grid.h>
+#include <Banana/Utils/MathHelpers.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -77,7 +83,7 @@ void Grid<N, RealType>::constrainToGrid(Vector<VecX<N, RealType>>& positions)
                                 for(Int d = 0; d < N; ++d) {
                                     if(pos[d] < m_BMin[d] || pos[d] > m_BMax[d]) {
                                         dirty  = true;
-                                        pos[d] = MathHelpers::clamp(pos[d], m_BMin[d],  m_BMax[d]);
+                                        pos[d] = MathHelpers::clamp(pos[d], m_BMin[d], m_BMax[d]);
                                     }
                                 }
 
@@ -185,39 +191,15 @@ void Grid<N, RealType>::getNeighborList(const Vector<VecX<N, RealType>>& positio
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Grid<N, RealType>::getNeighborList(const Vec2<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan /*= 1*/)
+void Grid<N, RealType>::getNeighborList(const VecX<N, RealType>& ppos, Vec_UInt& neighborList, Int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
-    Vec2i cellIdx = getCellIdx<Int>(ppos);
-
-    for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
-        for(Int li = -cellSpan; li <= cellSpan; ++li) {
-            const auto neighborCellIdx = cellIdx + Vec2i(li, lj);
-
-            if(!isValidCell(neighborCellIdx)) {
-                continue;
-            }
-
-            const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
-            if(cell.size() > 0) {
-                neighborList.insert(neighborList.end(), cell.begin(), cell.end());
-            }
-        }
-    }   // end loop over neighbor cells
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void Grid<N, RealType>::getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan /*= 1*/)
-{
-    neighborList.resize(0);
-
-    Vec3i cellIdx = getCellIdx<Int>(ppos);
-
-    for(Int lk = -cellSpan; lk <= cellSpan; ++lk) {
+    if constexpr(N == 2)
+    {
+        Vec2i cellIdx = getCellIdx<Int>(ppos);
         for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
             for(Int li = -cellSpan; li <= cellSpan; ++li) {
-                const auto neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
+                const auto neighborCellIdx = cellIdx + Vec2i(li, lj);
 
                 if(!isValidCell(neighborCellIdx)) {
                     continue;
@@ -228,8 +210,26 @@ void Grid<N, RealType>::getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& ne
                     neighborList.insert(neighborList.end(), cell.begin(), cell.end());
                 }
             }
-        }
-    }   // end loop over neighbor cells
+        }               // end loop over neighbor cells
+    } else {
+        Vec3i cellIdx = getCellIdx<Int>(ppos);
+        for(Int lk = -cellSpan; lk <= cellSpan; ++lk) {
+            for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
+                for(Int li = -cellSpan; li <= cellSpan; ++li) {
+                    const auto neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
+
+                    if(!isValidCell(neighborCellIdx)) {
+                        continue;
+                    }
+
+                    const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
+                    if(cell.size() > 0) {
+                        neighborList.insert(neighborList.end(), cell.begin(), cell.end());
+                    }
+                }
+            }
+        }               // end loop over neighbor cells
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -241,52 +241,22 @@ void Grid<N, RealType>::getNeighborList(const Vector<VecX<N, RealType>>& positio
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Grid<N, RealType>::getNeighborList(const Vec_Vec2<RealType>& positions, const Vec2<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan /*= 1*/)
+void Grid<N, RealType>::getNeighborList(const Vec_VecX<N, RealType>& positions, const VecX<N, RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
 
-    Vec2i cellIdx = getCellIdx<Int>(ppos);
-
-    for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
-        for(Int li = -cellSpan; li <= cellSpan; ++li) {
-            const auto neighborCellIdx = cellIdx + Vec2i(li, lj);
-
-            if(!isValidCell(neighborCellIdx)) {
-                continue;
-            }
-
-            const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
-            if(cell.size() > 0) {
-                for(UInt q : cell) {
-                    const auto pqd2 = glm::length2(ppos - positions[q]);
-                    if(pqd2 > 0 && pqd2 < d2) {
-                        neighborList.push_back(q);
-                    }
-                }
-            }
-        }
-    }   // end loop over neighbor cells
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void Grid<N, RealType>::getNeighborList(const Vec_Vec3<RealType>& positions, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan /*= 1*/)
-{
-    neighborList.resize(0);
-
-    Vec3i cellIdx = getCellIdx<Int>(ppos);
-
-    for(Int lk = -cellSpan; lk <= cellSpan; ++lk) {
+    if constexpr(N == 2)
+    {
+        Vec2i cellIdx = getCellIdx<Int>(ppos);
         for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
             for(Int li = -cellSpan; li <= cellSpan; ++li) {
-                const auto neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
+                const auto neighborCellIdx = cellIdx + Vec2i(li, lj);
 
                 if(!isValidCell(neighborCellIdx)) {
                     continue;
                 }
 
                 const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
-
                 if(cell.size() > 0) {
                     for(UInt q : cell) {
                         const auto pqd2 = glm::length2(ppos - positions[q]);
@@ -296,8 +266,32 @@ void Grid<N, RealType>::getNeighborList(const Vec_Vec3<RealType>& positions, con
                     }
                 }
             }
-        }
-    }   // end loop over neighbor cells
+        }               // end loop over neighbor cells
+    } else {
+        Vec3i cellIdx = getCellIdx<Int>(ppos);
+        for(Int lk = -cellSpan; lk <= cellSpan; ++lk) {
+            for(Int lj = -cellSpan; lj <= cellSpan; ++lj) {
+                for(Int li = -cellSpan; li <= cellSpan; ++li) {
+                    const auto neighborCellIdx = cellIdx + Vec3i(li, lj, lk);
+
+                    if(!isValidCell(neighborCellIdx)) {
+                        continue;
+                    }
+
+                    const auto& cell = m_ParticleIdxInCell(neighborCellIdx);
+
+                    if(cell.size() > 0) {
+                        for(UInt q : cell) {
+                            const auto pqd2 = glm::length2(ppos - positions[q]);
+                            if(pqd2 > 0 && pqd2 < d2) {
+                                neighborList.push_back(q);
+                            }
+                        }
+                    }
+                }
+            }
+        }               // end loop over neighbor cells
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -332,5 +326,10 @@ const Vec_UInt& Grid<N, RealType>::getParticleIdxSortedByCell()
     return m_ParticleIdxSortedByCell;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template class Grid<2, Real>;
+template class Grid<3, Real>;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

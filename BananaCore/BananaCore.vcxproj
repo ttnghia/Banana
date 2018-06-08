@@ -115,8 +115,6 @@
     <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h" />
     <ClInclude Include="Banana\Geometry\OBJLoader.h" />
     <ClInclude Include="Banana\Grid\Grid.h" />
-    <ClInclude Include="Banana\Grid\Grid.hpp" />
-    <ClInclude Include="Banana\Grid\GridHelpers.h" />
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h" />
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.hpp" />
@@ -178,6 +176,7 @@
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
+    <ClCompile Include="Banana\Grid\Grid.cpp" />
     <ClCompile Include="Banana\Utils\Formatters.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>
