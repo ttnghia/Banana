@@ -49,7 +49,7 @@ void ParticleSampler::finishImgExport()
 void ParticleSampler::doSampling()
 {
     m_Generator->updateRelaxParameters();
-    Int frame = 1;
+    UInt frame = 1;
     for(; frame <= getRelaxParams()->maxIters; ++frame) {
         bool bConverged = m_Generator->doFrameRelaxation(frame);
 
@@ -70,7 +70,6 @@ void ParticleSampler::doSampling()
     }
 
     m_Generator->reportFailed(frame);
-    m_Generator.reset();
     emit relaxationFinished();
 }
 

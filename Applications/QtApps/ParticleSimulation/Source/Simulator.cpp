@@ -65,7 +65,6 @@ void Simulator::doSimulation()
     }
 
     m_ParticleSolver->finalizeSimulation();
-    m_ParticleSolver.reset();
     emit simulationFinished();
 }
 
@@ -87,7 +86,6 @@ void Simulator::changeScene(const QString& scene)
     nlohmann::json jParams = nlohmann::json::parse(inFile);
     inFile.close();
     ////////////////////////////////////////////////////////////////////////////////
-    m_ParticleSolver = std::make_shared<ParticleSolverInterface>();
     m_ParticleSolver->createSolver(sceneFile.toStdString());
     m_ParticleSolver->loadScene(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////

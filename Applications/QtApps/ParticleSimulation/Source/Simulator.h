@@ -62,7 +62,7 @@ signals:
 
 private:
     SharedPtr<VisualizationData>       m_VizData        = std::make_shared<VisualizationData>();
-    SharedPtr<ParticleSolverInterface> m_ParticleSolver = nullptr;
+    SharedPtr<ParticleSolverInterface> m_ParticleSolver = std::make_shared<ParticleSolverInterface>();
     std::future<void>                  m_SimulationFutureObj;
     QString                            m_Scene;
     volatile bool                      m_bStop             = true;
