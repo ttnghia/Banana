@@ -18,6 +18,7 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Utils/JSONHelpers.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <ParticleSolvers/ParticleSolver.h>
 

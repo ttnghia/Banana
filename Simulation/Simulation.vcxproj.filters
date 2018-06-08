@@ -204,6 +204,9 @@
     <ClInclude Include="ParticleSolvers\PICFluid\Smoke_Solver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleGenerator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
@@ -279,6 +282,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulationObjects\ParticleRemover.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\ParticleSolverFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

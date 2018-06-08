@@ -22,16 +22,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid.h>
-#include <Banana/Utils/NumberHelpers.h>
-#include <Banana/Utils/FileHelpers.h>
-#include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Geometry/GeometryObjectFactory.h>
-#include <Banana/ParallelHelpers/Scheduler.h>
 #include <ParticleSolvers/ParticleSolverData.h>
-#include <ParticleTools/ParticleHelpers.h>
-#include <ParticleTools/ParticleSerialization.h>
 #include <SimulationObjects/SimulationObject.h>
 
 #include <cassert>

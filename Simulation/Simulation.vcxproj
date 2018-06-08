@@ -146,6 +146,7 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
     <ClInclude Include="SimulationObjects\HairObjectGenerator.h" />
+    <ClInclude Include="SimulationObjects\ParticleGenerator.hpp" />
     <ClInclude Include="SimulationObjects\ParticleRemover.h" />
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="ParticleSolvers\MPM\MPM_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\ParticleSolver.cpp" />
     <ClCompile Include="ParticleSolvers\ParticleSolverData.cpp" />
+    <ClCompile Include="ParticleSolvers\ParticleSolverFactory.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\AFLIP_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\APIC_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\FLIP_Solver.cpp" />
