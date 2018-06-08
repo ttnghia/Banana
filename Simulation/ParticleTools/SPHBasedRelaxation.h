@@ -49,14 +49,16 @@ struct SPHRelaxationParameters
     RealType maxTimestep           = RealType(1.0 / 30.0);
     RealType pressureStiffness     = RealType(50000);
     RealType viscosity             = RealType(0.01);
-    RealType nearKernelRadius      = RealType(2.0);
-    RealType nearKernelRadiusSqr   = RealType(0);
+    RealType nearKernelRadiusRatio = RealType(2.0);
     RealType nearPressureStiffness = RealType(50000);
+    RealType overlapThresholdRatio = RealType(1e-2);
     bool     bNormalizeDensity     = false;
 
     RealType particleRadius      = RealType(0);
     RealType particleMass        = RealType(1);
-    RealType overlapThreshold    = RealType(1e-2);
+    RealType nearKernelRadius    = RealType(0.0);
+    RealType nearKernelRadiusSqr = RealType(0);
+    RealType overlapThreshold    = RealType(0);
     RealType overlapThresholdSqr = RealType(0);
 };
 
@@ -70,30 +72,56 @@ class SPHBasedRelaxation
     ////////////////////////////////////////////////////////////////////////////////
 public:
     ////////////////////////////////////////////////////////////////////////////////
-    SPHBasedRelaxation(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) : m_BoundaryObjects(boundaryObjs)
+    SPHBasedRelaxation(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs, const String& generatorName) :
+        m_BoundaryObjects(boundaryObjs)
     {
-        m_Logger = Logger::createLogger("SPHBasedRelaxation");
+        m_Logger = Logger::createLogger("Relaxation_" + generatorName);
     }
 
     auto& relaxParams() { return m_RelaxationParams; }
+    auto& logger() { assert(m_Logger != nullptr); return *m_Logger; }
 
     /**
      * @brief Relax the particle positions
        @param positions: positions of particles
-       @param nParticles: number of particles
        @return bool value indicating whether the relaxation has converged or not
      */
-    bool relaxPositions(VecN* positions, UInt nParticles);
+    bool relaxPositions(Vec_VecN& positions);
 
     /**
      * @brief Get the min distance ratio of all particles to their neighbors
      */
     RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
 
-    void makeReady(VecN* positions, UInt nParticles);
-    void iterate(VecN* positions, UInt nParticles, UInt iter);
-    auto& logger() { assert(m_Logger != nullptr); return *m_Logger; }
+    /**
+     * @brief Set the particle positions
+     */
+    void setParticles(Vec_VecN& positions);
+
+    /**
+     * @brief Update params that has been changed outside
+     */
+    void updateParams();
+
+    /**
+     * @brief Compute the min distance ratio between all particles
+     */
     void computeMinDistanceRatio();
+
+    /**
+     * @brief Run the iteration
+     */
+    void iterate(UInt iter);
+
+    /**
+     * @brief Check if the convergence condition meets
+     */
+    bool checkConvergence(UInt iter);
+
+    /**
+     * @brief Report that the relaxation has failed
+     */
+    void reportFailed(UInt iter);
 
 protected:
     ////////////////////////////////////////////////////////////////////////////////
@@ -109,8 +137,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     struct
     {
-        UInt                              nParticles = 0u;
-        VecN*                             positions  = nullptr;
+        Vec_VecN*                         positions = nullptr;
         Vec_VecN                          velocities;
         Vec_RealType                      densities;
         Vec_RealType                      tmp_densities;
@@ -118,24 +145,17 @@ protected:
         Vec_VecN                          diffuseVelocity;
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
         ////////////////////////////////////////////////////////////////////////////////
-        UInt getNParticles() const { return nParticles; }
-        void makeReady(VecN* positions_, UInt nParticles_,  const SharedPtr<SPHRelaxationParameters<RealType>>& relaxParams)
+        UInt getNParticles() const { return static_cast<UInt>(positions->size()); }
+        void setParticles(Vec_VecN& positions_)
         {
-            relaxParams->particleMass        = RealType(pow(RealType(2.0) * relaxParams->particleRadius, N));
-            relaxParams->nearKernelRadius   *= relaxParams->particleRadius;
-            relaxParams->nearKernelRadiusSqr = relaxParams->nearKernelRadius * relaxParams->nearKernelRadius;
-            relaxParams->overlapThreshold   *= relaxParams->particleRadius;
-            relaxParams->overlapThresholdSqr = relaxParams->overlapThreshold * relaxParams->overlapThreshold;
+            positions = &positions_;
             ////////////////////////////////////////////////////////////////////////////////
-            positions  = positions_;
-            nParticles = nParticles_;
-            ////////////////////////////////////////////////////////////////////////////////
-            velocities.resize(nParticles, VecN(0));
-            densities.resize(nParticles, 0);
-            tmp_densities.resize(nParticles, 0);
-            neighborInfo.resize(nParticles);
-            accelerations.resize(nParticles, VecN(0));
-            diffuseVelocity.resize(nParticles, VecN(0));
+            velocities.resize(getNParticles(), VecN(0));
+            densities.resize(getNParticles(), 0);
+            tmp_densities.resize(getNParticles(), 0);
+            neighborInfo.resize(getNParticles());
+            accelerations.resize(getNParticles(), VecN(0));
+            diffuseVelocity.resize(getNParticles(), VecN(0));
         }
     } m_SPHData;
 

@@ -27,17 +27,19 @@
 void Controller::updateRelaxParams()
 {
     const auto& relaxParams = m_ParticleSampler->getRelaxParams();
-    relaxParams->particleRadius = m_ParticleSampler->getVizData()->particleRadius;
+    for(const auto& params: relaxParams) {
+        params->particleRadius = m_ParticleSampler->getVizData()->particleRadius;
 
-    relaxParams->maxIters           = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
-    relaxParams->checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
-    relaxParams->deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
-    relaxParams->intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
+        params->maxIters           = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
+        params->checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
+        params->deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
+        params->intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
 
-    relaxParams->pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
-    relaxParams->viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
-    relaxParams->nearKernelRadius      = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
-    relaxParams->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
+        params->pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
+        params->viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
+        params->nearKernelRadiusRatio = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
+        params->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

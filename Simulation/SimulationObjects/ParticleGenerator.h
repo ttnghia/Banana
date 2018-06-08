@@ -22,6 +22,7 @@
 #pragma once
 
 #include <Banana/Grid/Grid.h>
+#include <ParticleTools/SPHBasedRelaxation.h>
 #include <SimulationObjects/SimulationObject.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <unordered_set>
@@ -58,6 +59,8 @@ public:
     auto& activeFrames() { return m_ActiveFrames; }
     auto& constraintObjectID() { return m_ConstraintObjectID; }
     bool isActive(UInt currentFrame);
+    ////////////////////////////////////////////////////////////////////////////////
+    auto& relaxer() { __BNN_REQUIRE(m_Relaxer != nullptr); return *m_Relaxer; }
     ////////////////////////////////////////////////////////////////////////////////
     const auto& generatedPositions() const { return m_GeneratedPositions; }
     const auto& generatedVelocities() const { return m_GeneratedVelocities; }
@@ -105,9 +108,10 @@ protected:
     Vec_VecN                                 m_GeneratedVelocities;
     SharedPtr<SimulationObject<N, RealType>> m_GeneratedConstraintObj;
 
-    Grid<N, RealType>                   m_Grid;
-    Array<N, Vec_UInt>                  m_ParticleIdxInCell;
-    Array<N, ParallelObjects::SpinLock> m_Lock;
+    Grid<N, RealType>                                         m_Grid;
+    Array<N, Vec_UInt>                                        m_ParticleIdxInCell;
+    Array<N, ParallelObjects::SpinLock>                       m_Lock;
+    SharedPtr<ParticleTools::SPHBasedRelaxation<N, RealType>> m_Relaxer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

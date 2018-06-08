@@ -40,7 +40,7 @@ public:
     ParticleSampler() = default;
 
     const auto& getVizData() const { return m_VizData; }
-    const auto& getRelaxParams() const { return m_Generator->getRelaxParams(); }
+    auto getRelaxParams() const { return m_Generator->getRelaxParams(); }
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();

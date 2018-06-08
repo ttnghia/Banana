@@ -48,9 +48,10 @@ void ParticleSampler::finishImgExport()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSampler::doSampling()
 {
-    m_Generator->updateRelaxParameters();
-    UInt frame = 1;
-    for(; frame <= getRelaxParams()->maxIters; ++frame) {
+    m_Generator->updateRelaxParams();
+    UInt maxIters = getRelaxParams().front()->maxIters;
+    UInt frame    = 1;
+    for(; frame <= maxIters; ++frame) {
         bool bConverged = m_Generator->doFrameRelaxation(frame);
 
         emit vizDataChanged();

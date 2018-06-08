@@ -42,7 +42,7 @@ public:
     ~ParticleGeneratorInterface() { Logger::shutdown(); }
     ////////////////////////////////////////////////////////////////////////////////
     void loadScene(const String& sceneFile);
-    void updateRelaxParameters();
+    void updateRelaxParams();
     bool doFrameRelaxation(UInt frame);
     void reportFailed(UInt frame);
     ////////////////////////////////////////////////////////////////////////////////
@@ -58,16 +58,15 @@ public:
     UInt  getNParticles()  const { return m_ParticleData.nParticles; }
     ////////////////////////////////////////////////////////////////////////////////
     float getParticleRadius() const { return m_ParticleData.particleRadius; }
-    const SharedPtr<ParticleTools::SPHRelaxationParameters<float>>& getRelaxParams();
+    Vector<SharedPtr<ParticleTools::SPHRelaxationParameters<float>>> getRelaxParams();
 
 private:
+    ////////////////////////////////////////////////////////////////////////////////
     Int                                                               m_Dimension = 2;
     Vector<SharedPtr<SimulationObjects::BoundaryObject<2, float>>>    m_BoundaryObjs2D;
     Vector<SharedPtr<SimulationObjects::BoundaryObject<3, float>>>    m_BoundaryObjs3D;
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<2, float>>> m_Generators2D;
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<3, float>>> m_Generators3D;
-    UniquePtr<ParticleTools::SPHBasedRelaxation<2, float>>            m_Relax2D;
-    UniquePtr<ParticleTools::SPHBasedRelaxation<3, float>>            m_Relax3D;
     SharedPtr<Logger>                                                 m_Logger = nullptr;
 
     struct ParticleData
