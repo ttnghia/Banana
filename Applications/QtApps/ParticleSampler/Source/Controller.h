@@ -113,11 +113,4 @@ private:
     QPushButton* m_btnResetCamera;
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;
-
-    QCheckBox*   m_chkDoubleData;
-    QPushButton* m_btnSaveObj;
-    QPushButton* m_btnSaveBgeo;
-    QPushButton* m_btnSaveBinary;
-    QPushButton* m_btnSaveBNN;
-    ////////////////////////////////////////////////////////////////////////////////
 };

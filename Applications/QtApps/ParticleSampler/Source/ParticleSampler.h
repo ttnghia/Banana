@@ -22,7 +22,6 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Partio.h>
 
 #include <QObject>
 #include <QStringList>
@@ -37,9 +36,10 @@ class ParticleSampler : public QObject
     Q_OBJECT
 
 public:
-    ParticleSampler() = default;
+    ParticleSampler() { m_Generator = std::make_unique<ParticleGeneratorInterface>(m_ParticleData); }
 
     const auto& getVizData() const { return m_VizData; }
+    const auto& getParticleData() { return m_ParticleData; }
     auto getRelaxParams() const { return m_Generator->getRelaxParams(); }
     bool isRunning() { return !m_bStop; }
     void stop();
@@ -51,7 +51,6 @@ public slots:
     void doSampling();
     void changeScene(const QString& scene);
     void enableExportImg(bool bEnable);
-    void saveParticles(int outputType, bool bDouble = false);
 
 signals:
     void dimensionChanged();
@@ -66,16 +65,11 @@ signals:
     void iterationFinished();
 
 private:
-    void                          saveBgeo(const QString& fileName);
-    void                          saveObj(const QString& fileName);
-    template<class RealType> void saveBnn(const QString& fileName);
-    template<class RealType> void saveBinary(const QString& fileName);
-    ////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<VisualizationData>          m_VizData   = std::make_shared<VisualizationData>();
-    UniquePtr<ParticleGeneratorInterface> m_Generator = std::make_unique<ParticleGeneratorInterface>();
+    SharedPtr<ParticleData>               m_ParticleData = std::make_shared<ParticleData>();
+    SharedPtr<VisualizationData>          m_VizData      = std::make_shared<VisualizationData>();
+    UniquePtr<ParticleGeneratorInterface> m_Generator;
     std::future<void>                     m_RelaxationFutureObj;
     QString                               m_Scene;
-    QString                               m_LastSavedFile;
 
     volatile bool m_bStop             = true;
     volatile bool m_bWaitForSavingImg = false;

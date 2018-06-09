@@ -24,7 +24,8 @@
 #include "RenderWidget.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData) : OpenGLWidget(parent), m_VizData(vizData)
+RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData, const SharedPtr<ParticleData>& particleData) :
+    OpenGLWidget(parent), m_VizData(vizData), m_ParticleData(particleData)
 {
     updateCamera();
 }
@@ -50,11 +51,11 @@ void RenderWidget::renderOpenGL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateSolverDimension()
 {
-    if(m_VizData->systemDimension == 3) {
+    if(m_ParticleData->dimension == 3) {
         m_Camera->setProjection(Camera::PerspectiveProjection);
     } else {
         m_Camera->setProjection(Camera::OrthographicProjection);
-        m_Camera->setOrthoBox(m_VizData->boxMin.x * 1.01f, m_VizData->boxMax.x * 1.01f, m_VizData->boxMin.y * 1.01f, m_VizData->boxMax.y * 1.01f);
+        m_Camera->setOrthoBox(m_ParticleData->boxMin.x * 1.01f, m_ParticleData->boxMax.x * 1.01f, m_ParticleData->boxMin.y * 1.01f, m_ParticleData->boxMax.y * 1.01f);
     }
 
     makeCurrent();
@@ -68,18 +69,17 @@ void RenderWidget::updateVizData()
     Q_ASSERT(m_RDataParticle.initialized);
     makeCurrent();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.buffPosition->uploadDataAsync(m_VizData->positions, 0, m_VizData->nParticles * m_VizData->systemDimension * sizeof(float));
+    m_RDataParticle.buffPosition->uploadDataAsync(m_ParticleData->positionPtrs, 0, m_ParticleData->positionDataSizes);
     ////////////////////////////////////////////////////////////////////////////////
     // color data
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
-        m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles * sizeof(Int16));
         m_RDataParticle.vColorMin = 0;
-        m_RDataParticle.vColorMax = m_VizData->nObjects > 1u ? static_cast<float>(m_VizData->nObjects - 1) : 1.0f;
+        m_RDataParticle.vColorMax = m_ParticleData->nObjects > 1u ? static_cast<float>(m_ParticleData->nObjects - 1) : 1.0f;
     }
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
-    m_RDataParticle.nParticles  = m_VizData->nParticles;
-    m_RDataParticle.pointRadius = m_VizData->particleRadius;
+    m_RDataParticle.nParticles  = m_ParticleData->nTotalParticles;
+    m_RDataParticle.pointRadius = m_ParticleData->particleRadius;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -148,7 +148,7 @@ void RenderWidget::initParticleVAO()
     glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffPosition->bind();
-    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, m_VizData->systemDimension, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, m_ParticleData->dimension, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
     ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
         m_RDataParticle.buffColorData->bind();
@@ -177,7 +177,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles,   m_RDataParticle.nParticles);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius,  m_RDataParticle.pointRadius);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,   m_RDataParticle.pointScale);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,    m_VizData->systemDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,    m_ParticleData->dimension);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode,    m_RDataParticle.pColorMode);

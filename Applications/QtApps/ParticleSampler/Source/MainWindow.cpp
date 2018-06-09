@@ -29,7 +29,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
 {
-    m_RenderWidget = new RenderWidget(this, m_Sampler->getVizData());
+    m_RenderWidget = new RenderWidget(this, m_Sampler->getVizData(), m_Sampler->getParticleData());
     ////////////////////////////////////////////////////////////////////////////////
     setupOpenglWidget(m_RenderWidget);
     setupRenderWidgets();

@@ -40,12 +40,13 @@ class RenderWidget : public OpenGLWidget
 {
     Q_OBJECT
 public:
-    RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData);
+    RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData, const SharedPtr<ParticleData>& particleData);
 private:
     virtual void initOpenGL();
     virtual void resizeOpenGLWindow(int, int);
     virtual void renderOpenGL();
     SharedPtr<VisualizationData> m_VizData;
+    SharedPtr<ParticleData>      m_ParticleData;
 public slots:
     void updateCamera() { m_Camera->setCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
     void updateSolverDimension();

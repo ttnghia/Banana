@@ -41,18 +41,18 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     String solverName;
     JSONHelpers::readValue(jParams["GlobalParameters"], solverName, "Solver");
     __BNN_REQUIRE((solverName.find_first_of('2') != String::npos) ^ (solverName.find_first_of('3') != String::npos));
-    m_Dimension = (solverName.find_first_of('2') != String::npos) ? 2 : 3;
+    m_ParticleData->dimension = (solverName.find_first_of('2') != String::npos) ? 2 : 3;
     ////////////////////////////////////////////////////////////////////////////////;
 
     ////////////////////////////////////////////////////////////////////////////////
     // read particle radius
-    if(!JSONHelpers::readValue(jParams["SimulationParameters"], m_ParticleData.particleRadius, "ParticleRadius")) {
+    if(!JSONHelpers::readValue(jParams["SimulationParameters"], m_ParticleData->particleRadius, "ParticleRadius")) {
         float cellSize;
         float ratioCellSizeRadius;
         __BNN_REQUIRE(JSONHelpers::readValue(jParams["SimulationParameters"], cellSize, "CellSize"));
         __BNN_REQUIRE(JSONHelpers::readValue(jParams["SimulationParameters"], ratioCellSizeRadius, "RatioCellSizePRadius"));
-        m_ParticleData.particleRadius = cellSize / ratioCellSizeRadius;
-        __BNN_REQUIRE(m_ParticleData.particleRadius > 0);
+        m_ParticleData->particleRadius = cellSize / ratioCellSizeRadius;
+        __BNN_REQUIRE(m_ParticleData->particleRadius > 0);
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
@@ -61,18 +61,15 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
         JParams jBoxParams = jParams["SimulationParameters"]["SimulationDomainBox"];
         jBoxParams["GeometryType"] = String("Box");
 
-        if(m_Dimension == 2) {
+        if(m_ParticleData->dimension == 2) {
             Vec2f bMin, bMax;
             __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMin, "BoxMin"));
             __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMax, "BoxMax"));
-            memcpy(&m_ParticleData.domainBMin[0], &bMin[0], sizeof(float) * m_Dimension);
-            memcpy(&m_ParticleData.domainBMax[0], &bMax[0], sizeof(float) * m_Dimension);
+            memcpy(&m_ParticleData->boxMin[0], &bMin[0], sizeof(float) * m_ParticleData->dimension);
+            memcpy(&m_ParticleData->boxMax[0], &bMax[0], sizeof(float) * m_ParticleData->dimension);
         } else {
-            Vec3f bMin, bMax;
-            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMin, "BoxMin"));
-            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, bMax, "BoxMax"));
-            memcpy(&m_ParticleData.domainBMin[0], &bMin[0], sizeof(float) * m_Dimension);
-            memcpy(&m_ParticleData.domainBMax[0], &bMax[0], sizeof(float) * m_Dimension);
+            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, m_ParticleData->boxMin, "BoxMin"));
+            __BNN_REQUIRE(JSONHelpers::readVector(jBoxParams, m_ParticleData->boxMax, "BoxMax"));
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +82,7 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
             __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
             __BNN_REQUIRE(!geometryType.empty());
 
-            if(m_Dimension == 2) {
+            if(m_ParticleData->dimension == 2) {
                 SharedPtr<SimulationObjects::BoundaryObject<2, float>> obj = nullptr;
                 if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX") {
                     obj = std::make_shared<SimulationObjects::BoxBoundary<2, float>>(jObj);
@@ -108,7 +105,7 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
 
         ////////////////////////////////////////////////////////////////////////////////
         // combine static boundaries
-        if(m_Dimension == 2) {
+        if(m_ParticleData->dimension == 2) {
             if(m_BoundaryObjs2D.size() > 1) {
                 auto csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<2, float>>(JParams(), true);
                 auto csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<2, float>>(csgBoundary->geometry());
@@ -142,7 +139,7 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     // create generators
     m_Generators2D.resize(0);
     m_Generators3D.resize(0);
-    if(m_Dimension == 2) {
+    if(m_ParticleData->dimension == 2) {
         for(auto& jObj : jParams["ParticleGenerators"]) {
             m_Generators2D.emplace_back(std::make_shared<SimulationObjects::ParticleGenerator<2, float>>(jObj));
         }
@@ -156,45 +153,61 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // add particles without relaxation
-    m_ParticleData.positions2D.resize(0);
-    m_ParticleData.positions3D.resize(0);
-    m_ParticleData.objectIndex.resize(0);
-    m_ParticleData.nParticles = 0;
-    m_ParticleData.nObjects   = 0;
-    for(auto& generator : m_Generators2D) {
-        generator->buildObject(m_ParticleData.particleRadius, m_BoundaryObjs2D);
-        UInt nGen = generator->generateParticles(m_ParticleData.positions2D);
-        if(nGen > 0) {
-            auto& generatedPositions = generator->generatedPositions();
-            m_ParticleData.positions2D.insert(m_ParticleData.positions2D.end(), generatedPositions.begin(), generatedPositions.end());
-            m_ParticleData.objectIndex.insert(m_ParticleData.objectIndex.end(), generatedPositions.size(), m_ParticleData.nObjects);
-            ++m_ParticleData.nObjects;
-            m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+    m_ParticleData->resetData();
+    if(m_ParticleData->dimension == 2) {
+        for(auto& generator : m_Generators2D) {
+            generator->buildObject(m_ParticleData->particleRadius, m_BoundaryObjs2D);
+            UInt nGen = generator->generateParticles();
+            if(nGen > 0) {
+                const auto& generatedPositions = generator->generatedPositions();
+                m_ParticleData->positionPtrs.push_back(reinterpret_cast<const void*>(generatedPositions.data()));
+                m_ParticleData->positionDataSizes.push_back(static_cast<size_t>(nGen * sizeof(Vec2f)));
+                m_ParticleData->nParticles.push_back(nGen);
+                ++m_ParticleData->nObjects;
+                m_ParticleData->nTotalParticles += nGen;
+                m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+            }
         }
-    }
-    for(auto& generator : m_Generators3D) {
-        generator->buildObject(m_ParticleData.particleRadius, m_BoundaryObjs3D);
-        UInt nGen = generator->generateParticles(m_ParticleData.positions3D);
-        if(nGen > 0) {
-            auto& generatedPositions = generator->generatedPositions();
-            m_ParticleData.positions3D.insert(m_ParticleData.positions3D.end(), generatedPositions.begin(), generatedPositions.end());
-            m_ParticleData.objectIndex.insert(m_ParticleData.objectIndex.end(), generatedPositions.size(), m_ParticleData.nObjects);
-            ++m_ParticleData.nObjects;
-            m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+    } else {
+        for(auto& generator : m_Generators3D) {
+            generator->buildObject(m_ParticleData->particleRadius, m_BoundaryObjs3D);
+            UInt nGen = generator->generateParticles();
+            if(nGen > 0) {
+                const auto& generatedPositions = generator->generatedPositions();
+                m_ParticleData->positionPtrs.push_back(reinterpret_cast<const void*>(generatedPositions.data()));
+                m_ParticleData->positionDataSizes.push_back(static_cast<size_t>(nGen * sizeof(Vec3f)));
+                m_ParticleData->nParticles.push_back(nGen);
+                ++m_ParticleData->nObjects;
+                m_ParticleData->nTotalParticles += nGen;
+                m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+            }
         }
     }
 
-    __BNN_REQUIRE((m_ParticleData.positions2D.size() > 0) ^ (m_ParticleData.positions3D.size() > 0));
-    m_ParticleData.nParticles += static_cast<UInt>(m_ParticleData.positions2D.size());
-    m_ParticleData.nParticles += static_cast<UInt>(m_ParticleData.positions3D.size());
-    m_ParticleData.positions   = (m_ParticleData.positions2D.size() > 0) ?
-                                 reinterpret_cast<char*>(m_ParticleData.positions2D.data()) : reinterpret_cast<char*>(m_ParticleData.positions3D.data());
+    __BNN_REQUIRE(m_ParticleData->positionPtrs.size() > 0);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // get relax parameters
+    {
+        m_RelaxParams.resize(0);
+        if(m_ParticleData->dimension == 2) {
+            for(auto& generator: m_Generators2D) {
+                m_RelaxParams.push_back(generator->relaxer().relaxParams());
+            }
+        } else {
+            for(auto& generator: m_Generators3D) {
+                m_RelaxParams.push_back(generator->relaxer().relaxParams());
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleGeneratorInterface::updateRelaxParams()
 {
-    if(m_Dimension == 2) {
+    if(m_ParticleData->dimension == 2) {
         for(auto& generator: m_Generators2D) {
             generator->relaxer().updateParams();
         }
@@ -209,7 +222,7 @@ void ParticleGeneratorInterface::updateRelaxParams()
 bool ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
 {
     bool bConvergence = true;
-    if(m_Dimension == 2) {
+    if(m_ParticleData->dimension == 2) {
         for(auto& generator: m_Generators2D) {
             generator->relaxer().iterate(frame);
             auto tmp = generator->relaxer().checkConvergence(frame);
@@ -228,7 +241,7 @@ bool ParticleGeneratorInterface::doFrameRelaxation(UInt frame)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleGeneratorInterface::reportFailed(UInt frame)
 {
-    if(m_Dimension == 2) {
+    if(m_ParticleData->dimension == 2) {
         for(auto& generator: m_Generators2D) {
             generator->relaxer().reportFailed(frame);
         }
@@ -237,20 +250,4 @@ void ParticleGeneratorInterface::reportFailed(UInt frame)
             generator->relaxer().reportFailed(frame);
         }
     }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vector<SharedPtr<ParticleTools::SPHRelaxationParameters<float>>> ParticleGeneratorInterface::getRelaxParams()
-{
-    Vector<SharedPtr<ParticleTools::SPHRelaxationParameters<float>>> result;
-    if(m_Dimension == 2) {
-        for(auto& generator: m_Generators2D) {
-            result.push_back(generator->relaxer().relaxParams());
-        }
-    } else {
-        for(auto& generator: m_Generators3D) {
-            result.push_back(generator->relaxer().relaxParams());
-        }
-    }
-    return result;
 }
