@@ -23,6 +23,7 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Geometry/GeometryObjects.h>
+#include <ParticleSolvers/Constants.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::SimulationObjects
@@ -44,32 +45,42 @@ public:
     auto& jParams() { return m_jParams; }
     auto& nameID() { return m_NameID; }
     auto& meshFile() { return m_MeshFile; }
-    auto& particleFile() { return m_ParticleFile; }
-    auto& useCache() { return m_bUseCache; }
-    auto& fullShapeObj() { return m_bFullShapeObj; }
     auto& isDynamic() { return m_bDynamics; }
     auto& geometry() { return m_GeometryObj; }
+
+    auto& useFileCache() { return m_bUseFileCache; }
+    auto& fullShapeObj() { return m_bFullShapeObj; }
+    auto& particleRadius() { return m_ParticleRadius; }
+    auto& particleFile() { return m_ParticleFile; }
+    auto& particleFileType() { return m_ParticleFileType; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams);
     virtual RealType signedDistance(const VecN& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
     virtual VecN     gradSignedDistance(const VecN& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
     virtual bool     isInside(const VecN& ppos) const { return m_GeometryObj->isInside(ppos, true); }
     ////////////////////////////////////////////////////////////////////////////////
-    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f))
+    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0 / 30.0))
     {
         return m_GeometryObj->updateTransformation(frame, fraction, frameDuration);
     }
 
 protected:
+    bool loadParticlesFromFile();
+    void saveParticlesToFile();
+    ////////////////////////////////////////////////////////////////////////////////
     JParams     m_jParams;
-    GeometryPtr m_GeometryObj   = nullptr;
-    String      m_NameID        = String("NoName");
-    String      m_MeshFile      = String("");
-    String      m_ParticleFile  = String("");
-    bool        m_bDynamics     = false;
-    bool        m_bUseCache     = false;
-    bool        m_bFullShapeObj = false;
+    GeometryPtr m_GeometryObj = nullptr;
 
+    String m_NameID    = String("NoName");
+    String m_MeshFile  = String("");
+    bool   m_bDynamics = false;
+
+    Vec_VecN         m_ObjParticles;
+    RealType         m_ParticleRadius   = 0;
+    ParticleFileType m_ParticleFileType = ParticleFileType::BNN;
+    String           m_ParticleFile     = String("");
+    bool             m_bUseFileCache    = false;
+    bool             m_bFullShapeObj    = false;
     ////////////////////////////////////////////////////////////////////////////////
     bool m_bObjReady = false;
 };

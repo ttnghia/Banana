@@ -71,7 +71,7 @@ public:
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateParticles(const Vec_VecN& currentPositions,
+    UInt generateParticles(const Vec_VecN& currentPositions                               = Vec_VecN(),
                            const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjs = Vector<SharedPtr<BoundaryObject<N, Real>>>(),
                            UInt frame                                                     = 0u,
                            VelocityGenerator&& velGenerator                               = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
@@ -89,7 +89,6 @@ protected:
     void relaxPositions(Vector<VecN>& positions, RealType particleRadius);
     void collectNeighborParticles(const Vec_VecN& positions);
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_VecN m_ObjParticles;
     VecN     m_v0                 = VecN(0);
     UInt     m_StartFrame         = 0u;
     UInt     m_MaxFrame           = 0u;

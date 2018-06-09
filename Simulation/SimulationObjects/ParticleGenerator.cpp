@@ -70,11 +70,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particles from cache, if existed
-    if(this->m_bUseCache && !this->m_ParticleFile.empty() && FileHelpers::fileExisted(this->m_ParticleFile)) {
-        ParticleSerialization::loadParticle(this->m_MeshFile, m_ObjParticles, m_ParticleRadius);
-        this->m_bObjReady = true;
-        return;
-    }
+    if(this->loadParticlesFromFile()) { return; }
 
     ////////////////////////////////////////////////////////////////////////////////
     RealType spacing = RealType(2.0) * m_ParticleRadius;
@@ -114,9 +110,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
 
     ////////////////////////////////////////////////////////////////////////////////
     // save particles from cache, if needed
-    if(this->m_bUseCache && !this->m_ParticleFile.empty()) {
-        ParticleSerialization::saveParticle(this->m_MeshFile, m_ObjParticles, m_ParticleRadius);
-    }
+    this->saveParticlesToFile();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

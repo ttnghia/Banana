@@ -24,7 +24,7 @@ namespace Banana::SimulationObjects
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
          class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt ParticleGenerator<N, RealType>::generateParticles(const Vec_VecN& currentPositions,
+UInt ParticleGenerator<N, RealType>::generateParticles(const Vec_VecN& currentPositions /*= Vec_VecN()*/,
                                                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                                                        UInt frame /*= 0u*/, VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {

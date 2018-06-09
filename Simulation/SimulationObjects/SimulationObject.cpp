@@ -22,6 +22,8 @@
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/FileHelpers.h>
+#include <ParticleTools/ParticleHelpers.h>
 #include <SimulationObjects/SimulationObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,13 +52,29 @@ void SimulationObject<N, RealType>::parseParameters(const JParams& jParams)
     if(jParams.is_null()) {
         return;
     }
-    JSONHelpers::readValue(jParams, nameID(),       "UniqueName");
+    JSONHelpers::readValue(jParams, nameID(),   "UniqueName");
+    JSONHelpers::readValue(jParams, meshFile(), "MeshFile");
     ////////////////////////////////////////////////////////////////////////////////
-    JSONHelpers::readValue(jParams, meshFile(),     "MeshFile");
-    JSONHelpers::readValue(jParams, particleFile(), "ParticleFile");
-    JSONHelpers::readBool(jParams, useCache(),     "UseCache");
-    JSONHelpers::readBool(jParams, fullShapeObj(), "FullShapeObj");
 
+    JSONHelpers::readBool(jParams, fullShapeObj(), "FullShapeObj");
+    JSONHelpers::readBool(jParams, useFileCache(), "UseFileCache");
+    JSONHelpers::readValue(jParams, particleFile(), "ParticleFile");
+    String pFileType = "BNN";
+    if(JSONHelpers::readValue(jParams, particleFileType(), "ParticleFileType")) {
+        if(pFileType == "OBJ" || pFileType == "obj") {
+            particleFileType() = ParticleFileType::OBJ;
+        } else if(pFileType == "BGEO" || pFileType == "bgeo") {
+            particleFileType() = ParticleFileType::BGEO;
+        } else if(pFileType == "BNN" || pFileType == "bnn") {
+            particleFileType() = ParticleFileType::BNN;
+        } else if(pFileType == "BINARY" || pFileType == "binary") {
+            particleFileType() = ParticleFileType::BINARY;
+        } else {
+            __BNN_DIE_UNKNOWN_ERROR
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
     VecX<N, Real>     translation;
     VecX<N, Real>     rotationEulerAngles;
     VecX<N + 1, Real> rotationAxisAngle;
@@ -159,6 +177,56 @@ void SimulationObject<N, RealType>::parseParameters(const JParams& jParams)
         __BNN_REQUIRE(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");
         meshObj->computeSDF();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+bool SimulationObject<N, RealType>::loadParticlesFromFile()
+{
+    if(m_bUseFileCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
+        bool bResult = false;
+        switch(m_ParticleFileType) {
+            case ParticleFileType::OBJ:
+                bResult = ParticleHelpers::loadParticlesFromObj(m_ParticleFile, m_ObjParticles);
+                break;
+            case ParticleFileType::BGEO:
+                bResult = ParticleHelpers::loadParticlesFromBGEO(m_ParticleFile, m_ObjParticles, m_ParticleRadius);
+                break;
+            case ParticleFileType::BNN:
+                bResult = ParticleHelpers::loadParticlesFromBNN(m_ParticleFile, m_ObjParticles, m_ParticleRadius);
+                break;
+            case ParticleFileType::BINARY:
+                bResult = ParticleHelpers::loadParticlesFromBinary(m_ParticleFile, m_ObjParticles, m_ParticleRadius);
+                break;
+        }
+        if(bResult) {
+            m_bObjReady = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void SimulationObject<N, RealType>::saveParticlesToFile()
+{
+    if(m_bUseFileCache && !m_ParticleFile.empty()) {
+        switch(m_ParticleFileType) {
+            case ParticleFileType::OBJ:
+                ParticleHelpers::saveParticlesToObj(m_ParticleFile, m_ObjParticles);
+                break;
+            case ParticleFileType::BGEO:
+                ParticleHelpers::saveParticlesToBGEO(m_ParticleFile, m_ObjParticles, m_ParticleRadius);
+                break;
+            case ParticleFileType::BNN:
+                ParticleHelpers::saveParticlesToBNN(m_ParticleFile, m_ObjParticles, m_ParticleRadius);
+                break;
+            case ParticleFileType::BINARY:
+                ParticleHelpers::saveParticlesToBinary(m_ParticleFile, m_ObjParticles, m_ParticleRadius);
+                break;
+        }
     }
 }
 
