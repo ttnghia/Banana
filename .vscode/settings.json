@@ -43,6 +43,14 @@
         "chrono": "cpp",
         "execution": "cpp",
         "functional": "cpp",
-        "xtr1common": "cpp"
+        "xtr1common": "cpp",
+        "io": "cpp",
+        "complex": "cpp",
+        "future": "cpp",
+        "ratio": "cpp",
+        "utility": "cpp",
+        "xmemory0": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp"
     }
 }
