@@ -84,6 +84,18 @@ void OpenGLBuffer::uploadData(const GLvoid* data, size_t offset, size_t dataSize
     glCall(glBindBuffer(m_BufferType, 0));
 }
 
+void OpenGLBuffer::uploadData(const Vector<const GLvoid*>& data, size_t offset, const Vector<size_t>& dataSize)
+{
+    size_t currentOffset = offset;
+    glCall(glBindBuffer(m_BufferType, m_BufferID));
+    for(size_t i = 0; i < data.size(); ++i) {
+        assert(currentOffset + dataSize[i] <= m_BufferSize);
+        glCall(glBufferSubData(m_BufferType, currentOffset, dataSize[i], data[i]));
+        currentOffset += dataSize[i];
+    }
+    glCall(glBindBuffer(m_BufferType, 0));
+}
+
 void OpenGLBuffer::uploadDataAsync(const GLvoid* data, size_t offset, size_t dataSize)
 {
     glCall(glBindBuffer(m_BufferType, m_BufferID));
@@ -93,6 +105,25 @@ void OpenGLBuffer::uploadDataAsync(const GLvoid* data, size_t offset, size_t dat
 
     // buffer orphaning can also change buffer size
     m_BufferSize = dataSize;
+}
+
+void OpenGLBuffer::uploadDataAsync(const Vector<const GLvoid*>& data, size_t offset, const Vector<size_t>& dataSize)
+{
+    size_t totalDataSize = 0;
+    for(size_t size: dataSize) {
+        totalDataSize += size;
+    }
+    size_t currentOffset = offset;
+    glCall(glBindBuffer(m_BufferType, m_BufferID));
+    glCall(glBufferData(m_BufferType, totalDataSize, nullptr, m_BufferUsage));
+    for(size_t i = 0; i < data.size(); ++i) {
+        glCall(glBufferSubData(m_BufferType, currentOffset, dataSize[i], data[i]));
+        currentOffset += dataSize[i];
+    }
+    glCall(glBindBuffer(m_BufferType, 0));
+
+    // buffer orphaning can also change buffer size
+    m_BufferSize = totalDataSize;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
