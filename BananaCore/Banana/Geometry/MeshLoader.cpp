@@ -21,7 +21,11 @@
 
 #include <Banana/Geometry/MeshLoader.h>
 #include <Banana/Utils/MathHelpers.h>
-//#include <Banana/ParallelHelpers/Scheduler.h>
+
+#include <tiny_obj_loader.h>
+#include <tinyply.h>
+
+#include <fstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -29,7 +33,10 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool MeshLoader::loadMesh(const String& meshFile)
 {
-    checkFileType(meshFile);
+    auto meshType = getMeshType(meshFile);
+    if(meshType == MeshFileType::UnsupportedFileType) {
+        return false;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // => clear data
@@ -38,26 +45,52 @@ bool MeshLoader::loadMesh(const String& meshFile)
     ////////////////////////////////////////////////////////////////////////////////
     // => load mesh
     bool result = false;
+    if(meshType == MeshFileType::OBJFile) {
+        result = loadObj(meshFile);
+    } else {     //MeshFileType::PLYFile:
+        result = loadPly(meshFile);
+    }
+    m_isMeshReady = result;
+    if(result) {
+        computeFaceVertexData();
+    }
+    return result;
+}
 
-    switch(m_MeshFileType) {
-        case MeshFileType::OBJFile:
-            result = loadObj(meshFile);
-            break;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshLoader::scaleToBox()
+{
+    Vec3f diff    = m_AABBMax - m_AABBMin;
+    float maxSize = fmaxf(fmaxf(fabsf(diff[0]), fabsf(diff[1])), fabsf(diff[2]));
+    float scale   = 2.0f / maxSize;
 
-        case MeshFileType::PLYFile:
-            result = loadPly(meshFile);
-            break;
+    // multiply all vertices by scale to make the mesh having max(w, h, d) = 1
+    m_AABBMin = m_AABBMin * scale;
+    m_AABBMax = m_AABBMax * scale;
 
-        default:
-            __BNN_DENIED_SWITCH_DEFAULT_VALUE;
+    // expand the bounding box
+    Vec3f meshCenter = (m_AABBMax + m_AABBMin) * 0.5f;
+    auto  cmin       = m_AABBMin - meshCenter;
+    auto  cmax       = m_AABBMax - meshCenter;
+
+    m_AABBMin = meshCenter + glm::normalize(cmin) * glm::length(cmin);
+    m_AABBMax = meshCenter + glm::normalize(cmax) * glm::length(cmax);
+
+    // to move the mesh center to origin
+    m_AABBMin = m_AABBMin - meshCenter;
+    m_AABBMax = m_AABBMax - meshCenter;
+
+    Vec3f* vertexPtr = reinterpret_cast<Vec3f*>(m_Vertices.data());
+    for(size_t i = 0, iend = m_Vertices.size() / 3; i < iend; ++i) {
+        vertexPtr[i] = vertexPtr[i] * scale;
+        vertexPtr[i] = vertexPtr[i] - meshCenter;
     }
 
-    m_isMeshReady = result;
-    computeFaceVertexData();
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    return result;
+    Vec3f* faceVertexPtr = reinterpret_cast<Vec3f*>(m_FaceVertices.data());
+    for(size_t i = 0, iend = m_FaceVertices.size() / 3; i < iend; ++i) {
+        faceVertexPtr[i] = faceVertexPtr[i] * scale;
+        faceVertexPtr[i] = faceVertexPtr[i] - meshCenter;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -75,22 +108,6 @@ float MeshLoader::getCameraDistance(float fov)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::swapXY()
-{
-    swapCoordinates(0, 1);
-}
-
-void MeshLoader::swapYZ()
-{
-    swapCoordinates(1, 2);
-}
-
-void MeshLoader::swapXZ()
-{
-    swapCoordinates(0, 2);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshLoader::swapCoordinates(int k1, int k2)
 {
     __BNN_REQUIRE(k1 >= 0 && k1 <= 2 && k2 >= 0 && k2 <= 2 && k1 != k2);
@@ -101,44 +118,40 @@ void MeshLoader::swapCoordinates(int k1, int k2)
     for(size_t i = 0, iend = m_FaceVertices.size() / 3; i < iend; ++i) {
         std::swap(m_FaceVertices[i * 3 + k1], m_FaceVertices[i * 3 + k2]);
     }
+
+    std::swap(m_AABBMin[k1], m_AABBMin[k2]);
+    std::swap(m_AABBMax[k1], m_AABBMax[k2]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::checkFileType(const String& meshFile)
+MeshLoader::MeshFileType MeshLoader::getMeshType(const String& meshFile)
 {
-    const String extension = meshFile.substr(meshFile.rfind('.') + 1);
-    m_MeshFileType = MeshFileType::UnsupportedFileType;
-
+    const std::string extension = meshFile.substr(meshFile.rfind('.') + 1);
     if(extension == "obj" || extension == "OBJ" || extension == "Obj") {
-        m_MeshFileType = MeshFileType::OBJFile;
+        return MeshFileType::OBJFile;
+    } else if(extension == "ply" || extension == "PLY" || extension == "Ply") {
+        return MeshFileType::PLYFile;
     }
-
-    if(extension == "ply" || extension == "PLY" || extension == "Ply") {
-        m_MeshFileType = MeshFileType::PLYFile;
-    }
-
-    assert(m_MeshFileType != MeshFileType::UnsupportedFileType);
+    return MeshFileType::UnsupportedFileType;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshLoader::clearData()
 {
+    m_isMeshReady  = false;
     m_NumTriangles = 0;
 
     m_AABBMin = Vec3f(1e10);
     m_AABBMax = Vec3f(-1e10);
 
-    m_Faces.resize(0);
-
     m_Vertices.resize(0);
     m_Normals.resize(0);
+
+    m_Faces.resize(0);
     m_FaceVertices.resize(0);
     m_FaceVertexNormals.resize(0);
     m_FaceVertexColors.resize(0);
     m_FaceVertexTexCoord2D.resize(0);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    m_LoadingErrorStr.clear();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -148,13 +161,10 @@ bool MeshLoader::loadObj(const String& meshFile)
     std::vector<tinyobj::material_t> obj_materials;
     tinyobj::attrib_t                attrib;
 
-    bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &m_LoadingErrorStr, meshFile.c_str(), NULL, true);
-    m_Vertices   = attrib.vertices;
-    m_Normals    = attrib.normals;
-    m_TexCoord2D = attrib.texcoords;
-
-    if(!m_LoadingErrorStr.empty()) {
-        std::cerr << "tinyobj: " << m_LoadingErrorStr << std::endl;
+    std::string errStr;
+    bool        result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &errStr, meshFile.c_str(), NULL, true);
+    if(!errStr.empty()) {
+        std::cerr << "tinyobj: " << errStr << std::endl;
     }
 
     if(!result) {
@@ -162,6 +172,9 @@ bool MeshLoader::loadObj(const String& meshFile)
         return false;
     }
 
+    m_Vertices   = attrib.vertices;
+    m_Normals    = attrib.normals;
+    m_TexCoord2D = attrib.texcoords;
     ////////////////////////////////////////////////////////////////////////////////
     // => convert data
     for(size_t s = 0; s < obj_shapes.size(); s++) {
@@ -183,7 +196,7 @@ bool MeshLoader::loadObj(const String& meshFile)
             m_Faces.push_back(static_cast<UInt>(v1));
             m_Faces.push_back(static_cast<UInt>(v2));
 
-            Vec_Vec3f v(3, Vec3f(0));
+            Vec3f v[3];
             for(int k = 0; k < 3; ++k) {
                 v[0][k] = m_Vertices[3 * v0 + k];
                 v[1][k] = m_Vertices[3 * v1 + k];
@@ -205,10 +218,10 @@ bool MeshLoader::loadObj(const String& meshFile)
             }
 
             if(attrib.normals.size() > 0) {
-                Vec_Vec3f n(3, Vec3f(0));
-                int       n0 = idx0.normal_index;
-                int       n1 = idx1.normal_index;
-                int       n2 = idx2.normal_index;
+                Vec3f n[3];
+                int   n0 = idx0.normal_index;
+                int   n1 = idx1.normal_index;
+                int   n2 = idx2.normal_index;
                 assert(n0 >= 0);
                 assert(n1 >= 0);
                 assert(n2 >= 0);
@@ -227,10 +240,10 @@ bool MeshLoader::loadObj(const String& meshFile)
             }
 
             if(attrib.texcoords.size() > 0) {
-                Vec_Vec2f tex(3, Vec2f(0));
-                int       t0 = idx0.texcoord_index;
-                int       t1 = idx1.texcoord_index;
-                int       t2 = idx2.texcoord_index;
+                Vec3f tex[3];
+                int   t0 = idx0.texcoord_index;
+                int   t1 = idx1.texcoord_index;
+                int   t2 = idx2.texcoord_index;
                 assert(t0 >= 0);
                 assert(t1 >= 0);
                 assert(t2 >= 0);
@@ -352,7 +365,7 @@ bool MeshLoader::loadPly(const String& meshFile)
             UInt v1 = m_Faces[3 * f + 1];
             UInt v2 = m_Faces[3 * f + 2];
 
-            Vec_Vec3f v(3, Vec3f(0));
+            Vec3f v[3];
             for(int k = 0; k < 3; ++k) {
                 v[0][k] = m_Vertices[3 * v0 + k];
                 v[1][k] = m_Vertices[3 * v1 + k];
@@ -374,7 +387,7 @@ bool MeshLoader::loadPly(const String& meshFile)
             }
 
             if(m_Normals.size() > 0) {
-                Vec_Vec3f n(3, Vec3f(0));
+                Vec3f n[3];
                 for(int k = 0; k < 3; ++k) {
                     n[0][k] = m_Normals[3 * v0 + k];
                     n[1][k] = m_Normals[3 * v1 + k];
@@ -389,7 +402,7 @@ bool MeshLoader::loadPly(const String& meshFile)
             }
 
             if(m_TexCoord2D.size() > 0) {
-                Vec_Vec2f tex(3, Vec2f(0));
+                Vec3f tex[3];
                 for(int k = 0; k < 2; ++k) {
                     tex[0][k] = m_TexCoord2D[2 * v0 + k];
                     tex[1][k] = m_TexCoord2D[2 * v1 + k];
@@ -423,7 +436,7 @@ void MeshLoader::computeFaceVertexData()
             UInt v1 = m_Faces[3 * f + 1];
             UInt v2 = m_Faces[3 * f + 2];
 
-            Vec_Vec3f v(3, Vec3f(0));
+            Vec3f v[3];
             for(Int k = 0; k < 3; ++k) {
                 v[0][k] = m_Vertices[3 * v0 + k];
                 v[1][k] = m_Vertices[3 * v1 + k];

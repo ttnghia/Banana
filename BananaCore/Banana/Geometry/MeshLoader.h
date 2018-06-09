@@ -21,11 +21,6 @@
 
 #pragma once
 
-#include <fstream>
-
-#include <tiny_obj_loader.h>
-#include <tinyply.h>
-
 #include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -36,11 +31,15 @@ namespace Banana
 class MeshLoader
 {
 public:
-    MeshLoader() : m_isMeshReady(false) { clearData(); }
-    MeshLoader(String meshFile) : m_isMeshReady(false) { loadMesh(meshFile); }
+    MeshLoader() { clearData(); }
+    MeshLoader(String meshFile) { loadMesh(meshFile); }
 
-    bool        loadMesh(const String& meshFile);
-    Vec3f       getMeshCenter() const { assert(m_isMeshReady); return float(0.5) * (m_AABBMin + m_AABBMax); }
+    bool loadMesh(const String& meshFile);
+    bool isMeshReady() const { return m_isMeshReady; }
+    void scaleToBox();
+
+    auto  getMeshCenter() const { assert(m_isMeshReady); return float(0.5) * (m_AABBMin + m_AABBMax); }
+    auto  getNTriangles() const { return m_NumTriangles; }
     const auto& getAABBMin() const { assert(m_isMeshReady); return m_AABBMin; }
     const auto& getAABBMax() const { assert(m_isMeshReady); return m_AABBMax; }
 
@@ -50,42 +49,38 @@ public:
     const auto& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
     const auto& getNormals() const { assert(m_isMeshReady); return m_Normals; }
     const auto& getTexCoord2D() const { assert(m_isMeshReady); return m_TexCoord2D; }
+
     const auto& getFaces() const { assert(m_isMeshReady); return m_Faces; }
     const auto& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
     const auto& getFaceVertexNormals() const { assert(m_isMeshReady); return m_FaceVertexNormals; }
     const auto& getFaceVertexColors() const { assert(m_isMeshReady); return m_FaceVertexColors; }
     const auto& getFaceVTexCoord2D() const { assert(m_isMeshReady); return m_FaceVertexTexCoord2D; }
 
-    size_t getNFaces() const noexcept { assert(m_isMeshReady); return (m_Faces.size() / 3); }
-    size_t getNVertices() const noexcept { assert(m_isMeshReady); return (m_Vertices.size() / 3); }
-    size_t getNFaceVertices() const noexcept { assert(m_isMeshReady); return (m_FaceVertices.size() / 3); }
+    auto getNFaces() const noexcept { assert(m_isMeshReady); return (m_Faces.size() / 3); }
+    auto getNVertices() const noexcept { assert(m_isMeshReady); return (m_Vertices.size() / 3); }
+    auto getNFaceVertices() const noexcept { assert(m_isMeshReady); return (m_FaceVertices.size() / 3); }
 
-    void swapXY();
-    void swapYZ();
-    void swapXZ();
+    void swapXY() { swapCoordinates(0, 1); }
+    void swapYZ() { swapCoordinates(1, 2); }
+    void swapXZ() { swapCoordinates(0, 2); }
 private:
-    void swapCoordinates(int k1, int k2);
-    void checkFileType(const String& meshFile);
-    void clearData();
-
-    bool loadObj(const String& meshFile);
-    bool loadPly(const String& meshFile);
-
-    void computeFaceVertexData();
-
-    ////////////////////////////////////////////////////////////////////////////////
     enum class MeshFileType
     {
         OBJFile,
         PLYFile,
         UnsupportedFileType
     };
+    MeshFileType getMeshType(const String& meshFile);
+    bool         loadObj(const String& meshFile);
+    bool         loadPly(const String& meshFile);
 
-    unsigned int m_NumTriangles;
-    bool         m_isMeshReady;
+    void clearData();
+    void swapCoordinates(int k1, int k2);
+    void computeFaceVertexData();
+    ////////////////////////////////////////////////////////////////////////////////
 
-    MeshFileType m_MeshFileType;
-    String       m_LoadingErrorStr;
+    UInt m_NumTriangles = 0;
+    bool m_isMeshReady  = false;
 
     Vec3f m_AABBMin;
     Vec3f m_AABBMax;
