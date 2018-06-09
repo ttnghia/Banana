@@ -22,20 +22,24 @@
 CONFIG += c++14
 
 INCLUDEPATH += $$PWD
+INCLUDEPATH += $$BANANA_DIR/Externals/PartioBuild/src/lib
 
 win32 {
 #    QMAKE_LFLAGS += /WHOLEARCHIVE:Simulation.lib
     CONFIG(debug, debug|release) {
         message("Simulation -- Debug")
         LIBS += $$PWD/../Build/Debug/Simulation.lib
+        LIBS += $$BANANA_DIR/Externals/PartioBuild/lib/Debug/partio.lib
         PRE_TARGETDEPS += $$PWD/../Build/Debug/Simulation.lib
     }else {
         message("Simulation -- Release")
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/Simulation.lib
+            LIBS += $$BANANA_DIR/Externals/PartioBuild/lib/ReleaseStaticBuild/partio.lib
             PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/Simulation.lib
         } else {
             LIBS += $$PWD/../Build/Release/Simulation.lib
+            LIBS += $$BANANA_DIR/Externals/PartioBuild/lib/Release/partio.lib
             PRE_TARGETDEPS += $$PWD/../Build/Release/Simulation.lib
         }
     }
