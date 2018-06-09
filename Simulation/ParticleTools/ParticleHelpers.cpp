@@ -24,8 +24,10 @@
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/Scheduler.h>
 #include <ParticleTools/ParticleHelpers.h>
+#include <ParticleTools/ParticleSerialization.h>
+#include <Partio.h>
 
-#include <string>
+#include <fstream>
 #include <cmath>
 #include <vector>
 #include <cassert>
@@ -392,6 +394,159 @@ void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt n
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType> bool loadParticlesFromObj(const String& fileName, Vec_VecX<N, RealType>& positions)
+{
+    std::ifstream file(fileName.c_str());
+    if(!file.is_open()) {
+        return false;
+    }
+
+    String line;
+    while(std::getline(file, line)) {
+        std::istringstream ls(line);
+        String             label;
+        ls >> label;
+        if constexpr(N == 2) {
+            Vec2f v;
+            ls >> v.x >> v.y;
+            positions.push_back(v);
+        } else {
+            Vec3f v;
+            ls >> v.x >> v.y >> v.z;
+            positions.push_back(v);
+        }
+    }
+    file.close();
+    return true;
+}
+
+template<Int N, class RealType> bool loadParticlesFromBGEO(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius)
+{
+    Partio::ParticlesDataMutable* bgeoParticles = Partio::read(fileName.c_str());
+    Partio::ParticleAttribute     attrRadius, attrPosition;
+    if(bgeoParticles == nullptr) { return false; }
+    if(!bgeoParticles->attributeInfo("pscale", attrRadius)) { return false; }
+    if(!bgeoParticles->attributeInfo("position", attrPosition)) { return false; }
+
+    const float* radius = bgeoParticles->data<float>(attrRadius, 0);
+    if(particleRadius == 0) {
+        particleRadius = static_cast<RealType>(radius[0]);
+    } else {
+        __BNN_REQUIRE(std::abs(particleRadius - radius[0]) < MEpsilon<RealType>());
+    }
+    auto* positionsPtr = reinterpret_cast<RealType*>(positions.data());
+    for(int p = 0; p < bgeoParticles->numParticles(); ++p) {
+        const float* pos = bgeoParticles->data<float>(attrPosition, p);
+        positionsPtr[p * N]     = static_cast<RealType>(pos[0]);
+        positionsPtr[p * N + 1] = static_cast<RealType>(pos[1]);
+        if constexpr(N == 3) {
+            positionsPtr[p * N + 2] = static_cast<RealType>(pos[2]);
+        }
+    }
+    bgeoParticles->release();
+    return true;
+}
+
+template<Int N, class RealType> bool loadParticlesFromBNN(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius)
+{
+    return ParticleSerialization::loadParticle<N, RealType>(fileName, positions, particleRadius);
+}
+
+template<Int N, class RealType> bool loadParticlesFromBinary(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius)
+{
+    std::ifstream file(fileName.c_str(), std::ios::binary | std::ios::in);
+    if(!file.is_open()) {
+        return false;
+    }
+
+    UInt     nParticles;
+    RealType tmpRadius;
+    file.read((char*)&nParticles, sizeof(UInt));
+    file.read((char*)&tmpRadius,  sizeof(RealType));
+    if(particleRadius == 0) {
+        particleRadius = tmpRadius;
+    } else if(std::abs(particleRadius - tmpRadius) > MEpsilon<RealType>()) {
+        file.close();
+        return false;
+    }
+
+    positions.resize(nParticles);
+    file.read((char*)positions.data(), nParticles * sizeof(VecX<N, RealType>));
+    file.close();
+    return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType> bool saveParticlesToObj(const String& fileName, const Vec_VecX<N, RealType>& positions)
+{
+    std::ofstream file(fileName.c_str(), std::ios::out);
+    if(!file.is_open()) {
+        return false;
+    }
+    file << "# Num. particles: " << std::to_string(positions.size()) << "\n";
+    const auto* positionsPtr = reinterpret_cast<const RealType*>(positions.data());
+    for(size_t p = 0; p < positions.size(); ++p) {
+        file << "v";
+        file << " " << std::to_string(positionsPtr[p * N]);
+        file << " " << std::to_string(positionsPtr[p * N + 1]);
+        if constexpr(N == 3) {
+            file << " " << std::to_string(positionsPtr[p * N + 2]);
+        } else {
+            file << " 0";
+        }
+        file << "\n";
+    }
+    file.close();
+    return true;
+}
+
+template<Int N, class RealType> bool saveParticlesToBGEO(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius)
+{
+    Partio::ParticlesDataMutable* bgeoParticle = Partio::create();
+    Partio::ParticleAttribute     attrRadius   = bgeoParticle->addAttribute("pscale", Partio::FLOAT, 1);
+    Partio::ParticleAttribute     attrPosition = bgeoParticle->addAttribute("position", Partio::VECTOR, 3);
+
+    const auto* positionsPtr = reinterpret_cast<const RealType*>(positions.data());
+    for(size_t p = 0; p < positions.size(); ++p) {
+        size_t particle = bgeoParticle->addParticle();
+        float* radius   = bgeoParticle->dataWrite<float>(attrRadius, particle);
+        float* pos      = bgeoParticle->dataWrite<float>(attrPosition, particle);
+
+        radius[0] = static_cast<float>(particleRadius);
+        pos[0]    = static_cast<float>(positionsPtr[p * N]);
+        pos[1]    = static_cast<float>(positionsPtr[p * N + 1]);
+        if constexpr(N == 3) {
+            pos[2] = static_cast<float>(positionsPtr[p * N + 2]);
+        } else {
+            pos[2] = 0;
+        }
+    }
+    Partio::write(fileName.c_str(), *bgeoParticle);
+    bgeoParticle->release();
+    return true;
+}
+
+template<Int N, class RealType> bool saveParticlesToBNN(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius)
+{
+    ParticleSerialization::saveParticle<N, RealType>(fileName, positions, particleRadius);
+    return true;
+}
+
+template<Int N, class RealType> bool saveParticlesToBinary(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius)
+{
+    std::ofstream file(fileName.c_str(), std::ios::binary | std::ios::out);
+    if(!file.is_open()) {
+        return false;
+    }
+
+    file << static_cast<UInt>(positions.size());
+    file.write((const char*)&particleRadius,  sizeof(RealType));
+    file.write((const char*)positions.data(), positions.size() * sizeof(VecX<N, RealType>));
+    file.close();
+    return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // non-template functions
 void connectedComponentAnalysis(const Vec_VecUInt& connectionList, Vec_Int8& componentIdx, UInt& nComponents)
@@ -561,6 +716,22 @@ __BNN_INSTANTIATE_DECOMPRESS(Int16);
 __BNN_INSTANTIATE_DECOMPRESS(UInt16);
 __BNN_INSTANTIATE_DECOMPRESS(Int64);
 __BNN_INSTANTIATE_DECOMPRESS(UInt64);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#define __BNN_INSTANTIATE_LOAD_SAVE_PARTICLES(N, type)                                                                          \
+    template bool loadParticlesFromObj<N, type>(const String& fileName, Vec_VecX<N, type>&positions);                           \
+    template bool loadParticlesFromBGEO<N, type>(const String& fileName, Vec_VecX<N, type>&positions, type & particleRadius);   \
+    template bool loadParticlesFromBNN<N, type>(const String& fileName, Vec_VecX<N, type>&positions, type & particleRadius);    \
+    template bool loadParticlesFromBinary<N, type>(const String& fileName, Vec_VecX<N, type>&positions, type & particleRadius); \
+    template bool saveParticlesToObj<N, type>(const String& fileName, const Vec_VecX<N, type>&positions);                       \
+    template bool saveParticlesToBGEO<N, type>(const String& fileName, const Vec_VecX<N, type>&positions, type particleRadius); \
+    template bool saveParticlesToBNN<N, type>(const String& fileName, const Vec_VecX<N, type>&positions, type particleRadius);  \
+    template bool saveParticlesToBinary<N, type>(const String& fileName, const Vec_VecX<N, type>&positions, type particleRadius);
+
+__BNN_INSTANTIATE_LOAD_SAVE_PARTICLES(2, float);
+__BNN_INSTANTIATE_LOAD_SAVE_PARTICLES(3, float);
+__BNN_INSTANTIATE_LOAD_SAVE_PARTICLES(2, double);
+__BNN_INSTANTIATE_LOAD_SAVE_PARTICLES(3, double);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

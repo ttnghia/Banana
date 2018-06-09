@@ -55,6 +55,16 @@ template<class RealType> void decompress(Vector<Vector<RealType>>& dvec, const V
 template<class RealType> void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType> bool loadParticlesFromObj(const String& fileName, Vec_VecX<N, RealType>& positions);
+template<Int N, class RealType> bool loadParticlesFromBGEO(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius);
+template<Int N, class RealType> bool loadParticlesFromBNN(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius);
+template<Int N, class RealType> bool loadParticlesFromBinary(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius);
+
+template<Int N, class RealType> bool saveParticlesToObj(const String& fileName, const Vec_VecX<N, RealType>& positions);
+template<Int N, class RealType> bool saveParticlesToBGEO(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius);
+template<Int N, class RealType> bool saveParticlesToBNN(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius);
+template<Int N, class RealType> bool saveParticlesToBinary(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius);
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // non-template functions
 void connectedComponentAnalysis(const Vec_VecUInt& connectionList, Vec_Int8& componentIdx, UInt& nComponents);
