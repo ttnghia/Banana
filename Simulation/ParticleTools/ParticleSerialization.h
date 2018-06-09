@@ -209,7 +209,7 @@ private:
 
 public:
     template<Int N, class T> static void saveParticle(const String& fileName, const Vector<VecX<N, T>>& positions, T particleRadius, bool bCompress = true);
-    template<Int N, class T> static bool loadParticle(const String& fileName, Vector<VecX<N, T>>& positions, T particleRadius);
+    template<Int N, class T> static bool loadParticle(const String& fileName, Vector<VecX<N, T>>& positions, T& particleRadius);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

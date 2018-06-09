@@ -452,7 +452,7 @@ void Banana::ParticleSerialization::saveParticle(const String& fileName, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<VecX<N, T>>& positions, T particleRadius)
+bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<VecX<N, T>>& positions, T& particleRadius)
 {
     ParticleSerialization particleReader;
     if(!particleReader.read(fileName)) {
@@ -461,7 +461,13 @@ bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<
 
     Real tmpRadius;
     __BNN_REQUIRE(particleReader.getFixedAttribute("particle_radius", tmpRadius));
-    __BNN_REQUIRE_APPROX_NUMBERS(tmpRadius, particleRadius, MEpsilon<T>());
+    if(particleRadius > 0) {
+        if(std::abs(tmpRadius - particleRadius) > MEpsilon<T>()) {
+            return false;
+        }
+    } else {
+        particleRadius = tmpRadius;
+    }
     __BNN_REQUIRE(particleReader.getParticleAttribute("particle_position", positions));
 
     return true;
@@ -830,7 +836,7 @@ bool ParticleSerialization::readAttribute(SharedPtr<Attribute>& attr, std::ifstr
     template void ParticleSerialization::saveParticle<dimemsion, type>(const String& fileName, const Vector<VecX<dimemsion, type>>&positions, \
                                                                        type particleRadius, bool bCompress /*= true*/);                       \
     template bool ParticleSerialization::loadParticle<dimemsion, type>(const String& fileName, Vector<VecX<dimemsion, type>>&positions,       \
-                                                                       type particleRadius);
+                                                                       type & particleRadius);
 
 __BNN_INSTANTIATE_SAVE_LOAD_PARTICLE(2, float);
 __BNN_INSTANTIATE_SAVE_LOAD_PARTICLE(2, double);
