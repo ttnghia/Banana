@@ -97,6 +97,7 @@
     <ClInclude Include="Optimization\LBFGSSolver.h" />
     <ClInclude Include="Optimization\MoreThuente.h" />
     <ClInclude Include="Optimization\Problem.h" />
+    <ClInclude Include="ParticleSolvers\Constants.h" />
     <ClInclude Include="ParticleSolvers\Macros.h" />
     <ClInclude Include="ParticleSolvers\MassSpringSystems\MSS_Solver.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP_Data.h" />
