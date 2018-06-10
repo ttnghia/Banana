@@ -26,9 +26,8 @@ namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool SPHBasedRelaxation<N, RealType>::relaxPositions(Vec_VecN& positions)
+bool SPHBasedRelaxation<N, RealType>::relaxPositions()
 {
-    setParticles(positions);
     updateParams();
     UInt iter = 1;
     for(; iter <= relaxParams()->maxIters; ++iter) {
@@ -37,13 +36,6 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions(Vec_VecN& positions)
     }
     reportFailed(iter);
     return false;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::setParticles(Vec_VecN& positions)
-{
-    particleData().setParticles(positions);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -164,6 +156,17 @@ void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
                                 for(auto& obj : m_BoundaryObjects) {
                                     obj->constrainToBoundary(ppos);
                                 }
+
+                                auto phiVal = -m_GeometryObj->signedDistance(ppos);
+                                if(phiVal < 0) {
+                                    auto grad     = m_GeometryObj->gradSignedDistance(ppos);
+                                    auto mag2Grad = glm::length2(grad);
+                                    if(mag2Grad > Tiny<RealType>()) {
+                                        grad /= sqrt(mag2Grad);
+                                        ppos += phiVal * grad;
+                                    }
+                                }
+
                                 (*particleData().positions)[p] = ppos;
                             });
 }

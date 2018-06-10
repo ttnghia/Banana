@@ -102,8 +102,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
     __BNN_REQUIRE(m_ObjParticles.size() > 0)
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Relaxer = std::make_shared<ParticleTools::SPHBasedRelaxation<N, RealType>>(boundaryObjects, this->m_NameID);
-    m_Relaxer->setParticles(m_ObjParticles);
+    m_Relaxer = std::make_shared<ParticleTools::SPHBasedRelaxation<N, RealType>>(this->m_NameID, m_ObjParticles, this->m_GeometryObj, boundaryObjects);
     __BNN_TODO;
     //generatePositions(positions, particleRadius);
     //relaxPositions(positions, particleRadius);

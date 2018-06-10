@@ -73,10 +73,15 @@ class SPHBasedRelaxation
     ////////////////////////////////////////////////////////////////////////////////
 public:
     ////////////////////////////////////////////////////////////////////////////////
-    SPHBasedRelaxation(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs, const String& generatorName) :
+    SPHBasedRelaxation(const String& generatorName,
+                       Vec_VecN& positions,
+                       const SharedPtr<GeometryObjects::GeometryObject<N, RealType>>& geometryObj,
+                       const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
+        m_GeometryObj(geometryObj),
         m_BoundaryObjects(boundaryObjs)
     {
         m_Logger = Logger::createLogger("Relaxation_" + generatorName);
+        particleData().setParticles(positions);
     }
 
     auto& relaxParams() { return m_RelaxationParams; }
@@ -84,20 +89,14 @@ public:
 
     /**
      * @brief Relax the particle positions
-       @param positions: positions of particles
        @return bool value indicating whether the relaxation has converged or not
      */
-    bool relaxPositions(Vec_VecN& positions);
+    bool relaxPositions();
 
     /**
      * @brief Get the min distance ratio of all particles to their neighbors
      */
     RealType getMinDistanceRatio() const { return m_MinDistanceRatio; }
-
-    /**
-     * @brief Set the particle positions
-     */
-    void setParticles(Vec_VecN& positions);
 
     /**
      * @brief Update params that has been changed outside
@@ -162,6 +161,7 @@ protected:
 
     auto& particleData() { return m_SPHData; }
     const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& m_BoundaryObjects;
+    const SharedPtr<GeometryObjects::GeometryObject<N, RealType>>&           m_GeometryObj;
     ////////////////////////////////////////////////////////////////////////////////
     struct Kernels
     {
