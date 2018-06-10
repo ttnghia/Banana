@@ -39,6 +39,7 @@ void Controller::updateRelaxParams()
         params->maxTimestep           = std::stof(m_txtSPHMaxTimestep->text().toStdString());
         params->pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
         params->viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
+        params->overlapThresholdRatio = std::stof(m_txtSPHOverlapThreshold->text().toStdString());
         params->nearKernelRadiusRatio = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
         params->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
         params->bNormalizeDensity     = m_chkNormalizeDensity->isChecked();
@@ -216,6 +217,7 @@ void Controller::setupSamplingParametersControllers()
     m_txtSPHMaxTimestep           = new QLineEdit;
     m_txtSPHPressureStiffness     = new QLineEdit;
     m_txtSPHViscosity             = new QLineEdit;
+    m_txtSPHOverlapThreshold      = new QLineEdit;
     m_txtSPHNearKernelRadiusRatio = new QLineEdit;
     m_txtSPHNearPressureStiffness = new QLineEdit;
     m_chkNormalizeDensity         = new QCheckBox;
@@ -224,9 +226,10 @@ void Controller::setupSamplingParametersControllers()
     m_txtSPHMinTimestep->setText("0.000001");
     m_txtSPHMaxTimestep->setText("0.333333");
     m_txtSPHPressureStiffness->setText("50000");
-    m_txtSPHViscosity->setText("0.01");
-    m_txtSPHNearKernelRadiusRatio->setText("2.0");
-    m_txtSPHNearPressureStiffness->setText("10000");
+    m_txtSPHViscosity->setText("0.1");
+    m_txtSPHOverlapThreshold->setText("0.1");
+    m_txtSPHNearKernelRadiusRatio->setText("2.5");
+    m_txtSPHNearPressureStiffness->setText("50000");
 
     QGridLayout* layoutSPHParameters = new QGridLayout;
     row = 0;
@@ -240,6 +243,8 @@ void Controller::setupSamplingParametersControllers()
     layoutSPHParameters->addWidget(    m_txtSPHPressureStiffness,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Viscosity:    "),                row,   0, 1, 2);
     layoutSPHParameters->addWidget(            m_txtSPHViscosity,                                         row++, 2, 1, 1);
+    layoutSPHParameters->addWidget(                          new QLabel("Overlap threshold:    "),        row,   0, 1, 2);
+    layoutSPHParameters->addWidget(     m_txtSPHOverlapThreshold,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Near kernel radius ratio:    "), row,   0, 1, 2);
     layoutSPHParameters->addWidget(m_txtSPHNearKernelRadiusRatio,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Near pressure stiffness:    "),  row,   0, 1, 2);

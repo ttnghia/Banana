@@ -101,6 +101,7 @@ private:
     QLineEdit* m_txtSPHMaxTimestep;
     QLineEdit* m_txtSPHPressureStiffness;
     QLineEdit* m_txtSPHViscosity;
+    QLineEdit* m_txtSPHOverlapThreshold;
     QLineEdit* m_txtSPHNearKernelRadiusRatio;
     QLineEdit* m_txtSPHNearPressureStiffness;
     QCheckBox* m_chkNormalizeDensity;
