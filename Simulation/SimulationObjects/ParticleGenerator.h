@@ -62,6 +62,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     auto& relaxer() { __BNN_REQUIRE(m_Relaxer != nullptr); return *m_Relaxer; }
     ////////////////////////////////////////////////////////////////////////////////
+    const auto& getObjParticles() const { return m_ObjParticles; }
     const auto& generatedPositions() const { return m_GeneratedPositions; }
     const auto& generatedVelocities() const { return m_GeneratedVelocities; }
     auto        generatedConstraintObject() const { return m_GeneratedConstraintObj; }

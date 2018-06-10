@@ -33,10 +33,15 @@ void Controller::updateRelaxParams()
         params->deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
         params->intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
 
+        params->particleRadius        = m_ParticleSampler->getParticleData()->particleRadius;
+        params->CFLFactor             = std::stof(m_txtSPHCFLFactor->text().toStdString());
+        params->minTimestep           = std::stof(m_txtSPHMinTimestep->text().toStdString());
+        params->maxTimestep           = std::stof(m_txtSPHMaxTimestep->text().toStdString());
         params->pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
         params->viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
         params->nearKernelRadiusRatio = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
         params->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
+        params->bNormalizeDensity     = m_chkNormalizeDensity->isChecked();
     }
 }
 

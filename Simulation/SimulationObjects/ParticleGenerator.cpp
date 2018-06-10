@@ -70,14 +70,17 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particles from cache, if existed
-    if(this->loadParticlesFromFile()) { return; }
+    if(this->loadParticlesFromFile()) {
+        m_bObjReady = true;
+        return;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     RealType spacing = RealType(2.0) * m_ParticleRadius;
     auto     boxMin  = this->m_GeometryObj->getAABBMin();
     auto     boxMax  = this->m_GeometryObj->getAABBMax();
     auto     pGrid   = NumberHelpers::createGrid<UInt>(boxMin, boxMax, spacing);
-    m_Grid.setGrid(boxMin, boxMax, RealType(4.0) * m_ParticleRadius);
+    m_Grid.setGrid(boxMin - RealType(4.0) * m_ParticleRadius, boxMax + RealType(4.0) * m_ParticleRadius, RealType(4.0) * m_ParticleRadius);
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
     m_Lock.resize(m_Grid.getNCells());
 

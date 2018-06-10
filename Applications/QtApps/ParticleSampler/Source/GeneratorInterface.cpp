@@ -26,6 +26,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleGeneratorInterface::loadScene(const String& sceneFile)
 {
+    m_ParticleData->resetData();
     ////////////////////////////////////////////////////////////////////////////////;;
     // load parameters
     std::ifstream inputFile(sceneFile);
@@ -153,14 +154,13 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // add particles without relaxation
-    m_ParticleData->resetData();
     if(m_ParticleData->dimension == 2) {
         for(auto& generator : m_Generators2D) {
             generator->buildObject(m_ParticleData->particleRadius, m_BoundaryObjs2D);
-            UInt nGen = generator->generateParticles();
+            const auto& objParticles = generator->getObjParticles();
+            UInt        nGen         = static_cast<UInt>(objParticles.size());
             if(nGen > 0) {
-                const auto& generatedPositions = generator->generatedPositions();
-                m_ParticleData->positionPtrs.push_back(reinterpret_cast<const void*>(generatedPositions.data()));
+                m_ParticleData->positionPtrs.push_back(reinterpret_cast<const void*>(objParticles.data()));
                 m_ParticleData->positionDataSizes.push_back(static_cast<size_t>(nGen * sizeof(Vec2f)));
                 m_ParticleData->nParticles.push_back(nGen);
                 ++m_ParticleData->nObjects;
@@ -171,10 +171,10 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     } else {
         for(auto& generator : m_Generators3D) {
             generator->buildObject(m_ParticleData->particleRadius, m_BoundaryObjs3D);
-            UInt nGen = generator->generateParticles();
+            const auto& objParticles = generator->getObjParticles();
+            UInt        nGen         = static_cast<UInt>(objParticles.size());
             if(nGen > 0) {
-                const auto& generatedPositions = generator->generatedPositions();
-                m_ParticleData->positionPtrs.push_back(reinterpret_cast<const void*>(generatedPositions.data()));
+                m_ParticleData->positionPtrs.push_back(reinterpret_cast<const void*>(objParticles.data()));
                 m_ParticleData->positionDataSizes.push_back(static_cast<size_t>(nGen * sizeof(Vec3f)));
                 m_ParticleData->nParticles.push_back(nGen);
                 ++m_ParticleData->nObjects;

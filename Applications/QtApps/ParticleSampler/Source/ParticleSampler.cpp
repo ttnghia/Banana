@@ -54,6 +54,7 @@ void ParticleSampler::doSampling()
     for(; frame <= maxIters; ++frame) {
         bool bConverged = m_Generator->doFrameRelaxation(frame);
 
+        emit iterationChanged(frame);
         emit vizDataChanged();
         emit iterationFinished();
 

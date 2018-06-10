@@ -50,14 +50,19 @@ void SPHBasedRelaxation<N, RealType>::setParticles(Vec_VecN& positions)
 template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::updateParams()
 {
-    relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N));
+    relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
+    relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
     relaxParams()->nearKernelRadius    = relaxParams()->nearKernelRadiusRatio * relaxParams()->particleRadius;
     relaxParams()->nearKernelRadiusSqr = relaxParams()->nearKernelRadius * relaxParams()->nearKernelRadius;
     relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
     relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
     ////////////////////////////////////////////////////////////////////////////////
-    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->particleRadius * RealType(2.0));
-    m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->particleRadius * RealType(4.0));
+    kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
+    kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
+    kernels().nearKernelSpiky.setRadius(relaxParams()->nearKernelRadius);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->nearKernelRadius);
+    m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->kernelRadius);
     m_NearNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
     m_FarNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
 }
@@ -136,6 +141,7 @@ void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio()
     m_MinDistanceRatio = RealType(sqrt(ParallelSTL::min<RealType>(m_MinNeighborDistanceSqr))) / relaxParams()->particleRadius;
     ////////////////////////////////////////////////////////////////////////////////
     logger().printLog("Min distance ratio: " + std::to_string(m_MinDistanceRatio) + " (required: " + Formatters::toString(relaxParams()->intersectThreshold) + ")");
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
