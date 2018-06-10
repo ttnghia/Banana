@@ -813,7 +813,8 @@ T sharp_kernel(T r2, T h)
 template<class T>
 T smooth_kernel(T r2, T h2)
 {
-    return pow(fmax(T(1.0) - r2 / h2, T(0)), T(3.0));
+    T x2 = r2 / h2;
+    return x2 > T(1.0) ? 0 : pow(T(1.0) - x2, T(3.0));
 }
 
 template<class T>
