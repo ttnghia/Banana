@@ -48,10 +48,10 @@ struct SPHRelaxationParameters
     RealType minTimestep           = RealType(1e-6);
     RealType maxTimestep           = RealType(1.0 / 30.0);
     RealType pressureStiffness     = RealType(50000);
-    RealType viscosity             = RealType(0.01);
-    RealType nearKernelRadiusRatio = RealType(2.0);
+    RealType viscosity             = RealType(0.1);
+    RealType nearKernelRadiusRatio = RealType(2.5);
     RealType nearPressureStiffness = RealType(50000);
-    RealType overlapThresholdRatio = RealType(1e-2);
+    RealType overlapThresholdRatio = RealType(0.1);
     bool     bNormalizeDensity     = false;
 
     RealType particleRadius      = RealType(0);
