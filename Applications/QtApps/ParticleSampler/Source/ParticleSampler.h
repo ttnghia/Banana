@@ -50,6 +50,7 @@ public:
 public slots:
     void doSampling();
     void changeScene(const QString& scene);
+    void reloadVizData(bool bReload) { m_bReloadVizData = bReload; }
     void enableExportImg(bool bEnable);
 
 signals:
@@ -71,6 +72,7 @@ private:
     std::future<void>                     m_RelaxationFutureObj;
     QString                               m_Scene;
 
+    bool          m_bReloadVizData    = false;
     volatile bool m_bStop             = true;
     volatile bool m_bWaitForSavingImg = false;
     volatile bool m_bExportImg        = false;

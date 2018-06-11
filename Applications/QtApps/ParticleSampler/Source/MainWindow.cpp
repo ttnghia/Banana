@@ -181,6 +181,7 @@ void MainWindow::connectWidgets()
                 if(sceneFile == "None") {
                     return;
                 }
+                m_Sampler->reloadVizData(m_Controller->m_chkReloadVizData->isChecked());
                 m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
             });
@@ -190,6 +191,7 @@ void MainWindow::connectWidgets()
                 if(sceneFile == "None") {
                     return;
                 }
+                m_Sampler->reloadVizData(true);
                 m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
                 updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);

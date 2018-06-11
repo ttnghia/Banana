@@ -32,6 +32,7 @@ void Controller::updateRelaxParams()
         params->checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
         params->deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
         params->intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
+        params->initialJitterRatio = std::stof(m_txtInitialJitter->text().toStdString());
 
         params->particleRadius        = m_ParticleSampler->getParticleData()->particleRadius;
         params->CFLFactor             = std::stof(m_txtSPHCFLFactor->text().toStdString());
@@ -164,10 +165,17 @@ void Controller::setupSceneControllers()
     m_cbScene->getComboBox()->addItem(QString("None"));
     m_cbScene->getComboBox()->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
     m_btnReloadScene = new QPushButton(" Reload ");
-    QHBoxLayout* layoutScene = new QHBoxLayout;
-    layoutScene->addLayout(m_cbScene->getLayout(), 10);
-    layoutScene->addStretch(1);
-    layoutScene->addWidget(m_btnReloadScene, 10);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_chkReloadVizData = new QCheckBox("Reload vizualization data");
+    ////////////////////////////////////////////////////////////////////////////////
+    QHBoxLayout* layoutReloadScene = new QHBoxLayout;
+    layoutReloadScene->addLayout(m_cbScene->getLayout(), 10);
+    layoutReloadScene->addStretch(1);
+    layoutReloadScene->addWidget(m_btnReloadScene, 10);
+    QVBoxLayout* layoutScene = new QVBoxLayout;
+    layoutScene->addLayout(layoutReloadScene);
+    layoutScene->addLayout(       QtAppUtils::getLayoutSeparator(5));
+    layoutScene->addWidget(m_chkReloadVizData);
     QGroupBox* grScene = new QGroupBox;
     grScene->setTitle("Scene");
     grScene->setLayout(layoutScene);
@@ -182,6 +190,7 @@ void Controller::setupSamplingParametersControllers()
     m_cbCheckFrequency         = new EnhancedComboBox;
     m_cbDeleteFrequency        = new EnhancedComboBox;
     m_txtIntersectionThreshold = new QLineEdit;
+    m_txtInitialJitter         = new QLineEdit;
 
     m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(100));
     m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(1));
@@ -195,6 +204,7 @@ void Controller::setupSamplingParametersControllers()
     m_cbMaxIterations->setCurrentIndex(10);
     m_cbDeleteFrequency->setCurrentIndex(5);
     m_txtIntersectionThreshold->setText("1.8");
+    m_txtInitialJitter->setText("0.1");
 
     QGridLayout* layoutStopCriteria = new QGridLayout;
     int          row                = 0;
@@ -206,6 +216,8 @@ void Controller::setupSamplingParametersControllers()
     layoutStopCriteria->addLayout(m_cbDeleteFrequency->getLayout(), row++, 1, 1, 2);
     layoutStopCriteria->addWidget(                       new QLabel("Intersection threshold:    "), row,   0, 1, 1);
     layoutStopCriteria->addWidget(m_txtIntersectionThreshold,                                       row++, 1, 1, 2);
+    layoutStopCriteria->addWidget(                       new QLabel("Initial jitter:    "),         row,   0, 1, 1);
+    layoutStopCriteria->addWidget(        m_txtInitialJitter,                                       row++, 1, 1, 2);
 
     QGroupBox* grStopCriteria = new QGroupBox;
     grStopCriteria->setTitle("Stop Criteria");
@@ -222,7 +234,7 @@ void Controller::setupSamplingParametersControllers()
     m_txtSPHNearPressureStiffness = new QLineEdit;
     m_chkNormalizeDensity         = new QCheckBox;
 
-    m_txtSPHCFLFactor->setText("0.4");
+    m_txtSPHCFLFactor->setText("0.01");
     m_txtSPHMinTimestep->setText("0.000001");
     m_txtSPHMaxTimestep->setText("0.333333");
     m_txtSPHPressureStiffness->setText("50000");

@@ -86,6 +86,7 @@ private:
     void setupSceneControllers();
     EnhancedComboBox* m_cbScene;
     QPushButton*      m_btnReloadScene;
+    QCheckBox*        m_chkReloadVizData;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +96,7 @@ private:
     EnhancedComboBox* m_cbCheckFrequency;
     EnhancedComboBox* m_cbDeleteFrequency;
     QLineEdit*        m_txtIntersectionThreshold;
+    QLineEdit*        m_txtInitialJitter;
 
     QLineEdit* m_txtSPHCFLFactor;
     QLineEdit* m_txtSPHMinTimestep;

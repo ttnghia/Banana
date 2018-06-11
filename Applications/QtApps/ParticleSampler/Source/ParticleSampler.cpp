@@ -113,37 +113,39 @@ void ParticleSampler::changeScene(const QString& scene)
         m_ParticleData->boxMax[i] += m_ParticleData->particleRadius;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    if(jParams.find("VisualizationParameters") != jParams.end()) {
-        auto jVizParams    = jParams["VisualizationParameters"];
-        auto bReadCamPos   = JSONHelpers::readVector(jVizParams, m_VizData->cameraPosition, "CameraPosition");
-        auto bReadCamFocus = JSONHelpers::readVector(jVizParams, m_VizData->cameraFocus, "CameraFocus");
-        if(!bReadCamPos && !bReadCamFocus) {
-            m_VizData->cameraPosition = DEFAULT_CAMERA_POSITION;
-            m_VizData->cameraFocus    = DEFAULT_CAMERA_FOCUS;
-        }
-
-        if(jVizParams.find("Light") != jVizParams.end()) {
-            m_VizData->lights.resize(jVizParams["Light"].size());
-            for(size_t i = 0; i < jVizParams["Light"].size(); ++i) {
-                auto& jObj = jVizParams["Light"][i];
-                Vec3f tmp;
-                if(JSONHelpers::readVector(jObj, tmp, "Position")) { m_VizData->lights[i].position = Vec4f(tmp, 1.0f); }
-                if(JSONHelpers::readVector(jObj, tmp, "Ambient")) { m_VizData->lights[i].ambient = Vec4f(tmp, 1.0f); }
-                if(JSONHelpers::readVector(jObj, tmp, "Diffuse")) { m_VizData->lights[i].diffuse = Vec4f(tmp, 1.0f); }
-                if(JSONHelpers::readVector(jObj, tmp, "Specular")) { m_VizData->lights[i].specular = Vec4f(tmp, 1.0f); }
+    if(m_bReloadVizData) {
+        if(jParams.find("VisualizationParameters") != jParams.end()) {
+            auto jVizParams    = jParams["VisualizationParameters"];
+            auto bReadCamPos   = JSONHelpers::readVector(jVizParams, m_VizData->cameraPosition, "CameraPosition");
+            auto bReadCamFocus = JSONHelpers::readVector(jVizParams, m_VizData->cameraFocus, "CameraFocus");
+            if(!bReadCamPos && !bReadCamFocus) {
+                m_VizData->cameraPosition = DEFAULT_CAMERA_POSITION;
+                m_VizData->cameraFocus    = DEFAULT_CAMERA_FOCUS;
             }
-            emit lightsChanged(m_VizData->lights);
+
+            if(jVizParams.find("Light") != jVizParams.end()) {
+                m_VizData->lights.resize(jVizParams["Light"].size());
+                for(size_t i = 0; i < jVizParams["Light"].size(); ++i) {
+                    auto& jObj = jVizParams["Light"][i];
+                    Vec3f tmp;
+                    if(JSONHelpers::readVector(jObj, tmp, "Position")) { m_VizData->lights[i].position = Vec4f(tmp, 1.0f); }
+                    if(JSONHelpers::readVector(jObj, tmp, "Ambient")) { m_VizData->lights[i].ambient = Vec4f(tmp, 1.0f); }
+                    if(JSONHelpers::readVector(jObj, tmp, "Diffuse")) { m_VizData->lights[i].diffuse = Vec4f(tmp, 1.0f); }
+                    if(JSONHelpers::readVector(jObj, tmp, "Specular")) { m_VizData->lights[i].specular = Vec4f(tmp, 1.0f); }
+                }
+                emit lightsChanged(m_VizData->lights);
+            }
+            if(jVizParams.find("CapturePath") != jVizParams.end()) {
+                String capturePath;
+                JSONHelpers::readValue(jVizParams, capturePath, "CapturePath");
+                emit capturePathChanged(QString::fromStdString(capturePath));
+            }
         }
-        if(jVizParams.find("CapturePath") != jVizParams.end()) {
-            String capturePath;
-            JSONHelpers::readValue(jVizParams, capturePath, "CapturePath");
-            emit capturePathChanged(QString::fromStdString(capturePath));
-        }
+        ////////////////////////////////////////////////////////////////////////////////
+        emit dimensionChanged();
+        emit domainChanged(m_ParticleData->boxMin, m_ParticleData->boxMax);
+        emit cameraChanged();
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    emit dimensionChanged();
-    emit domainChanged(m_ParticleData->boxMin, m_ParticleData->boxMax);
-    emit cameraChanged();
     emit vizDataChanged();
     emit numParticleChanged(m_ParticleData->nTotalParticles);
 }
