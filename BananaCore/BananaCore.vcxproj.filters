@@ -242,5 +242,8 @@
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Banana\Utils\NumberHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

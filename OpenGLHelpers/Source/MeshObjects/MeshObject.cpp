@@ -232,7 +232,7 @@ void MeshObject::generateRandomVertexColor()
 
     // cannot run in parallel: rand() is not thread safe
     for(size_t i = 0; i < m_VertexColors.size(); ++i) {
-        m_VertexColors[i] = MathHelpers::vrand<Vec3f>();
+        m_VertexColors[i] = NumberHelpers::fRand<float>::vrnd<Vec3f>();
     }
 }
 

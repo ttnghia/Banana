@@ -180,6 +180,7 @@
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch.cpp" />
     <ClCompile Include="Banana\Utils\Formatters.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
+    <ClCompile Include="Banana\Utils\NumberHelpers.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

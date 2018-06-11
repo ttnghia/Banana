@@ -30,13 +30,11 @@
 
 #include <Banana/Setup.h>
 #include <Banana/ParallelHelpers/Scheduler.h>
+#include <Banana/ParallelHelpers/ParallelObjects.h>
 #include <Banana/Utils/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace NumberHelpers
+namespace Banana::NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
@@ -95,64 +93,200 @@ void scan11(Function&& f)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
-IntType generateRandomInt(IntType start = 0, IntType end = std::numeric_limits<IntType>::max())
+template<class T>
+class MT_iRandom
 {
-    if(end < start) {
-        std::swap(end, start);
+    using Distribution = std::uniform_int_distribution<T>;
+public:
+    MT_iRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) {}
+
+    T rnd()
+    {
+        m_Lock.lock();
+        T tmp = m_Dist(m_Generator);
+        m_Lock.unlock();
+        return tmp;
     }
-    std::random_device                     rd;
-    std::mt19937                           gen(rd());
-    std::uniform_int_distribution<IntType> dis(start, end);
 
-    return dis(gen);
-}
+    template<class Vector>
+    Vector vrnd()
+    {
+        Vector result;
+        for(Int i = 0; i < Vector::length(); ++i) {
+            result[i] = static_cast<Vector::value_type>(rnd());
+        }
+        return result;
+    }
 
+    template<class Matrix>
+    Matrix mrnd()
+    {
+        Matrix result;
+        for(Int i = 0; i < Matrix::length(); ++i) {
+            result[i] = vrnd<Matrix::col_type>();
+        }
+        return result;
+    }
+
+private:
+    ParallelObjects::SpinLock m_Lock {};
+    std::mt19937              m_Generator { (std::random_device())() };
+    Distribution              m_Dist;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+class MT_fRandom
+{
+    using Distribution = std::uniform_real_distribution<T>;
+public:
+    MT_fRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) {}
+
+    T rnd()
+    {
+        m_Lock.lock();
+        T tmp = m_Dist(m_Generator);
+        m_Lock.unlock();
+        return tmp;
+    }
+
+    template<class Vector>
+    Vector vrnd()
+    {
+        Vector result;
+        for(Int i = 0; i < Vector::length(); ++i) {
+            result[i] = static_cast<Vector::value_type>(rnd());
+        }
+        return result;
+    }
+
+    template<class Matrix>
+    Matrix mrnd()
+    {
+        Matrix result;
+        for(Int i = 0; i < Matrix::length(); ++i) {
+            result[i] = vrnd<Matrix::col_type>();
+        }
+        return result;
+    }
+
+private:
+    ParallelObjects::SpinLock m_Lock {};
+    std::mt19937              m_Generator { (std::random_device())() };
+    Distribution              m_Dist;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+class iRand
+{
+public:
+    static auto rnd() { return s_Rand.rnd(); }
+    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+private:
+    static inline MT_iRandom<T> s_Rand = MT_iRandom<T>();
+};
+
+template<class T>
+class fRand
+{
+public:
+    static auto rnd() { return s_Rand.rnd(); }
+    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+private:
+    static inline MT_fRandom<T> s_Rand = MT_fRandom<T>();
+};
+
+template<class T>
+class fRand01
+{
+public:
+    static auto rnd() { return s_Rand.rnd(); }
+    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+private:
+    static inline MT_fRandom<T> s_Rand = MT_fRandom<T>(T(0), T(1));
+};
+
+template<class T>
+class fRand11
+{
+public:
+    static auto rnd() { return s_Rand.rnd(); }
+    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+private:
+    static inline MT_fRandom<T> s_Rand = MT_fRandom<T>(T(-1), T(1));
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IntType, class SizeType>
 Vector<IntType> generateRandomIntVector(SizeType size, IntType start = 0, IntType end = std::numeric_limits<IntType>::max())
 {
-    if(end < start) {
-        std::swap(end, start);
-    }
-    std::random_device                     rd;
-    std::mt19937                           gen(rd());
-    std::uniform_int_distribution<IntType> dis(start, end);
-
     Vector<IntType> v(size);
     for(SizeType i = 0; i < size; ++i) {
-        v[i] = dis(gen);
+        v[i] = MT_iRandom::rnd();
     }
     return v;
-}
-
-template<class RealType>
-RealType generateRandomReal(RealType start = RealType(0), RealType end = std::numeric_limits<RealType>::max())
-{
-    if(end < start) {
-        std::swap(end, start);
-    }
-    std::random_device                       rd;
-    std::mt19937                             gen(rd());
-    std::uniform_real_distribution<RealType> dis(start, end);
-
-    return dis(gen);
 }
 
 template<class RealType, class SizeType>
 Vector<RealType> generateRandomRealVector(SizeType size, RealType start = RealType(0), RealType end = std::numeric_limits<RealType>::max())
 {
-    if(end < start) {
-        std::swap(end, start);
-    }
-    std::random_device                       rd;
-    std::mt19937                             gen(rd());
-    std::uniform_real_distribution<RealType> dis(start, end);
-
     Vector<RealType> v(size);
     for(SizeType i = 0; i < size; ++i) {
-        v[i] = dis(gen);
+        v[i] = MT_fRandom::rnd();
     }
     return v;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Transforms even the sequence 0,1,2,3,... into reasonably good random numbers
+// Challenge: improve on this in speed and "randomness"!
+// This seems to pass several statistical tests, and is a bijective map (of 32-bit unsigned ints)
+inline unsigned int randhash(unsigned int seed)
+{
+    unsigned int i = (seed ^ 0xA3C59AC3u) * 2654435769u;
+    i ^= (i >> 16);
+    i *= 2654435769u;
+    i ^= (i >> 16);
+    i *= 2654435769u;
+    return i;
+}
+
+// the inverse of randhash
+inline unsigned int unhash(unsigned int h)
+{
+    h *= 340573321u;
+    h ^= (h >> 16);
+    h *= 340573321u;
+    h ^= (h >> 16);
+    h *= 340573321u;
+    h ^= 0xA3C59AC3u;
+    return h;
+}
+
+// returns repeatable stateless pseudo-random number in [0,1]
+template<class T>
+inline T frandhash(unsigned int seed)
+{
+    return T(randhash(seed)) / static_cast<T>(UINT_MAX);
+}
+
+// returns repeatable stateless pseudo-random number in [a,b]
+template<class T>
+inline T frandhash(T a, T b, unsigned int seed)
+{
+    return (b - a) * (randhash(seed) / static_cast<T>(UINT_MAX)) + a;
+}
+
+template<class T>
+inline T frandhash11(unsigned int seed)
+{
+    return frandhash(T(-1.0), T(1.0), seed);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -190,7 +324,7 @@ template<Int N, class RealType1, class RealType2>
 void jitter(VecX<N, RealType1>& ppos, RealType2 maxJitter)
 {
     for(Int j = 0; j < N; ++j) {
-        ppos += MathHelpers::frand11<RealType1>() * static_cast<RealType1>(maxJitter);
+        ppos += fRand11<RealType1>::rnd() * static_cast<RealType1>(maxJitter);
     }
 }
 
@@ -304,7 +438,4 @@ void transform(Vec_Vec3<RealType>& points, const Vec3<RealType>& translation, co
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace NumberHelpers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::NumberHelpers

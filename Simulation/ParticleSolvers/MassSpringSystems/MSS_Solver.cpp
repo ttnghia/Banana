@@ -453,7 +453,7 @@ void MSS_Solver<N, RealType>::computeExplicitForces()
                                     // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
                                     if(dist < solverParams().overlapThreshold) {
                                         dist = solverParams().overlapThreshold;
-                                        xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
+                                        xqp  = glm::normalize(NumberHelpers::fRand<RealType>::vrnd<VecN>()) * solverParams().overlapThreshold;
                                     }
                                     auto strain = dist / distances_t0[i] - RealType(1.0);
                                     xqp        /= dist;
@@ -539,7 +539,7 @@ void MSS_Solver<N, RealType>::buildImplicitLinearSystem(RealType timestep)
                                     // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
                                     if(dist < solverParams().overlapThreshold) {
                                         dist = solverParams().overlapThreshold;
-                                        xqp  = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
+                                        xqp  = glm::normalize(NumberHelpers::fRand<RealType>::vrnd<VecN>()) * solverParams().overlapThreshold;
                                     }
                                     auto strain = dist / distances_t0[i] - RealType(1.0);
                                     xqp        /= dist;
@@ -625,7 +625,7 @@ void MSS_Solver<N, RealType>::computeInternalCollisionPenaltyForces()
                                     // if particles are overlapped, take a random direction and assume that their distance = overlap threshold
                                     if(dist2 < solverParams().overlapThresholdSqr) {
                                         dist2 = solverParams().overlapThresholdSqr;
-                                        xpq   = glm::normalize(MathHelpers::vrand<VecN>()) * solverParams().overlapThreshold;
+                                        xpq   = glm::normalize(NumberHelpers::fRand<RealType>::vrnd<VecN>()) * solverParams().overlapThreshold;
                                     }
                                     forces += MathHelpers::smooth_kernel(dist2, solverParams().collisionThresholdSqr) * (xpq / sqrt(dist2));
                                     ////////////////////////////////////////////////////////////////////////////////
