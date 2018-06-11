@@ -30,7 +30,6 @@ void Controller::updateRelaxParams()
     for(const auto& params: relaxParams) {
         params->maxIters           = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
         params->checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
-        params->deleteFrequency    = static_cast<UInt>(std::stoi(m_cbDeleteFrequency->getComboBox()->currentText().toStdString()));
         params->intersectThreshold = std::stof(m_txtIntersectionThreshold->text().toStdString());
         params->initialJitterRatio = std::stof(m_txtInitialJitter->text().toStdString());
 
@@ -188,21 +187,17 @@ void Controller::setupSamplingParametersControllers()
 {
     m_cbMaxIterations          = new EnhancedComboBox;
     m_cbCheckFrequency         = new EnhancedComboBox;
-    m_cbDeleteFrequency        = new EnhancedComboBox;
     m_txtIntersectionThreshold = new QLineEdit;
     m_txtInitialJitter         = new QLineEdit;
 
     m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(100));
     m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(1));
-    m_cbDeleteFrequency->getComboBox()->addItem(QString("%1").arg(1));
     for(int i = 1; i <= 10; ++i) {
         m_cbMaxIterations->getComboBox()->addItem(QString("%1").arg(i * 1000));
         m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
-        m_cbDeleteFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
     }
     m_cbCheckFrequency->setCurrentIndex(1);
     m_cbMaxIterations->setCurrentIndex(10);
-    m_cbDeleteFrequency->setCurrentIndex(5);
     m_txtIntersectionThreshold->setText("1.8");
     m_txtInitialJitter->setText("0.1");
 
@@ -212,8 +207,6 @@ void Controller::setupSamplingParametersControllers()
     layoutStopCriteria->addLayout(m_cbMaxIterations->getLayout(), row++, 1, 1, 2);
     layoutStopCriteria->addWidget(new QLabel("Check frequency:    "), row, 0, 1, 1);
     layoutStopCriteria->addLayout(m_cbCheckFrequency->getLayout(), row++, 1, 1, 2);
-    layoutStopCriteria->addWidget(new QLabel("Delete frequency:    "), row, 0, 1, 1);
-    layoutStopCriteria->addLayout(m_cbDeleteFrequency->getLayout(), row++, 1, 1, 2);
     layoutStopCriteria->addWidget(                       new QLabel("Intersection threshold:    "), row,   0, 1, 1);
     layoutStopCriteria->addWidget(m_txtIntersectionThreshold,                                       row++, 1, 1, 2);
     layoutStopCriteria->addWidget(                       new QLabel("Initial jitter:    "),         row,   0, 1, 1);

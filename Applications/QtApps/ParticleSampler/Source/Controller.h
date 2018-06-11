@@ -94,7 +94,6 @@ private:
     void setupSamplingParametersControllers();
     EnhancedComboBox* m_cbMaxIterations;
     EnhancedComboBox* m_cbCheckFrequency;
-    EnhancedComboBox* m_cbDeleteFrequency;
     QLineEdit*        m_txtIntersectionThreshold;
     QLineEdit*        m_txtInitialJitter;
 

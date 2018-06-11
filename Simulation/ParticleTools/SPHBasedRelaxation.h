@@ -43,7 +43,6 @@ struct SPHRelaxationParameters
     RealType initialJitterRatio = RealType(0.1);
     RealType intersectThreshold = RealType(1.8);         // stop if getMinDistance() < particleRadius * threshold
     UInt     checkFrequency     = 0;
-    UInt     deleteFrequency    = 0;
 
     RealType CFLFactor             = RealType(0.01);
     RealType minTimestep           = RealType(1e-6);
@@ -136,6 +135,7 @@ protected:
     void     collectNeighborDensities();
     void     computeForces();
     void     updateVelocity(RealType timestep);
+    void     constrainVelocity(RealType timestep);
     void     computeViscosity();
     ////////////////////////////////////////////////////////////////////////////////
     struct

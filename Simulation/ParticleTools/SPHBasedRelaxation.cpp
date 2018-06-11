@@ -43,12 +43,17 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::updateParams()
 {
     relaxParams()->initialJitter       = relaxParams()->particleRadius * relaxParams()->initialJitterRatio;
-    relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
     relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
     relaxParams()->nearKernelRadius    = relaxParams()->nearKernelRadiusRatio * relaxParams()->particleRadius;
     relaxParams()->nearKernelRadiusSqr = relaxParams()->nearKernelRadius * relaxParams()->nearKernelRadius;
     relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
     relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
+    relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
+    if constexpr(N == 2) {
+        relaxParams()->particleMass *= RealType(0.95);
+    } else {
+        relaxParams()->particleMass *= RealType(0.8);
+    }
     ////////////////////////////////////////////////////////////////////////////////
     kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
     kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
@@ -80,6 +85,7 @@ void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
     logger().printRunTimeIndent("Collect neighbor densities",          [&]() { collectNeighborDensities(); });
     logger().printRunTimeIndent("Compute forces",                      [&]() { computeForces(); });
     logger().printRunTimeIndent("Update velocity",                     [&]() { updateVelocity(substep); });
+    logger().printRunTimeIndent("Constrain velocity",                     [&]() { constrainVelocity(substep); });
     logger().printRunTimeIndent("Compute viscosity",                   [&]() { computeViscosity(); });
     logger().printLog("Finished step of size " + Formatters::toSciString(substep));
     logger().printMemoryUsage();
@@ -159,7 +165,14 @@ void SPHBasedRelaxation<N, RealType>::jitterParticles()
                             [&](UInt p)
                             {
                                 auto& ppos = (*particleData().positions)[p];
-                                ppos      += relaxParams()->initialJitter * glm::normalize(MathHelpers::vrand11<VecN>());
+                                VecN pJitter;
+                                for(Int i = 0; i < 10; ++i) {
+                                    pJitter = ppos + relaxParams()->initialJitter * glm::normalize(MathHelpers::vrand11<VecN>());
+                                    if(m_GeometryObj->signedDistance(pJitter) < 0) {
+                                        break;
+                                    }
+                                }
+                                ppos = pJitter;
                             });
 }
 
@@ -181,9 +194,9 @@ void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
                                     auto grad     = m_GeometryObj->gradSignedDistance(ppos);
                                     auto mag2Grad = glm::length2(grad);
                                     if(mag2Grad > Tiny<RealType>()) {
-                                        grad                        /= sqrt(mag2Grad);
-                                        ppos                        -= phiVal * grad;
-                                        particleData().velocities[p] = pvel * RealType(-1);
+                                        grad /= sqrt(mag2Grad);
+                                        ppos -= phiVal * grad;
+                                        // particleData().velocities[p] = pvel * RealType(-1);
                                     }
                                 }
 
@@ -308,11 +321,11 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                             {
                                 auto error = RealType(MathHelpers::pow7(density / 1000.0)) - RealType(1.0);
                                 error *= (relaxParams()->pressureStiffness / density / density);
-                                if(error > RealType(0)) {
-                                    return error;
-                                } else {
+                                return error;
+                                /* if(error > RealType(0)) {
+                                   } else {
                                     return RealType(0);
-                                }
+                                   } */
                             };
     auto shortRangeRepulsiveAcceleration = [&](const auto& r)
                                            {
@@ -359,6 +372,23 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::updateVelocity(RealType timestep)
 {
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().accelerations[p] * timestep; });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto pvel   = particleData().velocities[p];
+                                auto ppos   = (*particleData().positions)[p] + pvel * timestep;
+                                auto phiVal = m_GeometryObj->signedDistance(ppos);
+                                if(phiVal > 0) {
+                                    // particleData().velocities[p] = pvel * RealType(-0.1);
+                                    particleData().velocities[p] = VecN(0);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
