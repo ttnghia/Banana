@@ -42,6 +42,7 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions()
 template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::updateParams()
 {
+    relaxParams()->initialJitter       = relaxParams()->particleRadius * relaxParams()->initialJitterRatio;
     relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
     relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
     relaxParams()->nearKernelRadius    = relaxParams()->nearKernelRadiusRatio * relaxParams()->particleRadius;
@@ -63,6 +64,11 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
 template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
 {
+    if(!m_bJittered) {
+        jitterParticles();
+        m_bJittered = true;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
     RealType substep;
     logger().printLog("Iteration #" + Formatters::toString(iter));
     logger().printRunTimeIndent("CFL timestep",                        [&]() { substep = timestepCFL(); });
@@ -147,6 +153,18 @@ RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void SPHBasedRelaxation<N, RealType>::jitterParticles()
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto& ppos = (*particleData().positions)[p];
+                                ppos      += relaxParams()->initialJitter * glm::normalize(MathHelpers::vrand11<VecN>());
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
@@ -165,7 +183,7 @@ void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
                                     if(mag2Grad > Tiny<RealType>()) {
                                         grad                        /= sqrt(mag2Grad);
                                         ppos                        -= phiVal * grad;
-                                        particleData().velocities[p] = pvel * RealType(-0.01);
+                                        particleData().velocities[p] = pvel * RealType(-1);
                                     }
                                 }
 
@@ -296,35 +314,22 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                     return RealType(0);
                                 }
                             };
-    auto shortRangeRepulsiveAcceleration = [&](const auto& r, const auto r2)
+    auto shortRangeRepulsiveAcceleration = [&](const auto& r)
                                            {
-                                               auto w      = MathHelpers::smooth_kernel(r2, relaxParams()->nearKernelRadiusSqr);
-                                               auto rndDir = glm::normalize(MathHelpers::vrand11<VecN>());
+                                               const auto r2 = glm::length2(r);
+                                               auto       w  = RealType(1.0) - sqrtf(r2 / relaxParams()->nearKernelRadiusSqr);                                            // MathHelpers::smooth_kernel(r2, relaxParams()->nearKernelRadiusSqr);
                                                if(w < MEpsilon<RealType>()) {
                                                    return VecN(0);
                                                } else if(r2 > relaxParams()->overlapThresholdSqr) {
                                                    return -relaxParams()->nearPressureStiffness * w / RealType(sqrt(r2)) * r;
                                                } else {
                                                    w = MathHelpers::smooth_kernel(relaxParams()->overlapThresholdSqr, relaxParams()->nearKernelRadiusSqr);
+                                                   auto rndDir = glm::normalize(MathHelpers::vrand11<VecN>());
                                                    return relaxParams()->nearPressureStiffness * w * rndDir;
                                                }
                                            };
     ////////////////////////////////////////////////////////////////////////////////
     const auto& fluidPointSet = m_FarNSearch->point_set(0);
-    // Scheduler::parallel_for(particleData().getNParticles(),
-    //                         [&](UInt p)
-    //                         {
-    //                             const auto& ppos = (*particleData().positions)[p];
-    //                             VecN pforce(0);
-
-    //                             for(UInt q : fluidPointSet.neighbors(0, p)) {
-    //                                 auto qpos            = (*particleData().positions)[q];
-    //                                 const auto fpressure = shortRangeRepulsiveAcceleration(qpos - ppos);
-    //                                 pforce              += fpressure;
-    //                             }
-    //                             particleData().accelerations[p] = pforce * relaxParams()->particleMass;
-    //                         });
-
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
@@ -337,16 +342,13 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                 const auto pdensity  = particleData().densities[p];
                                 const auto ppressure = particlePressure(pdensity);
                                 for(const auto& qInfo : pNeighborInfo) {
-                                    const auto r      = VecN(qInfo);
-                                    const auto r2     = glm::length2(r);
-                                    const auto fshort = shortRangeRepulsiveAcceleration(r, r2);
-                                    pforce           += fshort;
-                                    if(r2 > relaxParams()->overlapThresholdSqr) {
-                                        const auto qdensity  = qInfo[N];
-                                        const auto qpressure = particlePressure(qdensity);
-                                        const auto fpressure = (ppressure + qpressure) * kernels().gradW(r);
-                                        pforce              += fpressure;
-                                    }
+                                    const auto r         = VecN(qInfo);
+                                    const auto qdensity  = qInfo[N];
+                                    const auto qpressure = particlePressure(qdensity);
+                                    const auto fpressure = (ppressure + qpressure) * kernels().gradW(r);
+                                    const auto fshort    = shortRangeRepulsiveAcceleration(r);
+                                    pforce              += fpressure;
+                                    pforce              += fshort;
                                 }
                                 particleData().accelerations[p] = pforce * relaxParams()->particleMass;
                             });

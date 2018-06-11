@@ -40,11 +40,12 @@ template<class RealType>
 struct SPHRelaxationParameters
 {
     UInt     maxIters           = 0;
+    RealType initialJitterRatio = RealType(0.1);
     RealType intersectThreshold = RealType(1.8);         // stop if getMinDistance() < particleRadius * threshold
     UInt     checkFrequency     = 0;
     UInt     deleteFrequency    = 0;
 
-    RealType CFLFactor             = RealType(0.4);
+    RealType CFLFactor             = RealType(0.01);
     RealType minTimestep           = RealType(1e-6);
     RealType maxTimestep           = RealType(1.0 / 30.0);
     RealType pressureStiffness     = RealType(50000);
@@ -61,6 +62,7 @@ struct SPHRelaxationParameters
     RealType nearKernelRadiusSqr = RealType(0);
     RealType overlapThreshold    = RealType(0);
     RealType overlapThresholdSqr = RealType(0);
+    RealType initialJitter       = RealType(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -126,6 +128,7 @@ public:
 protected:
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
+    void     jitterParticles();
     void     moveParticles(RealType timestep);
     void     computeNeighborRelativePositions();
     void     computeDensity();
@@ -177,6 +180,7 @@ protected:
     auto& kernels() { return m_Kernels; }
 
     ////////////////////////////////////////////////////////////////////////////////
+    bool                                         m_bJittered        = false;
     RealType                                     m_MinDistanceRatio = RealType(0);
     SharedPtr<SPHRelaxationParameters<RealType>> m_RelaxationParams = std::make_shared<SPHRelaxationParameters<RealType>>();
 
