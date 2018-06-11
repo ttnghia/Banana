@@ -251,3 +251,19 @@ void ParticleGeneratorInterface::reportFailed(UInt frame)
         }
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+float ParticleGeneratorInterface::getMinDistanceRatio()
+{
+    float minRatio = float(1.0e10);
+    if(m_ParticleData->dimension == 2) {
+        for(auto& generator: m_Generators2D) {
+            minRatio = std::min(minRatio, generator->relaxer().getMinDistanceRatio());
+        }
+    } else {
+        for(auto& generator: m_Generators3D) {
+            minRatio = std::min(minRatio, generator->relaxer().getMinDistanceRatio());
+        }
+    }
+    return minRatio;
+}

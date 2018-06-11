@@ -52,7 +52,7 @@ void MainWindow::showEvent(QShowEvent* ev)
         showed = true;
         Q_ASSERT(m_Sampler != nullptr);
         updateStatusMemoryUsage();
-        updateStatusIteration(0);
+        finishIteration(0, 0);
 
         if(m_Controller->m_cbScene->getComboBox()->count() == 2) {
             //            m_Controller->m_cbSimulationScene->setCurrentIndex(1);
@@ -100,14 +100,14 @@ void MainWindow::updateStatusNumParticles(UInt numParticles)
     m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(Formatters::toString(numParticles))));
 }
 
-void MainWindow::updateStatusIteration(UInt iter)
-{
-    m_lblStatusIteration->setText(QString("Iteration : #%1").arg(QString::fromStdString(Formatters::toString(iter))));
-}
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::finishIteration()
+void MainWindow::finishIteration(unsigned int iter, float minDistanceRatio)
 {
+    if(minDistanceRatio > 0) {
+        m_lblStatusIteration->setText(QString("Iteration : #%1 | Min. distance ratio: %2").arg(QString::fromStdString(Formatters::toString(iter))).arg(minDistanceRatio));
+    } else {
+        m_lblStatusIteration->setText(QString("Iteration : #%1").arg(QString::fromStdString(Formatters::toString(iter))));
+    }
     ++m_FrameNumber;
     if(m_bExportImg) {
         m_RenderWidget->exportScreenToImage(m_FrameNumber);
@@ -119,7 +119,17 @@ void MainWindow::finishIteration()
 void MainWindow::finishRelaxation()
 {
     m_Controller->m_btnStartStopRelaxation->setText(QString("Start"));
-    updateStatusRelaxation("Relaxation Finished");
+    updateStatusRelaxation("Relaxation finished");
+    m_Controller->m_cbScene->setDisabled(false);
+    m_Controller->m_btnReloadScene->setDisabled(false);
+    m_BusyBar->reset();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::pauseRelaxation()
+{
+    m_Controller->m_btnStartStopRelaxation->setText(QString("Resume"));
+    updateStatusRelaxation("Relaxation paused");
     m_Controller->m_cbScene->setDisabled(false);
     m_Controller->m_btnReloadScene->setDisabled(false);
     m_BusyBar->reset();
@@ -152,7 +162,7 @@ void MainWindow::setupStatusBar()
 
     m_lblStatusIteration = new QLabel(this);
     m_lblStatusIteration->setMargin(5);
-    statusBar()->addPermanentWidget(m_lblStatusIteration, 1);
+    statusBar()->addPermanentWidget(m_lblStatusIteration, 2);
 
     m_lblStatusNumParticles = new QLabel(this);
     m_lblStatusNumParticles->setMargin(5);
@@ -184,6 +194,8 @@ void MainWindow::connectWidgets()
                 m_Sampler->reloadVizData(m_Controller->m_chkReloadVizData->isChecked());
                 m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
+                m_Controller->m_btnStartStopRelaxation->setText(QString("Start"));
+                updateStatusRelaxation("Ready");
             });
 
     connect(m_Controller->m_cbScene->getComboBox(), &QComboBox::currentTextChanged, [&](const QString& sceneFile)
@@ -194,6 +206,7 @@ void MainWindow::connectWidgets()
                 m_Sampler->reloadVizData(true);
                 m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
+                updateStatusRelaxation("Ready");
                 updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
             });
 
@@ -229,10 +242,13 @@ void MainWindow::connectWidgets()
     connect(m_Sampler, &ParticleSampler::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
     ////////////////////////////////////////////////////////////////////////////////
     // sampling status
-    connect(m_Sampler, &ParticleSampler::iterationFinished,  [&] { QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection); });
+    connect(m_Sampler, &ParticleSampler::iterationFinished,  [&](unsigned int iter, float minDistanceRatio)
+            {
+                QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection, Q_ARG(unsigned int, iter), Q_ARG(float, minDistanceRatio));
+            });
+    connect(m_Sampler, &ParticleSampler::relaxationPaused,   [&] { QMetaObject::invokeMethod(this, "pauseRelaxation", Qt::QueuedConnection); });
     connect(m_Sampler, &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
     connect(m_Sampler, &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
-    connect(m_Sampler, &ParticleSampler::iterationChanged,   this,           &MainWindow::updateStatusIteration);
     connect(m_Sampler, &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
     connect(m_Sampler, &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
     connect(m_Sampler, &ParticleSampler::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);

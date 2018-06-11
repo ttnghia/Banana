@@ -59,11 +59,11 @@ signals:
     void cameraChanged();
     void lightsChanged(const Vector<PointLights::PointLightData>& lightData);
     void capturePathChanged(const QString& capturePath);
+    void relaxationPaused();
     void relaxationFinished();
-    void iterationChanged(unsigned int iter);
+    void iterationFinished(unsigned int iter, float minDistanceRatio);
     void numParticleChanged(UInt numParticles);
     void vizDataChanged();
-    void iterationFinished();
 
 private:
     SharedPtr<ParticleData>               m_ParticleData = std::make_shared<ParticleData>();

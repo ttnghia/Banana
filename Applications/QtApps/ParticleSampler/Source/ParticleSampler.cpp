@@ -54,9 +54,8 @@ void ParticleSampler::doSampling()
     for(; frame <= maxIters; ++frame) {
         bool bConverged = m_Generator->doFrameRelaxation(frame);
 
-        emit iterationChanged(frame);
+        emit iterationFinished(frame, m_Generator->getMinDistanceRatio());
         emit vizDataChanged();
-        emit iterationFinished();
 
         if(m_bExportImg) {
             m_bWaitForSavingImg = true;
@@ -65,7 +64,11 @@ void ParticleSampler::doSampling()
             }
         }
 
-        if(bConverged || m_bStop) {
+        if(m_bStop) {
+            emit relaxationPaused();
+            return;
+        }
+        if(bConverged) {
             emit relaxationFinished();
             return;
         }
@@ -91,7 +94,7 @@ void ParticleSampler::reset()
 void ParticleSampler::changeScene(const QString& scene)
 {
     m_Scene = scene;
-    emit iterationChanged(0);
+    emit iterationFinished(0, 0);
     ////////////////////////////////////////////////////////////////////////////////
     // wait until the simulation stop before modifying the scene
     if(m_RelaxationFutureObj.valid()) {

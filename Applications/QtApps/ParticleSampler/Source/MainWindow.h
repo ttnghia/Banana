@@ -52,9 +52,9 @@ public slots:
     void updateStatusRelaxation(const QString& status);
     void updateStatusMemoryUsage();
     void updateStatusNumParticles(UInt numParticles);
-    void updateStatusIteration(UInt iter);
-    void finishIteration();
+    void finishIteration(unsigned int iter, float minDistanceRatio);
     void finishRelaxation();
+    void pauseRelaxation();
 
 private:
     void setupRenderWidgets();
