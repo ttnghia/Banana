@@ -143,7 +143,7 @@ public slots:
     void setClipPlane(const Vec4f& clipPlane) { m_ClipPlane = clipPlane; }
 
 protected:
-    Vec4f m_ClipPlane = Vec4f(1.0f, 0.0f, 0.0f, -0.5f);
+    Vec4f m_ClipPlane = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
