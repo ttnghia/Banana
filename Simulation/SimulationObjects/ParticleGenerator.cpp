@@ -85,7 +85,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
     m_Lock.resize(m_Grid.getNCells());
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelObjects::SpinLock particleLock;
+    ParallelObjects::SpinLock lock;
     Scheduler::parallel_for(pGrid,
                             [&](auto... idx)
                             {
@@ -97,9 +97,9 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
                                 }
 
                                 if(this->m_GeometryObj->signedDistance(ppos) < 0) {
-                                    particleLock.lock();
+                                    lock.lock();
                                     m_ObjParticles.push_back(ppos);
-                                    particleLock.unlock();
+                                    lock.unlock();
                                 }
                             });
 
@@ -113,9 +113,8 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
     //generateVelocities(positions, velocities);
 
     this->m_bObjReady = true;
-
     ////////////////////////////////////////////////////////////////////////////////
-    // save particles from cache, if needed
+    // save particles to file, if needed
     this->saveParticlesToFile();
 }
 
@@ -153,7 +152,6 @@ void ParticleGenerator<N, RealType>::collectNeighborParticles(const Vec_VecN& po
     for(auto& cell : m_ParticleIdxInCell.data()) {
         cell.resize(0);
     }
-
     Scheduler::parallel_for(static_cast<UInt>(positions.size()),
                             [&](UInt p)
                             {
