@@ -84,21 +84,24 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
     m_Grid.setGrid(boxMin - RealType(4.0) * m_ParticleRadius, boxMax + RealType(4.0) * m_ParticleRadius, RealType(4.0) * m_ParticleRadius);
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
     m_Lock.resize(m_Grid.getNCells());
-
-    NumberHelpers::scan(pGrid,
-                        [&](const auto& idx)
-                        {
-                            VecN ppos = boxMin + VecX<N, RealType>(idx) * spacing;
-                            for(auto& bdObj : boundaryObjects) {
-                                if(bdObj->signedDistance(ppos) < 0) {
-                                    return;
+    ////////////////////////////////////////////////////////////////////////////////
+    ParallelObjects::SpinLock particleLock;
+    Scheduler::parallel_for(pGrid,
+                            [&](auto... idx)
+                            {
+                                VecN ppos = boxMin + VecX<N, RealType>(idx...) * spacing;
+                                for(auto& bdObj : boundaryObjects) {
+                                    if(bdObj->signedDistance(ppos) < 0) {
+                                        return;
+                                    }
                                 }
-                            }
 
-                            if(this->m_GeometryObj->signedDistance(ppos) < 0) {
-                                m_ObjParticles.push_back(ppos);
-                            }
-                        });
+                                if(this->m_GeometryObj->signedDistance(ppos) < 0) {
+                                    particleLock.lock();
+                                    m_ObjParticles.push_back(ppos);
+                                    particleLock.unlock();
+                                }
+                            });
 
     __BNN_REQUIRE(m_ObjParticles.size() > 0)
 

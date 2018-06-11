@@ -60,14 +60,13 @@ public:
     auto& constraintObjectID() { return m_ConstraintObjectID; }
     bool isActive(UInt currentFrame);
     ////////////////////////////////////////////////////////////////////////////////
-    auto& relaxer() { __BNN_REQUIRE(m_Relaxer != nullptr); return *m_Relaxer; }
+    auto& relaxer() { assert(m_Relaxer != nullptr); return *m_Relaxer; }
     ////////////////////////////////////////////////////////////////////////////////
     const auto& getObjParticles() const { return m_ObjParticles; }
     const auto& generatedPositions() const { return m_GeneratedPositions; }
     const auto& generatedVelocities() const { return m_GeneratedVelocities; }
     auto        generatedConstraintObject() const { return m_GeneratedConstraintObj; }
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void parseParameters(const JParams& jParams) override;
     virtual void buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects = Vector<SharedPtr<BoundaryObject<N, Real>>>());
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
@@ -87,8 +86,9 @@ protected:
     UInt addParticles(const Vec_VecN& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                       VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
-    void relaxPositions(Vector<VecN>& positions, RealType particleRadius);
-    void collectNeighborParticles(const Vec_VecN& positions);
+    virtual void parseParameters(const JParams& jParams) override;
+    void         relaxPositions(Vector<VecN>& positions, RealType particleRadius);
+    void         collectNeighborParticles(const Vec_VecN& positions);
     ////////////////////////////////////////////////////////////////////////////////
     VecN     m_v0                 = VecN(0);
     UInt     m_StartFrame         = 0u;
