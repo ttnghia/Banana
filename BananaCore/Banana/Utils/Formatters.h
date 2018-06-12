@@ -78,21 +78,38 @@ String toString(T value)
 }
 
 template<class T>
-String toString7(T value)
-{
-    return Formatter<FormatType::CommaSeparated, 7, true>::format(value);
-}
-
-template<class T>
 String toString5(T value)
 {
     return Formatter<FormatType::CommaSeparated, 5, true>::format(value);
 }
 
 template<class T>
+String toString7(T value)
+{
+    return Formatter<FormatType::CommaSeparated, 7, true>::format(value);
+}
+
+template<class T>
 String toString10(T value)
 {
     return Formatter<FormatType::CommaSeparated, 10, true>::format(value);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+String toString2f(T value)
+{
+    char buff[32];
+    sprintf_s(buff, "%.2f", value);
+    return String(buff);
+}
+
+template<class T>
+String toString5f(T value)
+{
+    char buff[32];
+    sprintf_s(buff, "%.5f", value);
+    return String(buff);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
