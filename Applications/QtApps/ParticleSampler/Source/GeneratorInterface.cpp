@@ -38,11 +38,7 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
     __BNN_REQUIRE(jParams.find("SimulationParameters") != jParams.end());
     __BNN_REQUIRE(jParams.find("ParticleGenerators") != jParams.end());
-
-    String solverName;
-    JSONHelpers::readValue(jParams["GlobalParameters"], solverName, "Solver");
-    __BNN_REQUIRE((solverName.find_first_of('2') != String::npos) ^ (solverName.find_first_of('3') != String::npos));
-    m_ParticleData->dimension = (solverName.find_first_of('2') != String::npos) ? 2 : 3;
+    __BNN_REQUIRE(JSONHelpers::readValue(jParams["GlobalParameters"], m_ParticleData->dimension, "Dimension"));
     ////////////////////////////////////////////////////////////////////////////////;
 
     ////////////////////////////////////////////////////////////////////////////////
