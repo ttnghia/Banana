@@ -70,10 +70,12 @@ void ParticleSampler::doSampling()
         }
         if(bConverged) {
             emit relaxationFinished();
+            m_bStop = true;
             return;
         }
     }
 
+    m_bStop = true;
     m_Generator->reportFailed(frame);
     emit relaxationFinished();
 }
