@@ -37,7 +37,7 @@ void SPHRelaxationParameters<RealType>::setDefaultParameters()
     CFLFactor             = RealType(0.1);
     minTimestep           = RealType(1e-6);
     maxTimestep           = RealType(1.0 / 30.0);
-    pressureStiffness     = RealType(50000);
+    pressureStiffness     = RealType(5000);
     viscosity             = RealType(0.05);
     nearKernelRadiusRatio = RealType(2.0);
     nearPressureStiffness = RealType(50000);
@@ -102,7 +102,7 @@ void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
     RealType substep;
     logger().printLog("Iteration #" + Formatters::toString(iter));
     logger().printRunTimeIndent("CFL timestep",                        [&]() { substep = timestepCFL(); });
-    logger().printRunTimeIndent("Constrain velocity",                  [&]() { constrainVelocity(substep); });
+    logger().printRunTimeIndent("Identify boundary particles",         [&]() { identifyBoundaryParticles(substep); });
     logger().printRunTimeIndent("Compute viscosity",                   [&]() { computeViscosity(); });
     logger().printRunTimeIndent("Move particles",                      [&]() { moveParticles(substep); });
     logger().printRunTimeIndent("Find neighbors",                      [&]() { m_FarNSearch->find_neighbors(); });
@@ -202,7 +202,7 @@ void SPHBasedRelaxation<N, RealType>::jitterParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
+void SPHBasedRelaxation<N, RealType>::identifyBoundaryParticles(RealType timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -211,12 +211,9 @@ void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
                                 auto ppos   = (*particleData().positions)[p] + pvel * timestep;
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
                                 if(phiVal > 0) {
-                                    auto grad     = m_GeometryObj->gradSignedDistance(ppos);
-                                    auto mag2Grad = glm::length2(grad);
-                                    if(mag2Grad > Tiny<RealType>()) {
-                                        grad                        /= RealType(sqrt(mag2Grad));
-                                        particleData().velocities[p] = glm::reflect(pvel, grad) * (relaxParams()->boundaryRestitution);
-                                    }
+                                    particleData().isBoundary[p] = 1;
+                                } else {
+                                    particleData().isBoundary[p] = 0;
                                 }
                             });
 }
@@ -243,7 +240,11 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                     const auto& qInfo   = pNeighborInfo[i];
                                     const auto r        = VecN(qInfo);
                                     const auto qdensity = qInfo[N];
-                                    diffVelFluid       += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
+                                    if(particleData().isBoundary[q]) {
+                                        diffVelFluid -= (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
+                                    } else {
+                                        diffVelFluid += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
+                                    }
                                 }
                                 diffVelFluid                     *= relaxParams()->viscosity;
                                 diffVelFluid                     *= relaxParams()->particleMass;
@@ -270,8 +271,9 @@ void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
                                     auto grad     = m_GeometryObj->gradSignedDistance(ppos);
                                     auto mag2Grad = glm::length2(grad);
                                     if(mag2Grad > Tiny<RealType>()) {
-                                        grad /= sqrt(mag2Grad);
-                                        ppos -= phiVal * grad;
+                                        grad                        /= sqrt(mag2Grad);
+                                        ppos                        -= phiVal * grad;
+                                        particleData().velocities[p] = glm::reflect(pvel, grad) * (relaxParams()->boundaryRestitution);
                                     }
                                 }
 
@@ -327,7 +329,7 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
                                 computeDensity(pdensity, pNeighborInfo);
                                 pdensity *= relaxParams()->particleMass;
                                 ////////////////////////////////////////////////////////////////////////////////
-#if 1
+#if 0
                                 const auto ppos   = (*particleData().positions)[p];
                                 const auto phiVal = m_GeometryObj->signedDistance(ppos) / relaxParams()->particleRadius;
                                 if(phiVal > RealType(-1.0)) {

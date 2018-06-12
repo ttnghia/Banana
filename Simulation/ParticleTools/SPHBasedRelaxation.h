@@ -133,7 +133,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     jitterParticles();
-    void     constrainVelocity(RealType timestep);
+    void     identifyBoundaryParticles(RealType timestep);
     void     computeViscosity();
     void     moveParticles(RealType timestep);
     void     computeNeighborRelativePositions();
@@ -149,6 +149,7 @@ protected:
         Vec_RealType                      densities;
         Vec_VecN                          accelerations;
         Vec_VecN                          diffuseVelocity;
+        Vec_Int8                          isBoundary;
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
         ////////////////////////////////////////////////////////////////////////////////
         UInt getNParticles() const { return static_cast<UInt>(positions->size()); }
@@ -161,6 +162,7 @@ protected:
             neighborInfo.resize(getNParticles());
             accelerations.resize(getNParticles(), VecN(0));
             diffuseVelocity.resize(getNParticles(), VecN(0));
+            isBoundary.resize(getNParticles());
         }
     } m_SPHData;
 
