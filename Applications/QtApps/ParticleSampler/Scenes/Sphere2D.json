@@ -1,21 +1,7 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "MPM_2DSolver",
-        "FrameDuration" : 0.003333333333,
-        "StartFrame" : 1,
-        "FinalFrame" : 50,
-        "SaveFrameData" : false,
-        "SaveMemoryState" : false,
-        "FramePerState" : 10,
-        "DataPath" : "D:/Scratch/MPM2D_TwoSphere_APIC",
-        "FrameDataFolder" : "FLIPData",
-        "MemoryStateDataFolder" : "MPMState",
-        "OptionalSavingData" : [ "object_index" ],
-        "LogLevel" : "Debug",
-        "PrintLogToFile" : false,
-        "EnableSortParticle" : true,
-        "SortFrequency" : 10
+        "Dimension" : 2
     },
     "SimulationParameters":
     {
@@ -24,18 +10,8 @@
             "BoxMin" : [-2, -1],
             "BoxMax" : [2, 1]
         },
-        "NExpandCells" : 2,
-        "AdvectionSteps" : 2,
-        "PIC_FLIP_Ratio" : 0.9,
-        "ImplicitRatio" : 1,
-        "CGRelativeTolerance" : 1e-18,
-        "MaxCGIteration" : 1000,
         "CellSize" : 0.03,
-        "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.2,
-        "lambda" : 10,
-        "mu": 100,
-        "MaterialDensity" : 1
+        "RatioCellSizePRadius" : 4
     },
     "ParticleGenerators":
     [
