@@ -37,10 +37,10 @@ void SPHRelaxationParameters<RealType>::setDefaultParameters()
     CFLFactor             = RealType(0.1);
     minTimestep           = RealType(1e-6);
     maxTimestep           = RealType(1.0 / 30.0);
-    pressureStiffness     = RealType(100);
+    pressureStiffness     = RealType(50000);
     viscosity             = RealType(0.01);
     nearKernelRadiusRatio = RealType(2.1);
-    nearPressureStiffness = RealType(100);
+    nearPressureStiffness = RealType(50000);
     overlapThresholdRatio = RealType(0.75);
 }
 
@@ -239,6 +239,7 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                     diffVelFluid       += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
                                 }
                                 diffVelFluid                     *= relaxParams()->viscosity;
+                                diffVelFluid                     *= relaxParams()->particleMass;
                                 particleData().diffuseVelocity[p] = diffVelFluid;
                             });
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
@@ -319,13 +320,13 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
                                 computeDensity(pdensity, pNeighborInfo);
                                 pdensity *= relaxParams()->particleMass;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                if(pdensity < RealType(1100)) {
-                                    const auto ppos   = (*particleData().positions)[p];
-                                    const auto phiVal = m_GeometryObj->signedDistance(ppos) / (RealType(2.0) * relaxParams()->particleRadius);
-                                    if(phiVal > RealType(-1.0)) {
-                                        pdensity = MathHelpers::lerp(RealType(1100), pdensity, -phiVal);
-                                    }
+#if 1
+                                const auto ppos   = (*particleData().positions)[p];
+                                const auto phiVal = m_GeometryObj->signedDistance(ppos) / relaxParams()->particleRadius;
+                                if(phiVal > RealType(-1.0)) {
+                                    pdensity = MathHelpers::lerp(RealType(1000), pdensity, -phiVal);
                                 }
+#endif
                                 particleData().densities[p] = MathHelpers::clamp(pdensity, RealType(2e2), RealType(2e3));
                             });
 }
@@ -358,8 +359,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
     auto particlePressure = [&](auto density)
                             {
                                 auto error = RealType(MathHelpers::pow7(density / 1000.0)) - RealType(1.0);
-                                error *= (relaxParams()->pressureStiffness / density / density);
-                                return error;
+                                return error * (relaxParams()->pressureStiffness / density / density);
                             };
     auto shortRangeRepulsiveAccel = [&](const auto& r)
                                     {
@@ -370,9 +370,9 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                         } else if(r2 > relaxParams()->overlapThresholdSqr) {
                                             return -relaxParams()->nearPressureStiffness * w / RealType(sqrt(r2)) * r;
                                         } else {
-                                            w = RealType(1.0) - relaxParams()->overlapThresholdSqr / relaxParams()->nearKernelRadiusSqr;
+                                            auto rnd_w  = RealType(1.0) - relaxParams()->overlapThresholdSqr / relaxParams()->nearKernelRadiusSqr;
                                             auto rndDir = glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
-                                            return relaxParams()->nearPressureStiffness * w * rndDir;
+                                            return -relaxParams()->nearPressureStiffness * (w / RealType(sqrt(r2)) * r + rnd_w * rndDir);
                                         }
                                     };
     ////////////////////////////////////////////////////////////////////////////////
@@ -397,7 +397,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                     paccel                   += pressureAccel;
                                     paccel                   += repulsiveAccel;
                                 }
-                                particleData().accelerations[p] = paccel;
+                                particleData().accelerations[p] = paccel * relaxParams()->particleMass;
                             });
 }
 
