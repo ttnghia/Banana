@@ -77,7 +77,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
 
     ////////////////////////////////////////////////////////////////////////////////
     RealType spacing = RealType(2.0) * m_ParticleRadius;
-    if constexpr(N == 2) { spacing *= RealType(0.95); } else { spacing *= RealType(0.8); }
+    if constexpr(N == 2) { spacing *= RealType(0.95); } else { spacing *= RealType(0.85); }
     auto boxMin = this->m_GeometryObj->getAABBMin();
     auto boxMax = this->m_GeometryObj->getAABBMax();
     auto pGrid  = NumberHelpers::createGrid<UInt>(boxMin, boxMax, spacing);

@@ -70,12 +70,12 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
                               relaxParams()->nearKernelRadiusSqr = relaxParams()->nearKernelRadius * relaxParams()->nearKernelRadius;
                               relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
                               relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
-                              relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
-                              if constexpr(N == 2) {
-                                  relaxParams()->particleMass *= RealType(0.95);
-                              } else {
-                                  relaxParams()->particleMass *= RealType(0.7);
-                              }
+                              /* if constexpr(N == 2) {
+                                  relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.95) * relaxParams()->particleRadius, N)) * RealType(1000);
+                                 } else {
+                                  relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.8) * relaxParams()->particleRadius, N)) * RealType(1000);
+                                 } */
+                              relaxParams()->particleMass = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
                               ////////////////////////////////////////////////////////////////////////////////
                               kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
                               kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
