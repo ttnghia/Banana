@@ -38,8 +38,8 @@ void SPHRelaxationParameters<RealType>::setDefaultParameters()
     minTimestep           = RealType(1e-6);
     maxTimestep           = RealType(1.0 / 30.0);
     pressureStiffness     = RealType(50000);
-    viscosity             = RealType(0.01);
-    nearKernelRadiusRatio = RealType(2.1);
+    viscosity             = RealType(0.05);
+    nearKernelRadiusRatio = RealType(2.0);
     nearPressureStiffness = RealType(50000);
     overlapThresholdRatio = RealType(0.75);
 }
@@ -66,19 +66,20 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
                           {
                               relaxParams()->initialJitter       = relaxParams()->particleRadius * relaxParams()->initialJitterRatio;
                               relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
+                              relaxParams()->kernelRadiusSqr     = relaxParams()->kernelRadius * relaxParams()->kernelRadius;
                               relaxParams()->nearKernelRadius    = relaxParams()->nearKernelRadiusRatio * relaxParams()->particleRadius;
                               relaxParams()->nearKernelRadiusSqr = relaxParams()->nearKernelRadius * relaxParams()->nearKernelRadius;
                               relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
                               relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
-                              /* if constexpr(N == 2) {
+                              if constexpr(N == 2) {
                                   relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.95) * relaxParams()->particleRadius, N)) * RealType(1000);
-                                 } else {
-                                  relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.8) * relaxParams()->particleRadius, N)) * RealType(1000);
-                                 } */
-                              relaxParams()->particleMass = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
+                              } else {
+                                  relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.85) * relaxParams()->particleRadius, N)) * RealType(1000);
+                              }
                               ////////////////////////////////////////////////////////////////////////////////
                               kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
                               kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
+                              kernels().nearKernelSpiky.setRadius(relaxParams()->nearKernelRadius);
                               ////////////////////////////////////////////////////////////////////////////////
                               m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->nearKernelRadius);
                               m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->kernelRadius);
@@ -209,7 +210,7 @@ void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
                                 auto ppos   = (*particleData().positions)[p] + pvel * timestep;
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
                                 if(phiVal > 0) {
-                                    particleData().velocities[p] = pvel * RealType(-0.1);
+                                    particleData().velocities[p] = pvel * RealType(-1);
                                 }
                             });
 }
@@ -359,6 +360,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
     auto particlePressure = [&](auto density)
                             {
                                 auto error = RealType(MathHelpers::pow7(density / 1000.0)) - RealType(1.0);
+                                if(error < 0) { error = 0; }
                                 return error * (relaxParams()->pressureStiffness / density / density);
                             };
     auto shortRangeRepulsiveAccel = [&](const auto& r)
@@ -368,11 +370,11 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                         if(w < MEpsilon<RealType>()) {
                                             return VecN(0);
                                         } else if(r2 > relaxParams()->overlapThresholdSqr) {
-                                            return -relaxParams()->nearPressureStiffness * w / RealType(sqrt(r2)) * r;
+                                            return relaxParams()->nearPressureStiffness * w * kernels().gradNearW(r);
                                         } else {
                                             auto rnd_w  = RealType(1.0) - relaxParams()->overlapThresholdSqr / relaxParams()->nearKernelRadiusSqr;
                                             auto rndDir = glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
-                                            return -relaxParams()->nearPressureStiffness * (w / RealType(sqrt(r2)) * r + rnd_w * rndDir);
+                                            return relaxParams()->nearPressureStiffness * (w * kernels().gradNearW(r) + rnd_w * rndDir);
                                         }
                                     };
     ////////////////////////////////////////////////////////////////////////////////
@@ -393,7 +395,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                     const auto qdensity       = qInfo[N];
                                     const auto qpressure      = particlePressure(qdensity);
                                     const auto pressureAccel  = (ppressure + qpressure) * kernels().gradW(r);
-                                    const auto repulsiveAccel = shortRangeRepulsiveAccel(r);
+                                    const auto repulsiveAccel = shortRangeRepulsiveAccel(r) / qdensity / qdensity;
                                     paccel                   += pressureAccel;
                                     paccel                   += repulsiveAccel;
                                 }

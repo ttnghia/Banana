@@ -56,6 +56,7 @@ struct SPHRelaxationParameters
     RealType particleRadius      = RealType(0);
     RealType particleMass        = RealType(1);
     RealType kernelRadius        = RealType(0);
+    RealType kernelRadiusSqr     = RealType(0);
     RealType nearKernelRadius    = RealType(0);
     RealType nearKernelRadiusSqr = RealType(0);
     RealType overlapThreshold    = RealType(0);
@@ -170,10 +171,12 @@ protected:
     {
         PrecomputedKernel<N, RealType, CubicKernel> kernelCubicSpline;
         PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
+        PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
         ////////////////////////////////////////////////////////////////////////////////
         auto W_zero() const { return kernelCubicSpline.W_zero(); }
         auto W(const VecX<N, RealType>& r) const { return kernelCubicSpline.W(r); }
         auto gradW(const VecX<N, RealType>& r) const { return kernelSpiky.gradW(r); }
+        auto gradNearW(const VecX<N, RealType>& r) const { return nearKernelSpiky.gradW(r); }
     } m_Kernels;
     auto& kernels() { return m_Kernels; }
 
