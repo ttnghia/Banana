@@ -144,7 +144,6 @@ protected:
     {
         Vec_VecN*                         positions = nullptr;
         Vec_VecN                          velocities;
-        Vec_Int8                          isBoundary;
         Vec_RealType                      densities;
         Vec_VecN                          accelerations;
         Vec_VecN                          diffuseVelocity;
@@ -156,7 +155,6 @@ protected:
             positions = &positions_;
             ////////////////////////////////////////////////////////////////////////////////
             velocities.resize(getNParticles(), VecN(0));
-            isBoundary.resize(getNParticles(), 0);
             densities.resize(getNParticles(), 0);
             neighborInfo.resize(getNParticles());
             accelerations.resize(getNParticles(), VecN(0));

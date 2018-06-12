@@ -210,9 +210,6 @@ void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
                                 if(phiVal > 0) {
                                     particleData().velocities[p] = pvel * RealType(-0.1);
-                                    particleData().isBoundary[p] = 1;
-                                } else {
-                                    particleData().isBoundary[p] = 0;
                                 }
                             });
 }
@@ -322,8 +319,12 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
                                 computeDensity(pdensity, pNeighborInfo);
                                 pdensity *= relaxParams()->particleMass;
                                 ////////////////////////////////////////////////////////////////////////////////
-                                if(particleData().isBoundary[p] && pdensity < RealType(1000)) {
-                                    pdensity = RealType(1000);
+                                if(pdensity < RealType(1100)) {
+                                    const auto ppos   = (*particleData().positions)[p];
+                                    const auto phiVal = m_GeometryObj->signedDistance(ppos) / (RealType(2.0) * relaxParams()->particleRadius);
+                                    if(phiVal > RealType(-1.0)) {
+                                        pdensity = MathHelpers::lerp(RealType(1100), pdensity, -phiVal);
+                                    }
                                 }
                                 particleData().densities[p] = MathHelpers::clamp(pdensity, RealType(2e2), RealType(2e3));
                             });
