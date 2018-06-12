@@ -26,6 +26,25 @@
 namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void SPHRelaxationParameters<RealType>::setDefaultParameters()
+{
+    initialJitterRatio = RealType(0.1);
+    intersectThreshold = RealType(1.8);
+    checkFrequency     = 10;
+    initialJitter      = RealType(0.1);
+
+    CFLFactor             = RealType(0.1);
+    minTimestep           = RealType(1e-6);
+    maxTimestep           = RealType(1.0 / 30.0);
+    pressureStiffness     = RealType(100);
+    viscosity             = RealType(0.01);
+    nearKernelRadiusRatio = RealType(2.1);
+    nearPressureStiffness = RealType(100);
+    overlapThresholdRatio = RealType(0.75);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 bool SPHBasedRelaxation<N, RealType>::relaxPositions()
 {

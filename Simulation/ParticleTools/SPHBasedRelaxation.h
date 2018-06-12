@@ -39,19 +39,20 @@ using namespace Banana::ParticleSolvers;
 template<class RealType>
 struct SPHRelaxationParameters
 {
-    UInt     maxIters           = 0;
-    RealType initialJitterRatio = RealType(0.1);
-    RealType intersectThreshold = RealType(1.8);         // stop if getMinDistance() < particleRadius * threshold
-    UInt     checkFrequency     = 0;
+    UInt     maxIters;
+    RealType initialJitterRatio;
+    RealType intersectThreshold; // stop if getMinDistance() < particleRadius * threshold
+    UInt     checkFrequency;
+    RealType initialJitter;
 
-    RealType CFLFactor             = RealType(0.1);
-    RealType minTimestep           = RealType(1e-6);
-    RealType maxTimestep           = RealType(1.0 / 30.0);
-    RealType pressureStiffness     = RealType(100);
-    RealType viscosity             = RealType(0.01);
-    RealType nearKernelRadiusRatio = RealType(2.5);
-    RealType nearPressureStiffness = RealType(100);
-    RealType overlapThresholdRatio = RealType(0.75);
+    RealType CFLFactor;
+    RealType minTimestep;
+    RealType maxTimestep;
+    RealType pressureStiffness;
+    RealType viscosity;
+    RealType nearKernelRadiusRatio;
+    RealType nearPressureStiffness;
+    RealType overlapThresholdRatio;
 
     RealType particleRadius      = RealType(0);
     RealType particleMass        = RealType(1);
@@ -60,12 +61,10 @@ struct SPHRelaxationParameters
     RealType nearKernelRadiusSqr = RealType(0);
     RealType overlapThreshold    = RealType(0);
     RealType overlapThresholdSqr = RealType(0);
-    RealType initialJitter       = RealType(0);
     ////////////////////////////////////////////////////////////////////////////////
-    static auto getDefaultParameters()
-    {
-        return SPHRelaxationParameters<RealType>();
-    }
+    SPHRelaxationParameters() { setDefaultParameters(); }
+    void setDefaultParameters();
+    static auto getDefaultParameters() { return SPHRelaxationParameters<RealType>(); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
