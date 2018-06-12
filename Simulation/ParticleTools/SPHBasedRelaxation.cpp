@@ -20,6 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <ParticleTools/SPHBasedRelaxation.h>
+#include <Banana/Utils/NumberHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleTools
@@ -57,9 +58,8 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
     ////////////////////////////////////////////////////////////////////////////////
     kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
     kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
-    kernels().nearKernelSpiky.setRadius(relaxParams()->nearKernelRadius);
     ////////////////////////////////////////////////////////////////////////////////
-    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->nearKernelRadius);
+    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->particleRadius * RealType(2.2));
     m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->kernelRadius);
     m_NearNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
     m_FarNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
@@ -77,6 +77,8 @@ void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
     RealType substep;
     logger().printLog("Iteration #" + Formatters::toString(iter));
     logger().printRunTimeIndent("CFL timestep",                        [&]() { substep = timestepCFL(); });
+    logger().printRunTimeIndent("Constrain velocity",                  [&]() { constrainVelocity(substep); });
+    logger().printRunTimeIndent("Compute viscosity",                   [&]() { computeViscosity(); });
     logger().printRunTimeIndent("Move particles",                      [&]() { moveParticles(substep); });
     logger().printRunTimeIndent("Find neighbors",                      [&]() { m_FarNSearch->find_neighbors(); });
     logger().printRunTimeIndent("Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
@@ -85,8 +87,6 @@ void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
     logger().printRunTimeIndent("Collect neighbor densities",          [&]() { collectNeighborDensities(); });
     logger().printRunTimeIndent("Compute forces",                      [&]() { computeForces(); });
     logger().printRunTimeIndent("Update velocity",                     [&]() { updateVelocity(substep); });
-    logger().printRunTimeIndent("Constrain velocity",                     [&]() { constrainVelocity(substep); });
-    logger().printRunTimeIndent("Compute viscosity",                   [&]() { computeViscosity(); });
     logger().printLog("Finished step of size " + Formatters::toSciString(substep));
     logger().printMemoryUsage();
     logger().newLine();
@@ -150,15 +150,6 @@ void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
-{
-    RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
-    RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? relaxParams()->CFLFactor * (RealType(2.0) * relaxParams()->particleRadius / maxVel) : Huge<RealType>();
-    return MathHelpers::clamp(CFLTimeStep, relaxParams()->minTimestep, relaxParams()->maxTimestep);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::jitterParticles()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
@@ -167,7 +158,7 @@ void SPHBasedRelaxation<N, RealType>::jitterParticles()
                                 auto& ppos = (*particleData().positions)[p];
                                 VecN pJitter;
                                 for(Int i = 0; i < 10; ++i) {
-                                    pJitter = ppos + relaxParams()->initialJitter * glm::normalize(MathHelpers::vrand11<VecN>());
+                                    pJitter = ppos + relaxParams()->initialJitter * glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
                                     if(m_GeometryObj->signedDistance(pJitter) < 0) {
                                         break;
                                     }
@@ -178,28 +169,83 @@ void SPHBasedRelaxation<N, RealType>::jitterParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
+{
+    RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
+    RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? relaxParams()->CFLFactor * (RealType(2.0) * relaxParams()->particleRadius / maxVel) : Huge<RealType>();
+    return MathHelpers::clamp(CFLTimeStep, relaxParams()->minTimestep, relaxParams()->maxTimestep);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto ppos   = (*particleData().positions)[p] + particleData().velocities[p] * timestep;
+                                auto phiVal = m_GeometryObj->signedDistance(ppos);
+                                if(phiVal > 0) {
+                                    particleData().velocities[p] *= RealType(-0.1);
+                                    particleData().isBoundary[p]  = Int8(1);
+                                } else {
+                                    particleData().isBoundary[p] = Int8(0);
+                                }
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void SPHBasedRelaxation<N, RealType>::computeViscosity()
+{
+    assert(particleData().getNParticles() == static_cast<UInt>(particleData().diffuseVelocity.size()));
+    const auto& fluidPointSet = m_FarNSearch->point_set(0);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& pNeighborInfo = particleData().neighborInfo[p];
+                                const auto& pvel          = particleData().velocities[p];
+                                if(pNeighborInfo.size() == 0) {
+                                    particleData().diffuseVelocity[p] = -relaxParams()->viscosity / RealType(1000) * pvel;
+                                    return;
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
+                                VecN diffVelFluid             = VecN(0);
+                                for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
+                                    const auto q        = fluidNeighborList[i];
+                                    const auto& qvel    = particleData().velocities[q];
+                                    const auto& qInfo   = pNeighborInfo[i];
+                                    const auto r        = VecN(qInfo);
+                                    const auto qdensity = qInfo[N];
+                                    diffVelFluid       += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
+                                }
+                                diffVelFluid                     *= relaxParams()->viscosity;
+                                particleData().diffuseVelocity[p] = diffVelFluid * relaxParams()->particleMass;
+                            });
+    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                auto pvel = particleData().velocities[p];
-                                auto ppos = (*particleData().positions)[p] + pvel * timestep;
+                                auto ppos = (*particleData().positions)[p] + particleData().velocities[p] * timestep;
                                 for(auto& obj : m_BoundaryObjects) {
                                     obj->constrainToBoundary(ppos);
                                 }
-
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
                                 if(phiVal > 0) {
                                     auto grad     = m_GeometryObj->gradSignedDistance(ppos);
                                     auto mag2Grad = glm::length2(grad);
                                     if(mag2Grad > Tiny<RealType>()) {
-                                        grad /= sqrt(mag2Grad);
+                                        grad /= RealType(sqrt(mag2Grad));
                                         ppos -= phiVal * grad;
-                                        // particleData().velocities[p] = pvel * RealType(-1);
                                     }
                                 }
-
                                 (*particleData().positions)[p] = ppos;
                             });
 }
@@ -269,6 +315,10 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
                                 if(pNeighborInfo.size() == 0) {
                                     return;
                                 }
+                                if(particleData().isBoundary[p]) {
+                                    particleData().densities[p] = RealType(1000);
+                                    return;
+                                }
                                 auto pdensity = kernels().W_zero();
                                 computeDensity(pdensity, pNeighborInfo);
                                 pdensity *= relaxParams()->particleMass;
@@ -322,22 +372,18 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                 auto error = RealType(MathHelpers::pow7(density / 1000.0)) - RealType(1.0);
                                 error *= (relaxParams()->pressureStiffness / density / density);
                                 return error;
-                                /* if(error > RealType(0)) {
-                                   } else {
-                                    return RealType(0);
-                                   } */
                             };
     auto shortRangeRepulsiveAcceleration = [&](const auto& r)
                                            {
                                                const auto r2 = glm::length2(r);
-                                               auto       w  = RealType(1.0) - sqrtf(r2 / relaxParams()->nearKernelRadiusSqr);                                            // MathHelpers::smooth_kernel(r2, relaxParams()->nearKernelRadiusSqr);
+                                               auto       w  = RealType(1.0) - MathHelpers::quadratic_kernel(r2, relaxParams()->nearKernelRadiusSqr);
                                                if(w < MEpsilon<RealType>()) {
                                                    return VecN(0);
                                                } else if(r2 > relaxParams()->overlapThresholdSqr) {
                                                    return -relaxParams()->nearPressureStiffness * w / RealType(sqrt(r2)) * r;
                                                } else {
-                                                   w = MathHelpers::smooth_kernel(relaxParams()->overlapThresholdSqr, relaxParams()->nearKernelRadiusSqr);
-                                                   auto rndDir = glm::normalize(MathHelpers::vrand11<VecN>());
+                                                   w = MathHelpers::quadratic_kernel(relaxParams()->overlapThresholdSqr, relaxParams()->nearKernelRadiusSqr);
+                                                   auto rndDir = glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
                                                    return relaxParams()->nearPressureStiffness * w * rndDir;
                                                }
                                            };
@@ -372,54 +418,6 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::updateVelocity(RealType timestep)
 {
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().accelerations[p] * timestep; });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
-{
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                auto pvel   = particleData().velocities[p];
-                                auto ppos   = (*particleData().positions)[p] + pvel * timestep;
-                                auto phiVal = m_GeometryObj->signedDistance(ppos);
-                                if(phiVal > 0) {
-                                    // particleData().velocities[p] = pvel * RealType(-0.1);
-                                    particleData().velocities[p] = VecN(0);
-                                }
-                            });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::computeViscosity()
-{
-    assert(particleData().getNParticles() == static_cast<UInt>(particleData().diffuseVelocity.size()));
-    const auto& fluidPointSet = m_FarNSearch->point_set(0);
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                const auto& pNeighborInfo = particleData().neighborInfo[p];
-                                if(pNeighborInfo.size() == 0) {
-                                    return;
-                                }
-                                const auto& pvel = particleData().velocities[p];
-                                ////////////////////////////////////////////////////////////////////////////////
-                                const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                VecN diffVelFluid             = VecN(0);
-                                for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
-                                    const auto q        = fluidNeighborList[i];
-                                    const auto& qvel    = particleData().velocities[q];
-                                    const auto& qInfo   = pNeighborInfo[i];
-                                    const auto r        = VecN(qInfo);
-                                    const auto qdensity = qInfo[N];
-                                    diffVelFluid       += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
-                                }
-                                diffVelFluid                     *= relaxParams()->viscosity;
-                                particleData().diffuseVelocity[p] = diffVelFluid * relaxParams()->particleMass;
-                            });
-    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

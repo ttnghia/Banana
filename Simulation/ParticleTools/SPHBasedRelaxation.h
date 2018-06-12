@@ -146,6 +146,7 @@ protected:
         Vec_RealType                      tmp_densities;
         Vec_VecN                          accelerations;
         Vec_VecN                          diffuseVelocity;
+        Vec_Int8                          isBoundary;
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
         ////////////////////////////////////////////////////////////////////////////////
         UInt getNParticles() const { return static_cast<UInt>(positions->size()); }
@@ -158,6 +159,7 @@ protected:
             tmp_densities.resize(getNParticles(), 0);
             neighborInfo.resize(getNParticles());
             accelerations.resize(getNParticles(), VecN(0));
+            isBoundary.resize(getNParticles(), 0);
             diffuseVelocity.resize(getNParticles(), VecN(0));
         }
     } m_SPHData;
@@ -170,12 +172,10 @@ protected:
     {
         PrecomputedKernel<N, RealType, CubicKernel> kernelCubicSpline;
         PrecomputedKernel<N, RealType, SpikyKernel> kernelSpiky;
-        PrecomputedKernel<N, RealType, SpikyKernel> nearKernelSpiky;
         ////////////////////////////////////////////////////////////////////////////////
         auto W_zero() const { return kernelCubicSpline.W_zero(); }
         auto W(const VecX<N, RealType>& r) const { return kernelCubicSpline.W(r); }
         auto gradW(const VecX<N, RealType>& r) const { return kernelSpiky.gradW(r); }
-        auto gradNearW(const VecX<N, RealType>& r) const { return nearKernelSpiky.gradW(r); }
     } m_Kernels;
     auto& kernels() { return m_Kernels; }
 
