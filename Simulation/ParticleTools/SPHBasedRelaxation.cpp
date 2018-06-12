@@ -43,26 +43,30 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions()
 template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::updateParams()
 {
-    relaxParams()->initialJitter       = relaxParams()->particleRadius * relaxParams()->initialJitterRatio;
-    relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
-    relaxParams()->nearKernelRadius    = relaxParams()->nearKernelRadiusRatio * relaxParams()->particleRadius;
-    relaxParams()->nearKernelRadiusSqr = relaxParams()->nearKernelRadius * relaxParams()->nearKernelRadius;
-    relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
-    relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
-    relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
-    if constexpr(N == 2) {
-        relaxParams()->particleMass *= RealType(0.95);
-    } else {
-        relaxParams()->particleMass *= RealType(0.8);
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
-    kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
-    ////////////////////////////////////////////////////////////////////////////////
-    m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->nearKernelRadius);
-    m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->kernelRadius);
-    m_NearNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
-    m_FarNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
+    logger().printRunTime("Update parameters", [&]()
+                          {
+                              relaxParams()->initialJitter       = relaxParams()->particleRadius * relaxParams()->initialJitterRatio;
+                              relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
+                              relaxParams()->nearKernelRadius    = relaxParams()->nearKernelRadiusRatio * relaxParams()->particleRadius;
+                              relaxParams()->nearKernelRadiusSqr = relaxParams()->nearKernelRadius * relaxParams()->nearKernelRadius;
+                              relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
+                              relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
+                              relaxParams()->particleMass        = RealType(pow(RealType(2.0) * relaxParams()->particleRadius, N)) * RealType(1000);
+                              if constexpr(N == 2) {
+                                  relaxParams()->particleMass *= RealType(0.95);
+                              } else {
+                                  relaxParams()->particleMass *= RealType(0.7);
+                              }
+                              ////////////////////////////////////////////////////////////////////////////////
+                              kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
+                              kernels().kernelSpiky.setRadius(relaxParams()->kernelRadius);
+                              ////////////////////////////////////////////////////////////////////////////////
+                              m_NearNSearch = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->nearKernelRadius);
+                              m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->kernelRadius);
+                              m_NearNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
+                              m_FarNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
+                              m_FarNSearch->find_neighbors();
+                          });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -186,7 +190,7 @@ void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
                                 auto ppos   = (*particleData().positions)[p] + pvel * timestep;
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
                                 if(phiVal > 0) {
-                                    particleData().velocities[p] = -pvel;
+                                    particleData().velocities[p] = pvel * RealType(-0.1);
                                     particleData().isBoundary[p] = 1;
                                 } else {
                                     particleData().isBoundary[p] = 0;

@@ -190,6 +190,7 @@ void MainWindow::connectWidgets()
                 if(sceneFile == "None") {
                     return;
                 }
+                ////////////////////////////////////////////////////////////////////////////////
                 m_Sampler->reloadVizData(m_Controller->m_chkReloadVizData->isChecked());
                 m_Sampler->changeScene(sceneFile);
                 m_FrameNumber = 0;
@@ -214,8 +215,8 @@ void MainWindow::connectWidgets()
                 if(m_Controller->m_cbScene->getComboBox()->currentText() == "None") {
                     return;
                 }
+                ////////////////////////////////////////////////////////////////////////////////
                 bool isRunning = m_Sampler->isRunning();
-
                 if(!isRunning) {
                     m_Controller->updateRelaxParams();
                     m_Sampler->startRelaxation();
