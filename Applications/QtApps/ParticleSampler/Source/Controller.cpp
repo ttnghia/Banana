@@ -19,7 +19,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/Utils/Formatters.h>
 #include <QtAppHelpers/QtAppUtils.h>
 #include "Common.h"
 #include "Controller.h"
@@ -183,6 +182,8 @@ void Controller::setupSceneControllers()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupSamplingParametersControllers()
 {
+    auto defaultParams = ParticleTools::SPHRelaxationParameters<float>::getDefaultParameters();
+    ////////////////////////////////////////////////////////////////////////////////
     m_cbMaxIterations          = new EnhancedComboBox;
     m_cbCheckFrequency         = new EnhancedComboBox;
     m_txtIntersectionThreshold = new QLineEdit;
@@ -195,9 +196,9 @@ void Controller::setupSamplingParametersControllers()
         m_cbCheckFrequency->getComboBox()->addItem(QString("%1").arg(i * 10));
     }
     m_cbCheckFrequency->setCurrentIndex(1);
-    m_cbMaxIterations->setCurrentIndex(10);
-    m_txtIntersectionThreshold->setText("1.8");
-    m_txtInitialJitter->setText("0.1");
+    m_cbMaxIterations->setCurrentIndex(1);
+    m_txtIntersectionThreshold->setText(QString::fromStdString(Formatters::toString2f(defaultParams.intersectThreshold)));
+    m_txtInitialJitter->setText(QString::fromStdString(Formatters::toString2f(defaultParams.initialJitter)));
 
     QGridLayout* layoutStopCriteria = new QGridLayout;
     int          row                = 0;
@@ -222,13 +223,12 @@ void Controller::setupSamplingParametersControllers()
     m_txtSPHNearKernelRadiusRatio = new QLineEdit;
     m_txtSPHNearPressureStiffness = new QLineEdit;
 
-    auto defaultParams = ParticleTools::SPHRelaxationParameters<float>::getDefaultParameters();
-    m_txtSPHCFLFactor->setText(QString::fromStdString(Formatters::toString(defaultParams.CFLFactor)));
-    m_txtSPHPressureStiffness->setText(QString::fromStdString(Formatters::toString(defaultParams.pressureStiffness)));
-    m_txtSPHViscosity->setText(QString::fromStdString(Formatters::toString(defaultParams.viscosity)));
-    m_txtSPHOverlapThreshold->setText(QString::fromStdString(Formatters::toString(defaultParams.overlapThresholdRatio)));
-    m_txtSPHNearKernelRadiusRatio->setText(QString::fromStdString(Formatters::toString(defaultParams.nearKernelRadiusRatio)));
-    m_txtSPHNearPressureStiffness->setText(QString::fromStdString(Formatters::toString(defaultParams.nearPressureStiffness)));
+    m_txtSPHCFLFactor->setText(QString::fromStdString(Formatters::toString2f(defaultParams.CFLFactor)));
+    m_txtSPHPressureStiffness->setText(QString::fromStdString(Formatters::toString2f(defaultParams.pressureStiffness)));
+    m_txtSPHViscosity->setText(QString::fromStdString(Formatters::toString2f(defaultParams.viscosity)));
+    m_txtSPHOverlapThreshold->setText(QString::fromStdString(Formatters::toString2f(defaultParams.overlapThresholdRatio)));
+    m_txtSPHNearKernelRadiusRatio->setText(QString::fromStdString(Formatters::toString2f(defaultParams.nearKernelRadiusRatio)));
+    m_txtSPHNearPressureStiffness->setText(QString::fromStdString(Formatters::toString2f(defaultParams.nearPressureStiffness)));
 
     QGridLayout* layoutSPHParameters = new QGridLayout;
     row = 0;
