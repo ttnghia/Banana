@@ -42,6 +42,7 @@ void SPHRelaxationParameters<RealType>::setDefaultParameters()
     nearKernelRadiusRatio = RealType(2.0);
     nearPressureStiffness = RealType(50000);
     overlapThresholdRatio = RealType(0.75);
+    boundaryRestitution   = RealType(0.5);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -210,7 +211,12 @@ void SPHBasedRelaxation<N, RealType>::constrainVelocity(RealType timestep)
                                 auto ppos   = (*particleData().positions)[p] + pvel * timestep;
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
                                 if(phiVal > 0) {
-                                    particleData().velocities[p] = pvel * RealType(-1);
+                                    auto grad     = m_GeometryObj->gradSignedDistance(ppos);
+                                    auto mag2Grad = glm::length2(grad);
+                                    if(mag2Grad > Tiny<RealType>()) {
+                                        grad                        /= RealType(sqrt(mag2Grad));
+                                        particleData().velocities[p] = glm::reflect(pvel, grad) * (relaxParams()->boundaryRestitution);
+                                    }
                                 }
                             });
 }

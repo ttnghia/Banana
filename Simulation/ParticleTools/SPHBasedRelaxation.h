@@ -52,6 +52,7 @@ struct SPHRelaxationParameters
     RealType nearKernelRadiusRatio;
     RealType nearPressureStiffness;
     RealType overlapThresholdRatio;
+    RealType boundaryRestitution;
 
     RealType particleRadius      = RealType(0);
     RealType particleMass        = RealType(1);

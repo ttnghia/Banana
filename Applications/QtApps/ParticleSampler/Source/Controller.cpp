@@ -40,6 +40,7 @@ void Controller::updateRelaxParams()
         params->overlapThresholdRatio = std::stof(m_txtSPHOverlapThreshold->text().toStdString());
         params->nearKernelRadiusRatio = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
         params->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
+        params->boundaryRestitution   = std::stof(m_txtSPHBoundaryRestitution->text().toStdString());
     }
 }
 
@@ -222,6 +223,7 @@ void Controller::setupSamplingParametersControllers()
     m_txtSPHOverlapThreshold      = new QLineEdit;
     m_txtSPHNearKernelRadiusRatio = new QLineEdit;
     m_txtSPHNearPressureStiffness = new QLineEdit;
+    m_txtSPHBoundaryRestitution   = new QLineEdit;
 
     m_txtSPHCFLFactor->setText(QString::fromStdString(Formatters::toString2f(defaultParams.CFLFactor)));
     m_txtSPHPressureStiffness->setText(QString::fromStdString(Formatters::toString2f(defaultParams.pressureStiffness)));
@@ -229,6 +231,7 @@ void Controller::setupSamplingParametersControllers()
     m_txtSPHOverlapThreshold->setText(QString::fromStdString(Formatters::toString2f(defaultParams.overlapThresholdRatio)));
     m_txtSPHNearKernelRadiusRatio->setText(QString::fromStdString(Formatters::toString2f(defaultParams.nearKernelRadiusRatio)));
     m_txtSPHNearPressureStiffness->setText(QString::fromStdString(Formatters::toString2f(defaultParams.nearPressureStiffness)));
+    m_txtSPHBoundaryRestitution->setText(QString::fromStdString(Formatters::toString2f(defaultParams.boundaryRestitution)));
 
     QGridLayout* layoutSPHParameters = new QGridLayout;
     row = 0;
@@ -244,6 +247,8 @@ void Controller::setupSamplingParametersControllers()
     layoutSPHParameters->addWidget(m_txtSPHNearKernelRadiusRatio,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Near pressure stiffness:    "),  row,   0, 1, 2);
     layoutSPHParameters->addWidget(m_txtSPHNearPressureStiffness,                                         row++, 2, 1, 1);
+    layoutSPHParameters->addWidget(                          new QLabel("Boundary restitution:    "),     row,   0, 1, 2);
+    layoutSPHParameters->addWidget(  m_txtSPHBoundaryRestitution,                                         row++, 2, 1, 1);
 
     QGroupBox* grSPHParameters = new QGroupBox;
     grSPHParameters->setTitle("SPH Solver Parameters");
