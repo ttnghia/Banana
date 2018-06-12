@@ -716,6 +716,18 @@ inline S cubic_interp(const S& value_neg1, const S& value0, const S& value1,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
+T linear_kernel(T r, T h)
+{
+    return r > h ? T(0) : T(1.0) - r / h;
+}
+
+template<class T>
+T quadratic_kernel(T r2, T h2)
+{
+    return r2 > h2 ? T(0) : T(1.0) - r2 / h2;
+}
+
+template<class T>
 T sharp_kernel(T r2, T h)
 {
     if(r2 > h * h) {
