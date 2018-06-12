@@ -44,15 +44,14 @@ struct SPHRelaxationParameters
     RealType intersectThreshold = RealType(1.8);         // stop if getMinDistance() < particleRadius * threshold
     UInt     checkFrequency     = 0;
 
-    RealType CFLFactor             = RealType(0.01);
+    RealType CFLFactor             = RealType(0.1);
     RealType minTimestep           = RealType(1e-6);
     RealType maxTimestep           = RealType(1.0 / 30.0);
     RealType pressureStiffness     = RealType(50000);
-    RealType viscosity             = RealType(0.1);
+    RealType viscosity             = RealType(0.01);
     RealType nearKernelRadiusRatio = RealType(2.5);
     RealType nearPressureStiffness = RealType(50000);
-    RealType overlapThresholdRatio = RealType(0.1);
-    bool     bNormalizeDensity     = false;
+    RealType overlapThresholdRatio = RealType(0.75);
 
     RealType particleRadius      = RealType(0);
     RealType particleMass        = RealType(1);
@@ -62,6 +61,11 @@ struct SPHRelaxationParameters
     RealType overlapThreshold    = RealType(0);
     RealType overlapThresholdSqr = RealType(0);
     RealType initialJitter       = RealType(0);
+    ////////////////////////////////////////////////////////////////////////////////
+    static auto getDefaultParameters()
+    {
+        return SPHRelaxationParameters<RealType>();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -128,25 +132,23 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     RealType timestepCFL();
     void     jitterParticles();
+    void     constrainVelocity(RealType timestep);
+    void     computeViscosity();
     void     moveParticles(RealType timestep);
     void     computeNeighborRelativePositions();
     void     computeDensity();
-    bool     normalizeDensity();
     void     collectNeighborDensities();
     void     computeForces();
     void     updateVelocity(RealType timestep);
-    void     constrainVelocity(RealType timestep);
-    void     computeViscosity();
     ////////////////////////////////////////////////////////////////////////////////
     struct
     {
         Vec_VecN*                         positions = nullptr;
         Vec_VecN                          velocities;
+        Vec_Int8                          isBoundary;
         Vec_RealType                      densities;
-        Vec_RealType                      tmp_densities;
         Vec_VecN                          accelerations;
         Vec_VecN                          diffuseVelocity;
-        Vec_Int8                          isBoundary;
         Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
         ////////////////////////////////////////////////////////////////////////////////
         UInt getNParticles() const { return static_cast<UInt>(positions->size()); }
@@ -155,11 +157,10 @@ protected:
             positions = &positions_;
             ////////////////////////////////////////////////////////////////////////////////
             velocities.resize(getNParticles(), VecN(0));
+            isBoundary.resize(getNParticles(), 0);
             densities.resize(getNParticles(), 0);
-            tmp_densities.resize(getNParticles(), 0);
             neighborInfo.resize(getNParticles());
             accelerations.resize(getNParticles(), VecN(0));
-            isBoundary.resize(getNParticles(), 0);
             diffuseVelocity.resize(getNParticles(), VecN(0));
         }
     } m_SPHData;

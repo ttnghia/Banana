@@ -19,9 +19,10 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Utils/Formatters.h>
+#include <QtAppHelpers/QtAppUtils.h>
 #include "Common.h"
 #include "Controller.h"
-#include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::updateRelaxParams()
@@ -35,14 +36,11 @@ void Controller::updateRelaxParams()
 
         params->particleRadius        = m_ParticleSampler->getParticleData()->particleRadius;
         params->CFLFactor             = std::stof(m_txtSPHCFLFactor->text().toStdString());
-        params->minTimestep           = std::stof(m_txtSPHMinTimestep->text().toStdString());
-        params->maxTimestep           = std::stof(m_txtSPHMaxTimestep->text().toStdString());
         params->pressureStiffness     = std::stof(m_txtSPHPressureStiffness->text().toStdString());
         params->viscosity             = std::stof(m_txtSPHViscosity->text().toStdString());
         params->overlapThresholdRatio = std::stof(m_txtSPHOverlapThreshold->text().toStdString());
         params->nearKernelRadiusRatio = std::stof(m_txtSPHNearKernelRadiusRatio->text().toStdString());
         params->nearPressureStiffness = std::stof(m_txtSPHNearPressureStiffness->text().toStdString());
-        params->bNormalizeDensity     = m_chkNormalizeDensity->isChecked();
     }
 }
 
@@ -218,32 +216,24 @@ void Controller::setupSamplingParametersControllers()
     m_LayoutRelaxationControllers->addWidget(grStopCriteria);
     ////////////////////////////////////////////////////////////////////////////////
     m_txtSPHCFLFactor             = new QLineEdit;
-    m_txtSPHMinTimestep           = new QLineEdit;
-    m_txtSPHMaxTimestep           = new QLineEdit;
     m_txtSPHPressureStiffness     = new QLineEdit;
     m_txtSPHViscosity             = new QLineEdit;
     m_txtSPHOverlapThreshold      = new QLineEdit;
     m_txtSPHNearKernelRadiusRatio = new QLineEdit;
     m_txtSPHNearPressureStiffness = new QLineEdit;
-    m_chkNormalizeDensity         = new QCheckBox;
 
-    m_txtSPHCFLFactor->setText("0.01");
-    m_txtSPHMinTimestep->setText("0.000001");
-    m_txtSPHMaxTimestep->setText("0.333333");
-    m_txtSPHPressureStiffness->setText("50000");
-    m_txtSPHViscosity->setText("0.1");
-    m_txtSPHOverlapThreshold->setText("0.1");
-    m_txtSPHNearKernelRadiusRatio->setText("2.5");
-    m_txtSPHNearPressureStiffness->setText("50000");
+    auto defaultParams = ParticleTools::SPHRelaxationParameters<float>::getDefaultParameters();
+    m_txtSPHCFLFactor->setText(QString::fromStdString(Formatters::toString(defaultParams.CFLFactor)));
+    m_txtSPHPressureStiffness->setText(QString::fromStdString(Formatters::toString(defaultParams.pressureStiffness)));
+    m_txtSPHViscosity->setText(QString::fromStdString(Formatters::toString(defaultParams.viscosity)));
+    m_txtSPHOverlapThreshold->setText(QString::fromStdString(Formatters::toString(defaultParams.overlapThresholdRatio)));
+    m_txtSPHNearKernelRadiusRatio->setText(QString::fromStdString(Formatters::toString(defaultParams.nearKernelRadiusRatio)));
+    m_txtSPHNearPressureStiffness->setText(QString::fromStdString(Formatters::toString(defaultParams.nearPressureStiffness)));
 
     QGridLayout* layoutSPHParameters = new QGridLayout;
     row = 0;
     layoutSPHParameters->addWidget(                          new QLabel("CFL factor:    "),               row,   0, 1, 2);
     layoutSPHParameters->addWidget(            m_txtSPHCFLFactor,                                         row++, 2, 1, 1);
-    layoutSPHParameters->addWidget(                          new QLabel("Min. timestep:    "),            row,   0, 1, 2);
-    layoutSPHParameters->addWidget(          m_txtSPHMinTimestep,                                         row++, 2, 1, 1);
-    layoutSPHParameters->addWidget(                          new QLabel("Max. timestep:    "),            row,   0, 1, 2);
-    layoutSPHParameters->addWidget(          m_txtSPHMaxTimestep,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Pressure stiffness:    "),       row,   0, 1, 2);
     layoutSPHParameters->addWidget(    m_txtSPHPressureStiffness,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Viscosity:    "),                row,   0, 1, 2);
@@ -254,10 +244,6 @@ void Controller::setupSamplingParametersControllers()
     layoutSPHParameters->addWidget(m_txtSPHNearKernelRadiusRatio,                                         row++, 2, 1, 1);
     layoutSPHParameters->addWidget(                          new QLabel("Near pressure stiffness:    "),  row,   0, 1, 2);
     layoutSPHParameters->addWidget(m_txtSPHNearPressureStiffness,                                         row++, 2, 1, 1);
-
-    layoutSPHParameters->addLayout(QtAppUtils::getLayoutSpacing(), row++, 0, 1, 2);
-    layoutSPHParameters->addWidget(                  new QLabel("Normalize density:    "), row,   0, 1, 2);
-    layoutSPHParameters->addWidget(m_chkNormalizeDensity,                                  row++, 2, 1, 1);
 
     QGroupBox* grSPHParameters = new QGroupBox;
     grSPHParameters->setTitle("SPH Solver Parameters");
