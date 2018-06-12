@@ -1,6 +1,7 @@
 .DS_Store
 *.DS_Storer
 **/.vs
+.vscode
 **/*.db
 **/*.opendb
 **/Debug/*
