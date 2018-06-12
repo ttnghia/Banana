@@ -40,10 +40,9 @@ template<class RealType>
 struct SPHRelaxationParameters
 {
     UInt     maxIters;
-    RealType initialJitterRatio;
     RealType intersectThreshold; // stop if getMinDistance() < particleRadius * threshold
     UInt     checkFrequency;
-    RealType initialJitter;
+    RealType initialJitterRatio;
 
     RealType CFLFactor;
     RealType minTimestep;
@@ -61,6 +60,7 @@ struct SPHRelaxationParameters
     RealType nearKernelRadiusSqr = RealType(0);
     RealType overlapThreshold    = RealType(0);
     RealType overlapThresholdSqr = RealType(0);
+    RealType initialJitter;
     ////////////////////////////////////////////////////////////////////////////////
     SPHRelaxationParameters() { setDefaultParameters(); }
     void setDefaultParameters();

@@ -198,7 +198,7 @@ void Controller::setupSamplingParametersControllers()
     m_cbCheckFrequency->setCurrentIndex(1);
     m_cbMaxIterations->setCurrentIndex(1);
     m_txtIntersectionThreshold->setText(QString::fromStdString(Formatters::toString2f(defaultParams.intersectThreshold)));
-    m_txtInitialJitter->setText(QString::fromStdString(Formatters::toString2f(defaultParams.initialJitter)));
+    m_txtInitialJitter->setText(QString::fromStdString(Formatters::toString2f(defaultParams.initialJitterRatio)));
 
     QGridLayout* layoutStopCriteria = new QGridLayout;
     int          row                = 0;

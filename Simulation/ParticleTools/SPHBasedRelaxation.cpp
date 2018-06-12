@@ -29,10 +29,10 @@ namespace Banana::ParticleTools
 template<class RealType>
 void SPHRelaxationParameters<RealType>::setDefaultParameters()
 {
-    initialJitterRatio = RealType(0.1);
+    maxIters           = 1000u;
     intersectThreshold = RealType(1.8);
     checkFrequency     = 10;
-    initialJitter      = RealType(0.1);
+    initialJitterRatio = RealType(0.1);
 
     CFLFactor             = RealType(0.1);
     minTimestep           = RealType(1e-6);
