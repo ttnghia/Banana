@@ -32,7 +32,7 @@ namespace Banana::SimulationObjects
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 inline SimulationObject<N, RealType>::SimulationObject(const JParams& jParams, bool bCSGObj) :
-    m_jParams(jParams), m_NameID(String(String("Object_") + std::to_string(NumberHelpers::MT_iRandom<Int>::rnd())))
+    m_jParams(jParams), m_NameID(String(String("Object_") + std::to_string(NumberHelpers::iRand<Int>::rnd())))
 {
     if(bCSGObj) {
         m_GeometryObj = GeometryObjectFactory::createGeometry<N, RealType>("CSGObject");

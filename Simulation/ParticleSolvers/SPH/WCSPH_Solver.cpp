@@ -532,7 +532,7 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                                } else if(d2 > solverParams().overlapThresholdSqr) {
                                                    return -solverParams().shortRangeRepulsiveForceStiffness * w / RealType(sqrt(d2)) * r;
                                                } else {
-                                                   return solverParams().shortRangeRepulsiveForceStiffness * MathHelpers::vrand11<VecN>();
+                                                   return solverParams().shortRangeRepulsiveForceStiffness * NumberHelpers::fRand11<RealType>::vrnd<VecN>();
                                                }
                                            };
     ////////////////////////////////////////////////////////////////////////////////

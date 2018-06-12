@@ -433,7 +433,7 @@ bool PIC_Solver<N, RealType>::correctParticlePositions(RealType timestep)
                                                 if(d2 > threshold2) {
                                                     spring += w * xpq / sqrt(d2);
                                                 } else {
-                                                    spring += threshold / timestep * MathHelpers::vrand11<VecN>();
+                                                    spring += threshold / timestep * NumberHelpers::fRand11<RealType>::vrnd<VecN>();
                                                 }
                                             }
                                         }
@@ -479,7 +479,7 @@ bool PIC_Solver<N, RealType>::correctParticlePositions(RealType timestep)
                                                     if(d2 > threshold2) {
                                                         spring += w * xpq / sqrt(d2);
                                                     } else {
-                                                        spring += threshold / timestep * MathHelpers::vrand11<VecN>();
+                                                        spring += threshold / timestep * NumberHelpers::fRand11<RealType>::vrnd<VecN>();
                                                     }
                                                 }
                                             }
