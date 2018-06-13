@@ -61,7 +61,7 @@ void OpenGLController::connectBasicWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // sky box
-    connect(m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_GLWidget, SLOT(setSkyBoxTextureIndex(int)));
+    connect(m_cbSkyTexture, &EnhancedComboBox::currentIndexChanged, m_GLWidget, &OpenGLWidget::setSkyBoxTextureIndex);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -85,10 +85,10 @@ void OpenGLController::connectBasicWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // floor
-    connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_GLWidget, SLOT(setFloorTextureIndex(int)));
-    connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorSize);
-    connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorTexScales);
-    connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged,           m_GLWidget, &OpenGLWidget::setFloorExposure);
+    connect(m_cbFloorTexture,                &EnhancedComboBox::currentIndexChanged, m_GLWidget, &OpenGLWidget::setFloorTextureIndex);
+    connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,                 m_GLWidget, &OpenGLWidget::setFloorSize);
+    connect(m_sldFloorSize->getSlider(),     &QSlider::valueChanged,                 m_GLWidget, &OpenGLWidget::setFloorTexScales);
+    connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged,                 m_GLWidget, &OpenGLWidget::setFloorExposure);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -194,16 +194,15 @@ void OpenGLController::setupBackgroundControllers()
 
 void OpenGLController::loadSkyBoxTextures()
 {
-    auto cbSkyTex        = m_cbSkyTexture->getComboBox();
-    Int  currentSkyTexID = cbSkyTex->currentIndex();
-    cbSkyTex->clear();
-    cbSkyTex->addItem("None");
+    Int currentSkyTexID = m_cbSkyTexture->currentIndex();
+    m_cbSkyTexture->clear();
+    m_cbSkyTexture->addItem("None");
     ////////////////////////////////////////////////////////////////////////////////
     auto skyTexFolders = QtAppUtils::getTextureFolders("Sky");
     foreach(const auto& tex, skyTexFolders) {
-        cbSkyTex->addItem(tex);
+        m_cbSkyTexture->addItem(tex);
     }
-    cbSkyTex->setCurrentIndex(currentSkyTexID > 0 ? currentSkyTexID : 0);
+    m_cbSkyTexture->setCurrentIndex(currentSkyTexID > 0 ? currentSkyTexID : 0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -236,16 +235,15 @@ void OpenGLController::setupFloorControllers()
 
 void OpenGLController::loadFloorTextures()
 {
-    auto cbFloorTex        = m_cbFloorTexture->getComboBox();
-    Int  currentFloorTexID = cbFloorTex->currentIndex();
-    cbFloorTex->clear();
-    cbFloorTex->addItem("None");
+    Int currentFloorTexID = m_cbFloorTexture->currentIndex();
+    m_cbFloorTexture->clear();
+    m_cbFloorTexture->addItem("None");
     ////////////////////////////////////////////////////////////////////////////////
     auto floorTexFolders = QtAppUtils::getTextureFiles("Floor");
     foreach(const auto& tex, floorTexFolders) {
-        cbFloorTex->addItem(tex);
+        m_cbFloorTexture->addItem(tex);
     }
-    cbFloorTex->setCurrentIndex(currentFloorTexID > 0 ? currentFloorTexID : 0);
+    m_cbFloorTexture->setCurrentIndex(currentFloorTexID > 0 ? currentFloorTexID : 0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

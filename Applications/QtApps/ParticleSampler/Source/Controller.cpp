@@ -28,19 +28,19 @@ void Controller::updateRelaxParams()
 {
     const auto& relaxParams = m_ParticleSampler->getRelaxParams();
     for(const auto& params: relaxParams) {
-        params->maxIters           = static_cast<UInt>(std::stoi(m_cbMaxIterations->getComboBox()->currentText().toStdString()));
-        params->checkFrequency     = static_cast<UInt>(std::stoi(m_cbCheckFrequency->getComboBox()->currentText().toStdString()));
-        params->intersectThreshold = std::stof(m_cbIntersectionThreshold->getComboBox()->currentText().toStdString());
-        params->initialJitterRatio = std::stof(m_cbInitialJitter->getComboBox()->currentText().toStdString());
+        params->maxIters           = m_cbMaxIterations->currentTextAsUInt();
+        params->checkFrequency     = m_cbCheckFrequency->currentTextAsUInt();
+        params->intersectThreshold = m_cbIntersectionThreshold->currentTextAsFloat();
+        params->initialJitterRatio = m_cbInitialJitter->currentTextAsFloat();
 
         params->particleRadius        = m_ParticleSampler->getParticleData()->particleRadius;
-        params->CFLFactor             = std::stof(m_cbSPHCFLFactor->getComboBox()->currentText().toStdString());
-        params->pressureStiffness     = std::stof(m_cbSPHPressureStiffness->getComboBox()->currentText().toStdString());
-        params->viscosity             = std::stof(m_cbSPHViscosity->getComboBox()->currentText().toStdString());
-        params->overlapThresholdRatio = std::stof(m_cbSPHOverlapThreshold->getComboBox()->currentText().toStdString());
-        params->nearKernelRadiusRatio = std::stof(m_cbSPHNearKernelRadiusRatio->getComboBox()->currentText().toStdString());
-        params->nearPressureStiffness = std::stof(m_cbSPHNearPressureStiffness->getComboBox()->currentText().toStdString());
-        params->boundaryRestitution   = std::stof(m_cbSPHBoundaryRestitution->getComboBox()->currentText().toStdString());
+        params->CFLFactor             = m_cbSPHCFLFactor->currentTextAsFloat();
+        params->pressureStiffness     = m_cbSPHPressureStiffness->currentTextAsFloat();
+        params->viscosity             = m_cbSPHViscosity->currentTextAsFloat();
+        params->overlapThresholdRatio = m_cbSPHOverlapThreshold->currentTextAsFloat();
+        params->nearKernelRadiusRatio = m_cbSPHNearKernelRadiusRatio->currentTextAsFloat();
+        params->nearPressureStiffness = m_cbSPHNearPressureStiffness->currentTextAsFloat();
+        params->boundaryRestitution   = m_cbSPHBoundaryRestitution->currentTextAsFloat();
     }
 }
 
@@ -181,8 +181,8 @@ void Controller::setupCaptureControllers()
 void Controller::setupSceneControllers()
 {
     m_cbScene = new EnhancedComboBox;
-    m_cbScene->getComboBox()->addItem(QString("None"));
-    m_cbScene->getComboBox()->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
+    m_cbScene->addItem(QString("None"));
+    m_cbScene->addItems(QtAppUtils::getFiles(QtAppUtils::getDefaultPath("Scenes")));
     m_btnReloadScene = new QPushButton(" Reload ");
     ////////////////////////////////////////////////////////////////////////////////
     m_chkReloadVizData = new QCheckBox("Reload vizualization data");
@@ -211,10 +211,10 @@ void Controller::setupSamplingParametersControllers()
     m_cbIntersectionThreshold = new EnhancedComboBox;
     m_cbInitialJitter         = new EnhancedComboBox;
 
-    m_cbMaxIterations->getComboBox()->addItems({ "100", "500", "1000", "2000", "5000", "10000" });
-    m_cbCheckFrequency->getComboBox()->addItems({ "1", "5", "10", "20", "30", "40", "50", "100" });
-    m_cbIntersectionThreshold->getComboBox()->addItems({ "1.5", "1.6", "1.7", "1.8", "1.9", "2.0" });
-    m_cbInitialJitter->getComboBox()->addItems({ "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
+    m_cbMaxIterations->addItems({ "100", "500", "1000", "2000", "5000", "10000" });
+    m_cbCheckFrequency->addItems({ "1", "5", "10", "20", "30", "40", "50", "100" });
+    m_cbIntersectionThreshold->addItems({ "1.5", "1.6", "1.7", "1.8", "1.9", "2.0" });
+    m_cbInitialJitter->addItems({ "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
 
     QGridLayout* layoutStopCriteria = new QGridLayout;
     int          row                = 0;
@@ -241,20 +241,20 @@ void Controller::setupSamplingParametersControllers()
     m_cbSPHBoundaryRestitution   = new EnhancedComboBox;
     m_btnResetParams             = new QPushButton("Reset");
 
-    m_cbSPHCFLFactor->getComboBox()->addItems({ "0.001", "0.005", "0.01", "0.05", "0.1", "0.5", "1.0" });
-    m_cbSPHViscosity->getComboBox()->addItems({ "0.001", "0.005", "0.01", "0.05", "0.1", "0.5", "1.0" });
-    m_cbSPHOverlapThreshold->getComboBox()->addItems({ "0.001", "0.01", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
-    m_cbSPHNearKernelRadiusRatio->getComboBox()->addItems({ "1.5", "1.75", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5" });
-    m_cbSPHBoundaryRestitution->getComboBox()->addItems({ "0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
+    m_cbSPHCFLFactor->addItems({ "0.001", "0.005", "0.01", "0.05", "0.1", "0.5", "1.0" });
+    m_cbSPHViscosity->addItems({ "0.001", "0.005", "0.01", "0.05", "0.1", "0.5", "1.0" });
+    m_cbSPHOverlapThreshold->addItems({ "0.001", "0.01", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
+    m_cbSPHNearKernelRadiusRatio->addItems({ "1.5", "1.75", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5" });
+    m_cbSPHBoundaryRestitution->addItems({ "0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0" });
 
-    m_cbSPHPressureStiffness->getComboBox()->addItem("0");
-    m_cbSPHNearPressureStiffness->getComboBox()->addItem("0");
+    m_cbSPHPressureStiffness->addItem("0");
+    m_cbSPHNearPressureStiffness->addItem("0");
     int K = 10;
     for(int i = 1; i <= 4; ++i) {
-        m_cbSPHPressureStiffness->getComboBox()->addItem(QString("%1").arg(K));
-        m_cbSPHPressureStiffness->getComboBox()->addItem(QString("%1").arg(K * 5));
-        m_cbSPHNearPressureStiffness->getComboBox()->addItem(QString("%1").arg(K));
-        m_cbSPHNearPressureStiffness->getComboBox()->addItem(QString("%1").arg(K * 5));
+        m_cbSPHPressureStiffness->addItem(QString("%1").arg(K));
+        m_cbSPHPressureStiffness->addItem(QString("%1").arg(K * 5));
+        m_cbSPHNearPressureStiffness->addItem(QString("%1").arg(K));
+        m_cbSPHNearPressureStiffness->addItem(QString("%1").arg(K * 5));
         K *= 10;
     }
 
