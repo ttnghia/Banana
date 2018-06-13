@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2005-2017 Intel Corporation
+    Copyright (c) 2005-2018 Intel Corporation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ namespace tbb {
         void* __TBB_EXPORTED_FUNC itt_load_pointer_with_acquire_v3(const void *src);
         void* __TBB_EXPORTED_FUNC itt_load_pointer_v3( const void* src );
 #if __TBB_ITT_STRUCTURE_API
-        enum itt_domain_enum { ITT_DOMAIN_FLOW=0 };
+        enum itt_domain_enum { ITT_DOMAIN_FLOW=0, ITT_DOMAIN_MAIN=1, ITT_DOMAIN_ALGO=2, ITT_NUM_DOMAINS };
 
         void __TBB_EXPORTED_FUNC itt_make_task_group_v7( itt_domain_enum domain, void *group, unsigned long long group_extra,
                                                          void *parent, unsigned long long parent_extra, string_index name_index );
