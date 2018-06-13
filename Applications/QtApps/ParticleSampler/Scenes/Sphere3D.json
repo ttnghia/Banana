@@ -7,34 +7,24 @@
     {
         "SimulationDomainBox" :
         {
-            "BoxMin" : [-1, -1, -2],
-            "BoxMax" : [1, 1, 2]
+            "BoxMin" : [-1, -1, -1],
+            "BoxMax" : [1, 1, 1]
         },
-        "CellSize" : 0.05,
-        "RatioCellSizePRadius" : 4
+        "ParticleRadius" : 0.01
     },
     "ParticleGenerators":
     [
         {
             "GeometryType" : "Sphere",
-            "UniqueName" : "SphereRight",
-            "Translation" : [0, 0, -1],
-            "Scale" : 0.3,
+            "UniqueName" : "Sphere",
+            "Translation" : [0, 0, 0],
+            "Scale" : 0.8,
             "JitterRatio" : 0.1,
-            "InitialVelocity" : [0, 0, 10]
-        },
-        {
-            "GeometryType" : "Sphere",
-            "UniqueName" : "SphereLeft",
-            "Translation" : [0, 0, 1],
-            "Scale" : 0.3,
-            "JitterRatio" : 0.1,
-            "InitialVelocity" : [0, 0, -10]
+            "SamplingRatio" : 0.85
         }
     ],
     "VisualizationParameters":
     {
-        "CapturePath" : "D:/Scratch/MPM3D_TwoSphere_APIC/Capture",
         "Light" :
         [
             {

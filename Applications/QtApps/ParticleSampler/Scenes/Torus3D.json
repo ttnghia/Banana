@@ -13,39 +13,20 @@
         "CellSize" : 0.02,
         "RatioCellSizePRadius" : 4
     },
-    "ParticleGeneratorsBK":
-    [
-        {
-            "GeometryType" : "Torus",
-            "UniqueName" : "TorusTop",
-            "Translation" : [0, 0.6, 0],
-            "RotationAxisAngle" : [1, 0, 0, 90],
-            "Scale" : 0.3,
-            "JitterRatio" : 0.1
-        },
-        {
-            "GeometryType" : "Torus",
-            "UniqueName" : "TorusBottom",
-            "Translation" : [0, -0.3, 0],
-            "RotationAxisAngle" : [0, 0, 1, 90],
-            "Scale" : 0.3,
-            "JitterRatio" : 0.1
-        }
-    ],
     "ParticleGenerators":
     [
         {
             "GeometryType" : "Torus",
-            "UniqueName" : "TorusBottom",
-            "Translation" : [0, -0.3, 0],
+            "UniqueName" : "Torus",
+            "Translation" : [0, 0.0, 0],
             "RotationAxisAngle" : [0, 0, 1, 90],
-            "Scale" : 0.3,
-            "JitterRatio" : 0.1
+            "Scale" : 0.8,
+            "JitterRatio" : 0.1,
+            "SamplingRatio" : 0.85
         }
     ],
     "VisualizationParameters":
     {
-        "CapturePath" : "D:/Scratch/MPM3D_TwoSphere_APIC/Capture",
         "Light" :
         [
             {
