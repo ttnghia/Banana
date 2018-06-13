@@ -46,7 +46,9 @@ public:
         connectWidgets();
     }
 
+public slots:
     void updateRelaxParams();
+    void setDefaultParams();
 
 private:
     QWidget*     m_RelaxationControllers       = new QWidget;
@@ -94,16 +96,18 @@ private:
     void setupSamplingParametersControllers();
     EnhancedComboBox* m_cbMaxIterations;
     EnhancedComboBox* m_cbCheckFrequency;
-    QLineEdit*        m_txtIntersectionThreshold;
-    QLineEdit*        m_txtInitialJitter;
+    EnhancedComboBox* m_cbIntersectionThreshold;
+    EnhancedComboBox* m_cbInitialJitter;
 
-    QLineEdit* m_txtSPHCFLFactor;
-    QLineEdit* m_txtSPHPressureStiffness;
-    QLineEdit* m_txtSPHViscosity;
-    QLineEdit* m_txtSPHOverlapThreshold;
-    QLineEdit* m_txtSPHNearKernelRadiusRatio;
-    QLineEdit* m_txtSPHNearPressureStiffness;
-    QLineEdit* m_txtSPHBoundaryRestitution;
+    EnhancedComboBox* m_cbSPHCFLFactor;
+    EnhancedComboBox* m_cbSPHPressureStiffness;
+    EnhancedComboBox* m_cbSPHViscosity;
+    EnhancedComboBox* m_cbSPHOverlapThreshold;
+    EnhancedComboBox* m_cbSPHNearKernelRadiusRatio;
+    EnhancedComboBox* m_cbSPHNearPressureStiffness;
+    EnhancedComboBox* m_cbSPHBoundaryRestitution;
+
+    QPushButton* m_btnResetParams;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -26,26 +26,6 @@
 namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void SPHRelaxationParameters<RealType>::setDefaultParameters()
-{
-    maxIters           = 1000u;
-    intersectThreshold = RealType(1.8);
-    checkFrequency     = 10;
-    initialJitterRatio = RealType(0.1);
-
-    CFLFactor             = RealType(0.1);
-    minTimestep           = RealType(1e-6);
-    maxTimestep           = RealType(1.0 / 30.0);
-    pressureStiffness     = RealType(5000);
-    viscosity             = RealType(0.05);
-    nearKernelRadiusRatio = RealType(2.0);
-    nearPressureStiffness = RealType(50000);
-    overlapThresholdRatio = RealType(0.75);
-    boundaryRestitution   = RealType(0.5);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 bool SPHBasedRelaxation<N, RealType>::relaxPositions()
 {
@@ -178,7 +158,7 @@ RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
 {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
     RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? relaxParams()->CFLFactor * (RealType(2.0) * relaxParams()->particleRadius / maxVel) : Huge<RealType>();
-    return MathHelpers::clamp(CFLTimeStep, relaxParams()->minTimestep, relaxParams()->maxTimestep);
+    return MathHelpers::clamp(CFLTimeStep, RealType(1e-6), RealType(1.0 / 30.0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

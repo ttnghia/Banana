@@ -45,8 +45,6 @@ struct SPHRelaxationParameters
     RealType initialJitterRatio;
 
     RealType CFLFactor;
-    RealType minTimestep;
-    RealType maxTimestep;
     RealType pressureStiffness;
     RealType viscosity;
     RealType nearKernelRadiusRatio;
@@ -54,19 +52,15 @@ struct SPHRelaxationParameters
     RealType overlapThresholdRatio;
     RealType boundaryRestitution;
 
-    RealType particleRadius      = RealType(0);
-    RealType particleMass        = RealType(1);
-    RealType kernelRadius        = RealType(0);
-    RealType kernelRadiusSqr     = RealType(0);
-    RealType nearKernelRadius    = RealType(0);
-    RealType nearKernelRadiusSqr = RealType(0);
-    RealType overlapThreshold    = RealType(0);
-    RealType overlapThresholdSqr = RealType(0);
+    RealType particleRadius;
+    RealType particleMass;
+    RealType kernelRadius;
+    RealType kernelRadiusSqr;
+    RealType nearKernelRadius;
+    RealType nearKernelRadiusSqr;
+    RealType overlapThreshold;
+    RealType overlapThresholdSqr;
     RealType initialJitter;
-    ////////////////////////////////////////////////////////////////////////////////
-    SPHRelaxationParameters() { setDefaultParameters(); }
-    void setDefaultParameters();
-    static auto getDefaultParameters() { return SPHRelaxationParameters<RealType>(); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
