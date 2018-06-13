@@ -115,33 +115,34 @@ public:
     template<class Vector>
     Vector vrnd()
     {
-        Vector result;
+        static_assert(sizeof(Vector::value_type) == sizeof(T));
+        UInt N = static_cast<UInt>(Vector::length());
         m_Lock.lock();
-        for(Int i = 0; i < Vector::length(); ++i) {
-            if(m_CacheIdx >= s_CacheSize) {
-                m_CacheIdx = 0;
-            }
-            result[i] = static_cast<Vector::value_type>(m_Cache[m_CacheIdx++]);
+        if(m_CacheIdx + N >= s_CacheSize) {
+            m_CacheIdx = 0;
         }
+        auto oldIdx = m_CacheIdx;
+        m_CacheIdx += N;
         m_Lock.unlock();
+        Vector result;
+        std::memcpy(&result, &m_Cache[oldIdx], sizeof(Vector));
         return result;
     }
 
     template<class Matrix>
     Matrix mrnd()
     {
-        Matrix result;
+        static_assert(sizeof(Matrix::value_type) == sizeof(T));
+        UInt MxN = static_cast<UInt>(Matrix::length() * Matrix::col_type::length());
         m_Lock.lock();
-        for(Int i = 0; i < Matrix::length(); ++i) {
-            auto& col = result[i];
-            for(Int j = 0; j < col.length(); ++j) {
-                if(m_CacheIdx >= s_CacheSize) {
-                    m_CacheIdx = 0;
-                }
-                col[j] = static_cast<Matrix::value_type>(m_Cache[m_CacheIdx++]);
-            }
+        if(m_CacheIdx + MxN >= s_CacheSize) {
+            m_CacheIdx = 0;
         }
+        auto oldIdx = m_CacheIdx;
+        m_CacheIdx += MxN;
         m_Lock.unlock();
+        Matrix result;
+        std::memcpy(&result, &m_Cache[oldIdx], sizeof(Matrix));
         return result;
     }
 
@@ -184,33 +185,34 @@ public:
     template<class Vector>
     Vector vrnd()
     {
-        Vector result;
+        static_assert(sizeof(Vector::value_type) == sizeof(T));
+        UInt N = static_cast<UInt>(Vector::length());
         m_Lock.lock();
-        for(Int i = 0; i < Vector::length(); ++i) {
-            if(m_CacheIdx >= s_CacheSize) {
-                m_CacheIdx = 0;
-            }
-            result[i] = static_cast<Vector::value_type>(m_Cache[m_CacheIdx++]);
+        if(m_CacheIdx + N >= s_CacheSize) {
+            m_CacheIdx = 0;
         }
+        auto oldIdx = m_CacheIdx;
+        m_CacheIdx += N;
         m_Lock.unlock();
+        Vector result;
+        std::memcpy(&result, &m_Cache[oldIdx], sizeof(Vector));
         return result;
     }
 
     template<class Matrix>
     Matrix mrnd()
     {
-        Matrix result;
+        static_assert(sizeof(Matrix::value_type) == sizeof(T));
+        UInt MxN = static_cast<UInt>(Matrix::length() * Matrix::col_type::length());
         m_Lock.lock();
-        for(Int i = 0; i < Matrix::length(); ++i) {
-            auto& col = result[i];
-            for(Int j = 0; j < col.length(); ++j) {
-                if(m_CacheIdx >= s_CacheSize) {
-                    m_CacheIdx = 0;
-                }
-                col[j] = static_cast<Matrix::value_type>(m_Cache[m_CacheIdx++]);
-            }
+        if(m_CacheIdx + MxN >= s_CacheSize) {
+            m_CacheIdx = 0;
         }
+        auto oldIdx = m_CacheIdx;
+        m_CacheIdx += MxN;
         m_Lock.unlock();
+        Matrix result;
+        std::memcpy(&result, &m_Cache[oldIdx], sizeof(Matrix));
         return result;
     }
 
