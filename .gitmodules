@@ -49,3 +49,6 @@
 [submodule "Applications/QtApps/FluidRendering"]
 	path = Applications/QtApps/FluidRendering
 	url = https://github.com/ttnghia/RealTimeFluidRendering.git
+[submodule "Applications/QtApps/ParticleSampler"]
+	path = Applications/QtApps/ParticleSampler
+	url = https://github.com/ttnghia/ParticleSampler.git
