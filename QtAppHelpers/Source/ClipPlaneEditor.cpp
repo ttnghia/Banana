@@ -25,30 +25,10 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ClipPlaneEditor::ClipPlaneEditor(QWidget* parent) : QWidget(parent), m_ClipPlane(1.0f, 0.0f, 0.0f, -0.5f)
+ClipPlaneEditor::ClipPlaneEditor(QWidget* parent) : QWidget(parent)
 {
     setupGUI();
     setWindowTitle("Clip Plane Editor");
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QSize ClipPlaneEditor::sizeHint() const
-{
-    return QSize(600, 250);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ClipPlaneEditor::keyPressEvent(QKeyEvent* e)
-{
-    switch(e->key()) {
-        case Qt::Key_Escape:
-        case Qt::Key_Enter:
-            hide();
-            break;
-
-        default:
-            QWidget::keyPressEvent(e);
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -56,8 +36,14 @@ void ClipPlaneEditor::setClipPlane(const Vec4f& clipPlane)
 {
     m_ClipPlane = clipPlane;
     for(int i = 0; i < 4; ++i) {
-        m_lblPlanes[i]->setText(QString("%1").arg(m_ClipPlane[i]));
+        m_txtCoeffs[i]->setText(QString("%1").arg(m_ClipPlane[i]));
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ClipPlaneEditor::resetPlane()
+{
+    setClipPlane(Vec4f(1, 0, 0, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -75,38 +61,43 @@ void ClipPlaneEditor::setupGUI()
     QVBoxLayout* sldLayout = new QVBoxLayout;
 
     for(int i = 0; i < 4; ++i) {
-        m_lblPlanes[i] = new QLabel(QString("%1").arg(m_ClipPlane[i]));
-
+        m_txtCoeffs[i] = new QLineEdit(QString("%1").arg(m_ClipPlane[i]));
         m_sldCoeffs[i] = new QSlider(Qt::Horizontal);
         m_sldCoeffs[i]->setMaximum(200);
-        m_sldCoeffs[i]->setValue((m_ClipPlane[i] + 1.0) * 100.0);
-        connect(m_sldCoeffs[i], &QSlider::valueChanged, this, [&, i](int value)
-                {
-                    m_ClipPlane[i] = 2.0 * (value / 200.0) - 1.0;
-                    m_lblPlanes[i]->setText(QString("%1").arg(m_ClipPlane[i]));
+        m_sldCoeffs[i]->setValue((m_ClipPlane[i] + 1.0f) * 100.0f);
 
+        connect(m_txtCoeffs[i], &QLineEdit::textChanged, this, [&, i](const QString& value)
+                {
+                    float fval     = std::stof(value.toStdString());
+                    m_ClipPlane[i] = fval;
+                    m_sldCoeffs[i]->setValue(static_cast<int>((fval + 1.0f) * 100.0f));
                     emit clipPlaneChanged(m_ClipPlane);
                 });
 
+        connect(m_sldCoeffs[i], &QSlider::valueChanged, this, [&, i](int value)
+                {
+                    m_ClipPlane[i] = value / 100.0f - 1.0f;
+                    m_txtCoeffs[i]->setText(QString("%1").arg(m_ClipPlane[i]));
+                    emit clipPlaneChanged(m_ClipPlane);
+                });
 
         planeLayouts[i] = new QHBoxLayout;
-        planeLayouts[i]->addWidget(lblPlaneIntros[i], 0);
-        planeLayouts[i]->addWidget(m_sldCoeffs[i], 1);
-        planeLayouts[i]->addWidget(m_lblPlanes[i], 0);
+        planeLayouts[i]->addWidget(lblPlaneIntros[i], 1);
+        planeLayouts[i]->addWidget(m_sldCoeffs[i], 10);
+        planeLayouts[i]->addWidget(m_txtCoeffs[i], 1);
         sldLayout->addLayout(planeLayouts[i]);
     }
-
 
     QGroupBox* sldGroup = new QGroupBox;
     sldGroup->setLayout(sldLayout);
 
+    QPushButton* btnReset = new QPushButton("Reset");
     QPushButton* btnClose = new QPushButton("Close");
-    connect(btnClose, &QPushButton::clicked, this, [&]()
-            {
-                hide();
-            });
+    connect(btnReset, &QPushButton::clicked, this, [&]() { resetPlane(); });
+    connect(btnClose, &QPushButton::clicked, this, [&]() { hide(); });
 
     QHBoxLayout* btnLayout = new QHBoxLayout;
+    btnLayout->addWidget(btnReset);
     btnLayout->addStretch(1);
     btnLayout->addWidget(btnClose);
 
@@ -117,7 +108,6 @@ void ClipPlaneEditor::setupGUI()
     mainLayout->addWidget(lblIntro);
     mainLayout->addWidget(sldGroup);
     mainLayout->addWidget(btnGroup);
-
 
     setLayout(mainLayout);
 }
