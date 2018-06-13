@@ -89,21 +89,23 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
     Scheduler::parallel_for(pGrid,
                             [&](auto... idx)
                             {
-                                VecN ppos = boxMin + VecX<N, RealType>(idx...) * m_Spacing + jitter * glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());;
+                                VecN ppos = boxMin + VecX<N, RealType>(idx...) * m_Spacing;
                                 for(auto& bdObj : boundaryObjects) {
                                     if(bdObj->signedDistance(ppos) < 0) {
                                         return;
                                     }
                                 }
-
-                                if(this->m_GeometryObj->signedDistance(ppos) < 0) {
+                                auto geoPhi = this->m_GeometryObj->signedDistance(ppos);
+                                if(geoPhi < 0) {
+                                    if(geoPhi < -jitter) {
+                                        ppos += jitter * glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
+                                    }
                                     lock.lock();
                                     m_ObjParticles.push_back(ppos);
                                     lock.unlock();
                                 }
                             });
     __BNN_REQUIRE(m_ObjParticles.size() > 0)
-
     ////////////////////////////////////////////////////////////////////////////////
     m_Relaxer = std::make_shared<ParticleTools::SPHBasedRelaxation<N, RealType>>(this->m_NameID, m_ObjParticles, this->m_GeometryObj, boundaryObjects);
     __BNN_TODO;

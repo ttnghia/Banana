@@ -75,9 +75,8 @@ private:
     int  m_FrameNumber = 0;
     bool m_bExportImg  = false;
 
-    ParticleSampler*                    m_Sampler         = new ParticleSampler();
-    ClipPlaneEditor*                    m_ClipPlaneEditor = new ClipPlaneEditor();
-    UniquePtr<tbb::task_scheduler_init> m_ThreadInit      = std::make_unique<tbb::task_scheduler_init>(tbb::task_scheduler_init::automatic);
+    ParticleSampler* m_Sampler         = new ParticleSampler();
+    ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
