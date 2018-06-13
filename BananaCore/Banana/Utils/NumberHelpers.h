@@ -112,9 +112,11 @@ public:
     Vector vrnd()
     {
         Vector result;
+        m_Lock.lock();
         for(Int i = 0; i < Vector::length(); ++i) {
-            result[i] = static_cast<Vector::value_type>(rnd());
+            result[i] = static_cast<Vector::value_type>(m_Dist(m_Generator));
         }
+        m_Lock.unlock();
         return result;
     }
 
@@ -122,9 +124,14 @@ public:
     Matrix mrnd()
     {
         Matrix result;
+        m_Lock.lock();
         for(Int i = 0; i < Matrix::length(); ++i) {
-            result[i] = vrnd<Matrix::col_type>();
+            auto& col = result[i];
+            for(Int j = 0; j < col.length(); ++j) {
+                col[j] = static_cast<Matrix::value_type>(m_Dist(m_Generator));
+            }
         }
+        m_Lock.unlock();
         return result;
     }
 
@@ -154,9 +161,11 @@ public:
     Vector vrnd()
     {
         Vector result;
+        m_Lock.lock();
         for(Int i = 0; i < Vector::length(); ++i) {
-            result[i] = static_cast<Vector::value_type>(rnd());
+            result[i] = static_cast<Vector::value_type>(m_Dist(m_Generator));
         }
+        m_Lock.unlock();
         return result;
     }
 
@@ -164,9 +173,14 @@ public:
     Matrix mrnd()
     {
         Matrix result;
+        m_Lock.lock();
         for(Int i = 0; i < Matrix::length(); ++i) {
-            result[i] = vrnd<Matrix::col_type>();
+            auto& col = result[i];
+            for(Int j = 0; j < col.length(); ++j) {
+                col[j] = static_cast<Matrix::value_type>(m_Dist(m_Generator));
+            }
         }
+        m_Lock.unlock();
         return result;
     }
 
