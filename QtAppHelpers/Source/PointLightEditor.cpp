@@ -100,7 +100,7 @@ PointLightEditor::PointLightEditor(SharedPtr<PointLights> lights /*= nullptr*/, 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLightEditor::setLightObject(SharedPtr<PointLights> lights)
+void PointLightEditor::setLightObject(const SharedPtr<PointLights>& lights)
 {
     m_Lights = lights;
     lightToGUI();

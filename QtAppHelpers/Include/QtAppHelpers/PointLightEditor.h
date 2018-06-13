@@ -44,7 +44,7 @@ public:
 
 public slots:
     void changeLights(const Vector<PointLights::PointLightData>& lightData);
-    void setLightObject(SharedPtr<PointLights> lights);
+    void setLightObject(const SharedPtr<PointLights>& lights);
     void lightToGUI();
 
 signals:

@@ -61,6 +61,7 @@ public slots:
 
 signals:
     void currentIndexChanged(int);
+    void currentTextChanged(const QString&);
 
 private:
     QComboBox*   m_ComboBox;

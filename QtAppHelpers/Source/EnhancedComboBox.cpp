@@ -35,7 +35,8 @@ EnhancedComboBox::EnhancedComboBox(int comboBoxSpan /*= 3*/, QWidget* parent /*=
     m_enabledCycling(true)
 {
     m_ComboBox = new QComboBox;
-    connect(m_ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [&](int idx) { emit currentIndexChanged(idx); });
+    connect(m_ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),           [&](int idx) { emit currentIndexChanged(idx); });
+    connect(m_ComboBox, static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentTextChanged), [&](const QString& str) { emit currentTextChanged(str); });
 
     m_btnPrev = new QToolButton;
     m_btnPrev->setArrowType(Qt::LeftArrow);
