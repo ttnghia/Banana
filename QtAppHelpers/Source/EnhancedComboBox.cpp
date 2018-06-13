@@ -72,11 +72,19 @@ QGroupBox* EnhancedComboBox::getGroupBox(const QString& title)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void EnhancedComboBox::setEnabled(bool enabled)
+void EnhancedComboBox::setEnabled(bool bEnable)
 {
-    m_ComboBox->setEnabled(enabled);
-    m_btnPrev->setEnabled(enabled);
-    m_btnNext->setEnabled(enabled);
+    m_ComboBox->setEnabled(bEnable);
+    m_btnPrev->setEnabled(bEnable);
+    m_btnNext->setEnabled(bEnable);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void EnhancedComboBox::setDisabled(bool bDisable)
+{
+    m_ComboBox->setDisabled(bDisable);
+    m_btnPrev->setDisabled(bDisable);
+    m_btnNext->setDisabled(bDisable);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

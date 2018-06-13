@@ -55,7 +55,8 @@ public:
     void clear() { m_ComboBox->clear(); }
 
 public slots:
-    void setEnabled(bool enabled);
+    void setEnabled(bool bEnable);
+    void setDisabled(bool bDisable);
     void prevItem();
     void nextItem();
 
