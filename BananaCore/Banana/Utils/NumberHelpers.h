@@ -97,13 +97,17 @@ template<class T>
 class MT_iRandom
 {
     using Distribution = std::uniform_int_distribution<T>;
+    constexpr static UInt s_CacheSize = 1048576u;
 public:
-    MT_iRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) {}
+    MT_iRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) { generateCache(); }
 
     T rnd()
     {
         m_Lock.lock();
-        T tmp = m_Dist(m_Generator);
+        if(m_CacheIdx >= s_CacheSize) {
+            m_CacheIdx = 0;
+        }
+        T tmp = m_Cache[m_CacheIdx++];
         m_Lock.unlock();
         return tmp;
     }
@@ -114,7 +118,10 @@ public:
         Vector result;
         m_Lock.lock();
         for(Int i = 0; i < Vector::length(); ++i) {
-            result[i] = static_cast<Vector::value_type>(m_Dist(m_Generator));
+            if(m_CacheIdx >= s_CacheSize) {
+                m_CacheIdx = 0;
+            }
+            result[i] = static_cast<Vector::value_type>(m_Cache[m_CacheIdx++]);
         }
         m_Lock.unlock();
         return result;
@@ -128,7 +135,10 @@ public:
         for(Int i = 0; i < Matrix::length(); ++i) {
             auto& col = result[i];
             for(Int j = 0; j < col.length(); ++j) {
-                col[j] = static_cast<Matrix::value_type>(m_Dist(m_Generator));
+                if(m_CacheIdx >= s_CacheSize) {
+                    m_CacheIdx = 0;
+                }
+                col[j] = static_cast<Matrix::value_type>(m_Cache[m_CacheIdx++]);
             }
         }
         m_Lock.unlock();
@@ -136,9 +146,19 @@ public:
     }
 
 private:
+    void generateCache()
+    {
+        for(Int i = 0; i < s_CacheSize; ++i) {
+            m_Cache[i] = m_Dist(m_Generator);
+        }
+    }
+
     ParallelObjects::SpinLock m_Lock {};
     std::mt19937              m_Generator { (std::random_device())() };
     Distribution              m_Dist;
+
+    T    m_Cache[s_CacheSize];
+    UInt m_CacheIdx = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -146,13 +166,17 @@ template<class T>
 class MT_fRandom
 {
     using Distribution = std::uniform_real_distribution<T>;
+    constexpr static UInt s_CacheSize = 1048576u;
 public:
-    MT_fRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) {}
+    MT_fRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) { generateCache(); }
 
     T rnd()
     {
         m_Lock.lock();
-        T tmp = m_Dist(m_Generator);
+        if(m_CacheIdx >= s_CacheSize) {
+            m_CacheIdx = 0;
+        }
+        T tmp = m_Cache[m_CacheIdx++];
         m_Lock.unlock();
         return tmp;
     }
@@ -163,7 +187,10 @@ public:
         Vector result;
         m_Lock.lock();
         for(Int i = 0; i < Vector::length(); ++i) {
-            result[i] = static_cast<Vector::value_type>(m_Dist(m_Generator));
+            if(m_CacheIdx >= s_CacheSize) {
+                m_CacheIdx = 0;
+            }
+            result[i] = static_cast<Vector::value_type>(m_Cache[m_CacheIdx++]);
         }
         m_Lock.unlock();
         return result;
@@ -177,7 +204,10 @@ public:
         for(Int i = 0; i < Matrix::length(); ++i) {
             auto& col = result[i];
             for(Int j = 0; j < col.length(); ++j) {
-                col[j] = static_cast<Matrix::value_type>(m_Dist(m_Generator));
+                if(m_CacheIdx >= s_CacheSize) {
+                    m_CacheIdx = 0;
+                }
+                col[j] = static_cast<Matrix::value_type>(m_Cache[m_CacheIdx++]);
             }
         }
         m_Lock.unlock();
@@ -185,9 +215,19 @@ public:
     }
 
 private:
+    void generateCache()
+    {
+        for(Int i = 0; i < s_CacheSize; ++i) {
+            m_Cache[i] = m_Dist(m_Generator);
+        }
+    }
+
     ParallelObjects::SpinLock m_Lock {};
     std::mt19937              m_Generator { (std::random_device())() };
     Distribution              m_Dist;
+
+    T    m_Cache[s_CacheSize];
+    UInt m_CacheIdx = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
