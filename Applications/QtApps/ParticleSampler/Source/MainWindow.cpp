@@ -102,6 +102,10 @@ void MainWindow::updateStatusNumParticles(unsigned int numParticles)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::changeScene(bool bReload)
 {
+    QString sceneFile = m_Controller->m_cbScene->currentText();
+    if(sceneFile == "None") {
+        return;
+    }
     m_Controller->m_btnReloadScene->setDisabled(true);
     m_Controller->m_cbScene->setDisabled(true);
     ////////////////////////////////////////////////////////////////////////////////
@@ -109,12 +113,8 @@ void MainWindow::changeScene(bool bReload)
     if(fut.valid()) {
         fut.wait();
     }
-    fut = std::async(std::launch::async, [&, bReload]
+    fut = std::async(std::launch::async, [&, sceneFile, bReload]
                      {
-                         QString sceneFile = m_Controller->m_cbScene->currentText();
-                         if(sceneFile == "None") {
-                             return;
-                         }
                          m_Sampler->reloadVizData(bReload ? m_Controller->m_chkReloadVizData->isChecked() : true);
                          m_Sampler->changeScene(sceneFile);
                          m_FrameNumber = 0;
