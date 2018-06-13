@@ -47,8 +47,8 @@ template<Int N, class RealType>
 void ParticleGenerator<N, RealType>::parseParameters(const JParams& jParams)
 {
     JSONHelpers::readVector(jParams, v0(), "InitialVelocity");
-    JSONHelpers::readValue(jParams, minDistanceRatio(),   "MinParticleDistanceRatio");
-    JSONHelpers::readValue(jParams, jitter(),             "JitterRatio");
+    JSONHelpers::readValue(jParams, samplingRatio(),      "SamplingRatio"); // recommend: 0.85-0.9 for 2D, 0.8-0.85 for 3D
+    JSONHelpers::readValue(jParams, jitterRatio(),        "JitterRatio");
     JSONHelpers::readValue(jParams, startFrame(),         "StartFrame");
     JSONHelpers::readValue(jParams, maxFrame(),           "MaxFrame");
     JSONHelpers::readValue(jParams, maxNParticles(),      "MaxNParticles");
@@ -65,8 +65,8 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
         return;
     }
     m_ParticleRadius = particleRadius;
-    m_MinDistanceSqr = m_MinDistanceRatio * particleRadius * particleRadius;
-    m_Jitter        *= particleRadius;
+    m_Spacing        = particleRadius * RealType(2.0) * samplingRatio();
+    m_SpacingSqr     = m_Spacing * m_Spacing;
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particles from cache, if existed
@@ -74,23 +74,22 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
         m_bObjReady = true;
         return;
     }
-
     ////////////////////////////////////////////////////////////////////////////////
-    RealType spacing = RealType(2.0) * m_ParticleRadius;
-    if constexpr(N == 2) { spacing *= RealType(0.9); } else { spacing *= RealType(0.8); }
+
+    auto jitter = m_JitterRatio * m_ParticleRadius;
     auto boxMin = this->m_GeometryObj->getAABBMin();
     auto boxMax = this->m_GeometryObj->getAABBMax();
-    auto pGrid  = NumberHelpers::createGrid<UInt>(boxMin, boxMax, spacing);
+    auto pGrid  = NumberHelpers::createGrid<UInt>(boxMin, boxMax, m_Spacing);
     m_Grid.setGrid(boxMin - RealType(4.0) * m_ParticleRadius, boxMax + RealType(4.0) * m_ParticleRadius, RealType(4.0) * m_ParticleRadius);
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
     m_Lock.resize(m_Grid.getNCells());
-    ////////////////////////////////////////////////////////////////////////////////
     m_ObjParticles.reserve(glm::compMul(pGrid));
+    ////////////////////////////////////////////////////////////////////////////////
     ParallelObjects::SpinLock lock;
     Scheduler::parallel_for(pGrid,
                             [&](auto... idx)
                             {
-                                VecN ppos = boxMin + VecX<N, RealType>(idx...) * spacing;
+                                VecN ppos = boxMin + VecX<N, RealType>(idx...) * m_Spacing + jitter * glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());;
                                 for(auto& bdObj : boundaryObjects) {
                                     if(bdObj->signedDistance(ppos) < 0) {
                                         return;

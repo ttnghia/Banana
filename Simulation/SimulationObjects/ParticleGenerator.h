@@ -50,8 +50,8 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     auto& v0() { return m_v0; }
-    auto& minDistanceRatio() { return m_MinDistanceRatio; }
-    auto& jitter() { return m_Jitter; }
+    auto& samplingRatio() { return m_SamplingRatio; }
+    auto& jitterRatio() { return m_JitterRatio; }
     auto& startFrame() { return m_StartFrame; }
     auto& maxFrame() { return m_MaxFrame; }
     auto& maxNParticles() { return m_MaxNParticles; }
@@ -95,10 +95,12 @@ protected:
     UInt     m_MaxFrame           = 0u;
     UInt     m_MaxNParticles      = Huge<UInt>();
     UInt     m_MaxIters           = 10u;
-    RealType m_MinDistanceRatio   = RealType(2.0);
-    RealType m_MinDistanceSqr     = RealType(0);
+    RealType m_JitterRatio        = RealType(0);
     RealType m_Jitter             = RealType(0);
+    RealType m_SamplingRatio      = RealType(1.0);
     RealType m_ParticleRadius     = RealType(0);
+    RealType m_Spacing            = RealType(0);
+    RealType m_SpacingSqr         = RealType(0);
     String   m_ConstraintObjectID = String("");
 
     std::unordered_set<UInt> m_ActiveFrames;

@@ -65,7 +65,7 @@ UInt ParticleGenerator<N, RealType>::addFullShapeParticles(const Vec_VecN& curre
                                                                       auto cellIdx = idx + pCellIdx;
                                                                       if(m_Grid.isValidCell(cellIdx)) {
                                                                           for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                                              if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
+                                                                              if(glm::length2(ppos - currentPositions[q]) < m_SpacingSqr) {
                                                                                   bEmptyRegion = false;
                                                                               }
                                                                           }
@@ -112,7 +112,7 @@ UInt ParticleGenerator<N, RealType>::addParticles(const Vec_VecN& currentPositio
                                                   auto cellIdx = idx + pCellIdx;
                                                   if(m_Grid.isValidCell(cellIdx)) {
                                                       for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                          if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
+                                                          if(glm::length2(ppos - currentPositions[q]) < m_SpacingSqr) {
                                                               bValid = false;
                                                           }
                                                       }
