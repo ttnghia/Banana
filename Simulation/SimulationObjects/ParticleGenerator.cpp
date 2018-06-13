@@ -85,6 +85,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
     m_Lock.resize(m_Grid.getNCells());
     ////////////////////////////////////////////////////////////////////////////////
+    m_ObjParticles.reserve(glm::compMul(pGrid));
     ParallelObjects::SpinLock lock;
     Scheduler::parallel_for(pGrid,
                             [&](auto... idx)
@@ -102,7 +103,6 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
                                     lock.unlock();
                                 }
                             });
-
     __BNN_REQUIRE(m_ObjParticles.size() > 0)
 
     ////////////////////////////////////////////////////////////////////////////////
