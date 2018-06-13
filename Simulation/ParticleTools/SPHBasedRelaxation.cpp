@@ -73,9 +73,9 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
                               relaxParams()->overlapThreshold    = relaxParams()->overlapThresholdRatio * relaxParams()->particleRadius;
                               relaxParams()->overlapThresholdSqr = relaxParams()->overlapThreshold * relaxParams()->overlapThreshold;
                               if constexpr(N == 2) {
-                                  relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.95) * relaxParams()->particleRadius, N)) * RealType(1000);
-                              } else {
                                   relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.85) * relaxParams()->particleRadius, N)) * RealType(1000);
+                              } else {
+                                  relaxParams()->particleMass = RealType(pow(RealType(2.0 * 0.75) * relaxParams()->particleRadius, N)) * RealType(1000);
                               }
                               ////////////////////////////////////////////////////////////////////////////////
                               kernels().kernelCubicSpline.setRadius(relaxParams()->kernelRadius);
@@ -241,7 +241,7 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                     const auto r        = VecN(qInfo);
                                     const auto qdensity = qInfo[N];
                                     if(particleData().isBoundary[q]) {
-                                        diffVelFluid -= (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
+                                        diffVelFluid -= (RealType(1.0) / qdensity) * kernels().W(r) * pvel;
                                     } else {
                                         diffVelFluid += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
                                     }
