@@ -42,6 +42,7 @@ public:
     QLayout*   getLayoutWithLabel(const QString& label, int comboStretch = 5);
     QGroupBox* getGroupBox(const QString& title                          = QString(""));
 
+    int count() const { return m_ComboBox->count(); }
     void setCurrentIndex(int index) { m_ComboBox->setCurrentIndex(index); }
     int  currentIndex() const { return m_ComboBox->currentIndex(); }
     QString currentText() const { return m_ComboBox->currentText(); }
