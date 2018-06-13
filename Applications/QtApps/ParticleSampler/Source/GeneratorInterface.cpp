@@ -152,7 +152,10 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
     // add particles without relaxation
     if(m_ParticleData->dimension == 2) {
         for(auto& generator : m_Generators2D) {
+            Timer timer;
+            timer.tick();
             generator->buildObject(m_ParticleData->particleRadius, m_BoundaryObjs2D);
+            timer.tock();
             const auto& objParticles = generator->getObjParticles();
             UInt        nGen         = static_cast<UInt>(objParticles.size());
             if(nGen > 0) {
@@ -161,12 +164,16 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
                 m_ParticleData->nParticles.push_back(nGen);
                 ++m_ParticleData->nObjects;
                 m_ParticleData->nTotalParticles += nGen;
-                m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+                m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID() +
+                                   String(". Time: ") + timer.getRunTime());
             }
         }
     } else {
         for(auto& generator : m_Generators3D) {
+            Timer timer;
+            timer.tick();
             generator->buildObject(m_ParticleData->particleRadius, m_BoundaryObjs3D);
+            timer.tock();
             const auto& objParticles = generator->getObjParticles();
             UInt        nGen         = static_cast<UInt>(objParticles.size());
             if(nGen > 0) {
@@ -175,7 +182,8 @@ void ParticleGeneratorInterface::loadScene(const String& sceneFile)
                 m_ParticleData->nParticles.push_back(nGen);
                 ++m_ParticleData->nObjects;
                 m_ParticleData->nTotalParticles += nGen;
-                m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+                m_Logger->printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID() +
+                                   String(". Time: ") + timer.getRunTime());
             }
         }
     }

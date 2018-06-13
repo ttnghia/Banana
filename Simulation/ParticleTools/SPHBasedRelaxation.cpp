@@ -66,8 +66,8 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
                               m_FarNSearch  = std::make_unique<NeighborSearch::NeighborSearch<N, RealType>>(relaxParams()->kernelRadius);
                               m_NearNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
                               m_FarNSearch->add_point_set(reinterpret_cast<RealType*>(particleData().positions->data()), particleData().getNParticles());
-                              m_FarNSearch->find_neighbors();
                           });
+    logger().printRunTime("Find neighbors", [&]() { m_FarNSearch->find_neighbors(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -75,7 +75,7 @@ template<Int N, class RealType>
 void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
 {
     if(!m_bJittered) {
-        jitterParticles();
+        logger().printRunTime("Jitter particles", [&]() { jitterParticles(); });
         m_bJittered = true;
     }
     ////////////////////////////////////////////////////////////////////////////////
