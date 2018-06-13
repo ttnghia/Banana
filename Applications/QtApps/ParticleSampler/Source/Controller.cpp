@@ -49,7 +49,7 @@ void Controller::setDefaultParams()
 {
     m_cbMaxIterations->setCurrentIndex(0);
     m_cbCheckFrequency->setCurrentIndex(2);
-    m_cbIntersectionThreshold->setCurrentIndex(3);
+    m_cbIntersectionThreshold->setCurrentIndex(2);
     m_cbInitialJitter->setCurrentIndex(1);
 
     m_cbSPHCFLFactor->setCurrentIndex(4);
@@ -228,7 +228,7 @@ void Controller::setupSamplingParametersControllers()
     layoutStopCriteria->addLayout(m_cbInitialJitter->getLayout(), row++, 1, 1, 2);
 
     QGroupBox* grStopCriteria = new QGroupBox;
-    grStopCriteria->setTitle("Stop Criteria");
+    grStopCriteria->setTitle("Global Parameters");
     grStopCriteria->setLayout(layoutStopCriteria);
     m_LayoutRelaxationControllers->addWidget(grStopCriteria);
     ////////////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,6 @@ void Controller::setupSamplingParametersControllers()
     m_cbSPHNearKernelRadiusRatio = new EnhancedComboBox;
     m_cbSPHNearPressureStiffness = new EnhancedComboBox;
     m_cbSPHBoundaryRestitution   = new EnhancedComboBox;
-    m_btnResetParams             = new QPushButton("Reset");
 
     m_cbSPHCFLFactor->addItems({ "0.001", "0.005", "0.01", "0.05", "0.1", "0.5", "1.0" });
     m_cbSPHViscosity->addItems({ "0.001", "0.005", "0.01", "0.05", "0.1", "0.5", "1.0" });
@@ -273,9 +272,7 @@ void Controller::setupSamplingParametersControllers()
     layoutSPHParameters->addWidget(new QLabel("Near pressure stiffness:    "), row, 0, 1, 2);
     layoutSPHParameters->addLayout(m_cbSPHNearPressureStiffness->getLayout(), row++, 2, 1, 1);
     layoutSPHParameters->addWidget(new QLabel("Boundary restitution:    "), row, 0, 1, 2);
-    layoutSPHParameters->addLayout(m_cbSPHBoundaryRestitution->getLayout(),          row++, 2, 1, 1);
-    layoutSPHParameters->addLayout(                QtAppUtils::getLayoutSeparator(), row++, 2, 1, 1);
-    layoutSPHParameters->addWidget(m_btnResetParams, row++, 2, 1, 1);
+    layoutSPHParameters->addLayout(m_cbSPHBoundaryRestitution->getLayout(), row++, 2, 1, 1);
 
     QGroupBox* grSPHParameters = new QGroupBox;
     grSPHParameters->setTitle("SPH Solver Parameters");
@@ -288,6 +285,9 @@ void Controller::setupSamplingParametersControllers()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupButtons()
 {
+    m_btnResetParams = new QPushButton("Reset Parameters");
+    m_LayoutRelaxationControllers->addSpacing(10);
+    m_LayoutRelaxationControllers->addWidget(m_btnResetParams);
     ////////////////////////////////////////////////////////////////////////////////
     m_btnStartStopRelaxation = new QPushButton("Start Relaxation");
     m_btnResetCamera         = new QPushButton("Reset Camera");
