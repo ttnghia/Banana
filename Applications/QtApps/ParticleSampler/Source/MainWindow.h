@@ -53,7 +53,7 @@ public slots:
     void updateStatusMemoryUsage();
     void updateStatusNumParticles(UInt numParticles);
     void finishIteration(unsigned int iter, float minDistanceRatio);
-    void finishRelaxation();
+    void finishRelaxation(bool bSuccess);
     void pauseRelaxation();
 
 private:

@@ -60,7 +60,7 @@ signals:
     void lightsChanged(const Vector<PointLights::PointLightData>& lightData);
     void capturePathChanged(const QString& capturePath);
     void relaxationPaused();
-    void relaxationFinished();
+    void relaxationFinished(bool bSuccess);
     void iterationFinished(unsigned int iter, float minDistanceRatio);
     void numParticleChanged(UInt numParticles);
     void vizDataChanged();

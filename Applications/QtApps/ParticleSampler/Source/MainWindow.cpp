@@ -115,10 +115,14 @@ void MainWindow::finishIteration(unsigned int iter, float minDistanceRatio)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::finishRelaxation()
+void MainWindow::finishRelaxation(bool bSuccess)
 {
     m_Controller->m_btnStartStopRelaxation->setText(QString("Start"));
-    updateStatusRelaxation("Relaxation finished");
+    if(bSuccess) {
+        updateStatusRelaxation("Relaxation finished successfully.");
+    } else {
+        updateStatusRelaxation("Relaxation failed.");
+    }
     m_Controller->m_cbScene->setDisabled(false);
     m_Controller->m_btnReloadScene->setDisabled(false);
     m_BusyBar->reset();
@@ -222,7 +226,7 @@ void MainWindow::connectWidgets()
                     m_Sampler->startRelaxation();
                     m_Controller->m_cbScene->setDisabled(true);
                     m_Controller->m_btnReloadScene->setDisabled(true);
-                    updateStatusRelaxation("Running Relaxation...");
+                    updateStatusRelaxation("Running relaxation...");
                 } else {
                     m_Sampler->stop();
                     m_Controller->m_cbScene->setDisabled(false);
@@ -246,8 +250,11 @@ void MainWindow::connectWidgets()
             {
                 QMetaObject::invokeMethod(this, "finishIteration", Qt::QueuedConnection, Q_ARG(unsigned int, iter), Q_ARG(float, minDistanceRatio));
             });
+    connect(m_Sampler, &ParticleSampler::relaxationFinished, [&](bool bSuccess)
+            {
+                QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection, Q_ARG(bool, bSuccess));
+            });
     connect(m_Sampler, &ParticleSampler::relaxationPaused,   [&] { QMetaObject::invokeMethod(this, "pauseRelaxation", Qt::QueuedConnection); });
-    connect(m_Sampler, &ParticleSampler::relaxationFinished, [&] { QMetaObject::invokeMethod(this, "finishRelaxation", Qt::QueuedConnection); });
     connect(m_Sampler, &ParticleSampler::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
     connect(m_Sampler, &ParticleSampler::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
     connect(m_Sampler, &ParticleSampler::domainChanged,      m_RenderWidget, &RenderWidget::setBox);

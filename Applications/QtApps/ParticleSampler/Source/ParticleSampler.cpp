@@ -69,7 +69,7 @@ void ParticleSampler::doSampling()
             return;
         }
         if(bConverged) {
-            emit relaxationFinished();
+            emit relaxationFinished(true);
             m_bStop = true;
             return;
         }
@@ -77,7 +77,7 @@ void ParticleSampler::doSampling()
 
     m_bStop = true;
     m_Generator->reportFailed(frame);
-    emit relaxationFinished();
+    emit relaxationFinished(false);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
