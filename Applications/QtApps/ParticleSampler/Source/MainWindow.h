@@ -51,7 +51,9 @@ public slots:
     void updateWindowTitle(const QString& filePath);
     void updateStatusRelaxation(const QString& status);
     void updateStatusMemoryUsage();
-    void updateStatusNumParticles(UInt numParticles);
+    void updateStatusNumParticles(unsigned int numParticles);
+    void changeScene(bool bReload);
+    void startStopRelaxation();
     void finishIteration(unsigned int iter, float minDistanceRatio);
     void finishRelaxation(bool bSuccess);
     void pauseRelaxation();
@@ -76,3 +78,9 @@ private:
     ParticleSampler* m_Sampler         = new ParticleSampler();
     ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Q_DECLARE_METATYPE(Vec3f)
+inline auto idVec3f = qRegisterMetaType<Vec3f>();
+Q_DECLARE_METATYPE(Vector<PointLights::PointLightData>)
+inline auto idVecPL = qRegisterMetaType<Vector<PointLights::PointLightData>>();

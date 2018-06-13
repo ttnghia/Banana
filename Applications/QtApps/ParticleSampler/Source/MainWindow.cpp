@@ -94,9 +94,66 @@ void MainWindow::updateStatusMemoryUsage()
     m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(Formatters::toString(getCurrentRSS() / 1048576.0))));
 }
 
-void MainWindow::updateStatusNumParticles(UInt numParticles)
+void MainWindow::updateStatusNumParticles(unsigned int numParticles)
 {
     m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(Formatters::toString(numParticles))));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::changeScene(bool bReload)
+{
+    m_Controller->m_btnReloadScene->setDisabled(true);
+    m_Controller->m_cbScene->setDisabled(true);
+    ////////////////////////////////////////////////////////////////////////////////
+    static std::future<void> fut;
+    if(fut.valid()) {
+        fut.wait();
+    }
+    fut = std::async(std::launch::async, [&, bReload]
+                     {
+                         QString sceneFile = m_Controller->m_cbScene->currentText();
+                         if(sceneFile == "None") {
+                             return;
+                         }
+                         m_Sampler->reloadVizData(bReload ? m_Controller->m_chkReloadVizData->isChecked() : true);
+                         m_Sampler->changeScene(sceneFile);
+                         m_FrameNumber = 0;
+                         updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
+                         updateStatusRelaxation("Ready");
+                         m_Controller->m_btnReloadScene->setEnabled(true);
+                         m_Controller->m_cbScene->setEnabled(true);
+                     });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::startStopRelaxation()
+{
+    if(m_Controller->m_cbScene->currentText() == "None") {
+        return;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    static std::future<void> fut;
+    if(fut.valid()) {
+        fut.wait();
+    }
+    bool isRunning = m_Sampler->isRunning();
+    if(!isRunning) {
+        fut = std::async(std::launch::async, [&]
+                         {
+                             m_Controller->updateRelaxParams();
+                             m_Sampler->startRelaxation();
+                             m_Controller->m_cbScene->setDisabled(true);
+                             m_Controller->m_btnReloadScene->setDisabled(true);
+                             updateStatusRelaxation("Running relaxation...");
+                         });
+    } else {
+        m_Sampler->stop();
+        m_Controller->m_cbScene->setDisabled(false);
+        m_Controller->m_btnReloadScene->setDisabled(false);
+        updateStatusRelaxation("Stopped");
+    }
+    m_Controller->m_btnStartStopRelaxation->setText(!isRunning ? QString("Stop") : QString("Resume"));
+    m_BusyBar->setBusy(!isRunning);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -183,61 +240,15 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_ClipPlaneEditor,                &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
-    connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked,              [&] { m_ClipPlaneEditor->show(); });
+    connect(m_ClipPlaneEditor,                      &ClipPlaneEditor::clipPlaneChanged,    m_RenderWidget, &RenderWidget::setClipPlane);
+    connect(m_Controller->m_btnEditClipPlane,       &QPushButton::clicked,                 [&] { m_ClipPlaneEditor->show(); });
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
-    connect(m_Controller->m_btnReloadScene,   &QPushButton::clicked,
-            [&]()
-            {
-                QString sceneFile = m_Controller->m_cbScene->getComboBox()->currentText();
-                if(sceneFile == "None") {
-                    return;
-                }
-                ////////////////////////////////////////////////////////////////////////////////
-                m_Sampler->reloadVizData(m_Controller->m_chkReloadVizData->isChecked());
-                m_Sampler->changeScene(sceneFile);
-                m_FrameNumber = 0;
-                m_Controller->m_btnStartStopRelaxation->setText(QString("Start"));
-                updateStatusRelaxation("Ready");
-            });
+    connect(m_Controller->m_btnReloadScene,         &QPushButton::clicked,                 [&] { changeScene(true); });
+    connect(m_Controller->m_cbScene,                &EnhancedComboBox::currentTextChanged, [&] { changeScene(false); });
+    connect(m_Controller->m_btnStartStopRelaxation, &QPushButton::clicked,                 [&] { startStopRelaxation(); });
 
-    connect(m_Controller->m_cbScene->getComboBox(), &QComboBox::currentTextChanged, [&](const QString& sceneFile)
-            {
-                if(sceneFile == "None") {
-                    return;
-                }
-                m_Sampler->reloadVizData(true);
-                m_Sampler->changeScene(sceneFile);
-                m_FrameNumber = 0;
-                updateStatusRelaxation("Ready");
-                updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
-            });
-
-    connect(m_Controller->m_btnStartStopRelaxation, &QPushButton::clicked, [&]()
-            {
-                if(m_Controller->m_cbScene->getComboBox()->currentText() == "None") {
-                    return;
-                }
-                ////////////////////////////////////////////////////////////////////////////////
-                bool isRunning = m_Sampler->isRunning();
-                if(!isRunning) {
-                    m_Controller->updateRelaxParams();
-                    m_Sampler->startRelaxation();
-                    m_Controller->m_cbScene->setDisabled(true);
-                    m_Controller->m_btnReloadScene->setDisabled(true);
-                    updateStatusRelaxation("Running relaxation...");
-                } else {
-                    m_Sampler->stop();
-                    m_Controller->m_cbScene->setDisabled(false);
-                    m_Controller->m_btnReloadScene->setDisabled(false);
-                    updateStatusRelaxation("Stopped");
-                }
-                m_Controller->m_btnStartStopRelaxation->setText(!isRunning ? QString("Stop") : QString("Resume"));
-                m_BusyBar->setBusy(!isRunning);
-            });
-
-    connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked)
+    connect(m_Controller->m_chkEnableOutput,        &QCheckBox::toggled,                   [&](bool checked)
             {
                 m_bExportImg = checked;
                 m_Sampler->enableExportImg(checked);

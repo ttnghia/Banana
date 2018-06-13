@@ -62,7 +62,7 @@ signals:
     void relaxationPaused();
     void relaxationFinished(bool bSuccess);
     void iterationFinished(unsigned int iter, float minDistanceRatio);
-    void numParticleChanged(UInt numParticles);
+    void numParticleChanged(unsigned int numParticles);
     void vizDataChanged();
 
 private:
