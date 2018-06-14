@@ -39,7 +39,8 @@ template<Int N, class RealType>
 class GeometryObject
 {
 public:
-    GeometryObject() = default;
+    GeometryObject() = delete;
+    GeometryObject(const JParams& jParams) : m_jParams(jParams) {}
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
 
     virtual String   name()                                                              = 0;
@@ -53,8 +54,8 @@ public:
     void setUniformScale(const RealType scaleVal);
     void resetTransformation();
 
-    auto        getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
-    auto        getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
     auto& getAnimation() { return m_Animation; }
     const auto& getTransformationMatrix() const { return m_TransformationMatrix; }
 
@@ -62,10 +63,12 @@ public:
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
 
-    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f));
+    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0 / 30.0));
 
 protected:
+    virtual void parseParameters(const JParams& jParams);
     ////////////////////////////////////////////////////////////////////////////////
+    JParams  m_jParams;
     bool     m_bTransformed = false;
     RealType m_UniformScale = RealType(1.0);
     //RealType m_InvScale     = RealType(1.0);
@@ -88,6 +91,9 @@ template<Int N, class RealType>
 class BoxObject : public GeometryObject<N, RealType>
 {
 public:
+    BoxObject() = delete;
+    BoxObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
+
     virtual String   name() override { return String("BoxObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
@@ -105,9 +111,10 @@ public:
     virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f)) override;
 
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
+
     VecX<N, RealType> m_BoxMin = VecX<N, RealType>(-1.0);
     VecX<N, RealType> m_BoxMax = VecX<N, RealType>(1.0);
-
     ////////////////////////////////////////////////////////////////////////////////
     // animation data
     struct BoxKeyFrame
@@ -133,42 +140,26 @@ template<Int N, class RealType>
 class SphereObject : public GeometryObject<N, RealType>
 {
 public:
+    SphereObject() = delete;
+    SphereObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { if(N == 2) { return String("CircleObject"); } else { return String("SphereObject"); } }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class TorusObject;
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class TorusObject<2, RealType>: public GeometryObject<2, RealType>
+class TorusObject : public GeometryObject<N, RealType>
 {
 public:
+    TorusObject() = delete;
+    TorusObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("TorusObject"); }
-    virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setRadiusRatio(RealType ratio) { __BNN_REQUIRE(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
-
+    virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
+    void setRingRadius(RealType ringRadius) { __BNN_REQUIRE(ringRadius > 0); m_RingRadius = ringRadius; }
 protected:
-    RealType m_OuterRadius = RealType(0.75);
-    RealType m_InnerRadius = RealType(0.25);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class TorusObject<3, RealType>: public GeometryObject<3, RealType>
-{
-public:
-    virtual String   name() override { return String("TorusObject"); }
-    virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setRadiusRatio(RealType ratio) { __BNN_REQUIRE(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
-
-protected:
-    RealType m_OuterRadius = RealType(0.75);
-    RealType m_InnerRadius = RealType(0.25);
+    virtual void parseParameters(const JParams& jParams) override;
+    RealType m_OuterRadius = RealType(1);
+    RealType m_RingRadius  = RealType(0.25);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -176,6 +167,8 @@ template<Int N, class RealType>
 class Torus28Object : public TorusObject<N, RealType>
 {
 public:
+    Torus28Object() = delete;
+    Torus28Object(const JParams& jParams) : TorusObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
 
@@ -184,47 +177,29 @@ template<Int N, class RealType>
 class Torus2InfObject : public TorusObject<N, RealType>
 {
 public:
+    Torus2InfObject() = delete;
+    Torus2InfObject(const JParams& jParams) : TorusObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class Torus88Object;
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class Torus88Object<2, RealType>: public TorusObject<2, RealType>
+class Torus88Object : public TorusObject<N, RealType>
 {
 public:
-    virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class Torus88Object<3, RealType>: public TorusObject<3, RealType>
-{
-public:
-    virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
+    Torus88Object() = delete;
+    Torus88Object(const JParams& jParams) : TorusObject<N, RealType>(jParams) { parseParameters(jParams); }
+    virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class TorusInfInfObject;
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class TorusInfInfObject<2, RealType>: public TorusObject<2, RealType>
+class TorusInfInfObject : public TorusObject<N, RealType>
 {
 public:
-    virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class TorusInfInfObject<3, RealType>: public TorusObject<3, RealType>
-{
-public:
-    virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
+    TorusInfInfObject() = delete;
+    TorusInfInfObject(const JParams& jParams) : TorusObject<N, RealType>(jParams) { parseParameters(jParams); }
+    virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -232,11 +207,13 @@ template<Int N, class RealType>
 class CylinderObject : public GeometryObject<N, RealType>
 {
 public:
+    CylinderObject() = delete;
+    CylinderObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("CylinderObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setRadiusScale(RealType radius) { m_Radius = radius; }
+    void setRadius(RealType radius) { m_Radius = radius; }
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
     RealType m_Radius = RealType(0.5);
 };
 
@@ -245,12 +222,14 @@ template<Int N, class RealType>
 class ConeObject : public GeometryObject<N, RealType>
 {
 public:
+    ConeObject() = delete;
+    ConeObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("ConeObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setRadiusScale(RealType radius) { m_Radius = radius; }
+    void setBaseRadius(RealType radius) { m_Radius = radius; }
 protected:
-    RealType m_Radius = RealType(0.5);
+    virtual void parseParameters(const JParams& jParams) override;
+    RealType m_Radius = RealType(1);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -258,12 +237,15 @@ template<Int N, class RealType>
 class PlaneObject : public GeometryObject<N, RealType>
 {
 public:
+    PlaneObject() = delete;
+    PlaneObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("PlaneObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
     void setNormal(const VecX<N, RealType>& normal) { m_Normal = normal; }
     void setOffset(RealType offset) { m_Offset = offset; }
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
     VecX<N, RealType> m_Normal = VecX<N, RealType>(0);
     RealType          m_Offset = RealType(0);
 };
@@ -273,18 +255,23 @@ template<Int N, class RealType>
 class TriangleObject : public GeometryObject<N, RealType>
 {
 public:
+    TriangleObject() = delete;
+    TriangleObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("TriangleObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-
     template<class IndexType> void setVertex(IndexType idx, const VecX<N, RealType>& vertex) { m_Vertices[idx] = vertex; }
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
     VecX<N, RealType> m_Vertices[3];
 };
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class HexagonObject : public GeometryObject<N, RealType>
 {
 public:
+    HexagonObject() = delete;
+    HexagonObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("HexagonObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 };
@@ -294,11 +281,13 @@ template<Int N, class RealType>
 class TriangularPrismObject : public GeometryObject<N, RealType>
 {
 public:
+    TriangularPrismObject() = delete;
+    TriangularPrismObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("TriangularPrismObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setWidthHeightRatio(RealType ratio) { m_Width = ratio; }
+    void setWidth(RealType ratio) { m_Width = ratio; }
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
     RealType m_Width = RealType(0.5);
 };
 
@@ -307,11 +296,13 @@ template<Int N, class RealType>
 class HexagonalPrismObject : public GeometryObject<N, RealType>
 {
 public:
+    HexagonalPrismObject() = delete;
+    HexagonalPrismObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("HexagonalPrismObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-    void             setWidthHeightRatio(RealType ratio) { m_Width = ratio; }
-
+    void             setWidth(RealType ratio) { m_Width = ratio; }
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
     RealType m_Width = RealType(0.5);
 };
 
@@ -320,11 +311,13 @@ template<Int N, class RealType>
 class CapsuleObject : public GeometryObject<N, RealType>
 {
 public:
+    CapsuleObject() = delete;
+    CapsuleObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("CapsuleObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setRadiusScale(RealType radius) { m_Radius = radius; }
+    void setRadius(RealType radius) { m_Radius = radius; }
 protected:
+    virtual void parseParameters(const JParams& jParams) override;
     RealType m_Radius = RealType(0.5);
 };
 
@@ -333,56 +326,36 @@ template<Int N, class RealType>
 class EllipsoidObject : public GeometryObject<N, RealType>
 {
 public:
+    EllipsoidObject() = delete;
+    EllipsoidObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("SphereObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
-
-    void setRadiusScale(const VecX<N, RealType>& scale) { m_RadiusScale = scale; }
+    void setRadiusRatio(const VecX<N, RealType>& scale) { m_RadiusRatio = scale; }
 protected:
-    VecX<N, RealType> m_RadiusScale = VecX<N, RealType>(1.0);
+    virtual void parseParameters(const JParams& jParams) override;
+    VecX<N, RealType> m_RadiusRatio = VecX<N, RealType>(1.0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class TriMeshObject;
-
-////////////////////////////////////////////////////////////////////////////////
-// this is an empty class, to get rid of compiler error
-template<class RealType>
-class TriMeshObject<2, RealType>: public GeometryObject<2, RealType>
+class TriMeshObject : public GeometryObject<N, RealType>
 {
 public:
-    virtual String   name() override { return String("TriMeshObject-Unimplemented"); }
-    virtual RealType signedDistance(const Vec2<RealType>&, bool bNegativeInside = true) const override { __BNN_UNUSED(bNegativeInside); return RealType(0); }
-
-    auto& meshFile() { return m_TriMeshFile; }
-    auto& sdfStep() { return m_Step; }
-    void  computeSDF() {}
-
-protected:
-    String   m_TriMeshFile = String("");
-    RealType m_Step        = RealType(1.0 / 256.0);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-template<class RealType>
-class TriMeshObject<3, RealType>: public GeometryObject<3, RealType>
-{
-public:
+    TriMeshObject() = delete;
+    TriMeshObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("TriMeshObject"); }
-    virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
+    virtual RealType signedDistance(const VecX<N, RealType>&, bool bNegativeInside = true) const override;
 
     auto& meshFile() { return m_TriMeshFile; }
     auto& sdfStep() { return m_Step; }
     void computeSDF();
-
 protected:
-
-    bool   m_bSDFGenerated = false;
-    String m_TriMeshFile   = String("");
-
-    RealType           m_Step = RealType(1.0 / 256.0);
-    Array<3, RealType> m_SDFData;
-    Grid<3, RealType>  m_Grid3D;
+    virtual void parseParameters(const JParams& jParams) override;
+    bool               m_bSDFGenerated = false;
+    String             m_TriMeshFile   = String("");
+    RealType           m_Step          = RealType(1.0 / 256.0);
+    Array<N, RealType> m_SDFData;
+    Grid<N, RealType>  m_Grid3D;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -412,7 +385,8 @@ public:
         SharedPtr<GeometryObject<N, RealType>> obj = nullptr;
         CSGOperations                          op  = Union;
     };
-
+    CSGObject() = delete;
+    CSGObject(const JParams& jParams) : GeometryObject<N, RealType>(jParams) { parseParameters(jParams); }
     virtual String   name() override { return String("CSGObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
