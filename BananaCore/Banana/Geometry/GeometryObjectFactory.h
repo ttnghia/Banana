@@ -30,7 +30,7 @@ namespace Banana::GeometryObjectFactory
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-SharedPtr<GeometryObjects::GeometryObject<N, RealType>> createGeometry(const String& geometryType);
+SharedPtr<GeometryObjects::GeometryObject<N, RealType>> createGeometry(const String& geometryType, const JParams& jParams);
 
 template<Int N, class RealType>
 SharedPtr<GeometryObjects::GeometryObject<N, RealType>> combineGeometryObjects(const Vector<SharedPtr<GeometryObjects::GeometryObject<N, RealType>>>& geometryObjs,
