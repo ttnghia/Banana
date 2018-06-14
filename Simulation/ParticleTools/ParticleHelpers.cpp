@@ -539,7 +539,8 @@ template<Int N, class RealType> bool saveParticlesToBinary(const String& fileNam
         return false;
     }
 
-    file << static_cast<UInt>(positions.size());
+    UInt nParticles = static_cast<UInt>(positions.size());
+    file.write((const char*)&nParticles,      sizeof(UInt));
     file.write((const char*)&particleRadius,  sizeof(RealType));
     file.write((const char*)positions.data(), positions.size() * sizeof(VecX<N, RealType>));
     file.close();
