@@ -82,8 +82,8 @@ void ParticleSolver<N, RealType>::loadScene(const String& sceneFile)
             auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
 
             // domain box cannot be dynamic
-            JSONHelpers::readValue(jBoxParams, obj->meshFile(),     "MeshFile");
-            JSONHelpers::readValue(jBoxParams, obj->particleFile(), "ParticleFile");
+            JSONHelpers::readValue(jBoxParams, obj->meshFile(),          "MeshFile");
+            JSONHelpers::readValue(jBoxParams, obj->particleInputFile(), "ParticleInputFile");
 
             // domain box can only has translation, scale and size scale
             VecN     translation;

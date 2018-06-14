@@ -98,7 +98,6 @@ protected:
     RealType m_JitterRatio        = RealType(0);
     RealType m_Jitter             = RealType(0);
     RealType m_SamplingRatio      = RealType(1.0);
-    RealType m_ParticleRadius     = RealType(0);
     RealType m_Spacing            = RealType(0);
     RealType m_SpacingSqr         = RealType(0);
     String   m_ConstraintObjectID = String("");

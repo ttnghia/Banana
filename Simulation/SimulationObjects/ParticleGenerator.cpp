@@ -105,7 +105,6 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
                                     lock.unlock();
                                 }
                             });
-    __BNN_REQUIRE(m_ObjParticles.size() > 0)
     ////////////////////////////////////////////////////////////////////////////////
     m_Relaxer = std::make_shared<ParticleTools::SPHBasedRelaxation<N, RealType>>(this->m_NameID, m_ObjParticles, this->m_GeometryObj, boundaryObjects);
     __BNN_TODO;

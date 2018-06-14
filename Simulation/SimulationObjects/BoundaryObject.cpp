@@ -34,12 +34,16 @@ UInt BoundaryObject<N, RealType>::generateBoundaryParticles(Vec_VecN& PDPosition
                                                             RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
 {
     Vec_VecN tmpPositions;
-    if(bUseCache && !this->m_ParticleFile.empty() && FileHelpers::fileExisted(this->m_ParticleFile)) {
-        ParticleSerialization::loadParticle(this->m_ParticleFile, tmpPositions, particleRadius);
+    if(bUseCache && !this->m_ParticleInputFile.empty() && FileHelpers::fileExisted(this->m_ParticleInputFile)) {
+        ParticleSerialization::loadParticle(this->m_ParticleInputFile, tmpPositions, particleRadius);
     } else {
         generateBoundaryParticles_Impl(tmpPositions, particleRadius, numBDLayers);
-        if(bUseCache && !this->m_ParticleFile.empty()) {
-            ParticleSerialization::saveParticle(this->m_ParticleFile, tmpPositions, particleRadius);
+        if(bUseCache) {
+            if(!this->m_ParticleInputFile.empty()) {
+                ParticleSerialization::saveParticle(this->m_ParticleInputFile, tmpPositions, particleRadius);
+            } else if(!this->m_ParticleOutputFile.empty()) {
+                ParticleSerialization::saveParticle(this->m_ParticleOutputFile, tmpPositions, particleRadius);
+            }
         }
     }
 

@@ -51,7 +51,8 @@ public:
     auto& useFileCache() { return m_bUseFileCache; }
     auto& fullShapeObj() { return m_bFullShapeObj; }
     auto& particleRadius() { return m_ParticleRadius; }
-    auto& particleFile() { return m_ParticleFile; }
+    auto& particleInputFile() { return m_ParticleInputFile; }
+    auto& particleOutputFile() { return m_ParticleOutputFile; }
     auto& particleFileType() { return m_ParticleFileType; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void parseParameters(const JParams& jParams);
@@ -64,9 +65,9 @@ public:
         return m_GeometryObj->updateTransformation(frame, fraction, frameDuration);
     }
 
-protected:
     bool loadParticlesFromFile();
     void saveParticlesToFile();
+protected:
     ////////////////////////////////////////////////////////////////////////////////
     JParams     m_jParams;
     GeometryPtr m_GeometryObj = nullptr;
@@ -76,11 +77,12 @@ protected:
     bool   m_bDynamics = false;
 
     Vec_VecN         m_ObjParticles;
-    RealType         m_ParticleRadius   = 0;
-    ParticleFileType m_ParticleFileType = ParticleFileType::BNN;
-    String           m_ParticleFile     = String("");
-    bool             m_bUseFileCache    = false;
-    bool             m_bFullShapeObj    = false;
+    RealType         m_ParticleRadius     = 0;
+    ParticleFileType m_ParticleFileType   = ParticleFileType::BNN;
+    String           m_ParticleInputFile  = String("");
+    String           m_ParticleOutputFile = String("");
+    bool             m_bUseFileCache      = false;
+    bool             m_bFullShapeObj      = false;
     ////////////////////////////////////////////////////////////////////////////////
     bool m_bObjReady = false;
 };
