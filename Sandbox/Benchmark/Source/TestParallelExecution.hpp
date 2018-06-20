@@ -129,3 +129,66 @@ TEST_CASE("Test Banana::ParallelSTL vs C++17 parallel execution, double numbers"
         printf("    min: %f\n", *it);
     }
 }
+
+#if 0
+#include <cstdio>
+#include <vector>
+#include <chrono>
+#include <string>
+#include <algorithm>
+#include <execution>
+
+////////////////////////////////////////////////////////////////////////////////
+class ScopeTimer
+{
+protected:
+    using Clock = std::chrono::high_resolution_clock;
+
+public:
+    ScopeTimer(const std::string& caption) : m_Caption(caption) { tick(); }
+    ~ScopeTimer() { printf("%s: %fms\n", m_Caption.c_str(), tock()); }
+
+    void tick() { m_StartTime = Clock::now(); }
+    float tock() { return std::chrono::duration<float, std::milli>(Clock::now() - m_StartTime).count(); }
+
+private:
+    Clock::time_point m_StartTime;
+    std::string       m_Caption;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+#define NUM_TEST (1 << 28)
+
+int main()
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // init data
+    srand(static_cast<unsigned int>(time(0)));
+    std::vector<float> vec(NUM_TEST);
+    for(unsigned int i = 0; i < NUM_TEST; ++i) {
+        vec[i] = (float(rand()) / RAND_MAX) * 2.0f - 1.0f;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    {
+        ScopeTimer timer("Test sequential finding");
+        float      minNum = 1e10;
+        for(unsigned int i = 0; i < NUM_TEST; ++i) {
+            if(minNum > vec[i]) { minNum = vec[i]; } }
+        printf("Min: %f\n", minNum);
+    }
+
+    {
+        ScopeTimer timer("Test std::min_element with execution::par");
+        auto       it = std::min_element(std::execution::par, vec.begin(), vec.end());
+        printf("Min: %f\n", *it);
+    }
+
+    {
+        ScopeTimer timer("Test std::min_element with execution::par_unseq");
+        auto       it = std::min_element(std::execution::par_unseq, vec.begin(), vec.end());
+        printf("Min: %f\n", *it);
+    }
+}
+
+#endif
