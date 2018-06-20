@@ -22,7 +22,7 @@
 #include "MainWindow.h"
 
 #include <QMouseEvent>
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Formatters.h>
 #include <Banana/System/MemoryUsage.h>
 #include <QtAppHelpers/QtAppUtils.h>
 
@@ -79,7 +79,7 @@ void MainWindow::updateWindowTitle(const QString& filePath)
 
 void MainWindow::updateStatusMemoryUsage()
 {
-    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
+    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(Formatters::toString(getCurrentRSS() / 1048576.0))));
 }
 
 void MainWindow::updateStatusHairInfo()

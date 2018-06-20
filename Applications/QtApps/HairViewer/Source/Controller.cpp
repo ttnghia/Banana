@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include "Controller.h"
-#include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,14 +47,14 @@ void Controller::connectWidgets()
     // materials and particle color mode
     connect(m_smHairRenderMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setRenderMode);
     connect(m_smHairColorMode,  static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setColorMode);
-    connect(m_msHairMaterial,  &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setHairMaterial);
-    connect(m_msMeshMaterial,  &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setMeshMaterial);
-    connect(m_pkrColorDataMin, &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
-    connect(m_pkrColorDataMax, &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_btnRndColor,     &QPushButton::clicked,              [&]()
+    connect(m_msHairMaterial,   &MaterialSelector::materialChanged,                                m_RenderWidget, &RenderWidget::setHairMaterial);
+    connect(m_msMeshMaterial,   &MaterialSelector::materialChanged,                                m_RenderWidget, &RenderWidget::setMeshMaterial);
+    connect(m_pkrColorDataMin,  &ColorPicker::colorChanged,                                        [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax,  &ColorPicker::colorChanged,                                        [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
+    connect(m_btnRndColor,      &QPushButton::clicked,                                             [&]()
             {
-                auto colorMin = MathHelpers::vrand<Vec3f>();
-                auto colorMax = MathHelpers::vrand<Vec3f>();
+                auto colorMin = NumberHelpers::fRand<float>::vrnd<Vec3f>();
+                auto colorMax = NumberHelpers::fRand<float>::vrnd<Vec3f>();
                 m_pkrColorDataMin->setColor(colorMin);
                 m_pkrColorDataMax->setColor(colorMax);
                 m_RenderWidget->setColorDataMin(colorMin);
