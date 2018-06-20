@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include "Controller.h"
-#include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -44,13 +44,13 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), m_RenderWidget, &RenderWidget::setParticleColorMode);
-    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-    connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
-    connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_btnRndColor,        &QPushButton::clicked,              [&]()
+    connect(m_msParticleMaterial,  &MaterialSelector::materialChanged,                                m_RenderWidget, &RenderWidget::setParticleMaterial);
+    connect(m_pkrColorDataMin,     &ColorPicker::colorChanged,                                        [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax,     &ColorPicker::colorChanged,                                        [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
+    connect(m_btnRndColor,         &QPushButton::clicked,                                             [&]()
             {
-                auto colorMin = MathHelpers::vrand<Vec3f>();
-                auto colorMax = MathHelpers::vrand<Vec3f>();
+                auto colorMin = NumberHelpers::fRand01<float>::vrnd<Vec3f>();
+                auto colorMax = NumberHelpers::fRand01<float>::vrnd<Vec3f>();
                 m_pkrColorDataMin->setColor(colorMin);
                 m_pkrColorDataMax->setColor(colorMax);
                 m_RenderWidget->setColorDataMin(colorMin);
