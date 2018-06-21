@@ -23,7 +23,7 @@ QT += core gui widgets
 
 TARGET = HairViewer
 TEMPLATE = app
-CONFIG += console
+#CONFIG += console
 
 #QMAKE_LFLAGS += /VERBOSE
 #CONFIG += static

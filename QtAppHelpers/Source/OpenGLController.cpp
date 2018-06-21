@@ -36,7 +36,7 @@ void OpenGLController::setupBasicGUI(Int width)
     ////////////////////////////////////////////////////////////////////////////////
     m_MainTab->setTabPosition(QTabWidget::South);
     m_MainTab->setTabShape(QTabWidget::Triangular);
-    m_MainTab->addTab(m_RenderControllers, "Main Controllers");
+    m_MainTab->addTab(m_RenderControllers, "Render Controllers");
     m_MainTab->addTab(m_LightEditor,       "Lights");
     ////////////////////////////////////////////////////////////////////////////////
     m_MainLayout->addWidget(m_MainTab);
