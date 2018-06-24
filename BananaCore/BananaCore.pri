@@ -35,25 +35,32 @@ static {
 }
 
 win32 {
+    QMAKE_CXXFLAGS += /std:c++latest
+    QMAKE_CXXFLAGS += /MP /W3 /Zc:wchar_t /Zi /Gm- /fp:precise /Zp16 /FC /EHsc
+    QMAKE_CXXFLAGS += /D "_WINDOWS" /D "WIN32" /D "WIN64" /D "_MBCS" /D "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
+
     CONFIG(debug, debug|release) {
         message("Banana -- Debug")
-        QMAKE_CXXFLAGS += /D "_DEBUG" /wd"4305"
+        QMAKE_CXXFLAGS += /D "_DEBUG"
+        QMAKE_CXXFLAGS += /Od /MDd
         LIBS += $$PWD/../Build/Debug/BananaCore.lib
         PRE_TARGETDEPS += $$PWD/../Build/Debug/BananaCore.lib
     } else {
         message("Banana -- Release")
-        QMAKE_CXXFLAGS += /Zo /Qpar /GL /W3 /Gy /Gm- /O2 /Ob2 /fp:precise /D "NDEBUG" /fp:except /Oi /EHsc /Ot /wd"4305"
+        QMAKE_CXXFLAGS += /Zo /Qpar /GL /Gy /O2 /Ob2 /Oi /Ot /GF
+        QMAKE_CXXFLAGS += /D "NDEBUG"
         QMAKE_LFLAGS += /LTCG:INCREMENTAL
         static {
+            QMAKE_CXXFLAGS += /MT
             LIBS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
             PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
         } else {
+            QMAKE_CXXFLAGS += /MD
             LIBS += $$PWD/../Build/Release/BananaCore.lib
             PRE_TARGETDEPS += $$PWD/../Build/Release/BananaCore.lib
         }
     }
 
-    QMAKE_CXXFLAGS += /std:c++latest
     INCLUDEPATH += $$PWD/../Externals/tbb_win/include
     LIBS += -ltbb -L$$PWD/../Externals/tbb_win/lib/intel64/vc14
 }
