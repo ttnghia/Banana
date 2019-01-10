@@ -138,10 +138,10 @@ private:
         float mag2 = glm::dot(ballMouse, ballMouse);
 
         if(mag2 > 1.0f) {
-            ballMouse   /= sqrtf(mag2);
+            ballMouse   /= std::sqrtf(mag2);
             ballMouse[2] = 0.0f;
         } else {
-            ballMouse[2] = sqrtf(1.0f - mag2);
+            ballMouse[2] = std::sqrtf(1.0f - mag2);
         }
 
         return ballMouse;

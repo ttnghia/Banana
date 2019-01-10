@@ -41,7 +41,7 @@ win32 {
 }
 
 
-macx {
+macx|unix {
     CONFIG(debug, debug|release) {
         message("OpenGLHelpers -- Debug")
         LIBS += $$PWD/../Build/Debug/libOpenGLHelpers.a

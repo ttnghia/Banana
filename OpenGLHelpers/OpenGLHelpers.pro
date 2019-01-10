@@ -34,3 +34,9 @@ SOURCES = $$files(Source/*.cpp, true)
 DISTFILES += \
     OpenGLHelpers.pri \
     OpenGLHelpers.licenseheader
+
+CONFIG(debug, debug|release) {
+    DESTDIR = $$PWD/../Build/Debug
+} else {
+    DESTDIR = $$PWD/../Build/Release
+}

@@ -120,7 +120,7 @@ void Camera::updateCameraMatrices()
         setDirty(true);
     }
 
-    if(fabsf(m_Zooming) > 1e-4) {
+    if(std::abs(m_Zooming) > 1e-4) {
         zoom();
         setDirty(true);
     }
