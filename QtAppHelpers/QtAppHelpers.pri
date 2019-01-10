@@ -36,7 +36,7 @@ win32 {
     }
 }
 
-macx {
+macx|unix {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 
     CONFIG(debug, debug|release) {
@@ -54,8 +54,10 @@ macx {
 }
 
 
-include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
+#include(C:\Qt\Qt5.11.2\Examples\Qt-5.11.2\widgets/painting/shared/shared.pri)
+include($$PWD/ArthurStyle/ArthurStyle.pri)
 
+INCLUDEPATH += $$PWD/ArthurStyle
 INCLUDEPATH += $$PWD/Include
 INCLUDEPATH += $$PWD/../Externals/glm
 #INCLUDEPATH += $$PWD/../Externals/AntTweakBar/include

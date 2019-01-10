@@ -51,7 +51,6 @@ typedef  QOpenGLFunctions_4_1_Core   OpenGLFunctions;
         QMessageBox::information(nullptr, QString("Info"), info); \
     }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifndef M_PI
 #   define M_PI 3.14159265358979323846
@@ -84,6 +83,7 @@ typedef  QOpenGLFunctions_4_1_Core   OpenGLFunctions;
         format.setSwapInterval(vsync ? 1 : 0);                                                                                \
         QSurfaceFormat::setDefaultFormat(format);                                                                             \
         QApplication a(argc, argv);                                                                                           \
+        a.setAttribute(Qt::AA_UseDesktopOpenGL);                                                                              \
         MainWindowClass w;                                                                                                    \
         w.show();                                                                                                             \
         w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry())); \
@@ -241,7 +241,6 @@ struct Frustum
     float fov;
     float neard;
     float fard;
-
 
     Frustum(float _fov = 45.0f, float _near = 0.1f, float _far = 1000.0f)
     {

@@ -28,11 +28,18 @@ TARGET = QtAppHelpers
 TEMPLATE = lib
 CONFIG += staticlib
 
-include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
 
-HEADERS = $$files(include/*.h, true)
+HEADERS = $$files(Include/*.h, true)
 SOURCES = $$files(Source/*.cpp, true)
+
+include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
 
 DISTFILES += \
     QtAppHelpers.pri \
     QtAppHelpers.licenseheader
+
+CONFIG(debug, debug|release) {
+    DESTDIR = $$PWD/../Build/Debug
+} else {
+    DESTDIR = $$PWD/../Build/Release
+}
