@@ -22,12 +22,10 @@
 #include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
+namespace Banana {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-bool BlockPCGSolver<MatrixType>::solve(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& rhs, Vector<VectorType>& result)
-{
+bool BlockPCGSolver<MatrixType>::solve(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& rhs, Vector<VectorType>& result) {
     const UInt n = matrix.size();
     if(z.size() != n) {
         s.resize(n);
@@ -52,7 +50,7 @@ bool BlockPCGSolver<MatrixType>::solve(const BlockSparseMatrix<MatrixType>& matr
     RealType tol = m_ToleranceFactor * m_OutResidual;
     RealType rho = ParallelBLAS::dotProduct<VectorType::length(), RealType>(r, r);
 
-    if(fabs(rho) < m_ToleranceFactor || isnan(rho)) {
+    if(std::abs(rho) < m_ToleranceFactor || std::isnan(rho)) {
         m_OutIterations = 0;
         return true;
     }
@@ -63,7 +61,7 @@ bool BlockPCGSolver<MatrixType>::solve(const BlockSparseMatrix<MatrixType>& matr
         FixedBlockSparseMatrix<MatrixType>::multiply(m_FixedSparseMatrix, z, s);
         RealType tmp = ParallelBLAS::dotProduct<VectorType::length(), RealType>(s, z);
 
-        if(fabs(tmp) < m_ToleranceFactor || isnan(tmp)) {
+        if(std::abs(tmp) < m_ToleranceFactor || std::isnan(tmp)) {
             m_OutIterations = iteration;
             return true;
         }
@@ -94,8 +92,7 @@ bool BlockPCGSolver<MatrixType>::solve(const BlockSparseMatrix<MatrixType>& matr
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-bool BlockPCGSolver<MatrixType>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& rhs, Vector<VectorType>& result)
-{
+bool BlockPCGSolver<MatrixType>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& rhs, Vector<VectorType>& result) {
     UInt n = matrix.size();
 
     if(z.size() != n) {
@@ -127,7 +124,7 @@ bool BlockPCGSolver<MatrixType>::solve_precond(const BlockSparseMatrix<MatrixTyp
     applyPreconditioner(r, z);
 
     RealType rho = ParallelBLAS::dotProduct<VectorType::length(), RealType>(z, r);
-    if(fabs(rho) < m_ToleranceFactor || isnan(rho)) {
+    if(std::abs(rho) < m_ToleranceFactor || std::isnan(rho)) {
         m_OutIterations = 0;
         return true;
     }
@@ -138,7 +135,7 @@ bool BlockPCGSolver<MatrixType>::solve_precond(const BlockSparseMatrix<MatrixTyp
         FixedBlockSparseMatrix<MatrixType>::multiply(m_FixedSparseMatrix, s, z);
         RealType tmp = ParallelBLAS::dotProduct<VectorType::length(), RealType>(s, z);
 
-        if(fabs(tmp) < m_ToleranceFactor || isnan(tmp)) {
+        if(std::abs(tmp) < m_ToleranceFactor || std::isnan(tmp)) {
             m_OutIterations = iteration;
             return true;
         }
@@ -162,7 +159,7 @@ bool BlockPCGSolver<MatrixType>::solve_precond(const BlockSparseMatrix<MatrixTyp
         RealType beta    = rho_new / rho;
 
         ParallelBLAS::addScaled(beta, s, z);
-        s.swap(z);                     // s=beta*s+z
+        s.swap(z); // s=beta*s+z
         rho = rho_new;
     }
 
@@ -172,19 +169,17 @@ bool BlockPCGSolver<MatrixType>::solve_precond(const BlockSparseMatrix<MatrixTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-void BlockPCGSolver<MatrixType>::formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix)
-{
+void BlockPCGSolver<MatrixType>::formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix) {
     m_JacobiPreconditioner.resize(matrix.size());
     Scheduler::parallel_for(matrix.size(),
-                            [&](UInt i)
-                            {
+                            [&](UInt i) {
                                 const auto& v = matrix.getIndices(i);
                                 const auto it = std::lower_bound(v.begin(), v.end(), i);
                                 MatrixType tmp_inv(0);
                                 if(it != v.end()) {
                                     MatrixType tmp = matrix.getValues(i)[std::distance(v.begin(), it)];
                                     for(Int j = 0; j < MatrixType::length(); ++j) {
-                                        tmp_inv[j][j] = tmp[j][j] != 0 ? MatrixType::value_type(1.0) / tmp[j][j] : 0;
+                                        tmp_inv[j][j] = tmp[j][j] != 0 ? typename MatrixType::value_type(1.0) / tmp[j][j] : 0;
                                     }
                                 }
                                 m_JacobiPreconditioner[i] = tmp_inv;
@@ -193,8 +188,7 @@ void BlockPCGSolver<MatrixType>::formPreconditioner(const BlockSparseMatrix<Matr
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-void BlockPCGSolver<MatrixType>::applyPreconditioner(const Vector<VectorType>& x, Vector<VectorType>& result)
-{
+void BlockPCGSolver<MatrixType>::applyPreconditioner(const Vector<VectorType>& x, Vector<VectorType>& result) {
     Scheduler::parallel_for(x.size(), [&](size_t i) { result[i] = m_JacobiPreconditioner[i] * x[i]; });
 }
 

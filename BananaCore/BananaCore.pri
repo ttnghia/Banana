@@ -35,7 +35,7 @@ static {
 }
 
 win32 {
-    QMAKE_CXXFLAGS += /std:c++latest
+    QMAKE_CXXFLAGS += /std:c++17
     QMAKE_CXXFLAGS += /MP /W3 /Zc:wchar_t /Zi /Gm- /fp:precise /Zp16 /FC /EHsc
     QMAKE_CXXFLAGS += /D "_WINDOWS" /D "WIN32" /D "WIN64" /D "_MBCS" /D "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
 
@@ -65,7 +65,7 @@ win32 {
     LIBS += -ltbb -L$$PWD/../Externals/tbb_win/lib/intel64/vc14
 }
 
-macx {
+macx|unix {
     CONFIG(debug, debug|release) {
         LIBS += $$PWD/../Build/Debug/libBananaCore.a
         PRE_TARGETDEPS += $$PWD/../Build/Debug/libBananaCore.a
@@ -73,7 +73,16 @@ macx {
         LIBS += $$PWD/../Build/Release/libBananaCore.a
         PRE_TARGETDEPS += $$PWD/../Build/Release/libBananaCore.a
     }
+}
 
+macx {
     INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
+    QMAKE_LFLAGS += -Wl,-rpath=$$PWD/../Externals/tbb_osx/lib
     LIBS += -ltbb -L$$PWD/../Externals/tbb_osx/lib
+}
+
+unix {
+    INCLUDEPATH += $$PWD/../Externals/tbb_linux/include
+    QMAKE_LFLAGS += -Wl,-rpath=$$PWD/../Externals/tbb_linux/lib/intel64/gcc4.7
+    LIBS += -ltbb -L$$PWD/../Externals/tbb_linux/lib/intel64/gcc4.7
 }

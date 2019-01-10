@@ -63,7 +63,7 @@ RealType maxAbs(const MatXxX<N, RealType>& mat)
     RealType result = RealType(0);
     for(Int i = 0; i < N; ++i) {
         for(Int j = 0; j < N; ++j) {
-            result = MathHelpers::max(result, fabs(mat[i][j]));
+            result = MathHelpers::max(result, std::abs(mat[i][j]));
         }
     }
     return result;
@@ -79,7 +79,7 @@ RealType norm2(const MatXxX<N, RealType>& mat)
             prod += mat[i][j] * mat[i][j];
         }
     }
-    return sqrt(prod);
+    return std::sqrt(prod);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

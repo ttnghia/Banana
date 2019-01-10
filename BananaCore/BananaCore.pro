@@ -33,3 +33,9 @@ SOURCES += $$files(Banana/*.cpp, true)
 DISTFILES += \
     BananaCore.pri \
     BananaCore.licenseheader
+
+CONFIG(debug, debug|release) {
+    DESTDIR = $$PWD/../Build/Debug
+} else {
+    DESTDIR = $$PWD/../Build/Release
+}

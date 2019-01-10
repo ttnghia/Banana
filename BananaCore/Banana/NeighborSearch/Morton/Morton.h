@@ -24,8 +24,8 @@
 // This file will always contain pointers to the fastest Morton encoding/decoding implementation
 // IF you just want to use the fastest method to encode/decode morton codes, include this
 
-#include "morton2D.h"
-#include "morton3D.h"
+#include "Morton2D.h"
+#include "Morton3D.h"
 
 //// ENCODE
 //inline uint_fast32_t morton2D_32_encode(const uint_fast16_t x, const uint_fast16_t y);

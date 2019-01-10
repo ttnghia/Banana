@@ -47,16 +47,16 @@ void testAccuracy(const Vector<Mat3x3<T> >& AA,
         T         error;
         error           = LinaHelpers::maxAbs(U * glm::transpose(U) - Mat3x3<T>(1.0));
         max_UUt_error   = (error > max_UUt_error) ? error : max_UUt_error;
-        ave_UUt_error  += fabs(error);
+        ave_UUt_error  += std::abs(error);
         error           = LinaHelpers::maxAbs(V * glm::transpose(V) - Mat3x3<T>(1.0));
         max_VVt_error   = (error > max_VVt_error) ? error : max_VVt_error;
-        ave_VVt_error  += fabs(error);
-        error           = fabs(fabs(glm::determinant(U)) - (T)1);
+        ave_VVt_error  += std::abs(error);
+        error           = std::abs(std::abs(glm::determinant(U)) - (T)1);
         max_detU_error  = (error > max_detU_error) ? error : max_detU_error;
-        ave_detU_error += fabs(error);
-        error           = fabs(fabs(glm::determinant(V)) - (T)1);
+        ave_detU_error += std::abs(error);
+        error           = std::abs(std::abs(glm::determinant(V)) - (T)1);
         max_detV_error  = (error > max_detV_error) ? error : max_detV_error;
-        ave_detV_error += fabs(error);
+        ave_detV_error += std::abs(error);
         error           = LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(S) * glm::transpose(V) - M);
 
 
@@ -69,7 +69,7 @@ void testAccuracy(const Vector<Mat3x3<T> >& AA,
 
 
         max_reconstruction_error  = (error > max_reconstruction_error) ? error : max_reconstruction_error;
-        ave_reconstruction_error += fabs(error);
+        ave_reconstruction_error += std::abs(error);
     }
     ave_UUt_error            /= (T)(AA.size());
     ave_VVt_error            /= (T)(AA.size());

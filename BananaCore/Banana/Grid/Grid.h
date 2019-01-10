@@ -24,15 +24,14 @@
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
+#include <Banana/Utils/MathHelpers.h>
 #include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
+namespace Banana {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class Grid
-{
+class Grid {
 public:
     Grid() = default;
     Grid(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, RealType cellSize) : m_BMin(bMin), m_BMax(bMax) { setCellSize(cellSize); }
@@ -61,22 +60,19 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Grid 2D =>
     template<class IndexType>
-    IndexType getCellLinearizedIndex(IndexType i, IndexType j) const
-    {
+    IndexType getCellLinearizedIndex(IndexType i, IndexType j) const {
         static_assert(N == 2, "Array dimension != 2");
         return j * static_cast<IndexType>(getNCells()[0]) + i;
     }
 
     template<class IndexType>
-    IndexType getNodeLinearizedIndex(IndexType i, IndexType j) const
-    {
+    IndexType getNodeLinearizedIndex(IndexType i, IndexType j) const {
         static_assert(N == 2, "Array dimension != 2");
         return j * static_cast<IndexType>(getNNodes()[0]()) + i;
     }
 
     template<class IndexType>
-    bool isValidCell(IndexType i, IndexType j)  const noexcept
-    {
+    bool isValidCell(IndexType i, IndexType j)  const noexcept{
         static_assert(N == 2, "Array dimension != 2");
         return (i >= 0 &&
                 j >= 0 &&
@@ -85,14 +81,12 @@ public:
     }
 
     template<class IndexType>
-    bool isValidCell(const Vec2<IndexType>& index) const noexcept
-    {
+    bool isValidCell(const Vec2<IndexType>& index) const noexcept{
         return isValidCell(index[0], index[1]);
     }
 
     template<class IndexType>
-    bool isValidNode(IndexType i, IndexType j)  const noexcept
-    {
+    bool isValidNode(IndexType i, IndexType j)  const noexcept{
         static_assert(N == 2, "Array dimension != 2");
         return (i >= 0 &&
                 j >= 0 &&
@@ -101,8 +95,7 @@ public:
     }
 
     template<class IndexType>
-    bool isValidNode(const Vec2<IndexType>& index) const noexcept
-    {
+    bool isValidNode(const Vec2<IndexType>& index) const noexcept{
         return isValidNode(index[0], index[1]);
     }
 
@@ -112,22 +105,19 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Grid 3D =>
     template<class IndexType>
-    IndexType getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
-    {
+    IndexType getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const {
         static_assert(N == 3, "Array dimension != 3");
         return (k * static_cast<IndexType>(getNCells()[1]) + j) * static_cast<IndexType>(getNCells()[0]) + i;
     }
 
     template<class IndexType>
-    IndexType getNodeLinearizedIndex(IndexType i, IndexType j, IndexType k) const
-    {
+    IndexType getNodeLinearizedIndex(IndexType i, IndexType j, IndexType k) const {
         static_assert(N == 3, "Array dimension != 3");
         return (k * static_cast<IndexType>(getNNodes()[1]()) + j) * static_cast<IndexType>(getNNodes()[0]) + i;
     }
 
     template<class IndexType>
-    bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
-    {
+    bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept{
         static_assert(N == 3, "Array dimension != 3");
         return (i >= 0 &&
                 j >= 0 &&
@@ -138,14 +128,12 @@ public:
     }
 
     template<class IndexType>
-    bool isValidCell(const Vec3<IndexType>& index) const noexcept
-    {
+    bool isValidCell(const Vec3<IndexType>& index) const noexcept{
         return isValidCell(index[0], index[1], index[2]);
     }
 
     template<class IndexType>
-    bool isValidNode(IndexType i, IndexType j, IndexType k)  const noexcept
-    {
+    bool isValidNode(IndexType i, IndexType j, IndexType k)  const noexcept{
         static_assert(N == 3, "Array dimension != 3");
         return (i >= 0 &&
                 j >= 0 &&
@@ -156,8 +144,7 @@ public:
     }
 
     template<class IndexType>
-    bool isValidNode(const Vec3<IndexType>& index) const noexcept
-    {
+    bool isValidNode(const Vec3<IndexType>& index) const noexcept{
         return isValidNode(index[0], index[1], index[2]);
     }
 
@@ -166,8 +153,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    auto getCellIdx(const VecX<N, RealType>& ppos) const noexcept
-    {
+    auto getCellIdx(const VecX<N, RealType>& ppos) const noexcept{
         VecX<N, IndexType> cellIdx;
         for(Int d = 0; d < N; ++d) {
             cellIdx[d] = static_cast<IndexType>((ppos[d] - m_BMin[d]) / m_CellSize);
@@ -176,8 +162,7 @@ public:
     }
 
     template<class IndexType>
-    auto getNearestValidCellIdx(const VecX<N, IndexType>& cellIdx) const noexcept
-    {
+    auto getNearestValidCellIdx(const VecX<N, IndexType>& cellIdx) const noexcept{
         VecX<N, IndexType> validCellIdx;
         for(Int d = 0; d < N; ++d) {
             validCellIdx[d] = MathHelpers::clamp<IndexType>(cellIdx[d], 0, static_cast<IndexType>(m_NCells[d]) - 1);
@@ -186,29 +171,25 @@ public:
     }
 
     template<class IndexType>
-    auto getValidCellIdx(const VecX<N, RealType>& ppos) const noexcept
-    {
+    auto getValidCellIdx(const VecX<N, RealType>& ppos) const noexcept{
         return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Particle processing
     template<class IndexType>
-    auto getWorldCoordinate(const VecX<N, IndexType>& nodeIdx) const
-    {
+    auto getWorldCoordinate(const VecX<N, IndexType>& nodeIdx) const {
         return VecX<N, RealType>(nodeIdx) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
-    auto getWorldCoordinate(IndexType i, IndexType j) const
-    {
+    auto getWorldCoordinate(IndexType i, IndexType j) const {
         static_assert(N == 2, "Array dimension != 2");
         return Vec2<RealType>(i, j) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
-    auto getWorldCoordinate(IndexType i, IndexType j, IndexType k) const
-    {
+    auto getWorldCoordinate(IndexType i, IndexType j, IndexType k) const {
         static_assert(N == 3, "Array dimension != 3");
         return Vec3<RealType>(i, j, k) * m_CellSize + m_BMin;
     }
@@ -221,9 +202,9 @@ public:
     void collectIndexToCells(const Vector<VecX<N, RealType>>& positions);
     void collectIndexToCells(const Vector<VecX<N, RealType>>& positions, Vector<VecX<N, Int>>& particleCellIdx);
     void collectIndexToCells(const Vector<VecX<N, RealType>>& positions, Vector<VecX<N, RealType>>& particleCellPos);
-    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, Int cellSpan                                      = 1);
-    void getNeighborList(const VecX<N, RealType>& ppos, Vec_UInt& neighborList, Int cellSpan                                                      = 1);
-    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan                         = 1);
+    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, Int cellSpan = 1);
+    void getNeighborList(const VecX<N, RealType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
+    void getNeighborList(const Vector<VecX<N, RealType>>& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan = 1);
     void getNeighborList(const Vec_VecX<N, RealType>& positions, const VecX<N, RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
     void sortData(Vector<VecX<N, RealType>>& data);
 

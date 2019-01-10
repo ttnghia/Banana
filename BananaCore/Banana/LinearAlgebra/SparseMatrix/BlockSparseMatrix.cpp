@@ -23,30 +23,26 @@
 #include <fstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
+namespace Banana {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix.
 //
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::reserve(UInt size)
-{
+void BlockSparseMatrix<MatrixType>::reserve(UInt size) {
     m_ColIndex.reserve(m_Size);
     m_ColValue.reserve(m_Size);
 }
 
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::resize(UInt newSize)
-{
+void BlockSparseMatrix<MatrixType>::resize(UInt newSize) {
     m_Size = newSize;
     m_ColIndex.resize(m_Size);
     m_ColValue.resize(m_Size);
 }
 
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::clear()
-{
+void BlockSparseMatrix<MatrixType>::clear() {
     for(UInt i = 0; i < m_Size; ++i) {
         m_ColIndex[i].resize(0);
         m_ColValue[i].resize(0);
@@ -56,8 +52,7 @@ void BlockSparseMatrix<MatrixType>::clear()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
 template<class IndexType>
-const auto& BlockSparseMatrix<MatrixType>::operator()(IndexType i, IndexType j) const
-{
+const auto& BlockSparseMatrix<MatrixType>::operator()(IndexType i, IndexType j) const {
     assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
     UInt k = 0;
     if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
@@ -70,8 +65,7 @@ const auto& BlockSparseMatrix<MatrixType>::operator()(IndexType i, IndexType j) 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
 template<class IndexType>
-void BlockSparseMatrix<MatrixType>::setElement(IndexType i, IndexType j, const MatrixType& newValue)
-{
+void BlockSparseMatrix<MatrixType>::setElement(IndexType i, IndexType j, const MatrixType& newValue) {
     assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
     UInt k = 0;
     if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
@@ -84,8 +78,7 @@ void BlockSparseMatrix<MatrixType>::setElement(IndexType i, IndexType j, const M
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
 template<class IndexType>
-void BlockSparseMatrix<MatrixType>::addElement(IndexType i, IndexType j, const MatrixType& incrementValue)
-{
+void BlockSparseMatrix<MatrixType>::addElement(IndexType i, IndexType j, const MatrixType& incrementValue) {
     assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
     UInt k = 0;
     if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
@@ -98,8 +91,7 @@ void BlockSparseMatrix<MatrixType>::addElement(IndexType i, IndexType j, const M
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
 template<class IndexType>
-void BlockSparseMatrix<MatrixType>::eraseElement(IndexType i, IndexType j)
-{
+void BlockSparseMatrix<MatrixType>::eraseElement(IndexType i, IndexType j) {
     assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
     UInt k = 0;
     if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
@@ -110,8 +102,7 @@ void BlockSparseMatrix<MatrixType>::eraseElement(IndexType i, IndexType j)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::printDebug() const noexcept
-{
+void BlockSparseMatrix<MatrixType>::printDebug() const noexcept{
     for(UInt i = 0; i < m_Size; ++i) {
         if(m_ColIndex[i].size() == 0) {
             continue;
@@ -119,7 +110,7 @@ void BlockSparseMatrix<MatrixType>::printDebug() const noexcept
 
         std::cout << "Line " << i << ": " << std::endl;
         for(UInt j = 0; j < m_ColIndex[i].size(); ++j) {
-            std::cout << m_ColIndex[i][j] << "(" << glm::to_string(m_ColValue[i][j]) << "), " << std::endl;
+            //            std::cout << m_ColIndex[i][j] << "(" << glm::to_string(m_ColValue[i][j]) << "), " << std::endl;
         }
         std::cout << std::endl;
     }
@@ -129,14 +120,12 @@ void BlockSparseMatrix<MatrixType>::printDebug() const noexcept
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::checkSymmetry(RealType threshold /* = RealType(1e-8) */) const noexcept
-{
+void BlockSparseMatrix<MatrixType>::checkSymmetry(RealType threshold /* = RealType(1e-8) */) const noexcept{
     bool check = true;
     std::cout << "============================== Checking Matrix Symmetry... ==============================" << std::endl;
     std::cout << "Matrix size: " << m_Size << std::endl;
 
-    Scheduler::parallel_for(m_Size, [&](UInt i)
-                            {
+    Scheduler::parallel_for(m_Size, [&](UInt i) {
                                 for(UInt j = i + 1; j < m_Size; ++j) {
                                     if(STLHelpers::Sorted::contain(m_ColIndex[i], j)) {
                                         auto errM    = (*this)(i, j) - (*this)(j, i);
@@ -144,15 +133,15 @@ void BlockSparseMatrix<MatrixType>::checkSymmetry(RealType threshold /* = RealTy
                                         for(Int l = 0; l < MatrixType::length(); ++l) {
                                             err += glm::length2(errM[l]);
                                         }
-                                        err = sqrt(err);
+                                        err = std::sqrt(err);
 
-                                        if(err > threshold) {
-                                            check = false;
-                                            std::cout << "Invalid matrix element at index " << i << ", " << j
-                                                      << ", err = " << err << ": "
-                                                      << "matrix(" << i << ", " << j << ") = " << glm::to_string((*this)(i, j)) << " != "
-                                                      << "matrix(" << j << ", " << i << ") = " << glm::to_string((*this)(j, i)) << std::endl;
-                                        }
+                                        //                                        if(err > threshold) {
+                                        //                                            check = false;
+                                        //                                            std::cout << "Invalid matrix element at index " << i << ", " << j
+                                        //                                                      << ", err = " << err << ": "
+                                        //                                                      << "matrix(" << i << ", " << j << ") = " << glm::to_string((*this)(i, j)) << " != "
+                                        //                                                      << "matrix(" << j << ", " << i << ") = " << glm::to_string((*this)(j, i)) << std::endl;
+                                        //                                        }
                                     }
                                 }
                             });
@@ -168,8 +157,7 @@ void BlockSparseMatrix<MatrixType>::checkSymmetry(RealType threshold /* = RealTy
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
-{
+void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const {
     std::ofstream file(fileName, std::ios::out);
     if(!file.is_open()) {
         printf("Could not open file %s for writing.\n", fileName);
@@ -199,7 +187,7 @@ void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int sh
         for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j) {
             for(int l1 = 1; l1 <= 3; ++l1) {
                 for(int l2 = 1; l2 <= 3; ++l2) {
-                    file << 3 * i + l1 << "    " << 3 * m_ColIndex[i][j] + l2 << "    " << glm::to_string((*this)(i, j)) << std::endl;
+                    //                    file << 3 * i + l1 << "    " << 3 * m_ColIndex[i][j] + l2 << "    " << glm::to_string((*this)(i, j)) << std::endl;
                 }
             }
 
@@ -214,8 +202,7 @@ void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int sh
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::writeBinaryFile(const char* fileName) const
-{
+void BlockSparseMatrix<MatrixType>::writeBinaryFile(const char* fileName) const {
     FILE* fptr;
 #ifdef __BANANA_WINDOWS__
     fopen_s(&fptr, fileName, "wb");
@@ -256,8 +243,7 @@ void BlockSparseMatrix<MatrixType>::writeBinaryFile(const char* fileName) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType>
-bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName)
-{
+bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName) {
     FILE* fptr;
 #ifdef _WIN32
     fopen_s(&fptr, fileName, "rb");
@@ -339,8 +325,7 @@ bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName)
 // Fixed version of SparseMatrix
 //
 template<class MatrixType>
-void FixedBlockSparseMatrix<MatrixType>::constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& matrix)
-{
+void FixedBlockSparseMatrix<MatrixType>::constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& matrix) {
     resize(matrix.size());
     m_RowStart[0] = 0;
     for(UInt i = 0; i < m_Size; ++i) {
@@ -351,8 +336,7 @@ void FixedBlockSparseMatrix<MatrixType>::constructFromSparseMatrix(const BlockSp
     m_ColIndex.resize(m_RowStart[m_Size]);
 
     Scheduler::parallel_for(matrix.size(),
-                            [&](UInt i)
-                            {
+                            [&](UInt i) {
                                 memcpy(&m_ColIndex[m_RowStart[i]], matrix.getIndices(i).data(), matrix.getIndices(i).size() * sizeof(UInt));
                                 memcpy(&m_ColValue[m_RowStart[i]], matrix.getValues(i).data(),  matrix.getValues(i).size() * sizeof(MatrixType));
                             });
@@ -361,13 +345,11 @@ void FixedBlockSparseMatrix<MatrixType>::constructFromSparseMatrix(const BlockSp
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
 template<class MatrixType>
-void FixedBlockSparseMatrix<MatrixType>::multiply(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result)
-{
+void FixedBlockSparseMatrix<MatrixType>::multiply(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result) {
     assert(matrix.size() == static_cast<UInt>(x.size()));
     result.resize(matrix.size());
     Scheduler::parallel_for(matrix.size(),
-                            [&](UInt i)
-                            {
+                            [&](UInt i) {
                                 VectorType tmpResult(0);
                                 for(UInt j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j) {
                                     tmpResult += matrix.m_ColValue[j] * x[matrix.m_ColIndex[j]];

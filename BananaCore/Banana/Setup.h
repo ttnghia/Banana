@@ -32,6 +32,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define GLM_FORCE_INLINE
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_CTOR_INIT
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -41,7 +42,6 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/component_wise.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 #include <json.hpp>
 
@@ -274,73 +274,59 @@ using Vec_VecMat4x4r = Vector<Vector<Mat4x4r>>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Conversion operators
-Real constexpr operator"" _f(long double x)
-{
+Real constexpr operator"" _f(long double x) {
     return static_cast<Real>(x);
 }
 
-Real constexpr operator"" _f(unsigned long long int x)
-{
+Real constexpr operator"" _f(unsigned long long int x) {
     return static_cast<Real>(x);
 }
 
-float constexpr operator"" _f32(long double x)
-{
+float constexpr operator"" _f32(long double x) {
     return static_cast<float>(x);
 }
 
-float constexpr operator"" _f32(unsigned long long int x)
-{
+float constexpr operator"" _f32(unsigned long long int x) {
     return static_cast<float>(x);
 }
 
-float constexpr operator"" _fl(long double x)
-{
+float constexpr operator"" _fl(long double x) {
     return static_cast<float>(x);
 }
 
-float constexpr operator"" _fl(unsigned long long int x)
-{
+float constexpr operator"" _fl(unsigned long long int x) {
     return static_cast<float>(x);
 }
 
-double constexpr operator"" _f64(long double x)
-{
+double constexpr operator"" _f64(long double x) {
     return static_cast<double>(x);
 }
 
-double constexpr operator"" _f64(unsigned long long int x)
-{
+double constexpr operator"" _f64(unsigned long long int x) {
     return static_cast<double>(x);
 }
 
-double constexpr operator"" _d(long double x)
-{
+double constexpr operator"" _d(long double x) {
     return static_cast<double>(x);
 }
 
-double constexpr operator"" _d(unsigned long long int x)
-{
+double constexpr operator"" _d(unsigned long long int x) {
     return static_cast<double>(x);
 }
 
-Int32 constexpr operator"" _int(unsigned long long int x)
-{
+Int32 constexpr operator"" _int(unsigned long long int x) {
     return static_cast<Int32>(x);
 }
 
-UInt32 constexpr operator"" _uint(unsigned long long int x)
-{
+UInt32 constexpr operator"" _uint(unsigned long long int x) {
     return static_cast<UInt32>(x);
 }
 
-UInt64 constexpr operator"" _uint64(unsigned long long int x)
-{
+UInt64 constexpr operator"" _uint64(unsigned long long int x) {
     return static_cast<UInt64>(x);
 }
 
-std::size_t constexpr operator"" _sz(unsigned long long int x)
-{
+std::size_t constexpr operator"" _sz(unsigned long long int x) {
     return static_cast<std::size_t>(x);
 }
 

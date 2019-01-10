@@ -258,7 +258,7 @@ public:
     void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i) {
-            RealType tmp = fabs(m_Vector[i]);
+            RealType tmp = std::abs(m_Vector[i]);
             m_Result = m_Result > tmp ? m_Result : tmp;
         }
     }
@@ -288,7 +288,7 @@ public:
     }
 
     void     join(MaxNorm2<N, RealType>& pObj) { m_Result = m_Result > pObj.m_Result ? m_Result : pObj.m_Result; }
-    RealType getResult() const noexcept { return sqrt(m_Result); }
+    RealType getResult() const noexcept { return std::sqrt(m_Result); }
 
 private:
     RealType                         m_Result = 0;
@@ -431,8 +431,8 @@ public:
         m_ResultMax = m_ResultMax > pObj.m_ResultMax ? m_ResultMax : pObj.m_ResultMax;
     }
 
-    RealType getMin() const noexcept { return sqrt(m_ResultMin); }
-    RealType getMax() const noexcept { return sqrt(m_ResultMax); }
+    RealType getMin() const noexcept { return std::sqrt(m_ResultMin); }
+    RealType getMax() const noexcept { return std::sqrt(m_ResultMax); }
 
 private:
     RealType m_ResultMin = std::numeric_limits<RealType>::max();

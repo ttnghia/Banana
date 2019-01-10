@@ -34,19 +34,16 @@
 #include <Banana/Utils/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::NumberHelpers
-{
+namespace Banana::NumberHelpers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-bool isValidNumber(T x)
-{
+bool isValidNumber(T x) {
     return !std::isnan(x) && !std::isinf(x);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType, Int N, class RealType>
-VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealType>& bmax, RealType spacing)
-{
+VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealType>& bmax, RealType spacing) {
     VecX<N, RealType>  fgrid = (bmax - bmin) / spacing;
     VecX<N, IndexType> result;
 
@@ -59,8 +56,7 @@ VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealT
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class IndexType, class Function>
-void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
-{
+void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0) {
     if(dim == N - 1) {
         for(IndexType i = minIdx[dim]; i < maxIdx[dim]; ++i) {
             idx[dim] = i;
@@ -75,34 +71,29 @@ void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const VecX<N
 }
 
 template<Int N, class IndexType, class Function>
-void scan(const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
-{
+void scan(const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0) {
     scan(VecX<N, IndexType>(0), minIdx, maxIdx, std::forward<Function>(f), dim);
 }
 
 template<Int N, class IndexType, class Function>
-void scan(const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
-{
+void scan(const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0) {
     scan(VecX<N, IndexType>(0), VecX<N, IndexType>(0), maxIdx, std::forward<Function>(f), dim);
 }
 
 template<Int N, class IndexType, class Function>
-void scan11(Function&& f)
-{
+void scan11(Function&& f) {
     scan(VecX<N, IndexType>(0), VecX<N, IndexType>(-1), VecX<N, IndexType>(2), std::forward<Function>(f));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-class MT_iRandom
-{
+class MT_iRandom {
     using Distribution = std::uniform_int_distribution<T>;
     constexpr static UInt s_CacheSize = 1048576u;
 public:
     MT_iRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) { generateCache(); }
 
-    T rnd()
-    {
+    T rnd() {
         m_Lock.lock();
         if(m_CacheIdx >= s_CacheSize) {
             m_CacheIdx = 0;
@@ -113,9 +104,8 @@ public:
     }
 
     template<class Vector>
-    Vector vrnd()
-    {
-        static_assert(sizeof(Vector::value_type) == sizeof(T));
+    Vector vrnd() {
+        static_assert(sizeof(typename Vector::value_type) == sizeof(T));
         UInt N = static_cast<UInt>(Vector::length());
         m_Lock.lock();
         if(m_CacheIdx + N >= s_CacheSize) {
@@ -130,9 +120,8 @@ public:
     }
 
     template<class Matrix>
-    Matrix mrnd()
-    {
-        static_assert(sizeof(Matrix::value_type) == sizeof(T));
+    Matrix mrnd() {
+        static_assert(sizeof(typename Matrix::value_type) == sizeof(T));
         UInt MxN = static_cast<UInt>(Matrix::length() * Matrix::col_type::length());
         m_Lock.lock();
         if(m_CacheIdx + MxN >= s_CacheSize) {
@@ -147,8 +136,7 @@ public:
     }
 
 private:
-    void generateCache()
-    {
+    void generateCache() {
         for(Int i = 0; i < s_CacheSize; ++i) {
             m_Cache[i] = m_Dist(m_Generator);
         }
@@ -164,15 +152,13 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-class MT_fRandom
-{
+class MT_fRandom {
     using Distribution = std::uniform_real_distribution<T>;
     constexpr static UInt s_CacheSize = 1048576u;
 public:
     MT_fRandom(T start = T(0), T end = std::numeric_limits<T>::max()) : m_Dist(Distribution(start, end)) { generateCache(); }
 
-    T rnd()
-    {
+    T rnd() {
         m_Lock.lock();
         if(m_CacheIdx >= s_CacheSize) {
             m_CacheIdx = 0;
@@ -183,9 +169,8 @@ public:
     }
 
     template<class Vector>
-    Vector vrnd()
-    {
-        static_assert(sizeof(Vector::value_type) == sizeof(T));
+    Vector vrnd() {
+        static_assert(sizeof(typename Vector::value_type) == sizeof(T));
         UInt N = static_cast<UInt>(Vector::length());
         m_Lock.lock();
         if(m_CacheIdx + N >= s_CacheSize) {
@@ -200,9 +185,8 @@ public:
     }
 
     template<class Matrix>
-    Matrix mrnd()
-    {
-        static_assert(sizeof(Matrix::value_type) == sizeof(T));
+    Matrix mrnd() {
+        static_assert(sizeof(typename Matrix::value_type) == sizeof(T));
         UInt MxN = static_cast<UInt>(Matrix::length() * Matrix::col_type::length());
         m_Lock.lock();
         if(m_CacheIdx + MxN >= s_CacheSize) {
@@ -217,8 +201,7 @@ public:
     }
 
 private:
-    void generateCache()
-    {
+    void generateCache() {
         for(Int i = 0; i < s_CacheSize; ++i) {
             m_Cache[i] = m_Dist(m_Generator);
         }
@@ -234,66 +217,60 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-class iRand
-{
+class iRand {
 public:
     static auto rnd() { return s_Rand.rnd(); }
-    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
-    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+    template<class Vector> static auto vrnd() { return s_Rand.template vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.template mrnd<Matrix>(); }
 private:
     static inline MT_iRandom<T> s_Rand = MT_iRandom<T>();
 };
 
 template<class T>
-class fRand
-{
+class fRand {
 public:
     static auto rnd() { return s_Rand.rnd(); }
-    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
-    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+    template<class Vector> static auto vrnd() { return s_Rand.template vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.template mrnd<Matrix>(); }
 private:
     static inline MT_fRandom<T> s_Rand = MT_fRandom<T>();
 };
 
 template<class T>
-class fRand01
-{
+class fRand01 {
 public:
     static auto rnd() { return s_Rand.rnd(); }
-    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
-    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+    template<class Vector> static auto vrnd() { return s_Rand.template vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.template mrnd<Matrix>(); }
 private:
     static inline MT_fRandom<T> s_Rand = MT_fRandom<T>(T(0), T(1));
 };
 
 template<class T>
-class fRand11
-{
+class fRand11 {
 public:
     static auto rnd() { return s_Rand.rnd(); }
-    template<class Vector> static auto vrnd() { return s_Rand.vrnd<Vector>(); }
-    template<class Matrix> static auto mrnd() { return s_Rand.mrnd<Matrix>(); }
+    template<class Vector> static auto vrnd() { return s_Rand.template vrnd<Vector>(); }
+    template<class Matrix> static auto mrnd() { return s_Rand.template mrnd<Matrix>(); }
 private:
     static inline MT_fRandom<T> s_Rand = MT_fRandom<T>(T(-1), T(1));
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IntType, class SizeType>
-Vector<IntType> generateRandomIntVector(SizeType size, IntType start = 0, IntType end = std::numeric_limits<IntType>::max())
-{
+Vector<IntType> generateRandomIntVector(SizeType size, IntType start = 0, IntType end = std::numeric_limits<IntType>::max()) {
     Vector<IntType> v(size);
     for(SizeType i = 0; i < size; ++i) {
-        v[i] = MT_iRandom::rnd();
+        v[i] = MT_iRandom<IntType>::rnd();
     }
     return v;
 }
 
 template<class RealType, class SizeType>
-Vector<RealType> generateRandomRealVector(SizeType size, RealType start = RealType(0), RealType end = std::numeric_limits<RealType>::max())
-{
+Vector<RealType> generateRandomRealVector(SizeType size, RealType start = RealType(0), RealType end = std::numeric_limits<RealType>::max()) {
     Vector<RealType> v(size);
     for(SizeType i = 0; i < size; ++i) {
-        v[i] = MT_fRandom::rnd();
+        v[i] = MT_fRandom<RealType>::rnd();
     }
     return v;
 }
@@ -303,8 +280,7 @@ Vector<RealType> generateRandomRealVector(SizeType size, RealType start = RealTy
 // Transforms even the sequence 0,1,2,3,... into reasonably good random numbers
 // Challenge: improve on this in speed and "randomness"!
 // This seems to pass several statistical tests, and is a bijective map (of 32-bit unsigned ints)
-inline unsigned int randhash(unsigned int seed)
-{
+inline unsigned int randhash(unsigned int seed) {
     unsigned int i = (seed ^ 0xA3C59AC3u) * 2654435769u;
     i ^= (i >> 16);
     i *= 2654435769u;
@@ -314,8 +290,7 @@ inline unsigned int randhash(unsigned int seed)
 }
 
 // the inverse of randhash
-inline unsigned int unhash(unsigned int h)
-{
+inline unsigned int unhash(unsigned int h) {
     h *= 340573321u;
     h ^= (h >> 16);
     h *= 340573321u;
@@ -327,34 +302,29 @@ inline unsigned int unhash(unsigned int h)
 
 // returns repeatable stateless pseudo-random number in [0,1]
 template<class T>
-inline T frandhash(unsigned int seed)
-{
+inline T frandhash(unsigned int seed) {
     return T(randhash(seed)) / static_cast<T>(UINT_MAX);
 }
 
 // returns repeatable stateless pseudo-random number in [a,b]
 template<class T>
-inline T frandhash(T a, T b, unsigned int seed)
-{
+inline T frandhash(T a, T b, unsigned int seed) {
     return (b - a) * (randhash(seed) / static_cast<T>(UINT_MAX)) + a;
 }
 
 template<class T>
-inline T frandhash11(unsigned int seed)
-{
+inline T frandhash11(unsigned int seed) {
     return frandhash(T(-1.0), T(1.0), seed);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FastRand
-{
+class FastRand {
 public:
     void seed(UInt seed_) { s_Seed = seed_; }
 
     /// Compute a pseudo-random integer
     /// Output value in range [0, 32767]
-    __BNN_INLINE Int rand()
-    {
+    __BNN_INLINE Int rand() {
         s_Seed = (214013u * s_Seed + 2531011u);
         return static_cast<Int>((s_Seed >> 16) & 0x7FFF);
     }
@@ -365,8 +335,7 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
-{
+bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax) {
     for(Int d = 0; d < N; ++d) {
         if(ppos[d] < bMin[d] || ppos[d] > bMax[d]) {
             return false;
@@ -377,8 +346,7 @@ bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, cons
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType1, class RealType2>
-void jitter(VecX<N, RealType1>& ppos, RealType2 maxJitter)
-{
+void jitter(VecX<N, RealType1>& ppos, RealType2 maxJitter) {
     for(Int j = 0; j < N; ++j) {
         ppos += fRand11<RealType1>::rnd() * static_cast<RealType1>(maxJitter);
     }
@@ -386,28 +354,23 @@ void jitter(VecX<N, RealType1>& ppos, RealType2 maxJitter)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void translate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& translation)
-{
-    Scheduler::parallel_for(points.size(), [&](size_t i)
-                            {
+void translate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& translation) {
+    Scheduler::parallel_for(points.size(), [&](size_t i) {
                                 points[i] = points[i] + translation;
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void scale(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& scale)
-{
-    Scheduler::parallel_for(points.size(), [&](size_t i)
-                            {
+void scale(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& scale) {
+    Scheduler::parallel_for(points.size(), [&](size_t i) {
                                 points[i] = points[i] * scale;
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void rotate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& rotation)
-{
+void rotate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& rotation) {
     RealType azimuth = rotation[0];
     RealType elevation = rotation[1];
     RealType roll = rotation[2];
@@ -434,8 +397,7 @@ void rotate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& rotation)
     R[2][1] = sinR * sinA - cosR * cosA * sinE;
     R[2][2] = cosA * cosE;
 
-    Scheduler::parallel_for(points.size(), [&](size_t i)
-                            {
+    Scheduler::parallel_for(points.size(), [&](size_t i) {
                                 const auto& pi = points[i];
                                 points[i]      = Vec3<RealType>(glm::dot(R[0], pi),
                                                                 glm::dot(R[1], pi),
@@ -445,18 +407,15 @@ void rotate(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& rotation)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void transform(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& translation, const VecX<N, RealType>& scale)
-{
-    Scheduler::parallel_for(points.size(), [&](size_t i)
-                            {
+void transform(Vec_VecX<N, RealType>& points, const VecX<N, RealType>& translation, const VecX<N, RealType>& scale) {
+    Scheduler::parallel_for(points.size(), [&](size_t i) {
                                 points[i] = points[i] * scale + translation;
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void transform(Vec_Vec3<RealType>& points, const Vec3<RealType>& translation, const Vec3<RealType>& scale, const Vec3<RealType>& rotation)
-{
+void transform(Vec_Vec3<RealType>& points, const Vec3<RealType>& translation, const Vec3<RealType>& scale, const Vec3<RealType>& rotation) {
     RealType azimuth = rotation[0];
     RealType elevation = rotation[1];
     RealType roll = rotation[2];
@@ -483,8 +442,7 @@ void transform(Vec_Vec3<RealType>& points, const Vec3<RealType>& translation, co
     R[2][1] = sinR * sinA - cosR * cosA * sinE;
     R[2][2] = cosA * cosE;
 
-    Scheduler::parallel_for(points.size(), [&](size_t i)
-                            {
+    Scheduler::parallel_for(points.size(), [&](size_t i) {
                                 const auto& pi = points[i];
                                 Vec3<RealType> tmp(glm::dot(R[0], pi),
                                                    glm::dot(R[1], pi),
@@ -494,4 +452,4 @@ void transform(Vec_Vec3<RealType>& points, const Vec3<RealType>& translation, co
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::NumberHelpers
+} // end namespace Banana::NumberHelpers

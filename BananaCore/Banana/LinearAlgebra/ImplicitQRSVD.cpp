@@ -24,8 +24,7 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::QRSVD
-{
+namespace Banana::QRSVD {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 /**
@@ -46,8 +45,7 @@ namespace Banana::QRSVD
    Assume rowi < rowk.
  */
 template<class T>
-class GivensRotation
-{
+class GivensRotation {
 public:
     Int rowi;
     Int rowk;
@@ -64,13 +62,12 @@ public:
        ( c -s ) ( a )  =  ( * )
        s  c     b       ( 0 )
      */
-    void compute(const T a, const T b)
-    {
+    void compute(const T a, const T b) {
         T d = a * a + b * b;
         c = T(1.0);
         s = T(0);
         if(d != 0) {
-            // T t = 1 / sqrt(d);
+            // T t = 1 / std::sqrt(d);
             T t = MathHelpers::approx_rsqrt(d);
             c = a * t;
             s = -b * t;
@@ -82,13 +79,12 @@ public:
        ( c -s ) ( a )  =  ( 0 )
        s  c     b       ( * )
      */
-    void computeUnconventional(const T a, const T b)
-    {
+    void computeUnconventional(const T a, const T b) {
         T d = a * a + b * b;
         c = 0;
         s = 1;
         if(d != 0) {
-            // T t = 1 / sqrt(d);
+            // T t = 1 / std::sqrt(d);
             T t = MathHelpers::approx_rsqrt(d);
             s = a * t;
             c = b * t;
@@ -99,10 +95,9 @@ public:
        Fill the R with the entries of this rotation
      */
     template<class MatrixType>
-    void fill(const MatrixType& R) const
-    {
+    void fill(const MatrixType& R) const {
         MatrixType& A = const_cast<MatrixType&>(R);
-        A             = MatrixType(1.0);
+        A = MatrixType(1.0);
         A[rowi][rowi] = c;
         A[rowk][rowi] = s;
         A[rowi][rowk] = -s;
@@ -117,8 +112,7 @@ public:
        It only affects row i and row k of A.
      */
     template<class MatrixType>
-    void rowRotation(MatrixType& A) const
-    {
+    void rowRotation(MatrixType& A) const {
         for(Int j = 0; j < A.length(); j++) {
             T tau1 = A[j][rowi];
             T tau2 = A[j][rowk];
@@ -135,8 +129,7 @@ public:
        It only affects column i and column k of A.
      */
     template<class MatrixType>
-    void columnRotation(MatrixType& A) const
-    {
+    void columnRotation(MatrixType& A) const {
         for(Int j = 0; j < A.length(); j++) {
             T tau1 = A[rowi][j];
             T tau2 = A[rowk][j];
@@ -148,8 +141,7 @@ public:
     /**
        Multiply givens must be for same row and column
      **/
-    void operator*=(const GivensRotation<T>& A)
-    {
+    void operator*=(const GivensRotation<T>& A) {
         T new_c = c * A.c - s * A.s;
         T new_s = s * A.c + c * A.s;
         c = new_c;
@@ -159,8 +151,7 @@ public:
     /**
        Multiply givens must be for same row and column
      **/
-    GivensRotation<T> operator*(const GivensRotation<T>& A) const
-    {
+    GivensRotation<T> operator*(const GivensRotation<T>& A) const {
         GivensRotation<T> r(*this);
         r *= A;
         return r;
@@ -180,8 +171,7 @@ public:
    0 0 x
  */
 template<class T>
-void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
-{
+void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V) {
     /**
        Reduce H to of form
        x x +
@@ -195,7 +185,7 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
        0 x x
        0 + x
        Can calculate r2 without multiplying by r1 since both entries are in first two
-       rows thus no need to divide by sqrt(a^2+b^2)
+       rows thus no need to divide by std::sqrt(a^2+b^2)
      */
     GivensRotation<T> r2(1, 2);
     if(H[0][1] != 0) {
@@ -238,8 +228,7 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
    0 0 x
  */
 template<class T>
-void makeUpperBidiag(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
-{
+void makeUpperBidiag(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V) {
     U = Mat3x3<T>(1.0);
     V = Mat3x3<T>(1.0);
 
@@ -270,8 +259,7 @@ void makeUpperBidiag(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
  *                     x 0 x
  */
 template<class T>
-void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
-{
+void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V) {
     U = Mat3x3<T>(1.0);
     V = Mat3x3<T>(1.0);
 
@@ -332,8 +320,7 @@ void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
    R is guaranteed to be the closest rotation to A.
  */
 template<class T>
-void polar(const Mat2x2<T>& A, GivensRotation<T>& R, const Mat2x2<T>& S_Sym)
-{
+void polar(const Mat2x2<T>& A, GivensRotation<T>& R, const Mat2x2<T>& S_Sym) {
     Vec2<T> x(A[0][0] + A[1][1], A[0][1] - A[1][0]);
     T       denominator = glm::length(x);
     R.c = (T)1;
@@ -364,8 +351,7 @@ void polar(const Mat2x2<T>& A, GivensRotation<T>& R, const Mat2x2<T>& S_Sym)
    R is guaranteed to be the closest rotation to A.
  */
 template<class T>
-void polar(const Mat2x2<T>& A, const Mat2x2<T>& R, const Mat2x2<T>& S_Sym)
-{
+void polar(const Mat2x2<T>& A, const Mat2x2<T>& R, const Mat2x2<T>& S_Sym) {
     GivensRotation<T> r(0, 1);
     polar(A, r, S_Sym);
     r.fill(R);
@@ -380,8 +366,7 @@ void polar(const Mat2x2<T>& A, const Mat2x2<T>& R, const Mat2x2<T>& S_Sym)
    \param[out] V Robustly a rotation matrix in Givens form
  */
 template<class T>
-void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensRotation<T>& V, T tol = T(64.0)* std::numeric_limits<T>::epsilon())
-{
+void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensRotation<T>& V, T tol = T(64.0)* std::numeric_limits<T>::epsilon()) {
     (void)tol;
     Vec2<T>& sigma = const_cast<Vec2<T>&>(Sigma);
 
@@ -399,7 +384,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
         sigma[1] = z;
     } else {
         T tau = T(0.5) * (x - z);
-        T w   = sqrt(tau * tau + y * y);
+        T w   = std::sqrt(tau * tau + y * y);
         // w > y > 0
         T t;
         if(tau > 0) {
@@ -409,7 +394,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
             // tau - w < -w < -y < 0 ==> division is safe
             t = y / (tau - w);
         }
-        cosine = T(1) / sqrt(t * t + T(1));
+        cosine = T(1) / std::sqrt(t * t + T(1));
         sine   = -t * cosine;
         /*
            V = [cosine -sine; sine cosine]
@@ -445,8 +430,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
    \param[out] V Robustly a rotation matrix.
  */
 template<class T>
-void svd(const Mat2x2<T>& A, const Mat2x2<T>& U, const Vec2<T>& Sigma, const Mat2x2<T>& V, T tol /*= T(64.0)* std::numeric_limits<T>::epsilon()*/)
-{
+void svd(const Mat2x2<T>& A, const Mat2x2<T>& U, const Vec2<T>& Sigma, const Mat2x2<T>& V, T tol /*= T(64.0)* std::numeric_limits<T>::epsilon()*/) {
     (void)tol;
     GivensRotation<T> gv(0, 1);
     GivensRotation<T> gu(0, 1);
@@ -462,16 +446,15 @@ void svd(const Mat2x2<T>& A, const Mat2x2<T>& U, const Vec2<T>& Sigma, const Mat
    a1     b1
    b1     a2
    based on the wilkinsonShift formula
-   mu = c + d - sign (d) \ sqrt (d*d + b*b), where d = (a-c)/2
+   mu = c + d - sign (d) \ std::sqrt (d*d + b*b), where d = (a-c)/2
 
  */
 template<class T>
-T wilkinsonShift(const T a1, const T b1, const T a2)
-{
+T wilkinsonShift(const T a1, const T b1, const T a2) {
     T d  = T(0.5) * (a1 - a2);
     T bs = b1 * b1;
 
-    T mu = a2 - copysign(bs / (fabs(d) + sqrt(d * d + bs)), d);
+    T mu = a2 - copysign(bs / (std::abs(d) + std::sqrt(d * d + bs)), d);
     // T mu = a2 - bs / ( d + sign_d*sqrt (d*d + bs));
     return mu;
 }
@@ -481,8 +464,7 @@ T wilkinsonShift(const T a1, const T b1, const T a2)
    \brief Helper function of 3X3 SVD for processing 2X2 SVD
  */
 template<Int t, class T>
-void process(Mat3x3<T>& B, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
-{
+void process(Mat3x3<T>& B, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V) {
     Int               other = (t == 1) ? 0 : 2;
     GivensRotation<T> u(0, 1);
     GivensRotation<T> v(0, 1);
@@ -517,8 +499,7 @@ void process(Mat3x3<T>& B, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
    \brief Helper function of 3X3 SVD for flipping signs due to flipping signs of sigma
  */
 template<class T>
-void flipSign(Int i, Mat3x3<T>& U, Vec3<T>& sigma)
-{
+void flipSign(Int i, Mat3x3<T>& U, Vec3<T>& sigma) {
     sigma[i] = -sigma[i];
     U[i]     = -U[i];
 }
@@ -528,10 +509,9 @@ void flipSign(Int i, Mat3x3<T>& U, Vec3<T>& sigma)
    \brief Helper function of 3X3 SVD for sorting singular values
  */
 template<class T>
-void sort0(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
-{
+void sort0(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V) {
     // Case: sigma[0] > |sigma[1]| >= |sigma[2]|
-    if(fabs(sigma[1]) >= fabs(sigma[2])) {
+    if(std::abs(sigma[1]) >= std::abs(sigma[2])) {
         if(sigma[1] < 0) {
             flipSign(1, U, sigma);
             flipSign(2, U, sigma);
@@ -567,10 +547,9 @@ void sort0(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
    \brief Helper function of 3X3 SVD for sorting singular values
  */
 template<class T>
-void sort1(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
-{
+void sort1(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V) {
     // Case: |sigma[0]| >= sigma[1] > |sigma[2]|
-    if(fabs(sigma[0]) >= sigma[1]) {
+    if(std::abs(sigma[0]) >= sigma[1]) {
         if(sigma[0] < 0) {
             flipSign(0, U, sigma);
             flipSign(2, U, sigma);
@@ -584,7 +563,7 @@ void sort1(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
     std::swap(V[0],     V[1]);
 
     // Case: sigma[1] > |sigma[2]| >= |sigma[0]|
-    if(fabs(sigma[1]) < fabs(sigma[2])) {
+    if(std::abs(sigma[1]) < std::abs(sigma[2])) {
         std::swap(sigma[1], sigma[2]);
         std::swap(U[1],     U[2]);
         std::swap(V[1],     V[2]);
@@ -611,8 +590,7 @@ void sort1(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
    \param[out] V is a rotation matrix.
  */
 template<class T>
-Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*= T(128.0)* std::numeric_limits<T>::epsilon()*/)
-{
+Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*= T(128.0)* std::numeric_limits<T>::epsilon()*/) {
     Mat3x3<T> B = A;
     U = Mat3x3<T>(1.0);
     V = Mat3x3<T>(1.0);
@@ -630,13 +608,13 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
     T beta_2  = B[2][1];
     T gamma_1 = alpha_1 * beta_1;
     T gamma_2 = alpha_2 * beta_2;
-    tol *= MathHelpers::max(T(0.5) * sqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), T(1.0));
+    tol *= MathHelpers::max(T(0.5) * std::sqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), T(1.0));
 
     /**
        Do implicit shift QR until A^T A is block diagonal
      */
 
-    while(fabs(beta_2) > tol && fabs(beta_1) > tol && fabs(alpha_1) > tol && fabs(alpha_2) > tol && fabs(alpha_3) > tol) {
+    while(std::abs(beta_2) > tol && std::abs(beta_1) > tol && std::abs(alpha_1) > tol && std::abs(alpha_2) > tol && std::abs(alpha_3) > tol) {
         mu = wilkinsonShift(alpha_2 * alpha_2 + beta_1 * beta_1, gamma_2, alpha_3 * alpha_3 + beta_2 * beta_2);
 
         r.compute(alpha_1 * alpha_1 - mu, gamma_1);
@@ -665,7 +643,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
        0 x 0
        0 0 x
      */
-    if(fabs(beta_2) <= tol) {
+    if(std::abs(beta_2) <= tol) {
         process<0>(B, U, sigma, V);
         sort0(U, sigma, V);
     }
@@ -675,7 +653,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
        0 x x
        0 0 x
      */
-    else if(fabs(beta_1) <= tol) {
+    else if(std::abs(beta_1) <= tol) {
         process<1>(B, U, sigma, V);
         sort1(U, sigma, V);
     }
@@ -685,7 +663,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
        0 0 x
        0 0 x
      */
-    else if(fabs(alpha_2) <= tol) {
+    else if(std::abs(alpha_2) <= tol) {
         /**
            Reduce B to
            x x 0
@@ -706,7 +684,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
        0 x x
        0 0 0
      */
-    else if(fabs(alpha_3) <= tol) {
+    else if(std::abs(alpha_3) <= tol) {
         /**
            Reduce B to
            x x +
@@ -737,7 +715,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
        0 x x
        0 0 x
      */
-    else if(fabs(alpha_1) <= tol) {
+    else if(std::abs(alpha_1) <= tol) {
         /**
            Reduce B to
            0 0 +
@@ -780,8 +758,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol /*
    R is guaranteed to be the closest rotation to A.
  */
 template<class T>
-void polar(const Mat3x3<T>& A, Mat3x3<T>& R, Mat3x3<T>& S_Sym)
-{
+void polar(const Mat3x3<T>& A, Mat3x3<T>& R, Mat3x3<T>& S_Sym) {
     Mat3x3<T> U;
     Vec3<T>   sigma;
     Mat3x3<T> V;
@@ -801,4 +778,4 @@ template void polar<Real>(const Mat2x2<Real>& A, const Mat2x2<Real>& R, const Ma
 template void polar<Real>(const Mat3x3<Real>& A, Mat3x3<Real>& R, Mat3x3<Real>& S_Sym);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::QRSVD
+} // end namespace Banana::QRSVD
