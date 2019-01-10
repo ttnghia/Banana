@@ -52,7 +52,7 @@ win32 {
     }
 }
 
-macx {
+macx|unix {
     CONFIG += c++1z
     QMAKE_CXXFLAGS += -std=c++17
 
