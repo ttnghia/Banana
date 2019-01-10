@@ -191,7 +191,7 @@ void J2plasticLinearIsoKin<Real >::update(Real delt)
         const Mat3x3<Real> dilStressInc(I3(bulkModK* evol));
         const Mat3x3<Real> trialStress(dev(stress[i]) + 2. * shearModG* devStrainInc);
         const Real         hardLaw     = yieldStress + isoHardMod * pt.internalAlpha;
-        const Real         ffYieldCond = trialStress.norm() - sqrtTwoThirds * hardLaw;
+        const Real         ffYieldCond = trialStress.norm() - std::sqrtTwoThirds * hardLaw;
 
         if(ffYieldCond <= 0.) {
             stress[i] += 2. * shearModG * devStrainInc + dilStressInc;
@@ -200,7 +200,7 @@ void J2plasticLinearIsoKin<Real >::update(Real delt)
             const Real         gammaInc = ffYieldCond / (2. * (shearModG + oneThird *
                                                                (isoHardMod + kinHardMod)));
             const Mat3x3<Real> plasticStrainInc(gammaInc* unitStress);
-            pt.internalAlpha += sqrtTwoThirds * gammaInc;
+            pt.internalAlpha += std::sqrtTwoThirds * gammaInc;
             pt.backStress    += (sqrtTwoThirds * kinHardMod * gammaInc) * unitStress;
             pt.plasticStrain += plasticStrainInc;
             stress[i]        += 2. * shearModG * (devStrainInc - plasticStrainInc) + dilStressInc;

@@ -87,7 +87,7 @@ struct NeoHookean : public ConstitutiveModel<Real>
         if(Npart() < 1) { throw std::exception("NeoHookean: no particles to initialize!"); }
     }
 
-    Real waveSpeed() const { return sqrt((lam + 3. * mu) / Dens); }
+    Real waveSpeed() const { return std::sqrt((lam + 3. * mu) / Dens); }
     void update(Real);
     void revert();
     void save();
@@ -119,7 +119,7 @@ struct UpdatedElastic : public ConstitutiveModel<Real>
         volume(vl),
         stress(st)
     {}
-    Real waveSpeed() const { return sqrt((bulkModK + shearModG * 7. / 3.) / density); }
+    Real waveSpeed() const { return std::sqrt((bulkModK + shearModG * 7. / 3.) / density); }
     void update(Real);
     void revert();
     void save();
@@ -143,7 +143,7 @@ struct J2plasticLinearIsoKin : public ConstitutiveModel<Real>
                           Vec_Real&          vl,
                           Vec_Mat3x3r&       st) :
         oneThird(1. / 3.),
-        sqrtTwoThirds(sqrt(2. / 3.)),
+        std::sqrtTwoThirds(sqrt(2. / 3.)),
         density(mt.density),
         bulkModK(mt.bulkModK),
         shearModG(mt.shearModG),
@@ -163,7 +163,7 @@ struct J2plasticLinearIsoKin : public ConstitutiveModel<Real>
         }
     }
 
-    Real waveSpeed() const { return sqrt((bulkModK + shearModG * 7. / 3.) / density); }
+    Real waveSpeed() const { return std::sqrt((bulkModK + shearModG * 7. / 3.) / density); }
     void update(Real);
     void revert();
     void save();
@@ -177,7 +177,7 @@ struct J2plasticLinearIsoKin : public ConstitutiveModel<Real>
     Vec_Mat3x3r        stress0, defGrad0;
     Vec_Real           volume0;
     std::vector<point> pnt, pnt0;
-    const Real         oneThird, sqrtTwoThirds, density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
+    const Real         oneThird, std::sqrtTwoThirds, density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
     const Vec_Mat3x3r& velGrad;
     Vec_Mat3x3r&       defGrad;
     Vec_Real&          volume;

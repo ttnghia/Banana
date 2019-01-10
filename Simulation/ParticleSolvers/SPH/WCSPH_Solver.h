@@ -27,12 +27,11 @@
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class WCSPH_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolverFactory<WCSPH_Solver<N, RealType>>
-{
+class WCSPH_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolverFactory<WCSPH_Solver<N, RealType>> {
+    __BNN_TYPE_ALIASING
 public:
     WCSPH_Solver() = default;
     static auto solverName() { return String("WCSPH_") + std::to_string(N) + String("DSolver"); }

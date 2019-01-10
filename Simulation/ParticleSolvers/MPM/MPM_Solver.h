@@ -26,12 +26,11 @@
 #include <ParticleSolvers/MPM/MPM_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class MPM_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolverFactory<MPM_Solver<N, RealType>>
-{
+class MPM_Solver : public ParticleSolver<N, RealType>, public RegisteredInSolverFactory<MPM_Solver<N, RealType>> {
+    __BNN_TYPE_ALIASING
 public:
     MPM_Solver() = default;
 
@@ -86,4 +85,4 @@ protected:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

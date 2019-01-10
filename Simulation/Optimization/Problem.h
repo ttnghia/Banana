@@ -23,12 +23,10 @@
 #define EXPECT_NEAR(x, y, z)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::Optimization
-{
+namespace Banana::Optimization {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class Problem
-{
+class Problem {
 protected:
 
     bool hasLowerBound_ = false;
@@ -41,41 +39,34 @@ public:
 
     Problem() {}
 
-    void setBoxConstraint(Vector<RealType> lb, Vector<RealType> ub)
-    {
+    void setBoxConstraint(Vector<RealType> lb, Vector<RealType> ub) {
         setLowerBound(lb);
         setUpperBound(ub);
     }
 
-    void setLowerBound(Vector<RealType> lb)
-    {
+    void setLowerBound(Vector<RealType> lb) {
         lowerBound_    = lb;
         hasLowerBound_ = true;
     }
 
-    void setUpperBound(Vector<RealType> ub)
-    {
+    void setUpperBound(Vector<RealType> ub) {
         upperBound_    = ub;
         hasUpperBound_ = true;
     }
 
-    bool hasLowerBound()
-    {
+    bool hasLowerBound() {
         return hasLowerBound_;
     }
 
-    bool hasUpperBound()
-    {
+    bool hasUpperBound() {
         return hasUpperBound_;
     }
 
-    Vector<RealType> lowerBound()
-    {
+    Vector<RealType> lowerBound() {
         return lowerBound_;
     }
 
-    Vector<RealType> upperBound()
-    {
+    Vector<RealType> upperBound() {
         return upperBound_;
     }
 
@@ -95,8 +86,7 @@ public:
      * @param x [description]
      * @return [description]
      */
-    RealType operator ()(const Vector<RealType>& x)
-    {
+    RealType operator()(const Vector<RealType>& x) {
         return value(x);
     }
 
@@ -106,14 +96,12 @@ public:
      *
      * @param grad [description]
      */
-    virtual void gradient(const Vector<RealType>& x, Vector<RealType>& grad)
-    {
+    virtual void gradient(const Vector<RealType>& x, Vector<RealType>& grad) {
         finiteGradient(x, grad);
     }
 
     // Compute the value AND the gradient
-    virtual RealType valueGradient(const Vector<RealType>& x, Vector<RealType>& grad)
-    {
+    virtual RealType valueGradient(const Vector<RealType>& x, Vector<RealType>& grad) {
         gradient(x, grad);
         return value(x);
     }
@@ -127,8 +115,7 @@ public:
     //    finiteHessian(x, hessian);
     //}
 
-    virtual bool checkGradient(const Vector<RealType>& x, int accuracy = 3)
-    {
+    virtual bool checkGradient(const Vector<RealType>& x, int accuracy = 3) {
         // TODO: check if derived class exists:
         // int(typeid(&Rosenbrock<float>::gradient) == typeid(&Problem<float>::gradient)) == 1 --> overwritten
         const size_t     D = x.size();
@@ -140,9 +127,9 @@ public:
         bool correct = true;
 
         for(size_t d = 0; d < D; ++d) {
-            RealType scale = std::max((std::max(fabs(actual_grad[d]), fabs(expected_grad[d]))), RealType(1.));
+            RealType scale = std::max((std::max(std::abs(actual_grad[d]), std::abs(expected_grad[d]))), RealType(1.));
             EXPECT_NEAR(actual_grad[d], expected_grad[d], 1e-2 * scale);
-            if(fabs(actual_grad[d] - expected_grad[d]) > 1e-2 * scale) {
+            if(std::abs(actual_grad[d] - expected_grad[d]) > 1e-2 * scale) {
                 correct = false;
             }
         }
@@ -162,9 +149,9 @@ public:
     //    finiteHessian(x, expected_hessian, accuracy);
     //    for(int d = 0; d < D; ++d) {
     //        for(int e = 0; e < D; ++e) {
-    //            RealType scale = std::max(static_cast<RealType>(std::max(fabs(actual_hessian(d, e)), fabs(expected_hessian(d, e)))), (RealType)1.);
+    //            RealType scale = std::max(static_cast<RealType>(std::max(std::abs(actual_hessian(d, e)), std::abs(expected_hessian(d, e)))), (RealType)1.);
     //            EXPECT_NEAR(actual_hessian(d, e), expected_hessian(d, e), 1e-1 * scale);
-    //            if(fabs(actual_hessian(d, e) - expected_hessian(d, e)) > 1e-1 * scale) {
+    //            if(std::abs(actual_hessian(d, e) - expected_hessian(d, e)) > 1e-1 * scale) {
     //                correct = false;
     //            }
     //        }
@@ -172,14 +159,13 @@ public:
     //    return correct;
     //}
 
-    virtual void finiteGradient(const Vector<RealType>& x, Vector<RealType>& grad, int accuracy = 0) final
-    {
+    virtual void finiteGradient(const Vector<RealType>& x, Vector<RealType>& grad, int accuracy = 0) final {
         // accuracy can be 0, 1, 2, 3
-        const RealType                            eps   = RealType(2.2204e-6);
-        const size_t                              D     = x.size();
-        const std::vector<std::vector<RealType> > coeff =
+        const RealType                           eps   = RealType(2.2204e-6);
+        const size_t                             D     = x.size();
+        const std::vector<std::vector<RealType>> coeff =
         { { 1, -1 }, { 1, -8, 8, -1 }, { -1, 9, -45, 45, -9, 1 }, { 3, -32, 168, -672, 672, -168, 32, -3 } };
-        const std::vector<std::vector<RealType> > coeff2 =
+        const std::vector<std::vector<RealType>> coeff2 =
         { { 1, -1 }, { -2, -1, 1, 2 }, { -3, -2, -1, 1, 2, 3 }, { -4, -3, -2, -1, 1, 2, 3, 4 } };
         const std::vector<RealType> dd = { 2, 12, 60, 840 };
 

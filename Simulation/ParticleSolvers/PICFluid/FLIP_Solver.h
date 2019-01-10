@@ -25,12 +25,11 @@
 #include <ParticleSolvers/PICFluid/FLIP_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class FLIP_Solver : public PIC_Solver<N, RealType>, public RegisteredInSolverFactory<FLIP_Solver<N, RealType>>
-{
+class FLIP_Solver : public PIC_Solver<N, RealType>, public RegisteredInSolverFactory<FLIP_Solver<N, RealType>> {
+    __BNN_TYPE_ALIASING
 public:
     FLIP_Solver() = default;
 
@@ -61,4 +60,4 @@ protected:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

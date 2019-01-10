@@ -25,7 +25,7 @@
 #include <Banana/ParallelHelpers/Scheduler.h>
 #include <ParticleTools/ParticleHelpers.h>
 #include <ParticleTools/ParticleSerialization.h>
-#include <Partio.h>
+#include <PartioBgeo/Partio.h>
 
 #include <fstream>
 #include <cmath>
@@ -33,12 +33,10 @@
 #include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleHelpers
-{
+namespace Banana::ParticleHelpers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-auto getAABB(const Vec_VecX<N, RealType>& positions)
-{
+auto getAABB(const Vec_VecX<N, RealType>& positions) {
     VecX<N, RealType> bMin, bMax;
     ParallelSTL::min_max<N, RealType>(positions, bMin, bMax);
     return std::make_tuple(bMin, bMax);
@@ -46,15 +44,13 @@ auto getAABB(const Vec_VecX<N, RealType>& positions)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vec_VecX<N, RealType>& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData)
-{
+void compress(const Vec_VecX<N, RealType>& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData) {
     ParallelSTL::min_max<N, RealType>(dvec, dMin, dMax);
     const VecX<N, RealType> diff = dMax - dMin;
 
     compressedData.resize(N * dvec.size());
     Scheduler::parallel_for(dvec.size(),
-                            [&](size_t i)
-                            {
+                            [&](size_t i) {
                                 const auto& vec = dvec[i];
                                 for(int j = 0; j < N; ++j) {
                                     compressedData[i * N + j] = static_cast<UInt16>(std::numeric_limits<UInt16>::max() * ((vec[j] - dMin[j]) / diff[j]));
@@ -64,8 +60,7 @@ void compress(const Vec_VecX<N, RealType>& dvec, VecX<N, RealType>& dMin, VecX<N
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vec_VecX<N, RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
-{
+void compress(const Vec_VecX<N, RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/) {
     VecX<N, RealType> dMin, dMax;
     Vec_UInt16        compressedData;
     compress(dvec, dMin, dMax, compressedData);
@@ -85,16 +80,14 @@ void compress(const Vec_VecX<N, RealType>& dvec, DataBuffer& buffer, bool bWrite
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vector<MatXxX<N, RealType>>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData)
-{
+void compress(const Vector<MatXxX<N, RealType>>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData) {
     Int NN = N * N;
     ParallelSTL::min_max<N, RealType>(dvec, dMin, dMax);
     const RealType diff = dMax - dMin;
 
     compressedData.resize(NN * dvec.size());
     Scheduler::parallel_for(dvec.size(),
-                            [&](size_t i)
-                            {
+                            [&](size_t i) {
                                 MatXxX<N, RealType> mat = dvec[i];
                                 const RealType* mdata   = glm::value_ptr(mat);
                                 for(int j = 0; j < NN; ++j) {
@@ -105,8 +98,7 @@ void compress(const Vector<MatXxX<N, RealType>>& dvec, RealType& dMin, RealType&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vector<MatXxX<N, RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
-{
+void compress(const Vector<MatXxX<N, RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/) {
     RealType   dMin, dMax;
     Vec_UInt16 compressedData;
     compress(dvec, dMin, dMax, compressedData);
@@ -122,23 +114,20 @@ void compress(const Vector<MatXxX<N, RealType>>& dvec, DataBuffer& buffer, bool 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void compress(const Vector<RealType>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData)
-{
+void compress(const Vector<RealType>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData) {
     ParallelSTL::min_max<RealType>(dvec, dMin, dMax);
     const RealType diff = dMax - dMin;
 
     compressedData.resize(dvec.size());
     Scheduler::parallel_for(dvec.size(),
-                            [&](size_t i)
-                            {
+                            [&](size_t i) {
                                 compressedData[i] = static_cast<UInt16>(std::numeric_limits<UInt16>::max() * ((dvec[i] - dMin) / diff));
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
-{
+void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/) {
     RealType   dMin, dMax;
     Vec_UInt16 compressedData;
     compress(dvec, dMin, dMax, compressedData);
@@ -155,8 +144,7 @@ void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVecto
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void compress(const Vector<Vector<RealType>>& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData)
-{
+void compress(const Vector<Vector<RealType>>& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData) {
     __BNN_REQUIRE(dvec.size() == dMin.size() && dvec.size() == dMax.size());
 
     compressedData.resize(dvec.size());
@@ -165,8 +153,7 @@ void compress(const Vector<Vector<RealType>>& dvec, Vector<RealType>& dMin, Vect
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void compress(const Vector<Vector<RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
-{
+void compress(const Vector<Vector<RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/) {
     Vector<RealType> dMin, dMax;
     Vec_VecUInt16    compressedData;
     compress(dvec, dMin, dMax, compressedData);
@@ -193,15 +180,13 @@ void compress(const Vector<Vector<RealType>>& dvec, DataBuffer& buffer, bool bWr
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData)
-{
+void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData) {
     const VecX<N, RealType> diff = dMax - dMin;
     __BNN_REQUIRE((compressedData.size() / N) * N == compressedData.size());
 
     dvec.resize(compressedData.size() / N);
     Scheduler::parallel_for(dvec.size(),
-                            [&](size_t i)
-                            {
+                            [&](size_t i) {
                                 VecX<N, RealType> vec;
                                 for(int j = 0; j < N; ++j) {
                                     vec[j] = static_cast<typename VecX<N, RealType>::value_type>(compressedData[i * N + j]) * diff[j] /
@@ -213,8 +198,7 @@ void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, cons
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
-{
+void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/) {
     VecX<N, float> dMinf, dMaxf;
 
     UInt64 segmentStart = 0;
@@ -247,16 +231,14 @@ void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nPar
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData)
-{
+void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData) {
     Int            NN   = N * N;
     const RealType diff = dMax - dMin;
     __BNN_REQUIRE((compressedData.size() / NN) * NN == compressedData.size());
 
     dvec.resize(compressedData.size() / NN);
     Scheduler::parallel_for(dvec.size(),
-                            [&](size_t i)
-                            {
+                            [&](size_t i) {
                                 MatXxX<N, RealType> mat;
                                 RealType* mdata = glm::value_ptr(mat);
 
@@ -270,8 +252,7 @@ void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vector<MatXxX<N, RealType>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
-{
+void decompress(Vector<MatXxX<N, RealType>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/) {
     float  dMinf, dMaxf;
     UInt64 segmentStart = 0;
     UInt64 segmentSize;
@@ -300,22 +281,19 @@ void decompress(Vector<MatXxX<N, RealType>>& dvec, const DataBuffer& buffer, UIn
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void decompress(Vector<RealType>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData)
-{
+void decompress(Vector<RealType>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData) {
     const RealType diff = dMax - dMin;
 
     dvec.resize(compressedData.size());
     Scheduler::parallel_for(dvec.size(),
-                            [&](size_t i)
-                            {
+                            [&](size_t i) {
                                 dvec[i] = static_cast<RealType>(compressedData[i]) * diff / static_cast<RealType>(std::numeric_limits<UInt16>::max()) + dMin;
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
-{
+void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/) {
     float  dMinf, dMaxf;
     UInt64 segmentStart = 0;
     UInt64 segmentSize;
@@ -344,8 +322,7 @@ void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticle
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void decompress(Vector<Vector<RealType>>& dvec, const Vector<RealType>& dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData)
-{
+void decompress(Vector<Vector<RealType>>& dvec, const Vector<RealType>& dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData) {
     __BNN_REQUIRE(compressedData.size() == dMin.size() && compressedData.size() == dMax.size());
 
     dvec.resize(compressedData.size());
@@ -354,8 +331,7 @@ void decompress(Vector<Vector<RealType>>& dvec, const Vector<RealType>& dMin, co
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
-{
+void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/) {
     Vector<float> dMinf, dMaxf;
 
     UInt64 segmentStart = 0;
@@ -394,8 +370,7 @@ void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt n
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType> bool loadParticlesFromObj(const String& fileName, Vec_VecX<N, RealType>& positions)
-{
+template<Int N, class RealType> bool loadParticlesFromObj(const String& fileName, Vec_VecX<N, RealType>& positions) {
     std::ifstream file(fileName.c_str());
     if(!file.is_open()) {
         return false;
@@ -420,8 +395,7 @@ template<Int N, class RealType> bool loadParticlesFromObj(const String& fileName
     return true;
 }
 
-template<Int N, class RealType> bool loadParticlesFromBGEO(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius)
-{
+template<Int N, class RealType> bool loadParticlesFromBGEO(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius) {
     Partio::ParticlesDataMutable* bgeoParticles = Partio::read(fileName.c_str());
     Partio::ParticleAttribute     attrRadius, attrPosition;
     if(bgeoParticles == nullptr) { return false; }
@@ -447,13 +421,11 @@ template<Int N, class RealType> bool loadParticlesFromBGEO(const String& fileNam
     return true;
 }
 
-template<Int N, class RealType> bool loadParticlesFromBNN(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius)
-{
+template<Int N, class RealType> bool loadParticlesFromBNN(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius) {
     return ParticleSerialization::loadParticle<N, RealType>(fileName, positions, particleRadius);
 }
 
-template<Int N, class RealType> bool loadParticlesFromBinary(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius)
-{
+template<Int N, class RealType> bool loadParticlesFromBinary(const String& fileName, Vec_VecX<N, RealType>& positions, RealType& particleRadius) {
     std::ifstream file(fileName.c_str(), std::ios::binary | std::ios::in);
     if(!file.is_open()) {
         return false;
@@ -477,8 +449,7 @@ template<Int N, class RealType> bool loadParticlesFromBinary(const String& fileN
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType> bool saveParticlesToObj(const String& fileName, const Vec_VecX<N, RealType>& positions)
-{
+template<Int N, class RealType> bool saveParticlesToObj(const String& fileName, const Vec_VecX<N, RealType>& positions) {
     std::ofstream file(fileName.c_str(), std::ios::out);
     if(!file.is_open()) {
         return false;
@@ -500,8 +471,7 @@ template<Int N, class RealType> bool saveParticlesToObj(const String& fileName, 
     return true;
 }
 
-template<Int N, class RealType> bool saveParticlesToBGEO(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius)
-{
+template<Int N, class RealType> bool saveParticlesToBGEO(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius) {
     Partio::ParticlesDataMutable* bgeoParticle = Partio::create();
     Partio::ParticleAttribute     attrRadius   = bgeoParticle->addAttribute("pscale", Partio::FLOAT, 1);
     Partio::ParticleAttribute     attrPosition = bgeoParticle->addAttribute("position", Partio::VECTOR, 3);
@@ -526,14 +496,12 @@ template<Int N, class RealType> bool saveParticlesToBGEO(const String& fileName,
     return true;
 }
 
-template<Int N, class RealType> bool saveParticlesToBNN(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius)
-{
+template<Int N, class RealType> bool saveParticlesToBNN(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius) {
     ParticleSerialization::saveParticle<N, RealType>(fileName, positions, particleRadius);
     return true;
 }
 
-template<Int N, class RealType> bool saveParticlesToBinary(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius)
-{
+template<Int N, class RealType> bool saveParticlesToBinary(const String& fileName, const Vec_VecX<N, RealType>& positions, RealType particleRadius) {
     std::ofstream file(fileName.c_str(), std::ios::binary | std::ios::out);
     if(!file.is_open()) {
         return false;
@@ -550,8 +518,7 @@ template<Int N, class RealType> bool saveParticlesToBinary(const String& fileNam
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // non-template functions
-void connectedComponentAnalysis(const Vec_VecUInt& connectionList, Vec_Int8& componentIdx, UInt& nComponents)
-{
+void connectedComponentAnalysis(const Vec_VecUInt& connectionList, Vec_Int8& componentIdx, UInt& nComponents) {
     componentIdx.assign(connectionList.size(), Int8(-1));
 
     // label from first particle
@@ -613,8 +580,7 @@ void connectedComponentAnalysis(const Vec_VecUInt& connectionList, Vec_Int8& com
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt spawnComponent(UInt p, Int depth, UInt8 currentIdx, const Vec_VecUInt& connectionList, Vec_Int8& componentIdx)
-{
+UInt spawnComponent(UInt p, Int depth, UInt8 currentIdx, const Vec_VecUInt& connectionList, Vec_Int8& componentIdx) {
     componentIdx[p] = currentIdx;
     UInt nProcessed = 1;
 

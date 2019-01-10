@@ -23,16 +23,14 @@
 #include <ParticleSolvers/PICFluid/PIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // PIC_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Parameters<N, RealType>::parseParameters(const JParams& jParams)
-{
+void PIC_Parameters<N, RealType>::parseParameters(const JParams& jParams) {
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     JSONHelpers::readBool(jParams, bExitIfPressureProjectionFailed, "ExitIfPressureProjectionFailed");
@@ -40,16 +38,14 @@ void PIC_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Parameters<N, RealType>::makeReady()
-{
+void PIC_Parameters<N, RealType>::makeReady() {
     SimulationParameters<N, RealType>::makeReady();
-    sdfRadius = cellSize * RealType(1.01 * sqrt(N) / 2.0);
+    sdfRadius = this->cellSize * RealType(1.01 * std::sqrt(N) / 2.0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
-{
+void PIC_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger) {
     logger->printLog(String("PIC parameters:"));
     SimulationParameters<N, RealType>::printParams(logger);
     logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
@@ -64,49 +60,45 @@ void PIC_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Data<N, RealType>::PIC_ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
+void PIC_Data<N, RealType>::PIC_ParticleData::reserve(UInt nParticles) {
+    this->positions.reserve(nParticles);
+    this->velocities.reserve(nParticles);
+    this->objectIndex.reserve(nParticles);
     aniKernelCenters.reserve(nParticles);
     aniKernelMatrices.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Data<N, RealType>::PIC_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
-{
+void PIC_Data<N, RealType>::PIC_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams) {
     __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+    this->positions.insert(this->positions.end(), newPositions.begin(), newPositions.end());
+    this->velocities.insert(this->velocities.end(), newVelocities.begin(), newVelocities.end());
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<UInt16>(nObjects));
-    ++nObjects;                             // increase the number of objects
+    this->objectIndex.insert(this->objectIndex.end(), newPositions.size(), static_cast<UInt16>(this->nObjects));
+    ++this->nObjects; // increase the number of objects
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
-    __BNN_REQUIRE(removeMarker.size() == positions.size());
+UInt PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(const Vec_Int8& removeMarker) {
+    __BNN_REQUIRE(removeMarker.size() == this->positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;
     }
 
-    STLHelpers::eraseByMarker(positions,   removeMarker);
-    STLHelpers::eraseByMarker(velocities,  removeMarker);
-    STLHelpers::eraseByMarker(objectIndex, removeMarker);
+    STLHelpers::eraseByMarker(this->positions,   removeMarker);
+    STLHelpers::eraseByMarker(this->velocities,  removeMarker);
+    STLHelpers::eraseByMarker(this->objectIndex, removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
-    return static_cast<UInt>(removeMarker.size() - positions.size());
+    return static_cast<UInt>(removeMarker.size() - this->positions.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>& gridSize)
-{
+void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>& gridSize) {
     for(Int d = 0; d < N; ++d) {
         auto extra = VecX<N, UInt>(0);
         extra[d] = 1u;
@@ -126,16 +118,14 @@ void PIC_Data<N, RealType>::PIC_GridData::resize(const VecX<N, UInt>& gridSize)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Data<N, RealType>::initialize()
-{
+void PIC_Data<N, RealType>::initialize() {
     particleData = std::make_shared<PIC_ParticleData>();
     gridData     = std::make_shared<PIC_GridData>();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void PIC_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
-{
+void PIC_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) {
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
     }
@@ -162,4 +152,4 @@ template struct PIC_Data<2, Real>;
 template struct PIC_Data<3, Real>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

@@ -23,32 +23,29 @@
 #include <ParticleSolvers/SPH/WCSPH_Solver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::allocateSolverMemory()
-{
-    m_WCSPHParams  = std::make_shared<WCSPH_Parameters<N, RealType>>();
-    m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_WCSPHParams);
+void WCSPH_Solver<N, RealType>::allocateSolverMemory() {
+    m_WCSPHParams        = std::make_shared<WCSPH_Parameters<N, RealType>>();
+    this->m_SolverParams = std::static_pointer_cast<SimulationParameters<N, RealType>>(m_WCSPHParams);
 
-    m_WCSPHData  = std::make_shared<WCSPH_Data<N, RealType>>();
-    m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_WCSPHData);
+    m_WCSPHData        = std::make_shared<WCSPH_Data<N, RealType>>();
+    this->m_SolverData = std::static_pointer_cast<SimulationData<N, RealType>>(m_WCSPHData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::generateParticles(const JParams& jParams)
-{
+void WCSPH_Solver<N, RealType>::generateParticles(const JParams& jParams) {
     ParticleSolver<N, RealType>::generateParticles(jParams);
     if(loadMemoryState() < 0) {
-        for(auto& generator : m_ParticleGenerators) {
-            generator->buildObject(solverParams().particleRadius, m_BoundaryObjects);
+        for(auto& generator : this->m_ParticleGenerators) {
+            generator->buildObject(solverParams().particleRadius, this->m_BoundaryObjects);
             ////////////////////////////////////////////////////////////////////////////////
-            UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
+            UInt nGen = generator->generateParticles(particleData().positions, this->m_BoundaryObjects);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
+                this->logger().printLog(String("Generated ") + Formatters::toString(nGen) + String(" particles by generator: ") + generator->nameID());
             }
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
@@ -61,56 +58,54 @@ void WCSPH_Solver<N, RealType>::generateParticles(const JParams& jParams)
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
-        logger().newLine();
+        this->logger().newLine();
     } else {
         particleData().addSearchParticles(particleData().positions);
     }
 
     if(solverParams().bDensityByBDParticle) {
-        __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
-        for(auto& bdObj : m_BoundaryObjects) {
+        __BNN_REQUIRE(this->m_BoundaryObjects.size() != 0);
+        for(auto& bdObj : this->m_BoundaryObjects) {
             UInt nGen = bdObj->generateBoundaryParticles(particleData().boundaryParticles, RealType(0.85) * solverParams().particleRadius);
-            logger().printLogIf(nGen > 0, String("Generated ") + Formatters::toString(nGen) + String(" boundary particles by ") + bdObj->nameID());
+            this->logger().printLogIf(nGen > 0, String("Generated ") + Formatters::toString(nGen) + String(" boundary particles by ") + bdObj->nameID());
         }
 
         __BNN_REQUIRE(particleData().boundaryParticles.size() > 0);
         particleData().addSearchParticles(particleData().boundaryParticles, false, false);
-        logger().printRunTime("Sort boundary particles",
-                              [&]()
-                              {
-                                  particleData().NSearch().z_sort();
-                                  auto const& d = particleData().NSearch().point_set(1);
-                                  d.sort_field(particleData().boundaryParticles.data());
-                              });
+        this->logger().printRunTime("Sort boundary particles",
+                                    [&]() {
+                                        particleData().NSearch().z_sort();
+                                        auto const& d = particleData().NSearch().point_set(1);
+                                        d.sort_field(particleData().boundaryParticles.data());
+                                    });
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool WCSPH_Solver<N, RealType>::advanceScene()
-{
+bool WCSPH_Solver<N, RealType>::advanceScene() {
     ////////////////////////////////////////////////////////////////////////////////
     // evolve the dynamic objects
     bool bSceneChanged = ParticleSolver<N, RealType>::advanceScene();
 
     ////////////////////////////////////////////////////////////////////////////////
     // add/remove particles
-    for(auto& generator : m_ParticleGenerators) {
-        if(generator->isActive(globalParams().finishedFrame)) {
-            UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects, globalParams().finishedFrame);
+    for(auto& generator : this->m_ParticleGenerators) {
+        if(generator->isActive(this->globalParams().finishedFrame)) {
+            UInt nGen = generator->generateParticles(particleData().positions, this->m_BoundaryObjects, this->globalParams().finishedFrame);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLogIndent(String("Generated ") + Formatters::toString(nGen) + String(" particles by ") + generator->nameID());
+                this->logger().printLogIndent(String("Generated ") + Formatters::toString(nGen) + String(" particles by ") + generator->nameID());
             }
             bSceneChanged |= (nGen > 0);
         }
     }
 
-    for(auto& remover : m_ParticleRemovers) {
-        if(remover->isActive(globalParams().finishedFrame)) {
+    for(auto& remover : this->m_ParticleRemovers) {
+        if(remover->isActive(this->globalParams().finishedFrame)) {
             remover->findRemovingCandidate(particleData().removeMarker, particleData().positions);
             UInt nRemoved = particleData().removeParticles(particleData().removeMarker);
-            logger().printLogIndentIf(nRemoved > 0, String("Removed ") + Formatters::toString(nRemoved) + String(" particles by ") + remover->nameID());
+            this->logger().printLogIndentIf(nRemoved > 0, String("Removed ") + Formatters::toString(nRemoved) + String(" particles by ") + remover->nameID());
             bSceneChanged |= (nRemoved > 0);
         }
     }
@@ -121,16 +116,16 @@ bool WCSPH_Solver<N, RealType>::advanceScene()
 
     ////////////////////////////////////////////////////////////////////////////////
     //bool bSDFRegenerated = false;
-    //for(auto& bdObj : m_BoundaryObjects) {
+    //for(auto& bdObj : this->m_BoundaryObjects) {
     //    if(bdObj->isDynamic()) {
     //        bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-    //        logger().printLog(String("Re-computed SDF for dynamic boundary object") + bdObj->nameID(), spdlog::level::debug);
+    //        this->logger().printLog(String("Re-computed SDF for dynamic boundary object") + bdObj->nameID(), spdlog::level::debug);
     //        bSDFRegenerated = true;
     //    }
     //}
 
     //if(bSDFRegenerated) {
-    //    logger().printRunTime("Re-computed SDF boundary for entire scene", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //    this->logger().printRunTime("Re-computed SDF boundary for entire scene", [&]() { gridData().computeBoundarySDF(this->m_BoundaryObjects); });
     //}
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -139,176 +134,170 @@ bool WCSPH_Solver<N, RealType>::advanceScene()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::setupDataIO()
-{
-    m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
-    m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, N);
-    if(globalParams().savingData("ObjectIndex")) {
-        m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
-        m_ParticleDataIO->addParticleAttribute<UInt16>("object_index", ParticleSerialization::TypeUInt16, 1);
+void WCSPH_Solver<N, RealType>::setupDataIO() {
+    this->m_ParticleDataIO = std::make_unique<ParticleSerialization>(this->globalParams().dataPath, this->globalParams().frameDataFolder, "frame", this->m_Logger);
+    this->m_ParticleDataIO->template addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
+    this->m_ParticleDataIO->template addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, N);
+    if(this->globalParams().savingData("ObjectIndex")) {
+        this->m_ParticleDataIO->template addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
+        this->m_ParticleDataIO->template addParticleAttribute<UInt16>("object_index", ParticleSerialization::TypeUInt16, 1);
     }
-    if(globalParams().savingData("AniKernel")) {
-        m_ParticleDataIO->addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, N * N);
+    if(this->globalParams().savingData("AniKernel")) {
+        this->m_ParticleDataIO->template addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, N * N);
     }
-    if(globalParams().savingData("ParticleVelocity")) {
-        m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, N);
+    if(this->globalParams().savingData("ParticleVelocity")) {
+        this->m_ParticleDataIO->template addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, N);
     }
-    if(globalParams().savingData("ParticleDensity")) {
-        m_ParticleDataIO->addParticleAttribute<float>("particle_density", ParticleSerialization::TypeCompressedReal, 1);
+    if(this->globalParams().savingData("ParticleDensity")) {
+        this->m_ParticleDataIO->template addParticleAttribute<float>("particle_density", ParticleSerialization::TypeCompressedReal, 1);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(globalParams().bLoadMemoryState || globalParams().bSaveMemoryState) {
-        m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "SPHState", "frame", m_Logger);
-        m_MemoryStateIO->addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_MemoryStateIO->addFixedAttribute<UInt>(    "NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<RealType>("particle_position",  ParticleSerialization::TypeReal, N);
-        m_MemoryStateIO->addParticleAttribute<RealType>("particle_velocity",  ParticleSerialization::TypeReal, N);
-        m_MemoryStateIO->addParticleAttribute<RealType>("boundary_particles", ParticleSerialization::TypeReal, N);
-        m_MemoryStateIO->addParticleAttribute<Int16>(   "object_index",       ParticleSerialization::TypeChar, 1);
+    if(this->globalParams().bLoadMemoryState || this->globalParams().bSaveMemoryState) {
+        this->m_MemoryStateIO = std::make_unique<ParticleSerialization>(this->globalParams().dataPath, "SPHState", "frame", this->m_Logger);
+        this->m_MemoryStateIO->template addFixedAttribute<RealType>("particle_radius", ParticleSerialization::TypeReal, 1);
+        this->m_MemoryStateIO->template addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
+        this->m_MemoryStateIO->template addParticleAttribute<RealType>("particle_position",  ParticleSerialization::TypeReal, N);
+        this->m_MemoryStateIO->template addParticleAttribute<RealType>("particle_velocity",  ParticleSerialization::TypeReal, N);
+        this->m_MemoryStateIO->template addParticleAttribute<RealType>("boundary_particles", ParticleSerialization::TypeReal, N);
+        this->m_MemoryStateIO->template addParticleAttribute<Int16>("object_index",       ParticleSerialization::TypeChar, 1);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int WCSPH_Solver<N, RealType>::loadMemoryState()
-{
-    if(!globalParams().bLoadMemoryState) {
+Int WCSPH_Solver<N, RealType>::loadMemoryState() {
+    if(!this->globalParams().bLoadMemoryState) {
         return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Int lastFrame      = static_cast<Int>(globalParams().startFrame) - 1;
-    Int latestStateIdx = (lastFrame > 1 && FileHelpers::fileExisted(m_MemoryStateIO->getFilePath(lastFrame))) ?
-                         lastFrame : m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
+    Int lastFrame      = static_cast<Int>(this->globalParams().startFrame) - 1;
+    Int latestStateIdx = (lastFrame > 1 && FileHelpers::fileExisted(this->m_MemoryStateIO->getFilePath(lastFrame))) ?
+                         lastFrame : this->m_MemoryStateIO->getLatestFileIndex(this->globalParams().finalFrame);
     if(latestStateIdx < 0) {
         return -1;
     }
 
-    if(!m_MemoryStateIO->read(latestStateIdx)) {
-        logger().printError("Cannot read latest memory state file!");
+    if(!this->m_MemoryStateIO->read(latestStateIdx)) {
+        this->logger().printError("Cannot read latest memory state file!");
         return -1;
     }
 
     RealType particleRadius;
-    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE(this->m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon<RealType>());
 
-    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
+    __BNN_REQUIRE(this->m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
+    __BNN_REQUIRE(this->m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
 
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
+    __BNN_REQUIRE(this->m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
+    __BNN_REQUIRE(this->m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     __BNN_REQUIRE(particleData().velocities.size() == particleData().positions.size());
 
-    logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
-    globalParams().finishedFrame = latestStateIdx;
+    this->logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
+    this->globalParams().finishedFrame = latestStateIdx;
     return latestStateIdx;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int WCSPH_Solver<N, RealType>::saveMemoryState()
-{
-    if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
+Int WCSPH_Solver<N, RealType>::saveMemoryState() {
+    if(!this->globalParams().bSaveMemoryState || (this->globalParams().finishedFrame % this->globalParams().framePerState != 0)) {
         return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MemoryStateIO->clearData();
+    this->m_MemoryStateIO->clearData();
     ////////////////////////////////////////////////////////////////////////////////
-    m_MemoryStateIO->setNParticles(particleData().getNParticles());
-    m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
-    m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
-    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
-    m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
+    this->m_MemoryStateIO->setNParticles(particleData().getNParticles());
+    this->m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    this->m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
+    this->m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    this->m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
+    this->m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
     ////////////////////////////////////////////////////////////////////////////////
-    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
-    return globalParams().finishedFrame;
+    this->m_MemoryStateIO->flushAsync(this->globalParams().finishedFrame);
+    return this->globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Int WCSPH_Solver<N, RealType>::saveFrameData()
-{
-    if(!globalParams().bSaveFrameData) {
+Int WCSPH_Solver<N, RealType>::saveFrameData() {
+    if(!this->globalParams().bSaveFrameData) {
         return -1;
     }
 
     ParticleSolver<N, RealType>::saveFrameData();
     ////////////////////////////////////////////////////////////////////////////////
-    m_ParticleDataIO->clearData();
-    m_ParticleDataIO->setNParticles(particleData().getNParticles());
-    m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    if(globalParams().savingData("ObjectIndex")) {
-        m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
-        m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
+    this->m_ParticleDataIO->clearData();
+    this->m_ParticleDataIO->setNParticles(particleData().getNParticles());
+    this->m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
+    if(this->globalParams().savingData("ObjectIndex")) {
+        this->m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
+        this->m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
-    if(globalParams().savingData("AniKernel")) {
+    if(this->globalParams().savingData("AniKernel")) {
         AnisotropicKernelGenerator<N, RealType> aniKernelGenerator(particleData().positions, solverParams().particleRadius);
         aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
-        m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
-        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
+        this->m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
+        this->m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
     } else {
-        m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
+        this->m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
     }
 
-    if(globalParams().savingData("ParticleVelocity")) {
-        m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
+    if(this->globalParams().savingData("ParticleVelocity")) {
+        this->m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
 
-    if(globalParams().savingData("ParticleDensity")) {
-        m_ParticleDataIO->setParticleAttribute("particle_density", particleData().densities);
+    if(this->globalParams().savingData("ParticleDensity")) {
+        this->m_ParticleDataIO->setParticleAttribute("particle_density", particleData().densities);
     }
 
-    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
-    return globalParams().finishedFrame;
+    this->m_ParticleDataIO->flushAsync(this->globalParams().finishedFrame);
+    return this->globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::advanceFrame()
-{
-    const auto& frameDuration = globalParams().frameDuration;
-    auto&       frameTime     = globalParams().frameLocalTime;
-    auto&       substep       = globalParams().frameSubstep;
-    auto&       substepCount  = globalParams().frameSubstepCount;
-    auto&       finishedFrame = globalParams().finishedFrame;
+void WCSPH_Solver<N, RealType>::advanceFrame() {
+    const auto& frameDuration = this->globalParams().frameDuration;
+    auto&       frameTime     = this->globalParams().frameLocalTime;
+    auto&       substep       = this->globalParams().frameSubstep;
+    auto&       substepCount  = this->globalParams().frameSubstepCount;
+    auto&       finishedFrame = this->globalParams().finishedFrame;
 
     frameTime    = 0;
     substepCount = 0u;
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < frameDuration) {
-        logger().printRunTime("Sub-step time",
-                              [&]()
-                              {
-                                  if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene", [&]() { return advanceScene(); });
-                                  }
-                                  ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("CFL timestep", [&]() { substep = timestepCFL(); });
-                                  auto remainingTime = frameDuration - frameTime;
-                                  if(frameTime + substep >= frameDuration) {
-                                      substep = remainingTime;
-                                  } else if(frameTime + RealType(1.5) * substep >= frameDuration) {
-                                      substep = remainingTime * RealType(0.5);
-                                  }
-                                  ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles", [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Find neighbors", [&]() { particleData().NSearch().find_neighbors(); });
-                                  logger().printRunTime("}=> Advance velocity", [&]() { advanceVelocity(substep); });
-                                  ////////////////////////////////////////////////////////////////////////////////
-                                  frameTime += substep;
-                                  ++substepCount;
-                                  logger().printLog("Finished step " + Formatters::toString(substepCount) +
-                                                    " of size " + Formatters::toSciString(substep) +
-                                                    "(" + Formatters::toString(substep / frameDuration * 100.0) +
-                                                    "% of the frame, to " + Formatters::toString(100.0 * frameTime / frameDuration) +
-                                                    "% of the frame)");
-                              });
-        logger().newLine();
+        this->logger().printRunTime("Sub-step time",
+                                    [&]() {
+                                        if(this->globalParams().finishedFrame > 0) {
+                                            this->logger().printRunTimeIf("Advance scene", [&]() { return advanceScene(); });
+                                        }
+                                        ////////////////////////////////////////////////////////////////////////////////
+                                        this->logger().printRunTime("CFL timestep", [&]() { substep = timestepCFL(); });
+                                        auto remainingTime = frameDuration - frameTime;
+                                        if(frameTime + substep >= frameDuration) {
+                                            substep = remainingTime;
+                                        } else if(frameTime + RealType(1.5) * substep >= frameDuration) {
+                                            substep = remainingTime * RealType(0.5);
+                                        }
+                                        ////////////////////////////////////////////////////////////////////////////////
+                                        this->logger().printRunTime("Move particles", [&]() { moveParticles(substep); });
+                                        this->logger().printRunTime("Find neighbors", [&]() { particleData().NSearch().find_neighbors(); });
+                                        this->logger().printRunTime("}=> Advance velocity", [&]() { advanceVelocity(substep); });
+                                        ////////////////////////////////////////////////////////////////////////////////
+                                        frameTime += substep;
+                                        ++substepCount;
+                                        this->logger().printLog("Finished step " + Formatters::toString(substepCount) +
+                                                                " of size " + Formatters::toSciString(substep) +
+                                                                "(" + Formatters::toString(substep / frameDuration * 100.0) +
+                                                                "% of the frame, to " + Formatters::toString(100.0 * frameTime / frameDuration) +
+                                                                "% of the frame)");
+                                    });
+        this->logger().newLine();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -319,42 +308,38 @@ void WCSPH_Solver<N, RealType>::advanceFrame()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::sortParticles()
-{
-    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
+void WCSPH_Solver<N, RealType>::sortParticles() {
+    if(!this->globalParams().bEnableSortParticle || (this->globalParams().finishedFrame > 0 && (this->globalParams().finishedFrame + 1) % this->globalParams().sortFrequency != 0)) {
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Sort data by particle positions",
-                          [&]()
-                          {
-                              particleData().NSearch().z_sort();
-                              auto const& d = particleData().NSearch().point_set(0);
-                              d.sort_field(&particleData().positions[0]);
-                              d.sort_field(&particleData().velocities[0]);
-                              d.sort_field(&particleData().objectIndex[0]);
-                          });
-    logger().newLine();
+    this->logger().printRunTime("Sort data by particle positions",
+                                [&]() {
+                                    particleData().NSearch().z_sort();
+                                    auto const& d = particleData().NSearch().point_set(0);
+                                    d.sort_field(&particleData().positions[0]);
+                                    d.sort_field(&particleData().velocities[0]);
+                                    d.sort_field(&particleData().objectIndex[0]);
+                                });
+    this->logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::advanceVelocity(RealType timestep)
-{
-    logger().printRunTime("{   Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
-    logger().printRunTimeIndent("Compute density", [&]() { computeDensity(); });
-    logger().printRunTimeIndentIf("Normalize density", [&]() { return normalizeDensity(); });
-    logger().printRunTimeIndent("Collect neighbor densities", [&]() { collectNeighborDensities(); });
-    logger().printRunTimeIndent("Compute forces", [&]() { computeAccelerations(); });
-    logger().printRunTimeIndent("Update velocity", [&]() { updateVelocity(timestep); });
-    logger().printRunTimeIndent("Compute viscosity", [&]() { computeViscosity(); });
+void WCSPH_Solver<N, RealType>::advanceVelocity(RealType timestep) {
+    this->logger().printRunTime("{   Compute neighbor relative positions", [&]() { computeNeighborRelativePositions(); });
+    this->logger().printRunTimeIndent("Compute density", [&]() { computeDensity(); });
+    this->logger().printRunTimeIndentIf("Normalize density", [&]() { return normalizeDensity(); });
+    this->logger().printRunTimeIndent("Collect neighbor densities", [&]() { collectNeighborDensities(); });
+    this->logger().printRunTimeIndent("Compute forces", [&]() { computeAccelerations(); });
+    this->logger().printRunTimeIndent("Update velocity", [&]() { updateVelocity(timestep); });
+    this->logger().printRunTimeIndent("Compute viscosity", [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
-RealType WCSPH_Solver<N, RealType>::timestepCFL()
-{
+RealType WCSPH_Solver<N, RealType>::timestepCFL() {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
     RealType CFLTimeStep = maxVel > Tiny<RealType>() ? solverParams().CFLFactor * (RealType(2.0) * solverParams().particleRadius / maxVel) : Huge<RealType>();
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
@@ -362,18 +347,16 @@ RealType WCSPH_Solver<N, RealType>::timestepCFL()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::moveParticles(RealType timestep)
-{
+void WCSPH_Solver<N, RealType>::moveParticles(RealType timestep) {
     const RealType substep = timestep / RealType(solverParams().advectionSteps);
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto ppos        = particleData().positions[p];
                                 auto pvel        = particleData().velocities[p];
                                 bool bVelChanged = false;
                                 for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                     ppos += pvel * substep;
-                                    for(auto& obj : m_BoundaryObjects) {
+                                    for(auto& obj : this->m_BoundaryObjects) {
                                         if(obj->constrainToBoundary(ppos, pvel)) {
                                             bVelChanged = true;
                                         }
@@ -388,10 +371,8 @@ void WCSPH_Solver<N, RealType>::moveParticles(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::computeNeighborRelativePositions()
-{
-    auto computeRelativePositions = [&](const auto& ppos, const auto& neighborList, const auto& positions, auto& pNeighborInfo)
-                                    {
+void WCSPH_Solver<N, RealType>::computeNeighborRelativePositions() {
+    auto computeRelativePositions = [&](const auto& ppos, const auto& neighborList, const auto& positions, auto& pNeighborInfo) {
                                         for(UInt q : neighborList) {
                                             const auto& qpos = positions[q];
                                             const auto  r    = qpos - ppos;
@@ -400,8 +381,7 @@ void WCSPH_Solver<N, RealType>::computeNeighborRelativePositions()
                                     };
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 const auto& ppos    = particleData().positions[p];
                                 auto& pNeighborInfo = particleData().neighborInfo[p];
                                 pNeighborInfo.resize(0);
@@ -417,11 +397,9 @@ void WCSPH_Solver<N, RealType>::computeNeighborRelativePositions()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::collectNeighborDensities()
-{
+void WCSPH_Solver<N, RealType>::collectNeighborDensities() {
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
@@ -429,7 +407,7 @@ void WCSPH_Solver<N, RealType>::collectNeighborDensities()
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& neighborIdx = particleData().neighborList(p);
                                 for(size_t i = 0; i < neighborIdx.size(); ++i) {
-                                    auto q              = neighborIdx[i];
+                                    auto q = neighborIdx[i];
                                     pNeighborInfo[i][N] = particleData().densities[q];
                                 }
                             });
@@ -437,10 +415,8 @@ void WCSPH_Solver<N, RealType>::collectNeighborDensities()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::computeDensity()
-{
-    auto computeDensity = [&](auto& density, const auto& neighborInfo)
-                          {
+void WCSPH_Solver<N, RealType>::computeDensity() {
+    auto computeDensity = [&](auto& density, const auto& neighborInfo) {
                               for(const auto& qInfo : neighborInfo) {
                                   const auto r = VecN(qInfo);
                                   density += kernels().W(r);
@@ -448,8 +424,7 @@ void WCSPH_Solver<N, RealType>::computeDensity()
                           };
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
@@ -464,30 +439,28 @@ void WCSPH_Solver<N, RealType>::computeDensity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool WCSPH_Solver<N, RealType>::normalizeDensity()
-{
+bool WCSPH_Solver<N, RealType>::normalizeDensity() {
     if(!solverParams().bNormalizeDensity) {
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
                                 }
 
                                 const auto& fluidNeighborList = particleData().neighborList(p);
-                                auto pdensity                 = particleData().densities[p];
-                                auto tmp                      = kernels().W_zero() / pdensity;
+                                auto pdensity = particleData().densities[p];
+                                auto tmp      = kernels().W_zero() / pdensity;
 
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto& qInfo   = pNeighborInfo[i];
                                     const auto r        = VecN(qInfo);
                                     const auto q        = fluidNeighborList[i];
                                     const auto qdensity = particleData().densities[q];
-                                    tmp                += kernels().W(r) / qdensity;
+                                    tmp += kernels().W(r) / qdensity;
                                 }
                                 if(solverParams().bDensityByBDParticle) {
                                     const auto& PDNeighborList = particleData().neighborList(p, 1);
@@ -495,7 +468,7 @@ bool WCSPH_Solver<N, RealType>::normalizeDensity()
                                     for(size_t i = fluidNeighborList.size(); i < pNeighborInfo.size(); ++i) {
                                         const auto& qInfo = pNeighborInfo[i];
                                         const auto r      = VecN(qInfo);
-                                        tmp              += kernels().W(r) / solverParams().materialDensity;
+                                        tmp += kernels().W(r) / solverParams().materialDensity;
                                     }
                                 }
                                 pdensity = pdensity / (tmp * particleData().mass(p));
@@ -509,10 +482,8 @@ bool WCSPH_Solver<N, RealType>::normalizeDensity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::computeAccelerations()
-{
-    auto particlePressure = [&](auto density)
-                            {
+void WCSPH_Solver<N, RealType>::computeAccelerations() {
+    auto particlePressure = [&](auto density) {
                                 auto error = RealType(MathHelpers::sqr(density / solverParams().materialDensity)) - RealType(1.0);
                                 error *= (solverParams().pressureStiffness / density / density);
                                 if(error > RealType(0)) {
@@ -523,8 +494,7 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                     return error * solverParams().attractivePressureRatio;
                                 }
                             };
-    auto shortRangeRepulsiveAcceleration = [&](const auto& r)
-                                           {
+    auto shortRangeRepulsiveAcceleration = [&](const auto& r) {
                                                const auto d2 = glm::length2(r);
                                                const auto w  = MathHelpers::smooth_kernel(d2, solverParams().nearKernelRadiusSqr);
                                                if(w < MEpsilon<RealType>()) {
@@ -532,13 +502,12 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                                } else if(d2 > solverParams().overlapThresholdSqr) {
                                                    return -solverParams().shortRangeRepulsiveForceStiffness * w / RealType(sqrt(d2)) * r;
                                                } else {
-                                                   return solverParams().shortRangeRepulsiveForceStiffness * NumberHelpers::fRand11<RealType>::vrnd<VecN>();
+                                                   return solverParams().shortRangeRepulsiveForceStiffness * NumberHelpers::fRand11<RealType>::template vrnd<VecN>();
                                                }
                                            };
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 VecN pAcc(0);
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
@@ -552,7 +521,7 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
                                     const auto qdensity  = qInfo[N];
                                     const auto qpressure = particlePressure(qdensity);
                                     const auto fpressure = (ppressure + qpressure) * kernels().gradW(r);
-                                    pAcc                += fpressure;
+                                    pAcc += fpressure;
                                     ////////////////////////////////////////////////////////////////////////////////
                                     if(solverParams().bAddShortRangeRepulsiveForce) {
                                         pAcc += shortRangeRepulsiveAcceleration(r);
@@ -565,29 +534,25 @@ void WCSPH_Solver<N, RealType>::computeAccelerations()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::updateVelocity(RealType timestep)
-{
+void WCSPH_Solver<N, RealType>::updateVelocity(RealType timestep) {
     ////////////////////////////////////////////////////////////////////////////////
-    if(globalParams().bApplyGravity) {
+    if(this->globalParams().bApplyGravity) {
         if(solverParams().gravityType == GravityType::Earth ||
            solverParams().gravityType == GravityType::Directional) {
             Scheduler::parallel_for(particleData().velocities.size(),
-                                    [&](size_t p)
-                                    {
+                                    [&](size_t p) {
                                         particleData().velocities[p] += (solverParams().gravity() + particleData().accelerations[p]) * timestep;
                                     });
         } else {
             Scheduler::parallel_for(particleData().velocities.size(),
-                                    [&](size_t p)
-                                    {
-                                        auto gravity                  = solverParams().gravity(particleData().positions[p]);
+                                    [&](size_t p) {
+                                        auto gravity = solverParams().gravity(particleData().positions[p]);
                                         particleData().velocities[p] += (gravity + particleData().accelerations[p]) * timestep;
                                     });
         }
     } else {
         Scheduler::parallel_for(particleData().velocities.size(),
-                                [&](size_t p)
-                                {
+                                [&](size_t p) {
                                     particleData().velocities[p] += particleData().accelerations[p] * timestep;
                                 });
     }
@@ -595,12 +560,10 @@ void WCSPH_Solver<N, RealType>::updateVelocity(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Solver<N, RealType>::computeViscosity()
-{
+void WCSPH_Solver<N, RealType>::computeViscosity() {
     assert(particleData().getNParticles() == static_cast<UInt>(particleData().diffuseVelocities.size()));
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     particleData().diffuseVelocities[p] = VecN(0);

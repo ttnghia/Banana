@@ -24,12 +24,10 @@
 #include <ParticleSolvers/MPM/HairMPM_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
-{
+void HairMPM_Parameters<N, RealType>::parseParameters(const JParams& jParams) {
     MPM_Parameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     String stretchProcessingMethodName("Projection");
@@ -45,15 +43,13 @@ void HairMPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Parameters<N, RealType>::makeReady()
-{
+void HairMPM_Parameters<N, RealType>::makeReady() {
     MPM_Parameters<N, RealType>::makeReady();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
-{
+void HairMPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger) {
     MPM_Parameters<N, RealType>::printParams(logger);
     logger->printLog(String("HairMPM parameters:"));
 
@@ -78,8 +74,7 @@ void HairMPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logge
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::HairMPM_ParticleData::reserve(UInt nParticles)
-{
+void HairMPM_Data<N, RealType>::HairMPM_ParticleData::reserve(UInt nParticles) {
     MPM_Data<N, RealType>::MPM_ParticleData::reserve(nParticles);
     localDirections.reserve(nParticles);
     particleType.reserve(nParticles);
@@ -89,34 +84,31 @@ void HairMPM_Data<N, RealType>::HairMPM_ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::HairMPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
-{
+void HairMPM_Data<N, RealType>::HairMPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams) {
     __BNN_UNUSED(jParams);
     MPM_Data<N, RealType>::MPM_ParticleData::addParticles(newPositions, newVelocities);
     ////////////////////////////////////////////////////////////////////////////////
-    localDirections.resize(getNParticles(), MatNxN(1.0));
-    particleType.resize(getNParticles(), static_cast<Int8>(HairParticleType::UnknownType));
-    predictPositions.resize(getNParticles(), VecN(0));
-    predictPositionGradients.resize(getNParticles(), MatNxN(0));
+    localDirections.resize(this->getNParticles(), MatNxN(1.0));
+    particleType.resize(this->getNParticles(), static_cast<Int8>(HairParticleType::UnknownType));
+    predictPositions.resize(this->getNParticles(), VecN(0));
+    predictPositionGradients.resize(this->getNParticles(), MatNxN(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt HairMPM_Data<N, RealType>::HairMPM_ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
+UInt HairMPM_Data<N, RealType>::HairMPM_ParticleData::removeParticles(const Vec_Int8& removeMarker) {
     MPM_Data<N, RealType>::MPM_ParticleData::removeParticles(removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
-    predictPositions.resize(getNParticles(), VecN(0));
-    predictPositionGradients.resize(getNParticles(), MatNxN(0));
+    predictPositions.resize(this->getNParticles(), VecN(0));
+    predictPositionGradients.resize(this->getNParticles(), MatNxN(0));
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::HairMPM_GridData::resize(const VecX<N, UInt>& gridSize)
-{
+void HairMPM_Data<N, RealType>::HairMPM_GridData::resize(const VecX<N, UInt>& gridSize) {
     MPM_Data<N, RealType>::MPM_GridData::resize(gridSize);
     ////////////////////////////////////////////////////////////////////////////////
     auto nNodes = gridSize + VecX<N, UInt>(1u);
@@ -125,8 +117,7 @@ void HairMPM_Data<N, RealType>::HairMPM_GridData::resize(const VecX<N, UInt>& gr
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::HairMPM_GridData::resetGrid()
-{
+void HairMPM_Data<N, RealType>::HairMPM_GridData::resetGrid() {
     MPM_Data<N, RealType>::MPM_GridData::resetGrid();
     ////////////////////////////////////////////////////////////////////////////////
     predictNodePositions.assign(VecN(0));
@@ -134,8 +125,7 @@ void HairMPM_Data<N, RealType>::HairMPM_GridData::resetGrid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::classifyParticles(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
-{
+void HairMPM_Data<N, RealType>::classifyParticles(const SharedPtr<SimulationParameters<N, RealType>>& simParams) {
     assert(HairMPM_particleData != nullptr);
     auto& positions    = HairMPM_particleData->positions;
     auto& particleType = HairMPM_particleData->particleType;
@@ -166,8 +156,7 @@ void HairMPM_Data<N, RealType>::classifyParticles(const SharedPtr<SimulationPara
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::find_d0(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
-{
+void HairMPM_Data<N, RealType>::find_d0(const SharedPtr<SimulationParameters<N, RealType>>& simParams) {
     assert(HairMPM_particleData != nullptr);
     auto& positions    = HairMPM_particleData->positions;
     auto& d0           = HairMPM_particleData->neighborDistances_t0;
@@ -178,8 +167,7 @@ void HairMPM_Data<N, RealType>::find_d0(const SharedPtr<SimulationParameters<N, 
     neighborIdx.resize(positions.size());
 
     Scheduler::parallel_for(positions.size(),
-                            [&](size_t p)
-                            {
+                            [&](size_t p) {
                                 for(size_t i = 0; i < positions.size(); ++i) {
                                     if(p == i ||
                                        glm::length2(positions[p] - positions[i]) > RealType(25.0) * simParams->particleRadiusSqr ||
@@ -212,8 +200,7 @@ void HairMPM_Data<N, RealType>::find_d0(const SharedPtr<SimulationParameters<N, 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::computeLocalDirections()
-{
+void HairMPM_Data<N, RealType>::computeLocalDirections() {
     auto& positions       = HairMPM_particleData->positions;
     auto& neighborIdx     = HairMPM_particleData->neighborIdx_t0;
     auto& particleType    = HairMPM_particleData->particleType;
@@ -222,8 +209,7 @@ void HairMPM_Data<N, RealType>::computeLocalDirections()
     if constexpr(N == 2)
     {
         Scheduler::parallel_for(positions.size(),
-                                [&](size_t p)
-                                {
+                                [&](size_t p) {
                                     if(particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
                                         size_t nNeighbors = neighborIdx[p].size();
                                         if(nNeighbors > 1) {
@@ -254,22 +240,20 @@ void HairMPM_Data<N, RealType>::computeLocalDirections()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::initialize()
-{
+void HairMPM_Data<N, RealType>::initialize() {
     HairMPM_particleData = std::make_shared<HairMPM_ParticleData>();
-    particleData         = std::static_pointer_cast<MPM_ParticleData>(HairMPM_particleData);
+    this->particleData   = std::static_pointer_cast<typename MPM_Data<N, RealType>::MPM_ParticleData>(HairMPM_particleData);
 
     HairMPM_gridData = std::make_shared<HairMPM_GridData>();
-    gridData         = std::static_pointer_cast<MPM_GridData>(HairMPM_gridData);
+    this->gridData   = std::static_pointer_cast<typename MPM_Data<N, RealType>::MPM_GridData>(HairMPM_gridData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void HairMPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
-{
+void HairMPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) {
     MPM_Data<N, RealType>::makeReady(simParams);
     ////////////////////////////////////////////////////////////////////////////////
-    particleData->defaultParticleMass = simParams->defaultParticleMass;
+    this->particleData->defaultParticleMass = simParams->defaultParticleMass;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -282,4 +266,4 @@ template struct HairMPM_Data<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

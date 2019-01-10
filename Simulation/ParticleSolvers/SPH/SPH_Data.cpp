@@ -24,38 +24,35 @@
 #include <ParticleSolvers/SPH/SPH_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // WCSPH_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Parameters<N, RealType>::makeReady()
-{
+void WCSPH_Parameters<N, RealType>::makeReady() {
     ////////////////////////////////////////////////////////////////////////////////
     // explicitly set no grid
-    bUseGrid = false;
+    this->bUseGrid = false;
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters<N, RealType>::makeReady();
-    defaultParticleMass = RealType(pow(RealType(2.0) * this->particleRadius, N)) * materialDensity * particleMassScale;
-    restDensitySqr      = this->materialDensity * this->materialDensity;
-    densityMin          = this->materialDensity / densityVariationRatio;
-    densityMax          = this->materialDensity * densityVariationRatio;
+    this->defaultParticleMass = RealType(pow(RealType(2.0) * this->particleRadius, N)) * this->materialDensity * particleMassScale;
+    restDensitySqr = this->materialDensity * this->materialDensity;
+    densityMin     = this->materialDensity / densityVariationRatio;
+    densityMax     = this->materialDensity * densityVariationRatio;
 
-    kernelRadius    = particleRadius * ratioKernelPRadius;
+    kernelRadius    = this->particleRadius * ratioKernelPRadius;
     kernelRadiusSqr = kernelRadius * kernelRadius;
 
-    nearKernelRadius    = particleRadius * ratioNearKernelPRadius;
+    nearKernelRadius    = this->particleRadius * ratioNearKernelPRadius;
     nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
-{
+void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger) {
     logger->printLog("SPH simulation parameters:");
     SimulationParameters<N, RealType>::printParams(logger);
     logger->printLogIndent("Pressure stiffness: " + Formatters::toString(pressureStiffness));
@@ -70,8 +67,8 @@ void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     logger->newLine();
     logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
 #ifdef __BNN_USE_DEFAULT_PARTICLE_MASS
-    logger->printLogIndent("Particle mass: " + std::to_string(defaultParticleMass));
-    logger->printLogIndent("Rest density: " + std::to_string(materialDensity));
+    logger->printLogIndent("Particle mass: " + std::to_string(this->defaultParticleMass));
+    logger->printLogIndent("Rest density: " + std::to_string(this->materialDensity));
 #else
     logger->printLogIndent("Default particle mass: " + std::to_string(defaultParticleMass));
     logger->printLogIndent("Default rest density: " + std::to_string(materialDensity));
@@ -89,8 +86,7 @@ void WCSPH_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Parameters<N, RealType>::parseParameters(const JParams& jParams)
-{
+void WCSPH_Parameters<N, RealType>::parseParameters(const JParams& jParams) {
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     // accelerations
@@ -126,11 +122,10 @@ void WCSPH_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
+void WCSPH_Data<N, RealType>::ParticleData::reserve(UInt nParticles) {
+    this->positions.reserve(nParticles);
+    this->velocities.reserve(nParticles);
+    this->objectIndex.reserve(nParticles);
     densities.reserve(nParticles);
     tmp_densities.reserve(nParticles);
     neighborInfo.reserve(nParticles);
@@ -142,48 +137,45 @@ void WCSPH_Data<N, RealType>::ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
-{
+void WCSPH_Data<N, RealType>::ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams) {
     __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+    this->positions.insert(this->positions.end(), newPositions.begin(), newPositions.end());
+    this->velocities.insert(this->velocities.end(), newVelocities.begin(), newVelocities.end());
 
-    densities.resize(positions.size(), 0);
-    tmp_densities.resize(positions.size(), 0);
-    neighborInfo.resize(positions.size());
-    accelerations.resize(positions.size(), VecN(0));
-    diffuseVelocities.resize(positions.size(), VecN(0));
+    densities.resize(this->positions.size(), 0);
+    tmp_densities.resize(this->positions.size(), 0);
+    neighborInfo.resize(this->positions.size());
+    accelerations.resize(this->positions.size(), VecN(0));
+    diffuseVelocities.resize(this->positions.size(), VecN(0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<UInt16>(nObjects));
-    ++nObjects;                                         // increase the number of objects
+    this->objectIndex.insert(this->objectIndex.end(), newPositions.size(), static_cast<UInt16>(this->nObjects));
+    ++this->nObjects; // increase the number of objects
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
+UInt WCSPH_Data<N, RealType>::ParticleData::removeParticles(const Vec_Int8& removeMarker) {
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;
     }
 
-    STLHelpers::eraseByMarker(positions,  removeMarker);
-    STLHelpers::eraseByMarker(velocities, removeMarker);
+    STLHelpers::eraseByMarker(this->positions,  removeMarker);
+    STLHelpers::eraseByMarker(this->velocities, removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
-    densities.resize(positions.size());
-    tmp_densities.resize(positions.size());
-    accelerations.resize(positions.size());
-    diffuseVelocities.resize(positions.size());
+    densities.resize(this->positions.size());
+    tmp_densities.resize(this->positions.size());
+    accelerations.resize(this->positions.size());
+    diffuseVelocities.resize(this->positions.size());
     ////////////////////////////////////////////////////////////////////////////////
-    return static_cast<UInt>(removeMarker.size() - positions.size());
+    return static_cast<UInt>(removeMarker.size() - this->positions.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void WCSPH_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
-{
+void WCSPH_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) {
     auto sphParams = std::static_pointer_cast<WCSPH_Parameters<N, RealType>>(simParams);
     __BNN_REQUIRE(sphParams != nullptr);
     kernels.kernelPoly6.setRadius(sphParams->kernelRadius);
@@ -201,4 +193,4 @@ template struct WCSPH_Data<2, Real>;
 template struct WCSPH_Data<3, Real>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

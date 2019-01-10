@@ -24,16 +24,14 @@
 #include <ParticleSolvers/MPM/MPM_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // MPM_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
-{
+void MPM_Parameters<N, RealType>::parseParameters(const JParams& jParams) {
     SimulationParameters<N, RealType>::parseParameters(jParams);
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
@@ -52,11 +50,10 @@ void MPM_Parameters<N, RealType>::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Parameters<N, RealType>::makeReady()
-{
+void MPM_Parameters<N, RealType>::makeReady() {
     SimulationParameters<N, RealType>::makeReady();
-    nExpandCells        = MathHelpers::max(nExpandCells, 2u);
-    defaultParticleMass = MathHelpers::pow(RealType(2.0) * particleRadius, N) * materialDensity;
+    this->nExpandCells        = MathHelpers::max(this->nExpandCells, 2u);
+    this->defaultParticleMass = MathHelpers::pow(RealType(2.0) * this->particleRadius, N) * this->materialDensity;
 
     __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
     if(mu == 0 || lambda == 0) {
@@ -70,14 +67,13 @@ void MPM_Parameters<N, RealType>::makeReady()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
-{
+void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger) {
     logger->printLog(String("MPM parameters:"));
     SimulationParameters<N, RealType>::printParams(logger);
 
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
-    logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+    logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(this->PIC_FLIP_ratio));
     logger->printLogIndent(String("Damping constant: ") + Formatters::toSciString(KDamping));
     logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
     ////////////////////////////////////////////////////////////////////////////////
@@ -86,8 +82,8 @@ void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
     // material parameters
     logger->printLogIndent(String("Youngs modulus/Poissons ratio: ") + std::to_string(YoungsModulus) + String("/") + std::to_string(PoissonsRatio));
     logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
-    logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
-    logger->printLogIndent(String("Particle mass: ") + std::to_string(defaultParticleMass));
+    logger->printLogIndent(String("Material density: ") + std::to_string(this->materialDensity));
+    logger->printLogIndent(String("Particle mass: ") + std::to_string(this->defaultParticleMass));
     ////////////////////////////////////////////////////////////////////////////////
     logger->newLine();
 }
@@ -98,11 +94,10 @@ void MPM_Parameters<N, RealType>::printParams(const SharedPtr<Logger>& logger)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
+void MPM_Data<N, RealType>::MPM_ParticleData::reserve(UInt nParticles) {
+    this->positions.reserve(nParticles);
+    this->velocities.reserve(nParticles);
+    this->objectIndex.reserve(nParticles);
     volumes.reserve(nParticles);
     velocityGrad.reserve(nParticles);
 
@@ -124,74 +119,71 @@ void MPM_Data<N, RealType>::MPM_ParticleData::reserve(UInt nParticles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams)
-{
+void MPM_Data<N, RealType>::MPM_ParticleData::addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams) {
     __BNN_UNUSED(jParams);
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+    this->positions.insert(this->positions.end(), newPositions.begin(), newPositions.end());
+    this->velocities.insert(this->velocities.end(), newVelocities.begin(), newVelocities.end());
 
-    volumes.resize(positions.size(), 0);
-    velocityGrad.resize(positions.size(), MatNxN(0));
+    volumes.resize(this->positions.size(), 0);
+    velocityGrad.resize(this->positions.size(), MatNxN(0));
 
-    deformGrad.resize(positions.size(), MatNxN(1.0));
-    PiolaStress.resize(positions.size(), MatNxN(1.0));
-    CauchyStress.resize(positions.size(), MatNxN(1.0));
+    deformGrad.resize(this->positions.size(), MatNxN(1.0));
+    PiolaStress.resize(this->positions.size(), MatNxN(1.0));
+    CauchyStress.resize(this->positions.size(), MatNxN(1.0));
 
-    energy.resize(positions.size(), 0);
-    energyDensity.resize(positions.size(), 0);
+    energy.resize(this->positions.size(), 0);
+    energyDensity.resize(this->positions.size(), 0);
 
-    gridCoordinate.resize(positions.size(), VecN(0));
-    weightGradients.resize(positions.size() * MathHelpers::pow(4, N), VecN(0));
-    weights.resize(positions.size() * MathHelpers::pow(4, N), 0);
+    gridCoordinate.resize(this->positions.size(), VecN(0));
+    weightGradients.resize(this->positions.size() * MathHelpers::pow(4, N), VecN(0));
+    weights.resize(this->positions.size() * MathHelpers::pow(4, N), 0);
 
-    B.resize(positions.size(), MatNxN(0));
-    D.resize(positions.size(), MatNxN(0));
+    B.resize(this->positions.size(), MatNxN(0));
+    D.resize(this->positions.size(), MatNxN(0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<UInt16>(nObjects));
-    ++nObjects;             // increase the number of objects
+    this->objectIndex.insert(this->objectIndex.end(), newPositions.size(), static_cast<UInt16>(this->nObjects));
+    ++this->nObjects; // increase the number of objects
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt MPM_Data<N, RealType>::MPM_ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
-    __BNN_REQUIRE(removeMarker.size() == positions.size());
+UInt MPM_Data<N, RealType>::MPM_ParticleData::removeParticles(const Vec_Int8& removeMarker) {
+    __BNN_REQUIRE(removeMarker.size() == this->positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;
     }
 
-    STLHelpers::eraseByMarker(positions,    removeMarker);
-    STLHelpers::eraseByMarker(velocities,   removeMarker);
-    STLHelpers::eraseByMarker(objectIndex,  removeMarker);
-    STLHelpers::eraseByMarker(volumes,      removeMarker);
-    STLHelpers::eraseByMarker(velocityGrad, removeMarker);
-    STLHelpers::eraseByMarker(B,            removeMarker);
-    STLHelpers::eraseByMarker(D,            removeMarker);
+    STLHelpers::eraseByMarker(this->positions,   removeMarker);
+    STLHelpers::eraseByMarker(this->velocities,  removeMarker);
+    STLHelpers::eraseByMarker(this->objectIndex, removeMarker);
+    STLHelpers::eraseByMarker(volumes,           removeMarker);
+    STLHelpers::eraseByMarker(velocityGrad,      removeMarker);
+    STLHelpers::eraseByMarker(B,                 removeMarker);
+    STLHelpers::eraseByMarker(D,                 removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
 
-    deformGrad.resize(positions.size());
-    PiolaStress.resize(positions.size());
-    CauchyStress.resize(positions.size());
+    deformGrad.resize(this->positions.size());
+    PiolaStress.resize(this->positions.size());
+    CauchyStress.resize(this->positions.size());
 
-    energy.resize(positions.size());
-    energyDensity.resize(positions.size());
+    energy.resize(this->positions.size());
+    energyDensity.resize(this->positions.size());
 
-    gridCoordinate.resize(positions.size());
-    weightGradients.resize(positions.size() * MathHelpers::pow(4, N));
-    weights.resize(positions.size() * MathHelpers::pow(4, N));
+    gridCoordinate.resize(this->positions.size());
+    weightGradients.resize(this->positions.size() * MathHelpers::pow(4, N));
+    weights.resize(this->positions.size() * MathHelpers::pow(4, N));
 
     ////////////////////////////////////////////////////////////////////////////////
-    return static_cast<UInt>(removeMarker.size() - positions.size());
+    return static_cast<UInt>(removeMarker.size() - this->positions.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>& gridSize)
-{
+void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>& gridSize) {
     auto nNodes = gridSize + VecX<N, UInt>(1u);
     ////////////////////////////////////////////////////////////////////////////////
     active.resize(nNodes, 0);
@@ -209,8 +201,7 @@ void MPM_Data<N, RealType>::MPM_GridData::resize(const VecX<N, UInt>& gridSize)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::MPM_GridData::resetGrid()
-{
+void MPM_Data<N, RealType>::MPM_GridData::resetGrid() {
     active.assign(char(0));
     activeNodeIdx.assign(0u);
     mass.assign(0);
@@ -221,16 +212,14 @@ void MPM_Data<N, RealType>::MPM_GridData::resetGrid()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::initialize()
-{
+void MPM_Data<N, RealType>::initialize() {
     particleData = std::make_shared<MPM_ParticleData>();
     gridData     = std::make_shared<MPM_GridData>();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void MPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams)
-{
+void MPM_Data<N, RealType>::makeReady(const SharedPtr<SimulationParameters<N, RealType>>& simParams) {
     if(simParams->maxNParticles > 0) {
         particleData->reserve(simParams->maxNParticles);
     }
@@ -249,4 +238,4 @@ template struct MPM_Data<2, Real>;
 template struct MPM_Data<3, Real>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

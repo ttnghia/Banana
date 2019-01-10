@@ -28,16 +28,14 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // MPM_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MPM_Parameters : SimulationParameters<N, RealType>
-{
+struct MPM_Parameters : SimulationParameters<N, RealType> {
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
     bool bParticleVolumeComputed = false;
@@ -53,8 +51,8 @@ struct MPM_Parameters : SimulationParameters<N, RealType>
     // material parameters
     RealType YoungsModulus = RealType(0);
     RealType PoissonsRatio = RealType(0);
-    RealType mu            = RealType(0);
-    RealType lambda        = RealType(0);
+    RealType mu     = RealType(0);
+    RealType lambda = RealType(0);
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void parseParameters(const JParams& jParams) override;
@@ -68,10 +66,12 @@ struct MPM_Parameters : SimulationParameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MPM_Data : SimulationData<N, RealType>
-{
-    struct MPM_ParticleData : ParticleSimulationData<N, RealType>
-    {
+struct MPM_Data : SimulationData<N, RealType> {
+    struct MPM_ParticleData : ParticleSimulationData<N, RealType> {
+        ////////////////////////////////////////////////////////////////////////////////
+        // type aliasing
+        __BNN_TYPE_ALIASING
+        ////////////////////////////////////////////////////////////////////////////////
         Vec_RealType volumes;
         Vec_MatNxN   velocityGrad;
 
@@ -92,10 +92,13 @@ struct MPM_Data : SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct MPM_GridData : GridSimulationData<N, RealType>
-    {
+    struct MPM_GridData : GridSimulationData<N, RealType> {
+        ////////////////////////////////////////////////////////////////////////////////
+        // type aliasing
+        __BNN_TYPE_ALIASING
+        ////////////////////////////////////////////////////////////////////////////////
         Array<N, char> active;
-        Array<N, UInt> activeNodeIdx;                // store linearized indices of active nodes
+        Array<N, UInt> activeNodeIdx; // store linearized indices of active nodes
 
         Array<N, RealType> mass;
         Array<N, RealType> energy;
@@ -126,8 +129,7 @@ struct MPM_Data : SimulationData<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class MPM_Objective : public Optimization::Problem<RealType>
-{
+class MPM_Objective : public Optimization::Problem<RealType> {
 public:
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
@@ -152,8 +154,8 @@ public:
 private:
     const MPM_Parameters<N, RealType>& m_SimParams;
     MPM_Data<N, RealType>&             m_SimData;
-    RealType                           m_timestep;
+    RealType m_timestep;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

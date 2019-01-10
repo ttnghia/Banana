@@ -24,19 +24,16 @@
 #include <ParticleSolvers/PICFluid/APIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct AFLIP_Data : FLIP_Data<N, RealType>
-{
-    virtual void initialize() override
-    {
-        APIC_particleData = std::make_shared<APIC_Data<N, RealType>::APIC_ParticleData>();
-        particleData      = std::static_pointer_cast<PIC_ParticleData>(APIC_particleData);
+struct AFLIP_Data : FLIP_Data<N, RealType> {
+    virtual void initialize() override {
+        this->APIC_particleData = std::make_shared<typename APIC_Data<N, RealType>::APIC_ParticleData>();
+        this->particleData      = std::static_pointer_cast<typename PIC_Data<N, RealType>::PIC_ParticleData>(this->APIC_particleData);
 
-        FLIP_gridData = std::make_shared<FLIP_GridData>();
-        gridData      = std::static_pointer_cast<PIC_GridData>(FLIP_gridData);
+        this->FLIP_gridData = std::make_shared<typename FLIP_Data<N, RealType>::FLIP_GridData>();
+        this->gridData      = std::static_pointer_cast<typename PIC_Data<N, RealType>::PIC_GridData>(this->FLIP_gridData);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -44,4 +41,4 @@ struct AFLIP_Data : FLIP_Data<N, RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

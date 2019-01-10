@@ -26,12 +26,10 @@
 #include <SimulationObjects/ParticleGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::SimulationObjects
-{
+namespace Banana::SimulationObjects {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool ParticleGenerator<N, RealType>::isActive(UInt currentFrame)
-{
+bool ParticleGenerator<N, RealType>::isActive(UInt currentFrame) {
     if(m_ActiveFrames.size() > 0 &&
        m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
         return false;
@@ -44,8 +42,7 @@ bool ParticleGenerator<N, RealType>::isActive(UInt currentFrame)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType>::parseParameters(const JParams& jParams)
-{
+void ParticleGenerator<N, RealType>::parseParameters(const JParams& jParams) {
     JSONHelpers::readVector(jParams, v0(), "InitialVelocity");
     JSONHelpers::readValue(jParams, samplingRatio(),      "SamplingRatio"); // recommend: 0.85-0.9 for 2D, 0.8-0.85 for 3D
     JSONHelpers::readValue(jParams, jitterRatio(),        "JitterRatio");
@@ -59,36 +56,46 @@ void ParticleGenerator<N, RealType>::parseParameters(const JParams& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects)
-{
+void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects) {
     if(this->m_bObjReady) {
         return;
     }
-    m_ParticleRadius = particleRadius;
-    m_Spacing        = particleRadius * RealType(2.0) * samplingRatio();
-    m_SpacingSqr     = m_Spacing * m_Spacing;
+    this->m_ParticleRadius = particleRadius;
+    m_Spacing    = particleRadius * RealType(2.0) * samplingRatio();
+    m_SpacingSqr = m_Spacing * m_Spacing;
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particles from cache, if existed
     if(this->loadParticlesFromFile()) {
-        m_bObjReady = true;
+        this->m_bObjReady = true;
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
 
-    auto jitter = m_JitterRatio * m_ParticleRadius;
+    auto jitter = m_JitterRatio * this->m_ParticleRadius;
     auto boxMin = this->m_GeometryObj->getAABBMin();
     auto boxMax = this->m_GeometryObj->getAABBMax();
-    auto pGrid  = NumberHelpers::createGrid<UInt>(boxMin, boxMax, m_Spacing);
-    m_Grid.setGrid(boxMin - RealType(4.0) * m_ParticleRadius, boxMax + RealType(4.0) * m_ParticleRadius, RealType(4.0) * m_ParticleRadius);
+
+    auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(this->m_GeometryObj);
+    if(box != nullptr) {
+        boxMin = box->boxMin() - VecX<N, RealType>(RealType(4.0) * this->m_ParticleRadius);
+        boxMax = box->boxMax() + VecX<N, RealType>(RealType(4.0) * this->m_ParticleRadius);
+    }
+
+    auto pGrid = NumberHelpers::createGrid<UInt>(boxMin, boxMax, m_Spacing);
+    m_Grid.setGrid(boxMin - RealType(4.0) * this->m_ParticleRadius, boxMax + RealType(4.0) * this->m_ParticleRadius, RealType(4.0) * this->m_ParticleRadius);
+
+    printf("min: %f, %f, %f,   max: %f, %f, %f\n", boxMin[0], boxMin[1], boxMin[2],
+           boxMax[0], boxMax[1], boxMax[2]
+           );
+
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
     m_Lock.resize(m_Grid.getNCells());
-    m_ObjParticles.reserve(glm::compMul(pGrid));
+    this->m_ObjParticles.reserve(glm::compMul(pGrid));
     ////////////////////////////////////////////////////////////////////////////////
     ParallelObjects::SpinLock lock;
     Scheduler::parallel_for(pGrid,
-                            [&](auto... idx)
-                            {
+                            [&](auto... idx) {
                                 VecN ppos = boxMin + VecX<N, RealType>(idx...) * m_Spacing;
                                 for(auto& bdObj : boundaryObjects) {
                                     if(bdObj->signedDistance(ppos) < 0) {
@@ -98,15 +105,15 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
                                 auto geoPhi = this->m_GeometryObj->signedDistance(ppos);
                                 if(geoPhi < 0) {
                                     if(geoPhi < -jitter) {
-                                        ppos += jitter * glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
+                                        ppos += jitter * glm::normalize(NumberHelpers::fRand11<RealType>::template vrnd<VecN>());
                                     }
                                     lock.lock();
-                                    m_ObjParticles.push_back(ppos);
+                                    this->m_ObjParticles.push_back(ppos);
                                     lock.unlock();
                                 }
                             });
     ////////////////////////////////////////////////////////////////////////////////
-    m_Relaxer = std::make_shared<ParticleTools::SPHBasedRelaxation<N, RealType>>(this->m_NameID, m_ObjParticles, this->m_GeometryObj, boundaryObjects);
+    m_Relaxer = std::make_shared<ParticleTools::SPHBasedRelaxation<N, RealType>>(this->m_NameID, this->m_ObjParticles, this->m_GeometryObj, boundaryObjects);
     __BNN_TODO;
     //generatePositions(positions, particleRadius);
     //relaxPositions(positions, particleRadius);
@@ -120,8 +127,7 @@ void ParticleGenerator<N, RealType>::buildObject(RealType particleRadius, const 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType>::relaxPositions(Vector<VecN>& positions, RealType particleRadius)
-{
+void ParticleGenerator<N, RealType>::relaxPositions(Vector<VecN>& positions, RealType particleRadius) {
     __BNN_UNUSED(positions);
     __BNN_UNUSED(particleRadius);
 
@@ -147,15 +153,13 @@ void ParticleGenerator<N, RealType>::relaxPositions(Vector<VecN>& positions, Rea
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType>::collectNeighborParticles(const Vec_VecN& positions)
-{
+void ParticleGenerator<N, RealType>::collectNeighborParticles(const Vec_VecN& positions) {
     for(auto& cell : m_ParticleIdxInCell.data()) {
         cell.resize(0);
     }
     Scheduler::parallel_for(static_cast<UInt>(positions.size()),
-                            [&](UInt p)
-                            {
-                                auto cellIdx = m_Grid.getCellIdx<Int>(positions[p]);
+                            [&](UInt p) {
+                                auto cellIdx = m_Grid.template getCellIdx<Int>(positions[p]);
                                 if(m_Grid.isValidCell(cellIdx)) {
                                     m_Lock(cellIdx).lock();
                                     m_ParticleIdxInCell(cellIdx).push_back(p);
@@ -170,4 +174,4 @@ template class ParticleGenerator<2, Real>;
 template class ParticleGenerator<3, Real>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::SimulationObjects
+} // end namespace Banana::SimulationObjects

@@ -26,16 +26,14 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // MSS_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MSS_Parameters : SimulationParameters<N, RealType>
-{
+struct MSS_Parameters : SimulationParameters<N, RealType> {
     ////////////////////////////////////////////////////////////////////////////////
     // MSS parameters
     IntegrationScheme integrationScheme = IntegrationScheme::NewmarkBeta;
@@ -68,17 +66,16 @@ struct MSS_Parameters : SimulationParameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct MSS_Data : SimulationData<N, RealType>
-{
-    struct MSS_ParticleData : ParticleSimulationData<N, RealType>
-    {
+struct MSS_Data : SimulationData<N, RealType> {
+    struct MSS_ParticleData : ParticleSimulationData<N, RealType> {
+        __BNN_TYPE_ALIASING
         ////////////////////////////////////////////////////////////////////////////////
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_STIFFNESS
         RealType defaultSpringStiffness = RealType(1e3);
-        RealType defaultSpringDamping   = RealType(1e1);
+        RealType defaultSpringDamping = RealType(1e1);
 #else
         Vector<RealType> objectSpringStiffness;
-        RealType         springDampingRatio = RealType(1e-2);
+        RealType springDampingRatio = RealType(1e-2);
 #endif
 
 #ifdef __BNN_USE_DEFAULT_PARTICLE_SPRING_HORIZON
@@ -108,6 +105,8 @@ struct MSS_Data : SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
+    __BNN_TYPE_ALIASING
+    ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<MSS_ParticleData> particleData = nullptr;
     BlockPCGSolver<MatNxN>      pcgSolver;
 
@@ -117,4 +116,4 @@ struct MSS_Data : SimulationData<N, RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

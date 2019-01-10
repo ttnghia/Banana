@@ -24,21 +24,17 @@
 #include <ParticleSolvers/PICFluid/PIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct FLIP_Data : PIC_Data<N, RealType>
-{
-    struct FLIP_GridData : PIC_Data<N, RealType>::PIC_GridData
-    {
+struct FLIP_Data : PIC_Data<N, RealType> {
+    struct FLIP_GridData : PIC_Data<N, RealType>::PIC_GridData {
         Array<N, RealType> dVels[N];
         Array<N, RealType> oldVels[N];
         //Array3SpinLock uLock, vLock, wLock;
 
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void resize(const VecX<N, UInt>& gridSize) override
-        {
+        virtual void resize(const VecX<N, UInt>& gridSize) override {
             PIC_Data<N, RealType>::PIC_GridData::resize(gridSize);
             for(Int d = 0; d < N; ++d) {
                 auto extra = VecX<N, UInt>(0);
@@ -49,20 +45,18 @@ struct FLIP_Data : PIC_Data<N, RealType>
             }
         }
 
-        void backupGridVelocity()
-        {
+        void backupGridVelocity() {
             for(Int d = 0; d < N; ++d) {
-                oldVels[d].copyDataFrom(velocities[d]);
+                oldVels[d].copyDataFrom(this->velocities[d]);
             }
         }
     };
 
-    virtual void initialize() override
-    {
-        particleData = std::make_shared<PIC_ParticleData>();
+    virtual void initialize() override {
+        this->particleData = std::make_shared<typename PIC_Data<N, RealType>::PIC_ParticleData>();
 
-        FLIP_gridData = std::make_shared<FLIP_GridData>();
-        gridData      = std::static_pointer_cast<PIC_GridData>(FLIP_gridData);
+        FLIP_gridData  = std::make_shared<FLIP_GridData>();
+        this->gridData = std::static_pointer_cast<typename PIC_Data<N, RealType>::PIC_GridData>(FLIP_gridData);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -70,4 +64,4 @@ struct FLIP_Data : PIC_Data<N, RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

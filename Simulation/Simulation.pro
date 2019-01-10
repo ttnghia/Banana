@@ -30,6 +30,14 @@ HEADERS = $$files(*.h, true)
 HEADERS += $$files(*.hpp, true)
 SOURCES += $$files(*.cpp, true)
 
+INCLUDEPATH += $$PWD/PartioBgeo
+
 DISTFILES += \
     Simulation.pri \
     Simulation.licenseheader
+
+CONFIG(debug, debug|release) {
+    DESTDIR = $$PWD/../Build/Debug
+} else {
+    DESTDIR = $$PWD/../Build/Release
+}

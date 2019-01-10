@@ -28,16 +28,14 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // PIC_Parameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct PIC_Parameters : SimulationParameters<N, RealType>
-{
+struct PIC_Parameters : SimulationParameters<N, RealType> {
     RealType sdfRadius; // this radius is used for computing fluid signed distance field
     bool     bExitIfPressureProjectionFailed = false;
     ////////////////////////////////////////////////////////////////////////////////
@@ -52,10 +50,12 @@ struct PIC_Parameters : SimulationParameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct PIC_Data : SimulationData<N, RealType>
-{
-    struct PIC_ParticleData : ParticleSimulationData<N, RealType>
-    {
+struct PIC_Data : SimulationData<N, RealType> {
+    struct PIC_ParticleData : ParticleSimulationData<N, RealType> {
+        ////////////////////////////////////////////////////////////////////////////////
+        // type aliasing
+        __BNN_TYPE_ALIASING
+        ////////////////////////////////////////////////////////////////////////////////
         Vec_VecN   aniKernelCenters;
         Vec_MatNxN aniKernelMatrices;
         virtual void reserve(UInt nParticles) override;
@@ -64,8 +64,10 @@ struct PIC_Data : SimulationData<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct PIC_GridData : GridSimulationData<N, RealType>
-    {
+    struct PIC_GridData : GridSimulationData<N, RealType> {
+        ////////////////////////////////////////////////////////////////////////////////
+        // type aliasing
+        __BNN_TYPE_ALIASING
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
         Array<N, RealType> velocities[N];
@@ -104,4 +106,4 @@ struct PIC_Data : SimulationData<N, RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

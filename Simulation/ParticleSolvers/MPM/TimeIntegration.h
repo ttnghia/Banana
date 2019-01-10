@@ -401,7 +401,7 @@ public:
             scale2 = minTol;
         }
 
-        const Real fd = sqrt(machEps * scale2);
+        const Real fd = std::sqrt(machEps * scale2);
 
         for(int i = 0; i < Nnode(); ++i) {
             vPert[i] = velN[i] + fd * s[i];
@@ -463,7 +463,7 @@ public:
 
             const Real rhoOld2 = rhoNew2;
             rhoNew2 = dot(res, res);
-            const Real ratio = sqrt(rhoNew2) / rhoNewton;
+            const Real ratio = std::sqrt(rhoNew2) / rhoNewton;
 
             if(ratio < minRatio) {
                 minRatio = ratio;
@@ -495,7 +495,7 @@ public:
                 P[i] = res[i] + beta * P[i];
             }
 
-            cgfile << ct++ << tab << sqrt(rhoNew2) / rhoNewton << tab << dot(P, P) << tab << dot(Q,
+            cgfile << ct++ << tab << std::sqrt(rhoNew2) / rhoNewton << tab << dot(P, P) << tab << dot(Q,
                                                                                                  Q) << tab << dotpq << nwl;
         }
 
@@ -509,7 +509,7 @@ public:
              const nodeArray<Vector3>& zc,
              nodeArray<Vector3>&       vi) :
         sysT(p, c, v0, zc),
-        ratioGMRES(comLineArg("gmTol", sqrt(machEps))),
+        ratioGMRES(comLineArg("gmTol", std::sqrt(machEps))),
         slack(comLineArg("CGslack", 100.)), // further work needed to get this tolerance right
         iterLim(comLineArg("iterLim", 256)),
         Zcurr(zc),
@@ -578,7 +578,7 @@ public:
                 ++countBasis;
             }
 
-            Hess[Kiter + 1][Kiter] = sqrt(dot(qRes[Kiter + 1], qRes[Kiter + 1]));
+            Hess[Kiter + 1][Kiter] = std::sqrt(dot(qRes[Kiter + 1], qRes[Kiter + 1]));
 
             for(int i = 0; i < Nnode(); ++i) {
                 qRes[Kiter + 1][i] /= Hess[Kiter + 1][Kiter];
@@ -590,7 +590,7 @@ public:
 
             const Real h0 = Hess[Kiter][Kiter];
             const Real h1 = Hess[Kiter + 1][Kiter];
-            const Real nu = sqrt(h0 * h0 + h1 * h1);
+            const Real nu = std::sqrt(h0 * h0 + h1 * h1);
             cGiv[Kiter]        = Hess[Kiter][Kiter] / nu;
             sGiv[Kiter]        = Hess[Kiter + 1][Kiter] / nu;
             Hess[Kiter][Kiter] = cGiv[Kiter] * Hess[Kiter][Kiter] + sGiv[Kiter] * Hess[Kiter +
@@ -643,7 +643,7 @@ public:
           const nodeArray<Vector3>& zc,
           nodeArray<Vector3>&       vi) :
         sysT(p, c, v0, zc),
-        ratioGMRES(comLineArg("gmTol", sqrt(machEps))),
+        ratioGMRES(comLineArg("gmTol", std::sqrt(machEps))),
         Nstor(comLineArg("Nstor", 128)),
         Zcurr(zc),
         vInc(vi)
@@ -705,7 +705,7 @@ public:
             cst.revert();
             pch.makeExternalForces(delt);
             solverT::makeRes(velN, Zcurr, delt);
-            Real rhoCurr = sqrt(dot(Zcurr, Zcurr));
+            Real rhoCurr = std::sqrt(dot(Zcurr, Zcurr));
             Real rhoPrev = huge;
 
             if(Nload == 0) {
@@ -748,7 +748,7 @@ public:
 
                     solverT::makeRes(vTry, Zcurr, delt);
                     rhoPrev = rhoCurr;
-                    rhoCurr = sqrt(dot(Zcurr, Zcurr));
+                    rhoCurr = std::sqrt(dot(Zcurr, Zcurr));
                     newtFile << rhoCurr / rhoStart << tab << rhoCurr / rhoPrev << tab << Kiter + 1 << endl;
                     report.progress("rhoCurr/rhoStart", rhoCurr / rhoStart);
                     report.progress("rhoCurr/rhoPrev",  rhoCurr / rhoPrev);
@@ -784,7 +784,7 @@ public:
                  constitutiveSC&           c,
                  const nodeArray<Vector3>& v0) :
         solverT(p, c, v0, Zcurr, vInc),
-        ratioNewton(comLineArg("NewtTol", sqrt(machEps))),
+        ratioNewton(comLineArg("NewtTol", std::sqrt(machEps))),
         ignoreResidualBelow(comLineArg("ignore", tiny)),
         rhoStart(-huge),
         NewtLim(comLineArg("NewtLim", 8)),

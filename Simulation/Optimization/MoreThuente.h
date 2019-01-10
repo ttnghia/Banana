@@ -151,7 +151,7 @@ public:
                 info = 2;
             }
 
-            if((f <= ftest1) & (fabs(dg) <= gtol * (-dginit))) {
+            if((f <= ftest1) & (std::abs(dg) <= gtol * (-dginit))) {
                 info = 1;
             }
 
@@ -184,11 +184,11 @@ public:
             }
 
             if(brackt) {
-                if(fabs(sty - stx) >= RealType(0.66) * width1) {
+                if(std::abs(sty - stx) >= RealType(0.66) * width1) {
                     stp = stx + RealType(0.5) * (sty - stx);
                 }
                 width1 = width;
-                width  = fabs(sty - stx);
+                width  = std::abs(sty - stx);
             }
         }
 
@@ -207,7 +207,7 @@ public:
             return -1;
         }
 
-        RealType sgnd = dp * (dx / fabs(dx));
+        RealType sgnd = dp * (dx / std::abs(dx));
 
         RealType stpf = 0;
         RealType stpc = 0;
@@ -218,7 +218,7 @@ public:
             bound = true;
             RealType theta = RealType(3.0) * (fx - fp) / (stp - stx) + dx + dp;
             RealType s     = std::max(theta, std::max(dx, dp));
-            RealType gamma = s * sqrt((theta / s) * (theta / s) - (dx / s) * (dp / s));
+            RealType gamma = s * std::sqrt((theta / s) * (theta / s) - (dx / s) * (dp / s));
             if(stp < stx) {
                 gamma = -gamma;
             }
@@ -227,7 +227,7 @@ public:
             RealType r = p / q;
             stpc = stx + r * (stp - stx);
             stpq = stx + ((dx / ((fx - fp) / (stp - stx) + dx)) / RealType(2.0)) * (stp - stx);
-            if(fabs(stpc - stx) < fabs(stpq - stx)) {
+            if(std::abs(stpc - stx) < std::abs(stpq - stx)) {
                 stpf = stpc;
             } else {
                 stpf = stpc + (stpq - stpc) / 2;
@@ -238,7 +238,7 @@ public:
             bound = false;
             RealType theta = 3 * (fx - fp) / (stp - stx) + dx + dp;
             RealType s     = std::max(theta, std::max(dx, dp));
-            RealType gamma = s * sqrt((theta / s) * (theta / s) - (dx / s) * (dp / s));
+            RealType gamma = s * std::sqrt((theta / s) * (theta / s) - (dx / s) * (dp / s));
             if(stp > stx) {
                 gamma = -gamma;
             }
@@ -248,18 +248,18 @@ public:
             RealType r = p / q;
             stpc = stp + r * (stx - stp);
             stpq = stp + (dp / (dp - dx)) * (stx - stp);
-            if(fabs(stpc - stp) > fabs(stpq - stp)) {
+            if(std::abs(stpc - stp) > std::abs(stpq - stp)) {
                 stpf = stpc;
             } else {
                 stpf = stpq;
             }
             brackt = true;
-        } else if(fabs(dp) < fabs(dx)) {
+        } else if(std::abs(dp) < std::abs(dx)) {
             info  = 3;
             bound = 1;
             RealType theta = 3 * (fx - fp) / (stp - stx) + dx + dp;
             RealType s     = std::max(theta, std::max(dx, dp));
-            RealType gamma = s * sqrt(std::max(static_cast<RealType>(0.), (theta / s) * (theta / s) - (dx / s) * (dp / s)));
+            RealType gamma = s * std::sqrt(std::max(static_cast<RealType>(0.), (theta / s) * (theta / s) - (dx / s) * (dp / s)));
             if(stp > stx) {
                 gamma = -gamma;
             }
@@ -275,13 +275,13 @@ public:
             }
             stpq = stp + (dp / (dp - dx)) * (stx - stp);
             if(brackt) {
-                if(fabs(stp - stpc) < fabs(stp - stpq)) {
+                if(std::abs(stp - stpc) < std::abs(stp - stpq)) {
                     stpf = stpc;
                 } else {
                     stpf = stpq;
                 }
             } else {
-                if(fabs(stp - stpc) > fabs(stp - stpq)) {
+                if(std::abs(stp - stpc) > std::abs(stp - stpq)) {
                     stpf = stpc;
                 } else {
                     stpf = stpq;
@@ -293,7 +293,7 @@ public:
             if(brackt) {
                 RealType theta = 3 * (fp - fy) / (sty - stp) + dy + dp;
                 RealType s     = std::max(theta, std::max(dy, dp));
-                RealType gamma = s * sqrt((theta / s) * (theta / s) - (dy / s) * (dp / s));
+                RealType gamma = s * std::sqrt((theta / s) * (theta / s) - (dy / s) * (dp / s));
                 if(stp > sty) {
                     gamma = -gamma;
                 }

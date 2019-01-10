@@ -21,46 +21,40 @@
 
 #pragma once
 
-#include <ParticleSolvers/PicFluid/PIC_Data.h>
+#include <ParticleSolvers/PICFluid/PIC_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct APIC_Data : PIC_Data<N, RealType>
-{
-    struct APIC_ParticleData : PIC_Data<N, RealType>::PIC_ParticleData
-    {
+struct APIC_Data : PIC_Data<N, RealType> {
+    struct APIC_ParticleData : PIC_Data<N, RealType>::PIC_ParticleData {
+        __BNN_TYPE_ALIASING
         ////////////////////////////////////////////////////////////////////////////////
         // affine matrices
         Vec_MatXxX<N, RealType> C;
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void reserve(UInt nParticles) override
-        {
+        virtual void reserve(UInt nParticles) override {
             PIC_Data<N, RealType>::PIC_ParticleData::reserve(nParticles);
             C.reserve(nParticles);
         }
 
-        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override
-        {
+        virtual void addParticles(const Vec_VecN& newPositions, const Vec_VecN& newVelocities, const JParams& jParams = JParams()) override {
             PIC_Data<N, RealType>::PIC_ParticleData::addParticles(newPositions, newVelocities);
-            C.resize(getNParticles(), MatXxX<N, RealType>(0));
+            C.resize(this->getNParticles(), MatXxX<N, RealType>(0));
         }
 
-        virtual UInt removeParticles(const Vec_Int8& removeMarker) override
-        {
+        virtual UInt removeParticles(const Vec_Int8& removeMarker) override {
             STLHelpers::eraseByMarker(C, removeMarker);
             return PIC_Data<N, RealType>::PIC_ParticleData::removeParticles(removeMarker);
         }
     };
 
-    virtual void initialize() override
-    {
-        APIC_particleData = std::make_shared<APIC_ParticleData>();
-        particleData      = std::static_pointer_cast<PIC_ParticleData>(APIC_particleData);
+    virtual void initialize() override {
+        APIC_particleData  = std::make_shared<APIC_ParticleData>();
+        this->particleData = std::static_pointer_cast<typename PIC_Data<N, RealType>::PIC_ParticleData>(APIC_particleData);
 
-        gridData = std::make_shared<PIC_GridData>();
+        this->gridData = std::make_shared<typename PIC_Data<N, RealType>::PIC_GridData>();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -68,4 +62,4 @@ struct APIC_Data : PIC_Data<N, RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers

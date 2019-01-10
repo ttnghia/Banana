@@ -32,16 +32,13 @@
 #include <cmath>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::Optimization
-{
+namespace Banana::Optimization {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class MatrixX
-{
+class MatrixX {
 public:
     template<class IndexType>
-    MatrixX(IndexType nRows, IndexType nCols, RealType defaultVal = RealType(0)) : m_nRows(static_cast<UInt>(nRows)), m_nCols(static_cast<UInt>(nCols))
-    {
+    MatrixX(IndexType nRows, IndexType nCols, RealType defaultVal = RealType(0)) : m_nRows(static_cast<UInt>(nRows)), m_nCols(static_cast<UInt>(nCols)) {
         m_Data.resize(nCols);
         for(auto& col : m_Data) {
             col.resize(m_nRows, defaultVal);
@@ -52,21 +49,20 @@ public:
     auto nCols() const { return m_nCols; }
 
     template<class IndexType> const auto& col(IndexType col) const { return m_Data[col]; }
-    template<class IndexType> auto&       col(IndexType col) { return m_Data[col]; }
+    template<class IndexType> auto& col(IndexType col) { return m_Data[col]; }
 
     const auto& data() const { return m_Data; }
-    auto&       data() { return m_Data; }
+    auto& data() { return m_Data; }
 
 private:
-    UInt                      m_nRows = 0;
-    UInt                      m_nCols = 0;
-    Vector<Vector<RealType> > m_Data;
+    UInt                     m_nRows = 0;
+    UInt                     m_nCols = 0;
+    Vector<Vector<RealType>> m_Data;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename RealType, Int Order>
-class ISolver
-{
+class ISolver {
 public:
     ISolver() = default;
 
@@ -92,13 +88,10 @@ protected:
     Vector<RealType> m_Runtimes;
 
     RealType m_GradTol  = RealType(1e-4);
-    RealType m_InitHess = RealType(1.0);         // only used by lbfgs
+    RealType m_InitHess = RealType(1.0); // only used by lbfgs
     size_t   m_MaxIter  = 100000;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-
-
 
 /**
  * @brief  LBFGS implementation based on Nocedal & Wright Numerical Optimization book (Section 7.2)
@@ -108,16 +101,13 @@ protected:
  */
 
 template<class RealType>
-class LBFGSSolver : public ISolver<RealType, 1>
-{
+class LBFGSSolver : public ISolver<RealType, 1> {
 public:
-    void minimize(Problem<RealType>& objFunc, Vector<RealType>& x0)
-    {
-        size_t   m     = std::min(m_MaxIter, size_t(10));
+    void minimize(Problem<RealType>& objFunc, Vector<RealType>& x0) {
+        size_t   m     = std::min(this->m_MaxIter, size_t(10));
         size_t   nVars = static_cast<UInt>(x0.size());
-        RealType eps_g = m_GradTol;
+        RealType eps_g = this->m_GradTol;
         RealType eps_x = RealType(1e-8);
-
 
         auto s = MatrixX<RealType>(nVars, m);
         auto y = MatrixX<RealType>(nVars, m);
@@ -128,12 +118,12 @@ public:
 
         //	RealType f = objFunc.value(x0);
         RealType f              = objFunc.valueGradient(x0, grad);
-        RealType gamma_k        = m_InitHess;
+        RealType gamma_k        = this->m_InitHess;
         RealType gradNorm       = 0;
         RealType alpha_init     = std::min(RealType(1.0), RealType(1.0) / ParallelSTL::maxAbs(grad));
         size_t   globIter       = 0;
-        size_t   maxiter        = m_MaxIter;
-        RealType new_hess_guess = 1.0;         // only changed if we converged to a solution
+        size_t   maxiter        = this->m_MaxIter;
+        RealType new_hess_guess = 1.0; // only changed if we converged to a solution
 
         for(size_t k = 0; k < maxiter; k++) {
             x_old    = x0;
@@ -171,14 +161,13 @@ public:
             const RealType rate = MoreThuente<RealType, decltype(objFunc), 1>::linesearch(x0, ParallelBLAS::multiply(RealType(-1.0), q), objFunc, alpha_init);
             //		const RealType rate = linesearch(objFunc, x0, -q, f, grad, 1.0);
 
-
             ParallelBLAS::addScaled(-rate, q, x0);
             //x0 = x0 - rate * q;
 
             if(ParallelBLAS::norm2(ParallelBLAS::minus(x_old, x0)) < eps_x) {
                 //			std::cout << "x diff norm: " << (x_old - x0).squaredNorm() << std::endl;
                 break;
-            }                 // usually this is a problem so exit
+            } // usually this is a problem so exit
 
             //		f = objFunc.value(x0);
             f = objFunc.valueGradient(x0, grad);
@@ -213,13 +202,12 @@ public:
                    y.rightCols(1)     = y_temp;*/
             }
 
-
             gamma_k    = ParallelBLAS::dotProduct(s_temp, y_temp) / ParallelBLAS::dotProduct(y_temp, y_temp);
             alpha_init = 1.0;
         }
 
-        m_nIters   = globIter;
-        m_InitHess = new_hess_guess;
+        this->m_nIters   = globIter;
+        this->m_InitHess = new_hess_guess;
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

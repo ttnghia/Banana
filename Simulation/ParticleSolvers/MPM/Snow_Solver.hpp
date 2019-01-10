@@ -238,7 +238,7 @@ Int Snow2DSolver::saveFrameData()
 Real Snow2DSolver::timestepCFL()
 {
     Real maxVel      = ParallelSTL::maxNorm2<2, Real>(particleData().velocities);
-    Real CFLTimeStep = maxVel > Real(Tiny<RealType>()) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge<RealType>();
+    Real CFLTimeStep = maxVel > Real(Tiny<RealType>()) ? solverParams().CFLFactor * solverParams().cellSize / std::sqrt(maxVel) : Huge<RealType>();
     return MathHelpers::min(MathHelpers::max(CFLTimeStep, solverParams().minTimestep), solverParams().maxTimestep);
 }
 
@@ -913,7 +913,7 @@ void Snow2DSolver::updateParticlePositions(Real timestep)
                                 //    Real mag2Grad = glm::length2(grad);
 
                                 //    if(mag2Grad > Tiny<RealType>())
-                                //        ppos -= phiVal * grad / sqrt(mag2Grad);
+                                //        ppos -= phiVal * grad / std::sqrt(mag2Grad);
                                 //}
 
                                 particleData().positions[p] = ppos;

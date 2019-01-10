@@ -156,12 +156,12 @@ void runTest(Int testID)
 
     if(bReadAttrs[0]) {
         REQUIRE(particleReader.getFixedAttribute(attrNames[0], readDataFloat));
-        errorf = fabs(readDataFloat - dataFloat);
+        errorf = std::abs(readDataFloat - dataFloat);
         logger->printLog("Read float, err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
 
         REQUIRE(particleReader.getFixedAttribute(attrNames[0], &readDataFloat));
-        errorf = fabs(readDataFloat - dataFloat);
+        errorf = std::abs(readDataFloat - dataFloat);
         logger->printLog("Read float using pointer, err = " + Formatters::toSciString(errorf));
         REQUIRE(errorf < Tiny<RealType>());
     }

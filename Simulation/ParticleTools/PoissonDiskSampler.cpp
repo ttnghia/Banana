@@ -45,7 +45,7 @@ void PoissonDiskSampler::sampleMesh(const UInt numVertices, const Vec3r* vertice
     m_numTrials    = numTrials;
     m_distanceNorm = distanceNorm;
 
-    m_cellSize = m_r / sqrt(3.0);
+    m_cellSize = m_r / std::sqrt(3.0);
 
     // Init sampling
     m_maxArea = Tiny<Real>();
@@ -135,7 +135,7 @@ void PoissonDiskSampler::generateInitialPointSet(const UInt numVertices, const V
                 #pragma omp for schedule(static)
         for(Int i = 0; i < (Int)m_initialInfoVec.size(); i++) {
             // Drawing random barycentric coordinates
-            Real rn1 = sqrt(m_uniform_distribution1(m_generator));
+            Real rn1 = std::sqrt(m_uniform_distribution1(m_generator));
             Real bc1 = 1.0 - rn1;
             Real bc2 = m_uniform_distribution1(m_generator) * rn1;
             Real bc3 = 1.0 - bc1 - bc2;
@@ -301,7 +301,7 @@ bool PoissonDiskSampler::checkCell(const std::unordered_map<Vec3i, HashEntry, Ce
                 Real  c2 = glm::dot(m_faceNormals[info.ID], v);
 
                 dist = glm::length(iPI.pos - info.pos);
-                if(fabs(c1 - c2) > 0.00001f) {
+                if(std::abs(c1 - c2) > 0.00001f) {
                     dist *= (asin(c1) - asin(c2)) / (c1 - c2);
                 } else {
                     dist /= (sqrt(1.0 - c1 * c1));

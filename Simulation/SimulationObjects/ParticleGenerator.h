@@ -22,30 +22,28 @@
 #pragma once
 
 #include <Banana/Grid/Grid.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <ParticleTools/SPHBasedRelaxation.h>
 #include <SimulationObjects/SimulationObject.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <unordered_set>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::SimulationObjects
-{
+namespace Banana::SimulationObjects {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace DefaultFunctions
-{
+namespace DefaultFunctions {
 inline auto velocityGenerator = [](const auto& pos, const auto& v0) { __BNN_UNUSED(pos); return v0; };
 inline auto postProcessFunc = []() {};
-};
+}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class ParticleGenerator : public SimulationObject<N, RealType>
-{
+class ParticleGenerator : public SimulationObject<N, RealType> {
     ////////////////////////////////////////////////////////////////////////////////
     // type aliasing
     __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
 public:
-    ParticleGenerator()                                    = delete;
+    ParticleGenerator() = delete;
     ParticleGenerator(const JParams& jParams, bool bCSGObj = false) : SimulationObject<N, RealType>(jParams, bCSGObj) { parseParameters(jParams); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -62,20 +60,20 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     auto& relaxer() { assert(m_Relaxer != nullptr); return *m_Relaxer; }
     ////////////////////////////////////////////////////////////////////////////////
-    const auto& getObjParticles() const { return m_ObjParticles; }
-    const auto& generatedPositions() const { return m_GeneratedPositions; }
-    const auto& generatedVelocities() const { return m_GeneratedVelocities; }
-    auto        generatedConstraintObject() const { return m_GeneratedConstraintObj; }
+    const auto& getObjParticles() const { return this->m_ObjParticles; }
+    const auto& generatedPositions() const { return this->m_GeneratedPositions; }
+    const auto& generatedVelocities() const { return this->m_GeneratedVelocities; }
+    auto        generatedConstraintObject() const { return this->m_GeneratedConstraintObj; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual void buildObject(RealType particleRadius, const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects = Vector<SharedPtr<BoundaryObject<N, Real>>>());
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateParticles(const Vec_VecN& currentPositions                               = Vec_VecN(),
+    UInt generateParticles(const Vec_VecN& currentPositions = Vec_VecN(),
                            const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjs = Vector<SharedPtr<BoundaryObject<N, Real>>>(),
-                           UInt frame                                                     = 0u,
-                           VelocityGenerator&& velGenerator                               = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
-                           PostProcessFunc&& postProcess                                  = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
+                           UInt frame = 0u,
+                           VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
+                           PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
@@ -104,18 +102,18 @@ protected:
 
     std::unordered_set<UInt> m_ActiveFrames;
 
-    UInt                                     m_NGeneratedParticles = 0;
-    Vec_VecN                                 m_GeneratedPositions;
-    Vec_VecN                                 m_GeneratedVelocities;
+    UInt     m_NGeneratedParticles = 0;
+    Vec_VecN m_GeneratedPositions;
+    Vec_VecN m_GeneratedVelocities;
     SharedPtr<SimulationObject<N, RealType>> m_GeneratedConstraintObj;
 
-    Grid<N, RealType>                                         m_Grid;
-    Array<N, Vec_UInt>                                        m_ParticleIdxInCell;
-    Array<N, ParallelObjects::SpinLock>                       m_Lock;
+    Grid<N, RealType>                   m_Grid;
+    Array<N, Vec_UInt>                  m_ParticleIdxInCell;
+    Array<N, ParallelObjects::SpinLock> m_Lock;
     SharedPtr<ParticleTools::SPHBasedRelaxation<N, RealType>> m_Relaxer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::SimulationObjects
+} // end namespace Banana::SimulationObjects
 
 #include <SimulationObjects/ParticleGenerator.hpp>

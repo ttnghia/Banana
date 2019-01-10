@@ -22,8 +22,7 @@
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
+namespace Banana {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 Banana::AnisotropicKernelGenerator<N, RealType>::AnisotropicKernelGenerator(UInt        nParticles,
@@ -31,8 +30,7 @@ Banana::AnisotropicKernelGenerator<N, RealType>::AnisotropicKernelGenerator(UInt
                                                                             RealType    particleRadius,
                                                                             RealType    defaultSpraySize,
                                                                             RealType    kernelRatio) :
-    m_nParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
-{
+    m_nParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize) {
     m_KernelRadius    = kernelRatio * particleRadius;
     m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
     m_KernelRadiusInv = RealType(1.0) / m_KernelRadius;
@@ -45,8 +43,7 @@ Banana::AnisotropicKernelGenerator<N, RealType>::AnisotropicKernelGenerator(UInt
 template<Int N, class RealType>
 void AnisotropicKernelGenerator<N, RealType>::setParameters(RealType positionBlending /*= RealType(0.5)*/,
                                                             RealType axisRatio /*= RealType(8.0)*/,
-                                                            UInt     neighborThredhold /*= 25u*/)
-{
+                                                            UInt     neighborThredhold /*= 25u*/) {
     m_PositionBlending  = positionBlending;
     m_AxisRatio         = axisRatio;
     m_NeighborThredhold = neighborThredhold;
@@ -54,16 +51,14 @@ void AnisotropicKernelGenerator<N, RealType>::setParameters(RealType positionBle
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void AnisotropicKernelGenerator<N, RealType>::computeAniKernels(Vec_VecN& kernelCenters, Vec_MatNxN& kernelMatrices)
-{
+void AnisotropicKernelGenerator<N, RealType>::computeAniKernels(Vec_VecN& kernelCenters, Vec_MatNxN& kernelMatrices) {
     kernelCenters.resize(m_nParticles);
     kernelMatrices.resize(m_nParticles);
     ////////////////////////////////////////////////////////////////////////////////
     m_NSearch->find_neighbors();
     const auto& d0 = m_NSearch->point_set(0);
     Scheduler::parallel_for(m_nParticles,
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto ppos   = m_Particles[p];
                                 auto sumW   = RealType(1.0);
                                 auto pposWM = ppos;
@@ -83,8 +78,8 @@ void AnisotropicKernelGenerator<N, RealType>::computeAniKernels(Vec_VecN& kernel
                                     return;
                                 }
                                 ////////////////////////////////////////////////////////////////////////////////
-                                sumW   = RealType(1.0);
-                                auto C = MatNxN(0);
+                                sumW = RealType(1.0);
+                                MatNxN C(0);
                                 for(auto q : d0.neighbors(0, p)) {
                                     auto qpos = m_Particles[q];
                                     auto xpq  = qpos - pposWM;
@@ -101,7 +96,7 @@ void AnisotropicKernelGenerator<N, RealType>::computeAniKernels(Vec_VecN& kernel
                                 for(Int i = 1; i < N; ++i) {
                                     S[i] = MathHelpers::max(S[i], S[0] / m_AxisRatio);
                                 }
-                                S                *= std::cbrt(RealType(1.0) / glm::compMul(S)); // scale so that det(covariance) == 1
+                                S *= std::cbrt(RealType(1.0) / glm::compMul(S)); // scale so that det(covariance) == 1
                                 kernelMatrices[p] = U * LinaHelpers::diagMatrix(S) * glm::transpose(V);
                             });
 }

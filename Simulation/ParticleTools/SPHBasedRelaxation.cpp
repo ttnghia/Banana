@@ -23,12 +23,10 @@
 #include <Banana/Utils/NumberHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleTools
-{
+namespace Banana::ParticleTools {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool SPHBasedRelaxation<N, RealType>::relaxPositions()
-{
+bool SPHBasedRelaxation<N, RealType>::relaxPositions() {
     updateParams();
     UInt iter = 1;
     for(; iter <= relaxParams()->maxIters; ++iter) {
@@ -41,10 +39,8 @@ bool SPHBasedRelaxation<N, RealType>::relaxPositions()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::updateParams()
-{
-    logger().printRunTime("Update parameters", [&]()
-                          {
+void SPHBasedRelaxation<N, RealType>::updateParams() {
+    logger().printRunTime("Update parameters", [&]() {
                               relaxParams()->initialJitter       = relaxParams()->particleRadius * relaxParams()->initialJitterRatio;
                               relaxParams()->kernelRadius        = relaxParams()->particleRadius * RealType(4.0);
                               relaxParams()->kernelRadiusSqr     = relaxParams()->kernelRadius * relaxParams()->kernelRadius;
@@ -72,8 +68,7 @@ void SPHBasedRelaxation<N, RealType>::updateParams()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
-{
+void SPHBasedRelaxation<N, RealType>::iterate(UInt iter) {
     if(!m_bJittered) {
         logger().printRunTime("Jitter particles", [&]() { jitterParticles(); });
         m_bJittered = true;
@@ -98,8 +93,7 @@ void SPHBasedRelaxation<N, RealType>::iterate(UInt iter)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool SPHBasedRelaxation<N, RealType>::checkConvergence(UInt iter)
-{
+bool SPHBasedRelaxation<N, RealType>::checkConvergence(UInt iter) {
     if((iter % relaxParams()->checkFrequency) == 0) {
         computeMinDistanceRatio();
         if(getMinDistanceRatio() > relaxParams()->intersectThreshold) {
@@ -114,8 +108,7 @@ bool SPHBasedRelaxation<N, RealType>::checkConvergence(UInt iter)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::reportFailed(UInt iter)
-{
+void SPHBasedRelaxation<N, RealType>::reportFailed(UInt iter) {
     logger().printLogPadding("Relaxation failed after reaching maxIters = " + Formatters::toString(relaxParams()->maxIters));
     if(((iter - 1) % relaxParams()->checkFrequency) != 0) {
         computeMinDistanceRatio();
@@ -125,15 +118,13 @@ void SPHBasedRelaxation<N, RealType>::reportFailed(UInt iter)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio()
-{
+void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio() {
     static Vec_RealType m_MinNeighborDistanceSqr;
     m_MinNeighborDistanceSqr.resize(particleData().getNParticles());
     ////////////////////////////////////////////////////////////////////////////////
     m_NearNSearch->find_neighbors();
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto min_d2           = std::numeric_limits<RealType>::max();
                                 const auto& ppos      = (*particleData().positions)[p];
                                 const auto& neighbors = m_NearNSearch->point_set(0).neighbors(0, p);
@@ -154,8 +145,7 @@ void SPHBasedRelaxation<N, RealType>::computeMinDistanceRatio()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
-{
+RealType SPHBasedRelaxation<N, RealType>::timestepCFL() {
     RealType maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
     RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? relaxParams()->CFLFactor * (RealType(2.0) * relaxParams()->particleRadius / maxVel) : Huge<RealType>();
     return MathHelpers::clamp(CFLTimeStep, RealType(1e-6), RealType(1.0 / 30.0));
@@ -163,15 +153,13 @@ RealType SPHBasedRelaxation<N, RealType>::timestepCFL()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::jitterParticles()
-{
+void SPHBasedRelaxation<N, RealType>::jitterParticles() {
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto& ppos = (*particleData().positions)[p];
                                 VecN pJitter;
                                 for(Int i = 0; i < 10; ++i) {
-                                    pJitter = ppos + relaxParams()->initialJitter * glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
+                                    pJitter = ppos + relaxParams()->initialJitter * glm::normalize(NumberHelpers::fRand11<RealType>::template vrnd<VecN>());
                                     if(m_GeometryObj->signedDistance(pJitter) < 0) {
                                         break;
                                     }
@@ -182,11 +170,9 @@ void SPHBasedRelaxation<N, RealType>::jitterParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::identifyBoundaryParticles(RealType timestep)
-{
+void SPHBasedRelaxation<N, RealType>::identifyBoundaryParticles(RealType timestep) {
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto pvel   = particleData().velocities[p];
                                 auto ppos   = (*particleData().positions)[p] + pvel * timestep;
                                 auto phiVal = m_GeometryObj->signedDistance(ppos);
@@ -200,12 +186,10 @@ void SPHBasedRelaxation<N, RealType>::identifyBoundaryParticles(RealType timeste
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::computeViscosity()
-{
+void SPHBasedRelaxation<N, RealType>::computeViscosity() {
     const auto& fluidPointSet = m_FarNSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
@@ -213,7 +197,7 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                 const auto& pvel = particleData().velocities[p];
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
-                                VecN diffVelFluid             = VecN(0);
+                                VecN diffVelFluid = VecN(0);
                                 for(size_t i = 0; i < fluidNeighborList.size(); ++i) {
                                     const auto q        = fluidNeighborList[i];
                                     const auto& qvel    = particleData().velocities[q];
@@ -226,8 +210,8 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
                                         diffVelFluid += (RealType(1.0) / qdensity) * kernels().W(r) * (qvel - pvel);
                                     }
                                 }
-                                diffVelFluid                     *= relaxParams()->viscosity;
-                                diffVelFluid                     *= relaxParams()->particleMass;
+                                diffVelFluid *= relaxParams()->viscosity;
+                                diffVelFluid *= relaxParams()->particleMass;
                                 particleData().diffuseVelocity[p] = diffVelFluid;
                             });
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().diffuseVelocity[p]; });
@@ -235,11 +219,9 @@ void SPHBasedRelaxation<N, RealType>::computeViscosity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
-{
+void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep) {
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto pvel = particleData().velocities[p];
                                 auto ppos = (*particleData().positions)[p] + pvel * timestep;
                                 for(auto& obj : m_BoundaryObjects) {
@@ -251,8 +233,8 @@ void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
                                     auto grad     = m_GeometryObj->gradSignedDistance(ppos);
                                     auto mag2Grad = glm::length2(grad);
                                     if(mag2Grad > Tiny<RealType>()) {
-                                        grad                        /= sqrt(mag2Grad);
-                                        ppos                        -= phiVal * grad;
+                                        grad /= std::sqrt(mag2Grad);
+                                        ppos -= phiVal * grad;
                                         particleData().velocities[p] = glm::reflect(pvel, grad) * (relaxParams()->boundaryRestitution);
                                     }
                                 }
@@ -263,10 +245,8 @@ void SPHBasedRelaxation<N, RealType>::moveParticles(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::computeNeighborRelativePositions()
-{
-    auto computeRelativePositions = [&](const auto& ppos, const auto& neighborList, const auto& positions, auto& pNeighborInfo)
-                                    {
+void SPHBasedRelaxation<N, RealType>::computeNeighborRelativePositions() {
+    auto computeRelativePositions = [&](const auto& ppos, const auto& neighborList, const auto& positions, auto& pNeighborInfo) {
                                         for(UInt q : neighborList) {
                                             const auto& qpos = positions[q];
                                             const auto  r    = qpos - ppos;
@@ -276,8 +256,7 @@ void SPHBasedRelaxation<N, RealType>::computeNeighborRelativePositions()
     ////////////////////////////////////////////////////////////////////////////////
     const auto& fluidPointSet = m_FarNSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 const auto& ppos    = (*particleData().positions)[p];
                                 auto& pNeighborInfo = particleData().neighborInfo[p];
                                 pNeighborInfo.resize(0);
@@ -288,10 +267,8 @@ void SPHBasedRelaxation<N, RealType>::computeNeighborRelativePositions()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::computeDensity()
-{
-    auto computeDensity = [&](auto& density, const auto& neighborInfo)
-                          {
+void SPHBasedRelaxation<N, RealType>::computeDensity() {
+    auto computeDensity = [&](auto& density, const auto& neighborInfo) {
                               for(const auto& qInfo : neighborInfo) {
                                   const auto r = VecN(qInfo);
                                   density += kernels().W(r);
@@ -299,8 +276,7 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
                           };
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
@@ -322,12 +298,10 @@ void SPHBasedRelaxation<N, RealType>::computeDensity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::collectNeighborDensities()
-{
+void SPHBasedRelaxation<N, RealType>::collectNeighborDensities() {
     const auto& fluidPointSet = m_FarNSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
                                     return;
@@ -335,7 +309,7 @@ void SPHBasedRelaxation<N, RealType>::collectNeighborDensities()
                                 ////////////////////////////////////////////////////////////////////////////////
                                 const auto& neighborIdx = fluidPointSet.neighbors(0, p);
                                 for(size_t i = 0; i < neighborIdx.size(); ++i) {
-                                    auto q              = neighborIdx[i];
+                                    auto q = neighborIdx[i];
                                     pNeighborInfo[i][N] = particleData().densities[q];
                                 }
                             });
@@ -343,16 +317,13 @@ void SPHBasedRelaxation<N, RealType>::collectNeighborDensities()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::computeForces()
-{
-    auto particlePressure = [&](auto density)
-                            {
+void SPHBasedRelaxation<N, RealType>::computeForces() {
+    auto particlePressure = [&](auto density) {
                                 auto error = RealType(MathHelpers::pow7(density / 1000.0)) - RealType(1.0);
                                 if(error < 0) { error = 0; }
                                 return error * (relaxParams()->pressureStiffness / density / density);
                             };
-    auto shortRangeRepulsiveAccel = [&](const auto& r)
-                                    {
+    auto shortRangeRepulsiveAccel = [&](const auto& r) {
                                         const auto r2 = glm::length2(r);
                                         auto       w  = RealType(1.0) - r2 / relaxParams()->nearKernelRadiusSqr;
                                         if(w < MEpsilon<RealType>()) {
@@ -361,15 +332,14 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                             return relaxParams()->nearPressureStiffness * w * kernels().gradNearW(r);
                                         } else {
                                             auto rnd_w  = RealType(1.0) - relaxParams()->overlapThresholdSqr / relaxParams()->nearKernelRadiusSqr;
-                                            auto rndDir = glm::normalize(NumberHelpers::fRand11<RealType>::vrnd<VecN>());
+                                            auto rndDir = glm::normalize(NumberHelpers::fRand11<RealType>::template vrnd<VecN>());
                                             return relaxParams()->nearPressureStiffness * (w * kernels().gradNearW(r) + rnd_w * rndDir);
                                         }
                                     };
     ////////////////////////////////////////////////////////////////////////////////
     const auto& fluidPointSet = m_FarNSearch->point_set(0);
     Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
+                            [&](UInt p) {
                                 VecN paccel(0);
                                 const auto& pNeighborInfo = particleData().neighborInfo[p];
                                 if(pNeighborInfo.size() == 0) {
@@ -384,8 +354,8 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
                                     const auto qpressure      = particlePressure(qdensity);
                                     const auto pressureAccel  = (ppressure + qpressure) * kernels().gradW(r);
                                     const auto repulsiveAccel = shortRangeRepulsiveAccel(r) / qdensity / qdensity;
-                                    paccel                   += pressureAccel;
-                                    paccel                   += repulsiveAccel;
+                                    paccel += pressureAccel;
+                                    paccel += repulsiveAccel;
                                 }
                                 particleData().accelerations[p] = paccel * relaxParams()->particleMass;
                             });
@@ -393,8 +363,7 @@ void SPHBasedRelaxation<N, RealType>::computeForces()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SPHBasedRelaxation<N, RealType>::updateVelocity(RealType timestep)
-{
+void SPHBasedRelaxation<N, RealType>::updateVelocity(RealType timestep) {
     Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += particleData().accelerations[p] * timestep; });
 }
 

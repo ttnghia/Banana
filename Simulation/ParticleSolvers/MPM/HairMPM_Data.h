@@ -24,8 +24,7 @@
 #include <ParticleSolvers/MPM/MPM_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::ParticleSolvers
-{
+namespace Banana::ParticleSolvers {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -33,12 +32,11 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct HairMPM_Parameters : public MPM_Parameters<N, RealType>
-{
+struct HairMPM_Parameters : public MPM_Parameters<N, RealType> {
     ////////////////////////////////////////////////////////////////////////////////
     // hair stretch processing
     HairStretchProcessingMethod stretchProcessingMethod = HairStretchProcessingMethod::Projection;
-    RealType                    KSpring                 = RealType(1e8);
+    RealType                    KSpring = RealType(1e8);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -59,10 +57,9 @@ struct HairMPM_Parameters : public MPM_Parameters<N, RealType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct HairMPM_Data : MPM_Data<N, RealType>
-{
-    struct HairMPM_ParticleData : MPM_Data<N, RealType>::MPM_ParticleData
-    {
+struct HairMPM_Data : MPM_Data<N, RealType> {
+    struct HairMPM_ParticleData : MPM_Data<N, RealType>::MPM_ParticleData {
+        __BNN_TYPE_ALIASING
         Vec_MatNxN localDirections;
         Vec_Int8   particleType;
         Vec_VecN   predictPositions;
@@ -74,14 +71,16 @@ struct HairMPM_Data : MPM_Data<N, RealType>
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct HairMPM_GridData :  MPM_Data<N, RealType>::MPM_GridData
-    {
+    struct HairMPM_GridData :  MPM_Data<N, RealType>::MPM_GridData {
+        __BNN_TYPE_ALIASING
         Array<N, VecN> predictNodePositions;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const VecX<N, UInt>& gridSize);
         virtual void resetGrid() override;
     };
 
+    ////////////////////////////////////////////////////////////////////////////////
+    __BNN_TYPE_ALIASING
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<HairMPM_ParticleData> HairMPM_particleData = nullptr;
     SharedPtr<HairMPM_GridData>     HairMPM_gridData     = nullptr;
@@ -97,4 +96,4 @@ struct HairMPM_Data : MPM_Data<N, RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace Banana::ParticleSolvers
+} // end namespace Banana::ParticleSolvers
