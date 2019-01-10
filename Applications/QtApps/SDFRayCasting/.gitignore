@@ -1,0 +1,5 @@
+**/.vs
+**/*.db
+**/*.opendb
+Capture/*.*
+SDFRayCasting.pro.user
